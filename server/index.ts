@@ -49,17 +49,17 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     // Allow all Replit domains
     if (origin.includes('.replit.app') || origin.includes('.replit.dev') || origin.includes('replit.com')) {
       return callback(null, true);
     }
-    
+
     // Allow localhost for development
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
       return callback(null, true);
     }
-    
+
     callback(null, true);
   },
   credentials: true,
@@ -69,8 +69,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from the root directory
-app.use(express.static(path.join(__dirname, '..')));
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Setup routes
 const setupServer = async () => {

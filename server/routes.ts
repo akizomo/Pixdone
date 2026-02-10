@@ -22,14 +22,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use((req, res, next) => {
     const host = req.get('host');
     const protocol = req.get('x-forwarded-proto') || req.protocol;
-    
+
     // 古いドメインからのアクセスを検出
     if (host === 'pixtask.replit.app') {
       const newUrl = `https://PixDone.replit.app${req.originalUrl}`;
       console.log(`🔄 Redirecting from legacy URL: ${protocol}://${host}${req.originalUrl} -> ${newUrl}`);
       return res.redirect(301, newUrl);
     }
-    
+
     next();
   });
 
@@ -38,9 +38,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Test database connection as part of health check
       await db.execute('SELECT 1 as test');
-      
-      res.status(200).json({ 
-        status: 'healthy', 
+
+      res.status(200).json({
+        status: 'healthy',
         message: 'PixDone server is running',
         database: 'connected',
         timestamp: new Date().toISOString(),
@@ -48,8 +48,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("API Health check failed:", error);
-      res.status(500).json({ 
-        status: 'unhealthy', 
+      res.status(500).json({
+        status: 'unhealthy',
         message: 'Database connection failed',
         error: error.message,
         timestamp: new Date().toISOString()
@@ -62,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Test database connection
       await db.execute('SELECT 1 as test');
-      
+
       // Test basic storage functionality
       const healthCheck = {
         status: 'healthy',
@@ -73,12 +73,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         environment: process.env.NODE_ENV || 'development',
         uptime: process.uptime()
       };
-      
+
       res.status(200).json(healthCheck);
     } catch (error) {
       console.error("Health check failed:", error);
-      res.status(500).json({ 
-        status: 'unhealthy', 
+      res.status(500).json({
+        status: 'unhealthy',
         message: 'Health check failed',
         database: 'disconnected',
         error: error.message,
@@ -96,7 +96,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error("❌ Replit Auth setup failed:", error);
     throw new Error(`Replit Auth setup failed: ${error.message}`);
   }
-  
+
   // Google Auth setup with error handling
   try {
     console.log("🔐 Setting up Google authentication...");
@@ -107,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Google auth is optional, don't fail the server startup
     console.warn("⚠️ Google Auth unavailable, continuing without it");
   }
-  
+
   // Email Auth setup with error handling
   try {
     console.log("🔐 Setting up email authentication...");
@@ -239,12 +239,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve the frontend application
   app.get('/app', (req, res) => {
-    res.sendFile('index.html', { root: path.join(__dirname, '..') });
+    res.sendFile('index.html', { root: path.join(__dirname, '..', 'public') });
   });
 
   // Success! All routes registered
   console.log("✅ All API routes registered successfully");
-  
+
   const httpServer = createServer(app);
   return httpServer;
 }

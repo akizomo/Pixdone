@@ -1,9 +1,12 @@
 {
   "name": "workspace",
   "version": "1.0.0",
-  "main": "animations.js",
+  "main": "api/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node dist/server/index.js",
+    "dev": "tsx server/index.ts"
   },
   "keywords": [],
   "author": "",
