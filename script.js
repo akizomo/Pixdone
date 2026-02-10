@@ -1,0 +1,5993 @@
+/**
+ * PixDone - Task Management App
+ * Features celebration animations and encouraging messages
+ */
+
+class PixDoneApp {
+    constructor() {
+        this.lists = [];
+        this.currentListId = 'default';
+        this.listIdCounter = 1;
+        this.taskIdCounter = 1;
+        this.isInputVisible = false;
+        this.isCompletedExpanded = false;
+        this.selectedDate = null;
+        this.currentTask = null;
+        this.selectedRepeat = 'none';
+        this.lastComboTime = 0;
+        this.comboCount = 0;
+        this.isMobileModalOpen = false;
+        this.comicEffects = new ComicEffectsManager();
+        this.taskAnimationEffects = new TaskAnimationEffects();
+        this.user = null;
+        this.isAuthenticated = false;
+        this.editingListId = null;
+        this.deletingListId = null;
+        this.contextMenuListId = null;
+        this.tasksUnsubscribe = null;
+        this.listsUnsubscribe = null;
+        this.isCreatingMyTasksList = false;
+        this.isCreatingSmashList = false;
+        
+        // Tutorial tasks for unauthenticated users
+        this.tutorialTasks = [
+            {
+                id: 'tutorial-1',
+                title: 'Try completing this task!',
+                completed: false,
+                dueDate: null,
+                priority: 'normal',
+                category: 'general',
+                description: '',
+                listId: 'default'
+            },
+            {
+                id: 'tutorial-2',
+                title: 'Each time you complete a task, a different effect appears. How many can you find?',
+                completed: false,
+                dueDate: null,
+                priority: 'normal',
+                category: 'general',
+                description: '',
+                listId: 'default'
+            },
+            {
+                id: 'tutorial-3',
+                title: 'Try the Smash List for even more fun!',
+                completed: false,
+                dueDate: null,
+                priority: 'normal',
+                category: 'general',
+                description: '',
+                listId: 'default'
+            },
+            {
+                id: 'tutorial-4',
+                title: 'Log in to manage your own personalized task list!',
+                completed: false,
+                dueDate: null,
+                priority: 'normal',
+                category: 'general',
+                description: '',
+                listId: 'default'
+            }
+        ];
+        
+        // Smash List dummy tasks
+        this.smashListTasks = [
+            "Fix the coffee machine",
+            "Buy milk and bread",
+            "Call mom",
+            "Clean the garage",
+            "Organize email inbox",
+            "Fix the leaky faucet",
+            "Plan weekend trip",
+            "Read 30 pages of a book",
+            "Go for a 30-minute walk",
+            "Backup computer files",
+            "Wash the car",
+            "Water the plants",
+            "Take out the trash",
+            "Pay electricity bill",
+            "Vacuum the living room",
+            "Sort through old clothes",
+            "Exercise for 20 minutes",
+            "Check bank balance",
+            "Update phone contacts",
+            "Charge all devices",
+            "Finish the laundry",
+            "Make grocery list",
+            "Review monthly budget",
+            "Call the dentist",
+            "Fix the broken drawer",
+            "Learn a new word",
+            "Stretch for 10 minutes",
+            "Write in journal",
+            "Reply to messages",
+            "Dust the furniture",
+            "Organize desk drawer",
+            "Check car oil",
+            "Practice a hobby",
+            "Send thank you note",
+            "Delete old photos",
+            "Clean the windows",
+            "Update software",
+            "Prepare lunch",
+            "Call old friend",
+            "Do 10 pushups",
+            "Organize bookshelf",
+            "Check weather forecast",
+            "Trim fingernails",
+            "Unsubscribe from emails",
+            "Take a 5-minute break",
+            "Smile at yourself",
+            "Drink a glass of water",
+            "Take a deep breath",
+            "High-five yourself",
+            "Say something nice"
+        ];
+        
+        this.initializeApp();
+        this.setupGlobalAccess();
+    }
+    
+    initializeApp() {
+        console.log('[PixDone] Initializing PixDone application...');
+        
+        // DOM読み込み完了を待つ
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('[PixDone] DOM content loaded, proceeding with setup...');
+                this.setupAfterDOMLoaded();
+            });
+        } else {
+            console.log('[PixDone] DOM already ready, proceeding with setup...');
+            this.setupAfterDOMLoaded();
+        }
+    }
+    
+    setupAfterDOMLoaded() {
+        // 新しいコンポーネント管理システムの初期化
+        this.initializeComponentSystem();
+        
+        // 従来のシステムも並行して動作
+        this.setupFirebaseAuthListener();
+        this.setupEventListeners();
+        this.setupTouchGestures();
+        // Mobile modal now handled by new system
+        try {
+            this.comicEffects = new ComicEffectsManager();
+        } catch (error) {
+            console.warn('[PixDone] Failed to initialize ComicEffectsManager:', error);
+            this.comicEffects = null;
+        }
+        // Global access setup moved to setupGlobalAccess()
+        
+        // UI要素の検証を遅延実行
+        setTimeout(() => {
+            this.validateUIComponents();
+        }, 1000);
+        
+        // 認証前でもデフォルトリストを初期化
+        this.ensureDefaultList();
+        this.loadTasks();
+        this.loadLists();
+        this.renderListTabs();
+        this.renderTasks();
+        this.updateCompletedCount();
+        this.updateListTitle();
+    }
+    
+    /**
+     * 新しいコンポーネント管理システムの初期化
+     */
+    initializeComponentSystem() {
+        // 新システムは複雑すぎるため、直接修復を実行
+        console.log('[PixDone] Skipping new component system, using direct fix...');
+        this.fixMobileModalDirectly();
+    }
+    
+    /**
+     * 既存システムと新システムの統合
+     */
+    integrateWithComponentManager() {
+        // 新システムは複雑すぎるため、シンプルな直接修復を実行
+        console.log('[PixDone] Applying direct modal fix...');
+        this.fixMobileModalDirectly();
+    }
+    
+    fixMobileModalDirectly() {
+        console.log('[PixDone] Creating completely new modal system');
+        
+        // 既存のモーダルを完全に削除
+        // Remove any existing modal
+        const existingModal = document.getElementById('newMobileModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        // モーダルを非表示にする関数
+        this.hideMobileModal = () => {
+            const modal = document.getElementById('newMobileModal');
+            if (modal) {
+                modal.style.transform = 'translateY(100%)';
+                setTimeout(() => {
+                    modal.remove();
+                }, 300);
+            }
+            console.log('[PixDone] New modal hidden');
+        };
+        
+        // 新しいモーダルを作成
+        this.showMobileModal = () => {
+            console.log('[PixDone] Creating new modal');
+            
+            // 既存のモーダルがあれば削除
+            const existing = document.getElementById('newMobileModal');
+            if (existing) {
+                existing.remove();
+            }
+            
+            // 新しいモーダルを作成（フルスクリーン）
+            const modal = document.createElement('div');
+            modal.id = 'newMobileModal';
+            modal.style.cssText = `
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: var(--bg-primary) !important;
+                z-index: 99999 !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                box-sizing: border-box !important;
+                font-family: Inter, sans-serif !important;
+                display: flex !important;
+                flex-direction: column !important;
+                transform: translateY(100%) !important;
+                transition: transform 0.3s ease !important;
+            `;
+            
+            // モーダルの内容を作成
+            modal.innerHTML = `
+                <!-- スクロール可能なコンテンツ部分 -->
+                <div style="flex: 1 !important; overflow-y: auto !important; padding: 20px !important; padding-bottom: 100px !important;">
+                    <!-- Task Title -->
+                    <div style="margin-bottom: 16px !important;">
+                        <div id="newTaskTitle" contenteditable="true" placeholder="Enter task title" 
+                               style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; font-size: 16px !important; box-sizing: border-box !important; display: block !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-family: Inter, sans-serif !important; outline: none !important; font-weight: 500 !important; image-rendering: pixelated !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; min-height: 20px !important; white-space: pre-wrap !important; word-wrap: break-word !important;"></div>
+                    </div>
+                    
+                    <!-- Task Details -->
+                    <div style="margin-bottom: 16px !important;">
+                        <div id="newTaskDetails" contenteditable="true" placeholder="Details (optional)" 
+                                  style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; font-size: 16px !important; box-sizing: border-box !important; display: block !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-family: Inter, sans-serif !important; min-height: 80px !important; max-height: 120px !important; outline: none !important; font-weight: 500 !important; image-rendering: pixelated !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; white-space: pre-wrap !important; word-wrap: break-word !important; overflow-y: auto !important;"></div>
+                    </div>
+                    
+                    <!-- Date Selection -->
+                    <div style="display: flex !important; gap: 8px !important; flex-wrap: wrap !important;">
+                        <button id="newTodayBtn" class="new-date-btn" style="flex: 1 !important; padding: 8px 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; min-width: 80px !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; min-height: 44px !important; image-rendering: pixelated !important; font-weight: 500 !important;">Today</button>
+                        <button id="newTomorrowBtn" class="new-date-btn" style="flex: 1 !important; padding: 8px 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; min-width: 80px !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; min-height: 44px !important; image-rendering: pixelated !important; font-weight: 500 !important;">Tomorrow</button>
+                        <button id="newCalendarBtn" class="new-date-btn" style="flex: 1 !important; padding: 8px 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; min-width: 80px !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; min-height: 44px !important; image-rendering: pixelated !important; font-weight: 500 !important;"><i class="fa fa-calendar"></i> Pick</button>
+                        <button id="newRepeatBtn" class="new-repeat-btn" style="flex: 1 !important; padding: 8px 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; min-width: 80px !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; min-height: 44px !important; image-rendering: pixelated !important; font-weight: 500 !important;"><i class="fa fa-repeat"></i> Repeat</button>
+                    </div>
+                    
+                    <!-- Hidden native date picker -->
+                    <input type="date" id="newNativeDatePicker" style="display: none !important;" />
+                    
+                    <!-- Hidden storage -->
+                    <input type="hidden" id="newRepeatInterval" value="none" />
+                </div>
+                
+                <!-- 固定ボタン -->
+                <div id="newModalBottomButtons" style="position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 999999 !important; background: var(--bg-primary) !important; border-top: 2px solid var(--border-color) !important; padding: 20px !important; box-shadow: 0 -4px 0px var(--shadow-color) !important; backdrop-filter: blur(10px) !important; -webkit-backdrop-filter: blur(10px) !important; image-rendering: pixelated !important; min-height: 80px !important;">
+                    <div style="display: flex !important; justify-content: space-between !important; align-items: center !important; flex-wrap: nowrap !important; width: 100% !important;">
+                        <div style="flex: 1 !important; display: flex !important; justify-content: flex-start !important; align-items: center !important;">
+                            <button id="newCancelBtn" style="padding: 12px 16px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; font-size: 14px !important; font-weight: 500 !important; cursor: pointer !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; min-height: 44px !important; flex-shrink: 0 !important; white-space: nowrap !important; display: inline-block !important; background: var(--bg-secondary) !important; color: var(--text-secondary) !important; border-color: var(--border-color) !important;">Cancel</button>
+                        </div>
+                        <div style="flex: 1 !important; display: flex !important; justify-content: flex-end !important; align-items: center !important; gap: 12px !important;">
+                            <button id="newDeleteBtn" style="padding: 12px 16px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; font-size: 14px !important; font-weight: 500 !important; cursor: pointer !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; min-height: 44px !important; flex-shrink: 0 !important; white-space: nowrap !important; display: none !important; background: var(--bg-secondary) !important; color: var(--danger-color) !important; border-color: var(--border-color) !important;">Delete</button>
+                            <button id="newSaveBtn" style="padding: 12px 16px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; font-size: 14px !important; font-weight: 500 !important; cursor: pointer !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; min-height: 44px !important; flex-shrink: 0 !important; white-space: nowrap !important; display: inline-block !important; background: var(--accent-color) !important; color: white !important; border-color: var(--accent-color) !important;">Save</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // DOMに追加
+            document.body.appendChild(modal);
+            
+            // アニメーションでモーダルを表示
+            setTimeout(() => {
+                modal.style.transform = 'translateY(0)';
+            }, 10);
+            
+            // 強化されたキーボード検知システム
+            const bottomButtons = document.getElementById('newModalBottomButtons');
+            if (bottomButtons) {
+                let initialViewportHeight = window.innerHeight;
+                let keyboardHeight = 0;
+                
+                // 複数の方法でキーボード検知
+                const detectKeyboard = () => {
+                    const currentViewportHeight = window.innerHeight;
+                    const documentHeight = document.documentElement.clientHeight;
+                    
+                    console.log('Keyboard detection:', {
+                        currentViewportHeight,
+                        initialViewportHeight,
+                        documentHeight,
+                        visualViewport: window.visualViewport ? {
+                            height: window.visualViewport.height,
+                            width: window.visualViewport.width
+                        } : null
+                    });
+                    
+                    // Method 1: Visual Viewport API (最も確実)
+                    if (window.visualViewport) {
+                        keyboardHeight = window.innerHeight - window.visualViewport.height;
+                        const isKeyboardOpen = keyboardHeight > 50;
+                        console.log('Visual Viewport API: keyboard height =', keyboardHeight, 'isOpen =', isKeyboardOpen);
+                        return isKeyboardOpen;
+                    }
+                    
+                    // Method 2: Viewport height comparison
+                    const heightDifference = initialViewportHeight - currentViewportHeight;
+                    if (heightDifference > 150) {
+                        keyboardHeight = heightDifference;
+                        console.log('Viewport height method: keyboard height =', keyboardHeight);
+                        return true;
+                    }
+                    
+                    // Method 3: Document vs window height
+                    const documentViewportDiff = documentHeight - currentViewportHeight;
+                    if (documentViewportDiff > 100) {
+                        keyboardHeight = documentViewportDiff;
+                        console.log('Document height method: keyboard height =', keyboardHeight);
+                        return true;
+                    }
+                    
+                    console.log('No keyboard detected');
+                    return false;
+                };
+                
+                // キーボード表示時のボタン位置調整
+                const adjustButtonPosition = () => {
+                    const isKeyboardOpen = detectKeyboard();
+                    
+                    if (isKeyboardOpen) {
+                        // キーボード表示時：キーボード上部に固定
+                        bottomButtons.style.setProperty('position', 'fixed', 'important');
+                        bottomButtons.style.setProperty('bottom', Math.max(keyboardHeight, 0) + 'px', 'important');
+                        bottomButtons.style.setProperty('left', '0', 'important');
+                        bottomButtons.style.setProperty('right', '0', 'important');
+                        bottomButtons.style.setProperty('z-index', '999999', 'important');
+                        bottomButtons.style.setProperty('transform', 'translateY(0)', 'important');
+                        bottomButtons.style.setProperty('transition', 'bottom 0.3s ease', 'important');
+                        
+                        // 可視領域確保
+                        bottomButtons.style.setProperty('max-height', '80px', 'important');
+                        bottomButtons.style.setProperty('overflow', 'hidden', 'important');
+                        
+                        console.log('Keyboard detected, moving buttons above keyboard:', keyboardHeight + 'px');
+                    } else {
+                        // キーボード非表示時：通常の底部固定
+                        bottomButtons.style.setProperty('position', 'fixed', 'important');
+                        bottomButtons.style.setProperty('bottom', '0', 'important');
+                        bottomButtons.style.setProperty('left', '0', 'important');
+                        bottomButtons.style.setProperty('right', '0', 'important');
+                        bottomButtons.style.setProperty('z-index', '999999', 'important');
+                        bottomButtons.style.setProperty('transform', 'translateY(0)', 'important');
+                        bottomButtons.style.setProperty('transition', 'bottom 0.3s ease', 'important');
+                        
+                        bottomButtons.style.setProperty('max-height', 'none', 'important');
+                        bottomButtons.style.setProperty('overflow', 'visible', 'important');
+                        
+                        console.log('Keyboard hidden, buttons at bottom');
+                    }
+                };
+                
+                // 初期化
+                setTimeout(() => {
+                    initialViewportHeight = window.innerHeight;
+                    adjustButtonPosition();
+                }, 100);
+                
+                // Visual Viewport API (推奨)
+                if (window.visualViewport) {
+                    window.visualViewport.addEventListener('resize', adjustButtonPosition);
+                }
+                
+                // フォールバック: 従来の方法
+                window.addEventListener('resize', adjustButtonPosition);
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => {
+                        initialViewportHeight = window.innerHeight;
+                        adjustButtonPosition();
+                    }, 500);
+                });
+                
+                // 入力フィールドのフォーカス/ブラーイベント
+                const inputs = modal.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('focus', () => {
+                        setTimeout(adjustButtonPosition, 300);
+                        // 追加の遅延チェック
+                        setTimeout(adjustButtonPosition, 600);
+                    });
+                    input.addEventListener('blur', () => {
+                        setTimeout(adjustButtonPosition, 300);
+                    });
+                });
+                
+                // 定期的なチェック（フォールバック）
+                const intervalCheck = setInterval(() => {
+                    if (document.getElementById('newModalBottomButtons')) {
+                        adjustButtonPosition();
+                    } else {
+                        clearInterval(intervalCheck);
+                    }
+                }, 500);
+                
+                // モーダルが閉じられたときにクリーンアップ
+                modal.addEventListener('DOMNodeRemoved', () => {
+                    clearInterval(intervalCheck);
+                });
+            }
+            
+            // イベントリスナーを追加
+            document.getElementById('newCancelBtn').addEventListener('click', () => {
+                this.hideMobileModal();
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskCancel');
+                }
+            });
+            
+            document.getElementById('newSaveBtn').addEventListener('click', () => {
+                const titleEl = document.getElementById('newTaskTitle');
+                const title = titleEl.textContent.trim();
+                if (!title) {
+                    if (this.comicEffects && this.comicEffects.playSound) {
+                        this.comicEffects.playSound('taskCancel');
+                    }
+                    return;
+                }
+                this.saveNewModalTask();
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskAdd');
+                }
+            });
+            
+            // Delete button (only visible when editing)
+            document.getElementById('newDeleteBtn').addEventListener('click', () => {
+                if (this.currentTask && this.currentTask.id) {
+                    this.deleteTask(this.currentTask.id);
+                    this.hideMobileModal();
+                    if (this.comicEffects && this.comicEffects.playSound) {
+                        this.comicEffects.playSound('taskDelete');
+                    }
+                }
+            });
+            
+            // Date selection buttons
+            document.getElementById('newTodayBtn').addEventListener('click', () => {
+                this.selectNewModalDate('today');
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskAdd');
+                }
+            });
+            
+            document.getElementById('newTomorrowBtn').addEventListener('click', () => {
+                this.selectNewModalDate('tomorrow');
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskAdd');
+                }
+            });
+            
+            document.getElementById('newCalendarBtn').addEventListener('click', () => {
+                this.showNativeDatePicker();
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskAdd');
+                }
+            });
+            
+            document.getElementById('newRepeatBtn').addEventListener('click', () => {
+                this.showNewModalRepeat();
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskAdd');
+                }
+            });
+            
+            // Native date picker event handler - delay to ensure element exists
+            setTimeout(() => {
+                const nativeDatePicker = document.getElementById('newNativeDatePicker');
+                if (nativeDatePicker) {
+                    nativeDatePicker.addEventListener('change', (e) => {
+                        if (e.target.value) {
+                            this.selectNewModalDate('custom', e.target.value);
+                            if (this.comicEffects && this.comicEffects.playSound) {
+                                this.comicEffects.playSound('taskAdd');
+                            }
+                        }
+                    });
+                    
+                    // Also handle input event for better compatibility
+                    nativeDatePicker.addEventListener('input', (e) => {
+                        if (e.target.value) {
+                            this.selectNewModalDate('custom', e.target.value);
+                            if (this.comicEffects && this.comicEffects.playSound) {
+                                this.comicEffects.playSound('taskAdd');
+                            }
+                        }
+                    });
+                }
+            }, 100);
+            
+            // Calendar picker event handlers - these are no longer needed since we use native date picker
+            // Repeat selector event handlers - these are now handled in the showNewModalRepeat method
+            
+            // Populate form data if editing
+            if (this.currentTask) {
+                document.getElementById('newTaskTitle').value = this.currentTask.title || '';
+                document.getElementById('newTaskDetails').innerHTML = this.processLinksForDisplay(this.currentTask.details || '');
+                // Show delete button for editing
+                const deleteBtn = document.getElementById('newDeleteBtn');
+                deleteBtn.style.display = 'inline-block';
+                console.log('[PixDone] Delete button shown for editing');
+                
+                // Set date selection if exists
+                if (this.currentTask.dueDate) {
+                    const dueDate = new Date(this.currentTask.dueDate);
+                    const today = new Date();
+                    const tomorrow = new Date(today);
+                    tomorrow.setDate(today.getDate() + 1);
+                    
+                    if (dueDate.toDateString() === today.toDateString()) {
+                        this.selectNewModalDate('today');
+                    } else if (dueDate.toDateString() === tomorrow.toDateString()) {
+                        this.selectNewModalDate('tomorrow');
+                    } else {
+                        this.selectedDate = dueDate;
+                        document.getElementById('newCalendarBtn').classList.add('active');
+                    }
+                }
+                
+                // Set repeat selection if exists
+                if (this.currentTask.repeat && this.currentTask.repeat !== 'none') {
+                    this.selectedRepeat = this.currentTask.repeat;
+                    setTimeout(() => {
+                        this.updateRepeatButtonState();
+                    }, 100);
+                }
+            } else {
+                // Clear form for new task and hide delete button
+                document.getElementById('newTaskTitle').textContent = '';
+                document.getElementById('newTaskDetails').innerHTML = '';
+                // Force hide delete button for new tasks
+                const deleteBtn = document.getElementById('newDeleteBtn');
+                deleteBtn.style.display = 'none';
+                console.log('[PixDone] Delete button hidden for new task');
+                this.selectedDate = null;
+                this.selectedRepeat = 'none';
+            }
+            
+            // Focus on title input and setup validation
+            setTimeout(() => {
+                const titleInput = document.getElementById('newTaskTitle');
+                const taskDetailsTextarea = document.getElementById('newTaskDetails');
+                
+                if (titleInput) {
+                    titleInput.focus();
+                    this.selectAllText(titleInput); // Select all text for contentEditable
+                    
+                    // Add validation event listener
+                    this.updateSaveButtonState();
+                    titleInput.addEventListener('input', () => {
+                        this.updateSaveButtonState();
+                    });
+                    
+                    // Set up paste event handlers for hyperlink creation on title
+                    if (!titleInput.hyperlinkPasteSetup) {
+                        this.handleHyperlinkPaste(titleInput);
+                        titleInput.hyperlinkPasteSetup = true;
+                    }
+                    
+                    // Set up rich text editing for title
+                    this.setupRichTextEditor(titleInput);
+                    
+                    console.log('[PixDone] Focus set on new title input');
+                }
+                
+                // Set up paste event handlers for hyperlink creation on details
+                if (taskDetailsTextarea && !taskDetailsTextarea.hyperlinkPasteSetup) {
+                    this.handleHyperlinkPaste(taskDetailsTextarea);
+                    taskDetailsTextarea.hyperlinkPasteSetup = true;
+                }
+                
+                // Set up rich text editing for mobile modal input fields
+                if (taskDetailsTextarea) {
+                    this.setupRichTextEditor(taskDetailsTextarea);
+                }
+                
+                // Set up placeholder behavior for contenteditable
+                if (taskDetailsTextarea && taskDetailsTextarea.textContent.trim() === '' && taskDetailsTextarea.hasAttribute('placeholder')) {
+                    taskDetailsTextarea.classList.add('empty');
+                }
+            }, 100);
+            
+            this.isMobileModalOpen = true;
+            console.log('[PixDone] New modal created and displayed');
+        };
+        
+        // Save button validation
+        this.updateSaveButtonState = () => {
+            const titleInput = document.getElementById('newTaskTitle');
+            const saveButton = document.getElementById('newSaveBtn');
+            
+            if (titleInput && saveButton) {
+                const title = titleInput.textContent.trim();
+                const isEmpty = title === '';
+                
+                if (isEmpty) {
+                    // Disable save button
+                    saveButton.disabled = true;
+                    saveButton.style.background = 'var(--border-color) !important';
+                    saveButton.style.color = 'var(--text-secondary) !important';
+                    saveButton.style.borderColor = 'var(--border-color) !important';
+                    saveButton.style.cursor = 'not-allowed !important';
+                    saveButton.style.opacity = '0.6 !important';
+                } else {
+                    // Enable save button
+                    saveButton.disabled = false;
+                    saveButton.style.background = 'var(--accent-color) !important';
+                    saveButton.style.color = 'white !important';
+                    saveButton.style.borderColor = 'var(--accent-color) !important';
+                    saveButton.style.cursor = 'pointer !important';
+                    saveButton.style.opacity = '1 !important';
+                }
+            }
+        };
+        
+        // Modal helper functions
+        this.selectNewModalDate = (dateType, customDate) => {
+            const buttons = document.querySelectorAll('.new-date-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.background = 'var(--bg-primary)';
+                btn.style.color = 'var(--text-secondary)';
+                btn.style.borderColor = 'var(--border-color)';
+            });
+            
+            if (dateType === 'today') {
+                const btn = document.getElementById('newTodayBtn');
+                btn.classList.add('active');
+                btn.style.background = 'var(--accent-color)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--accent-color)';
+                this.selectedDate = new Date();
+            } else if (dateType === 'tomorrow') {
+                const btn = document.getElementById('newTomorrowBtn');
+                btn.classList.add('active');
+                btn.style.background = 'var(--accent-color)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--accent-color)';
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                this.selectedDate = tomorrow;
+            } else if (dateType === 'custom' && customDate) {
+                const btn = document.getElementById('newCalendarBtn');
+                btn.classList.add('active');
+                btn.style.background = 'var(--accent-color)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--accent-color)';
+                this.selectedDate = new Date(customDate);
+            }
+            
+            // No need to hide anything for native date picker
+        };
+        
+        // Helper method to reset all date buttons
+        this.resetAllDateButtons = () => {
+            document.querySelectorAll('.new-date-btn').forEach(btn => {
+                btn.style.background = 'var(--bg-primary)';
+                btn.style.color = 'var(--text-secondary)';
+                btn.style.borderColor = 'var(--border-color)';
+            });
+            
+            // Reset button text
+            const todayBtn = document.getElementById('newTodayBtn');
+            const tomorrowBtn = document.getElementById('newTomorrowBtn');
+            const calendarBtn = document.getElementById('newCalendarBtn');
+            if (todayBtn) todayBtn.innerHTML = 'Today';
+            if (tomorrowBtn) tomorrowBtn.innerHTML = 'Tomorrow';
+            if (calendarBtn) calendarBtn.innerHTML = '<i class="fa fa-calendar"></i> Pick';
+        };
+        
+        this.showNativeDatePicker = () => {
+            const datePicker = document.getElementById('newNativeDatePicker');
+            if (datePicker) {
+                // Set today as default if no date is selected
+                if (!datePicker.value) {
+                    const today = new Date();
+                    datePicker.value = today.toISOString().split('T')[0];
+                }
+                datePicker.focus();
+                // Use showPicker for better native experience
+                if (datePicker.showPicker) {
+                    datePicker.showPicker();
+                } else {
+                    // Fallback to click for older browsers
+                    datePicker.click();
+                }
+            }
+        };
+        
+        // Native date picker doesn't need these methods
+        
+        this.showNewModalRepeat = () => {
+            // Remove existing repeat modal if any
+            const existingModal = document.getElementById('newRepeatSelector');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Create new repeat modal
+            const repeatModal = document.createElement('div');
+            repeatModal.id = 'newRepeatSelector';
+            repeatModal.style.cssText = `
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: rgba(0, 0, 0, 0.5) !important;
+                z-index: 100001 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                box-sizing: border-box !important;
+            `;
+            
+            repeatModal.innerHTML = `
+                <div id="repeatModalContent" style="width: 300px !important; max-width: 90% !important; background: var(--bg-primary) !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; box-shadow: 4px 4px 0px var(--shadow-color) !important; padding: 16px !important; box-sizing: border-box !important;">
+                    <div style="display: flex !important; flex-direction: column !important; gap: 12px !important;">
+                        <div style="text-align: center !important; margin-bottom: 8px !important;">
+                            <h3 style="font-size: 16px !important; color: var(--text-primary) !important; font-weight: 600 !important; font-family: Inter, sans-serif !important; margin: 0 !important;">Repeat Frequency</h3>
+                        </div>
+                        <div style="display: flex !important; flex-direction: column !important; gap: 8px !important;">
+                            <button class="repeat-option" data-value="none" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">No repeat</button>
+                            <button class="repeat-option" data-value="daily" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">Daily</button>
+                            <button class="repeat-option" data-value="weekly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">Weekly</button>
+                            <button class="repeat-option" data-value="monthly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">Monthly</button>
+                            <button class="repeat-option" data-value="yearly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">Yearly</button>
+                        </div>
+                        <div style="display: flex !important; gap: 8px !important; margin-top: 8px !important;">
+                            <button id="newCancelRepeatBtn" style="flex: 1 !important; padding: 8px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; font-weight: 600 !important;">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(repeatModal);
+            
+            // Add background click to close
+            repeatModal.addEventListener('click', (e) => {
+                if (e.target === repeatModal) {
+                    this.hideNewModalRepeat();
+                    this.comicEffects.playSound('taskCancel');
+                }
+            });
+            
+            // Prevent content clicks from bubbling to background
+            const content = repeatModal.querySelector('#repeatModalContent');
+            content.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            
+            // Add event listeners for repeat options
+            repeatModal.querySelectorAll('.repeat-option').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const value = e.target.dataset.value;
+                    this.selectedRepeat = value;
+                    this.updateRepeatButtonState();
+                    this.hideNewModalRepeat();
+                    this.comicEffects.playSound('taskAdd');
+                });
+            });
+            
+            // Cancel button
+            const cancelBtn = repeatModal.querySelector('#newCancelRepeatBtn');
+            cancelBtn.addEventListener('click', () => {
+                this.hideNewModalRepeat();
+                this.comicEffects.playSound('taskCancel');
+            });
+        };
+        
+        this.updateRepeatButtonState = () => {
+            const btn = document.getElementById('newRepeatBtn');
+            if (this.selectedRepeat === 'none') {
+                btn.classList.remove('active');
+                btn.style.background = 'var(--bg-primary)';
+                btn.style.color = 'var(--text-secondary)';
+                btn.style.borderColor = 'var(--border-color)';
+                btn.innerHTML = '🔄 Repeat';
+            } else {
+                btn.classList.add('active');
+                btn.style.background = 'var(--accent-color)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--accent-color)';
+                
+                // Show selected repeat frequency
+                const repeatLabels = {
+                    'daily': 'Daily',
+                    'weekly': 'Weekly', 
+                    'monthly': 'Monthly',
+                    'yearly': 'Yearly'
+                };
+                btn.innerHTML = `🔄 ${repeatLabels[this.selectedRepeat] || 'Repeat'}`;
+            }
+        };
+        
+        this.hideNewModalRepeat = () => {
+            const repeatSelector = document.getElementById('newRepeatSelector');
+            if (repeatSelector) {
+                repeatSelector.remove();
+            }
+        };
+        
+        // Helper functions for mobile modal updates
+        this.updateMobileModalDateButtons = (task) => {
+            // Update date buttons for mobile modal
+            document.querySelectorAll('.new-date-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.background = 'var(--bg-primary)';
+                btn.style.color = 'var(--text-secondary)';
+                btn.style.borderColor = 'var(--border-color)';
+            });
+            
+            if (task.dueDate) {
+                const today = new Date().toISOString().split('T')[0];
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                
+                if (task.dueDate === today) {
+                    const todayBtn = document.getElementById('newTodayBtn');
+                    if (todayBtn) {
+                        todayBtn.classList.add('active');
+                        todayBtn.style.background = 'var(--accent-color)';
+                        todayBtn.style.color = 'white';
+                        todayBtn.style.borderColor = 'var(--accent-color)';
+                    }
+                } else if (task.dueDate === tomorrowStr) {
+                    const tomorrowBtn = document.getElementById('newTomorrowBtn');
+                    if (tomorrowBtn) {
+                        tomorrowBtn.classList.add('active');
+                        tomorrowBtn.style.background = 'var(--accent-color)';
+                        tomorrowBtn.style.color = 'white';
+                        tomorrowBtn.style.borderColor = 'var(--accent-color)';
+                    }
+                } else {
+                    const calendarBtn = document.getElementById('newCalendarBtn');
+                    const datePicker = document.getElementById('newNativeDatePicker');
+                    if (calendarBtn) {
+                        calendarBtn.classList.add('active');
+                        calendarBtn.style.background = 'var(--accent-color)';
+                        calendarBtn.style.color = 'white';
+                        calendarBtn.style.borderColor = 'var(--accent-color)';
+                        // Format date for display
+                        const date = new Date(task.dueDate);
+                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                        const day = date.getDate().toString().padStart(2, '0');
+                        calendarBtn.innerHTML = `<i class="fa fa-calendar"></i> ${month}/${day}`;
+                    }
+                    if (datePicker) {
+                        datePicker.value = task.dueDate;
+                    }
+                }
+            }
+        };
+        
+        this.updateMobileModalRepeatButton = (task) => {
+            const repeatBtn = document.getElementById('newRepeatBtn');
+            const repeatInterval = document.getElementById('newRepeatInterval');
+            
+            if (task.repeat && task.repeat !== 'none') {
+                this.selectedRepeat = task.repeat;
+                if (repeatInterval) repeatInterval.value = task.repeat;
+                
+                if (repeatBtn) {
+                    repeatBtn.classList.add('active');
+                    repeatBtn.style.background = 'var(--accent-color)';
+                    repeatBtn.style.color = 'white';
+                    repeatBtn.style.borderColor = 'var(--accent-color)';
+                    
+                    // Show selected repeat frequency
+                    const repeatLabels = {
+                        'daily': 'Daily',
+                        'weekly': 'Weekly', 
+                        'monthly': 'Monthly',
+                        'yearly': 'Yearly'
+                    };
+                    repeatBtn.innerHTML = `<i class="fa fa-repeat"></i> ${repeatLabels[task.repeat] || 'Repeat'}`;
+                }
+            } else {
+                this.selectedRepeat = 'none';
+                if (repeatInterval) repeatInterval.value = 'none';
+                
+                if (repeatBtn) {
+                    repeatBtn.classList.remove('active');
+                    repeatBtn.style.background = 'var(--bg-primary)';
+                    repeatBtn.style.color = 'var(--text-secondary)';
+                    repeatBtn.style.borderColor = 'var(--border-color)';
+                    repeatBtn.innerHTML = '<i class="fa fa-repeat"></i> Repeat';
+                }
+            }
+        };
+        
+        this.saveNewModalTask = () => {
+            const titleEl = document.getElementById('newTaskTitle');
+            const title = titleEl.textContent.trim();
+            const details = this.extractTextFromRichEditor(document.getElementById('newTaskDetails'));
+            
+            if (!title) {
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskCancel');
+                }
+                return;
+            }
+            
+            if (this.currentTask) {
+                // Update existing task
+                this.currentTask.title = title;
+                this.currentTask.details = details;
+                this.currentTask.dueDate = this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null;
+                this.currentTask.repeat = this.selectedRepeat || 'none';
+                
+                // Update task in array
+                const taskIndex = this.tasks.findIndex(t => t.id === this.currentTask.id);
+                if (taskIndex >= 0) {
+                    this.tasks[taskIndex] = { ...this.currentTask };
+                }
+            } else {
+                // Create new task
+                const newTask = {
+                    id: Date.now(),
+                    title: title,
+                    details: details,
+                    dueDate: this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null,
+                    repeat: this.selectedRepeat || 'none',
+                    completed: false,
+                    listId: this.currentListId || 'default'
+                };
+                
+                this.tasks.unshift(newTask);
+            }
+            
+            this.saveTasks();
+            this.renderTasks();
+            this.hideMobileModal();
+            
+            // Reset form state
+            this.currentTask = null;
+            this.selectedDate = null;
+            this.selectedRepeat = 'none';
+        };
+        
+        this.hideMobileModal = () => {
+            const modal = document.getElementById('newMobileModal');
+            if (modal) {
+                modal.remove();
+            }
+            
+            // Also hide any open repeat modal
+            const repeatModal = document.getElementById('newRepeatSelector');
+            if (repeatModal) {
+                repeatModal.remove();
+            }
+            
+            this.isMobileModalOpen = false;
+            
+            // Show appropriate empty state
+            const activeTasks = this.tasks.filter(t => !t.completed);
+            const hasNoTasks = this.tasks.length === 0;
+            
+            if (activeTasks.length === 0) {
+                const emptyState = document.getElementById('emptyState');
+                const gameStartEmpty = document.getElementById('gameStartEmpty');
+                
+                if (hasNoTasks) {
+                    if (emptyState) emptyState.style.display = 'none';
+                    if (gameStartEmpty) gameStartEmpty.style.display = 'block';
+                } else {
+                    if (emptyState) emptyState.style.display = 'block';
+                    if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+                }
+            }
+            
+            console.log('[PixDone] New modal hidden');
+        };
+        
+        // Duplicate function removed - using the correct one above
+        
+        // Date selection methods
+        this.selectNewModalDate = (type, customDate = null) => {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const todayStr = today.toISOString().split('T')[0];
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            
+            // Check if we're toggling off an already selected date
+            if (type === 'today' && this.selectedDate === todayStr) {
+                // Deselect today
+                this.selectedDate = null;
+                this.resetAllDateButtons();
+                return;
+            } else if (type === 'tomorrow' && this.selectedDate === tomorrowStr) {
+                // Deselect tomorrow  
+                this.selectedDate = null;
+                this.resetAllDateButtons();
+                return;
+            }
+            
+            // Otherwise, proceed with normal selection
+            // Remove active class from all date buttons and reset text
+            this.resetAllDateButtons();
+            
+            if (type === 'today') {
+                this.selectedDate = todayStr;
+                const todayBtn = document.getElementById('newTodayBtn');
+                if (todayBtn) {
+                    todayBtn.style.background = 'var(--accent-color)';
+                    todayBtn.style.color = 'white';
+                    todayBtn.style.borderColor = 'var(--accent-color)';
+                    todayBtn.innerHTML = 'Today';
+                }
+            } else if (type === 'tomorrow') {
+                this.selectedDate = tomorrowStr;
+                const tomorrowBtn = document.getElementById('newTomorrowBtn');
+                if (tomorrowBtn) {
+                    tomorrowBtn.style.background = 'var(--accent-color)';
+                    tomorrowBtn.style.color = 'white';
+                    tomorrowBtn.style.borderColor = 'var(--accent-color)';
+                    tomorrowBtn.innerHTML = 'Tomorrow';
+                }
+            } else if (type === 'custom' && customDate) {
+                this.selectedDate = customDate;
+                const calendarBtn = document.getElementById('newCalendarBtn');
+                if (calendarBtn) {
+                    calendarBtn.style.background = 'var(--accent-color)';
+                    calendarBtn.style.color = 'white';
+                    calendarBtn.style.borderColor = 'var(--accent-color)';
+                    
+                    // Show the selected date on the button
+                    const selectedDateObj = new Date(customDate);
+                    const formattedDate = selectedDateObj.toLocaleDateString('ja-JP', {
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                    calendarBtn.innerHTML = `<i class="fa fa-calendar"></i> ${formattedDate}`;
+                }
+            }
+            
+            // Play sound if available
+            if (this.comicEffects && this.comicEffects.playSound) {
+                this.comicEffects.playSound('buttonClick');
+            }
+        };
+        
+        this.toggleNewModalCalendar = () => {
+            const picker = document.getElementById('newCalendarPicker');
+            if (picker.style.display === 'none') {
+                picker.style.display = 'block';
+                document.getElementById('newCustomDatePicker').focus();
+            } else {
+                this.hideNewModalCalendar();
+            }
+        };
+        
+        this.hideNewModalCalendar = () => {
+            document.getElementById('newCalendarPicker').style.display = 'none';
+        };
+        
+        this.toggleNewModalRepeat = () => {
+            const selector = document.getElementById('newRepeatSelector');
+            if (selector.style.display === 'none') {
+                selector.style.display = 'block';
+                const repeatBtn = document.getElementById('newRepeatBtn');
+                repeatBtn.style.background = 'var(--accent-color)';
+                repeatBtn.style.color = 'white';
+                repeatBtn.style.borderColor = 'var(--accent-color)';
+            } else {
+                selector.style.display = 'none';
+                const repeatBtn = document.getElementById('newRepeatBtn');
+                repeatBtn.style.background = 'var(--bg-primary)';
+                repeatBtn.style.color = 'var(--text-primary)';
+                repeatBtn.style.borderColor = 'var(--border-color)';
+            }
+            // Play sound if available
+            if (this.comicEffects && this.comicEffects.playSound) {
+                this.comicEffects.playSound('buttonClick');
+            }
+        };
+        
+        this.setNewModalDate = (dueDate) => {
+            if (!dueDate) return;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            
+            if (dueDate === today) {
+                this.selectNewModalDate('today');
+            } else if (dueDate === tomorrowStr) {
+                this.selectNewModalDate('tomorrow');
+            } else {
+                document.getElementById('newCustomDatePicker').value = dueDate;
+                this.selectNewModalDate('custom', dueDate);
+            }
+        };
+        
+        this.setNewModalRepeat = (repeat) => {
+            if (repeat && repeat !== 'none') {
+                document.getElementById('newRepeatInterval').value = repeat;
+                this.toggleNewModalRepeat();
+            }
+        };
+        
+        console.log('[PixDone] New modal system created');
+    }
+    
+    validateUIComponents() {
+        console.log('[PixDone] Starting UI component validation...');
+        
+        // Skip old modal validation - using new programmatic system
+        const requiredElements = [];
+        
+        // DOM ready状態を確認
+        console.log('[PixDone] DOM ready state:', document.readyState);
+        
+        const missing = requiredElements.filter(id => {
+            const element = document.getElementById(id);
+            console.log(`[PixDone] Checking element '${id}':`, element ? 'FOUND' : 'NOT FOUND');
+            return !element;
+        });
+        
+        if (missing.length > 0) {
+            console.error('Missing UI elements:', missing);
+            console.log('[PixDone] Searching for mobile modal in DOM...');
+            
+            // モバイルモーダルが存在するか確認
+            const mobileModal = document.querySelector('#mobileModal');
+            console.log('[PixDone] Mobile modal element:', mobileModal);
+            
+            if (mobileModal) {
+                console.log('[PixDone] Mobile modal innerHTML:', mobileModal.innerHTML);
+            }
+            
+            // HTML構造を確認して、実際のIDを表示
+            const modal = document.getElementById('mobileModal');
+            if (modal) {
+                console.log('Modal found, checking children...');
+                const allIds = Array.from(modal.querySelectorAll('*')).map(el => el.id).filter(id => id);
+                console.log('Available IDs in modal:', allIds);
+            }
+            
+            return false;
+        }
+        console.log('All UI components validated successfully');
+        return true;
+    }
+    
+    setupFirebaseAuthListener() {
+        firebase.auth().onAuthStateChanged(async (user) => {
+            this.user = user;
+            this.isAuthenticated = !!user;
+            if (user) {
+                this.showUserInfo();
+                // ログイン時：ローカルデータをクリアしてFirebaseのみ使用
+                await this.migrateLocalDataToFirebase();
+                // Firestoreリスト・タスク監視をセットアップ
+                await this.setupFirestoreRealtimeListeners();
+            } else {
+                this.showLoginButton();
+                // ログアウト時：Firestoreリスナーを解除してローカルデータに切り替え
+                if (this.listsUnsubscribe) this.listsUnsubscribe();
+                if (this.tasksUnsubscribe) this.tasksUnsubscribe();
+                
+                // 未ログインでもデフォルトリストを確保
+                this.loadTasks();
+                this.loadLists();
+                this.ensureDefaultList();
+                this.renderListTabs();
+                this.renderTasks();
+                this.updateCompletedCount();
+                this.updateListTitle();
+                console.log('Data loaded from localStorage for offline use');
+            }
+        });
+    }
+    
+    async migrateLocalDataToFirebase() {
+        try {
+            // ローカルデータを確認
+            this.loadTasks();
+            this.loadLists();
+            
+            // ローカルタスクがあるかチェック（チュートリアルタスクは除外）
+            const localTasks = this.tasks.filter(task => 
+                task.listId === 'default' && 
+                !task.id.startsWith('tutorial-')
+            );
+            
+            if (localTasks.length > 0) {
+                console.log('Migrating local tasks to Firebase...');
+                
+                // Firebase上のMy Tasksリストを取得または作成
+                const user = firebase.auth().currentUser;
+                const listsSnap = await db.collection('lists').where('uid', '==', user.uid).where('name', '==', 'My Tasks').get();
+                
+                let myTasksListId;
+                if (listsSnap.empty) {
+                    // My Tasksリストが存在しない場合は作成
+                    const listRef = await db.collection('lists').add({
+                        name: 'My Tasks',
+                        uid: user.uid,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    myTasksListId = listRef.id;
+                } else {
+                    // 既存のMy Tasksリストを使用
+                    myTasksListId = listsSnap.docs[0].id;
+                    // 重複したMy Tasksリストがある場合は削除
+                    if (listsSnap.docs.length > 1) {
+                        const batch = db.batch();
+                        for (let i = 1; i < listsSnap.docs.length; i++) {
+                            batch.delete(listsSnap.docs[i].ref);
+                        }
+                        await batch.commit();
+                        console.log('Removed duplicate My Tasks lists');
+                    }
+                }
+                
+                // ローカルタスクをFirebaseに移行（チュートリアルタスクは除外）
+                const batch = db.batch();
+                localTasks.forEach(task => {
+                    const taskRef = db.collection('tasks').doc();
+                    batch.set(taskRef, {
+                        ...task,
+                        listId: myTasksListId,
+                        uid: user.uid,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                await batch.commit();
+                
+                console.log(`Migrated ${localTasks.length} tasks to Firebase`);
+            }
+            
+            // ローカルデータをクリア（認証後はチュートリアルタスクは不要）
+            this.lists = [];
+            this.tasks = [];
+            this.currentListId = null;
+            this.taskIdCounter = 1;
+            this.listIdCounter = 1;
+            localStorage.removeItem('pixTaskLists');
+            localStorage.removeItem('pixTaskTasks');
+            localStorage.removeItem('pixTaskCurrentListId');
+            localStorage.removeItem('pixTaskTaskIdCounter');
+            localStorage.removeItem('pixTaskListIdCounter');
+            localStorage.removeItem('google_tasks_data');
+            localStorage.removeItem('google_tasks_lists');
+            
+            console.log('Local data cleared, tutorial tasks removed');
+            
+        } catch (error) {
+            console.error('Error migrating local data to Firebase:', error);
+        }
+    }
+
+    async setupFirestoreRealtimeListeners() {
+        // 既存のリスナーを解除
+        if (this.listsUnsubscribe) this.listsUnsubscribe();
+        if (this.tasksUnsubscribe) this.tasksUnsubscribe();
+        // リスト監視
+        this.listsUnsubscribe = listenListsFromFirestore(async (lists) => {
+            // --- 追加: My Tasksを先頭に ---
+            if (lists && lists.length > 1) {
+                const myTasksIdx = lists.findIndex(l => l.name === 'My Tasks');
+                if (myTasksIdx > 0) {
+                    const [myTasksList] = lists.splice(myTasksIdx, 1);
+                    lists.unshift(myTasksList);
+                }
+            }
+            // --- ここまで追加 ---
+            // --- 追加: 各リストのtasksをFirestoreから取得してセット ---
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const tasksSnap = await db.collection('tasks').where('uid', '==', user.uid).get();
+                const allTasks = tasksSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                lists.forEach(list => {
+                    list.tasks = allTasks.filter(t => t.listId === list.id);
+                });
+            }
+            // --- ここまで追加 ---
+            this.lists = lists;
+            
+            // 必要なリストを確保
+            const hasMyTasks = lists.some(l => l.name === 'My Tasks');
+            const hasSmashList = lists.some(l => l.name === '💥 Smash List');
+            
+            // My Tasksリストがなければ作成
+            if (!hasMyTasks && !this.isCreatingMyTasksList) {
+                this.isCreatingMyTasksList = true;
+                await addListToFirestore('My Tasks');
+                this.isCreatingMyTasksList = false;
+                return; // 生成後は次のonSnapshotで再取得
+            }
+            
+            // Smash Listがなければ作成
+            if (!hasSmashList && !this.isCreatingSmashList) {
+                this.isCreatingSmashList = true;
+                await addListToFirestore('💥 Smash List');
+                this.isCreatingSmashList = false;
+                return; // 生成後は次のonSnapshotで再取得
+            }
+            // currentListIdが未設定ならMy Tasksを選択
+            if (!this.currentListId || !lists.some(l => l.id === this.currentListId)) {
+                const myTasks = lists.find(l => l.name === 'My Tasks');
+                this.currentListId = myTasks ? myTasks.id : lists[0].id;
+            }
+            this.renderListTabs();
+            // タスクリスナー再セット
+            this.setupTasksRealtimeListener();
+        });
+    }
+    
+    setupTasksRealtimeListener() {
+        if (this.tasksUnsubscribe) this.tasksUnsubscribe();
+        if (!this.currentListId) {
+            this.tasks = [];
+            this.renderTasks();
+            return;
+        }
+        this.tasksUnsubscribe = listenTasksFromFirestore(this.currentListId, (tasks) => {
+            this.tasks = tasks;
+            // --- 追加: lists内の該当リストのtasksも更新 ---
+            const idx = this.lists.findIndex(l => l.id === this.currentListId);
+            if (idx !== -1) {
+                this.lists[idx].tasks = tasks;
+            }
+            // --- ここまで追加 ---
+            this.renderTasks();
+        });
+    }
+    
+    showUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const authButtons = document.getElementById('authButtons');
+        const userEmail = document.getElementById('userEmail');
+        
+        if (this.user) {
+            userEmail.textContent = this.user.email || 'User';
+            
+            userInfo.style.display = 'flex';
+            authButtons.style.display = 'none';
+        }
+    }
+    
+    showLoginButton() {
+        const userInfo = document.getElementById('userInfo');
+        const authButtons = document.getElementById('authButtons');
+        
+        if (userInfo) userInfo.style.display = 'none';
+        if (authButtons) authButtons.style.display = 'flex';
+    }
+    
+    loadTasks() {
+        try {
+            const data = localStorage.getItem('google_tasks_data');
+            if (data) {
+                const parsed = JSON.parse(data);
+                this.tasks = parsed.tasks || [];
+                this.taskIdCounter = parsed.taskIdCounter || 1;
+                this.currentListId = parsed.currentListId || 'default';
+            }
+            
+            // Tutorial tasks are now handled in loadLists() method
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+        }
+    }
+    
+
+    
+    hideUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const authButtons = document.getElementById('authButtons');
+        
+        if (userInfo) userInfo.style.display = 'none';
+        if (authButtons) authButtons.style.display = 'flex';
+    }
+    
+    generateSmashTasks() {
+        const tasks = [];
+        for (let i = 0; i < 3; i++) {
+            const randomTask = this.smashListTasks[Math.floor(Math.random() * this.smashListTasks.length)];
+            tasks.push({
+                id: `smash-${Date.now()}-${i}`,
+                title: randomTask,
+                completed: false,
+                dueDate: null,
+                priority: 'normal',
+                category: 'general',
+                description: '',
+                listId: 'smash-list'
+            });
+        }
+        return tasks;
+    }
+    
+    replenishSmashTasks() {
+        const smashList = this.lists.find(l => l.id === 'smash-list' || l.name === '💥 Smash List');
+        if (smashList) {
+            const incompleteTasks = smashList.tasks.filter(t => !t.completed);
+            if (incompleteTasks.length < 3) {
+                const tasksToAdd = 3 - incompleteTasks.length;
+                for (let i = 0; i < tasksToAdd; i++) {
+                    const randomTask = this.smashListTasks[Math.floor(Math.random() * this.smashListTasks.length)];
+                    const newTask = {
+                        id: `smash-${Date.now()}-${Math.random()}`,
+                        title: randomTask,
+                        completed: false,
+                        dueDate: null,
+                        priority: 'normal',
+                        category: 'general',
+                        description: '',
+                        listId: smashList.id
+                    };
+                    smashList.tasks.push(newTask);
+                }
+                this.renderTasks();
+            }
+        }
+    }
+    
+    maintainSmashListTasks() {
+        const currentList = this.getCurrentList();
+        if (currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List')) {
+            // Remove all completed tasks from Smash List
+            currentList.tasks = currentList.tasks.filter(t => !t.completed);
+            
+            // Ensure exactly 3 tasks
+            while (currentList.tasks.length < 3) {
+                const randomTask = this.smashListTasks[Math.floor(Math.random() * this.smashListTasks.length)];
+                const newTask = {
+                    id: `smash-${Date.now()}-${Math.random()}`,
+                    title: randomTask,
+                    completed: false,
+                    dueDate: null,
+                    priority: 'normal',
+                    category: 'general',
+                    description: '',
+                    listId: currentList.id
+                };
+                currentList.tasks.push(newTask);
+            }
+            
+            // Keep only 3 tasks
+            if (currentList.tasks.length > 3) {
+                currentList.tasks = currentList.tasks.slice(0, 3);
+            }
+        }
+    }
+    
+    async loadServerData() {
+        if (!this.isAuthenticated) {
+            // User not authenticated, skip server data load
+            return;
+        }
+        
+        try {
+            // Load Firestore data for authenticated user
+            // Firestoreからリスト取得
+            const serverLists = await loadListsFromFirestore();
+            this.lists = [];
+            for (const list of serverLists) {
+                // Firestoreから各リストのタスク取得
+                const serverTasks = await window.db.collection('tasks')
+                    .where('uid', '==', firebase.auth().currentUser.uid)
+                    .where('listId', '==', list.id)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                const tasks = serverTasks.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                this.lists.push({
+                    id: list.id,
+                    name: list.name,
+                    tasks
+                });
+            }
+            if (this.lists.length > 0) {
+                if (!this.lists.some(l => l.id === this.currentListId)) {
+                    this.currentListId = this.lists[0].id;
+                }
+            }
+            this.updateCountersFromServerData();
+            this.renderListTabs();
+            this.updateListTitle();
+            this.renderTasks();
+            this.updateCompletedCount();
+        } catch (error) {
+            // Error loading Firestore data - display appropriate error message
+            this.showErrorMessage('Failed to load tasks and lists from server.');
+        }
+    }
+    
+    updateCountersFromServerData() {
+        // Update taskIdCounter based on server data
+        let maxTaskId = 0;
+        for (const list of this.lists) {
+            for (const task of list.tasks) {
+                if (task.id > maxTaskId) {
+                    maxTaskId = task.id;
+                }
+            }
+        }
+        this.taskIdCounter = maxTaskId + 1;
+        
+        // Update listIdCounter based on server data
+        let maxListId = 0;
+        for (const list of this.lists) {
+            if (list.id > maxListId) {
+                maxListId = list.id;
+            }
+        }
+        this.listIdCounter = maxListId + 1;
+    }
+    
+    setupTouchGestures() {
+        // Apply swipe gestures to the entire main container for better coverage
+        const mainContainer = document.querySelector('.container');
+        if (!mainContainer) return;
+        
+        let startX = 0;
+        let isDragging = false;
+        
+        mainContainer.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea')) {
+                return;
+            }
+            startX = e.touches[0].clientX;
+            isDragging = false;
+        });
+        
+        mainContainer.addEventListener('touchmove', (e) => {
+            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea')) {
+                return;
+            }
+            isDragging = true;
+        });
+        
+        mainContainer.addEventListener('touchend', (e) => {
+            if (!isDragging || e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea')) {
+                return;
+            }
+            
+            const endX = e.changedTouches[0].clientX;
+            const deltaX = endX - startX;
+            
+            if (Math.abs(deltaX) > 30) {
+                if (deltaX > 0) {
+                    this.switchToPreviousList();
+                } else {
+                    this.switchToNextList();
+                }
+            }
+            
+            isDragging = false;
+        });
+    }
+    
+    startSwipeAnimation(deltaX) {
+        const tasksContainer = document.querySelector('.task-list-container');
+        if (!tasksContainer) return;
+        
+        tasksContainer.style.transition = 'none';
+        tasksContainer.style.transform = `translateX(${deltaX * 0.2}px)`;
+        tasksContainer.style.opacity = `${1 - Math.abs(deltaX) * 0.001}`;
+    }
+    
+    updateSwipeAnimation(deltaX) {
+        const tasksContainer = document.querySelector('.task-list-container');
+        if (!tasksContainer) return;
+        
+        const clampedDelta = Math.max(-120, Math.min(120, deltaX));
+        tasksContainer.style.transform = `translateX(${clampedDelta * 0.2}px)`;
+        tasksContainer.style.opacity = `${1 - Math.abs(clampedDelta) * 0.001}`;
+    }
+    
+    finishSwipeAnimation(deltaX) {
+        const tasksContainer = document.querySelector('.task-list-container');
+        if (!tasksContainer) return;
+        
+        const threshold = 80;
+        const shouldSwitch = Math.abs(deltaX) > threshold;
+        
+        if (shouldSwitch) {
+            // Prevent if any modal is open or input is focused
+            if (!this.isInputVisible && 
+                !document.getElementById('createListModal').classList.contains('active') &&
+                !document.getElementById('deleteModal').classList.contains('active') &&
+                !document.activeElement.tagName.match(/INPUT|TEXTAREA/)) {
+                
+                if (deltaX > 0) {
+                    this.switchToPreviousList();
+                } else {
+                    this.switchToNextList();
+                }
+            }
+        }
+        
+        // Reset animation
+        tasksContainer.style.transition = 'all 0.2s ease';
+        tasksContainer.style.transform = 'translateX(0)';
+        tasksContainer.style.opacity = '1';
+        
+        setTimeout(() => {
+            tasksContainer.style.transition = '';
+        }, 200);
+    }
+    
+    setupEventListeners() {
+        // Add task button
+        document.getElementById('addTaskBtn').addEventListener('click', () => {
+            this.showTaskInput();
+            // メニュー選択音を再生
+            this.comicEffects.playSound('taskAdd');
+        });
+        
+        // Task form submission
+        document.getElementById('taskForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveTask();
+            // Close mobile modal if open
+            if (this.isMobileModalOpen) {
+                this.hideMobileModal();
+            }
+        });
+        
+        // Cancel button
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            if (this.isMobileModalOpen) {
+                this.hideMobileModal();
+            } else {
+                this.hideTaskInput();
+            }
+            this.comicEffects.playSound('taskCancel');
+        });
+        
+        // Delete button
+        document.getElementById('deleteBtn').addEventListener('click', async () => {
+            if (this.currentTask) {
+                console.log('Delete button clicked for task:', this.currentTask.id);
+                this.comicEffects.playSound('taskDelete');
+                
+                // Delete task directly without modal
+                if (this.isAuthenticated) {
+                    try {
+                        await deleteTaskFromFirestore(this.currentTask.id);
+                    } catch (error) {
+                        console.error('Error deleting task from Firestore:', error);
+                    }
+                }
+                
+                this.tasks = this.tasks.filter(t => t.id !== this.currentTask.id);
+                this.saveTasks();
+                this.renderTasks();
+                this.updateCompletedCount();
+                this.renderListTabs(); // Update tab counts
+                
+                // Hide task input if it was open
+                if (this.isInputVisible) {
+                    this.hideTaskInput();
+                }
+                
+                // Hide mobile modal if it was open
+                if (this.isMobileModalOpen) {
+                    this.hideMobileModal();
+                }
+            }
+        });
+        
+        // フォーム外クリックで閉じる（モバイル最適化）
+        document.addEventListener('click', (e) => {
+            const taskForm = document.getElementById('taskForm');
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            
+            if (this.isInputVisible && 
+                taskForm && !taskForm.contains(e.target) && 
+                addTaskBtn && !addTaskBtn.contains(e.target)) {
+                this.hideTaskInput();
+                this.comicEffects.playSound('taskCancel');
+            }
+        });
+        
+        // モバイル用のタッチイベント対応
+        document.addEventListener('touchstart', (e) => {
+            const taskForm = document.getElementById('taskForm');
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            
+            if (this.isInputVisible && 
+                taskForm && !taskForm.contains(e.target) && 
+                addTaskBtn && !addTaskBtn.contains(e.target)) {
+                this.hideTaskInput();
+                this.comicEffects.playSound('taskCancel');
+            }
+        });
+        
+
+        
+        // Date buttons
+        document.getElementById('todayBtn').addEventListener('click', () => {
+            this.selectDate('today');
+            this.comicEffects.playSound('taskAdd');
+        });
+        
+        document.getElementById('tomorrowBtn').addEventListener('click', () => {
+            this.selectDate('tomorrow');
+            this.comicEffects.playSound('taskAdd');
+        });
+        
+        document.getElementById('calendarBtn').addEventListener('click', () => {
+            this.openCalendarPicker();
+            this.comicEffects.playSound('taskAdd');
+        });
+        
+        // カスタム日付選択
+        const customDatePicker = document.getElementById('customDatePicker');
+        if (customDatePicker) {
+            customDatePicker.addEventListener('change', (e) => {
+                if (e.target.value) {
+                    this.selectCustomDate(e.target.value);
+                    this.comicEffects.playSound('taskAdd');
+                }
+            });
+        }
+        
+        // 繰り返しボタン
+        const repeatBtn = document.getElementById('repeatBtn');
+        if (repeatBtn) {
+            repeatBtn.addEventListener('click', () => {
+                this.toggleRepeatSelector();
+                this.comicEffects.playSound('taskAdd');
+            });
+        }
+        
+        // 繰り返し選択
+        const repeatInterval = document.getElementById('repeatInterval');
+        if (repeatInterval) {
+            repeatInterval.addEventListener('change', (e) => {
+                this.selectedRepeat = e.target.value;
+            });
+        }
+        
+        // Completed section toggle
+        const completedToggle = document.getElementById('completedToggle');
+        if (completedToggle) {
+            completedToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleCompletedSection();
+            });
+            
+            // Add touch event for mobile
+            completedToggle.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleCompletedSection();
+            });
+        }
+        
+        // Delete modal buttons
+        document.getElementById('cancelDelete').addEventListener('click', () => {
+            this.hideDeleteModal();
+        });
+        
+        document.getElementById('confirmDelete').addEventListener('click', () => {
+            this.confirmDeleteTask();
+        });
+        
+        // Create list modal events
+        document.getElementById('createListForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.comicEffects.playSound('taskAdd');
+            this.handleCreateList();
+        });
+        
+        document.getElementById('cancelCreateList').addEventListener('click', () => {
+            this.comicEffects.playSound('taskCancel');
+            this.hideCreateListModal();
+        });
+        
+        // Edit list modal events
+        document.getElementById('editListForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.comicEffects.playSound('taskAdd');
+            this.handleEditList();
+        });
+        
+        document.getElementById('cancelEditList').addEventListener('click', () => {
+            this.comicEffects.playSound('taskCancel');
+            this.hideEditListModal();
+        });
+        
+        // Delete list modal events
+        document.getElementById('cancelDeleteList').addEventListener('click', () => {
+            this.comicEffects.playSound('taskCancel');
+            this.hideDeleteListModal();
+        });
+        
+        document.getElementById('confirmDeleteList').addEventListener('click', () => {
+            this.comicEffects.playSound('taskDelete');
+            this.handleDeleteList();
+        });
+        
+        // Context menu events
+        document.getElementById('contextMenuEdit').addEventListener('click', () => {
+            this.comicEffects.playSound('taskEdit');
+            this.showEditListModal(this.contextMenuListId);
+            this.hideContextMenu();
+        });
+        
+        document.getElementById('contextMenuDelete').addEventListener('click', () => {
+            this.comicEffects.playSound('taskDelete');
+            this.showDeleteListModal(this.contextMenuListId);
+            this.hideContextMenu();
+        });
+        
+        // Close context menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const contextMenu = document.getElementById('contextMenu');
+            if (contextMenu && contextMenu.classList.contains('active') && 
+                !e.target.closest('#contextMenu') && !e.target.closest('.list-tab')) {
+                this.hideContextMenu();
+            }
+        });
+        
+        // List menu button
+        const listMenuBtn = document.getElementById('listMenuBtn');
+        if (listMenuBtn) {
+            // Remove any existing event listeners
+            listMenuBtn.removeEventListener('click', this.listMenuClickHandler);
+            
+            // Create a new handler and store it
+            this.listMenuClickHandler = (e) => {
+                e.stopPropagation();
+                console.log('List menu button clicked');
+                
+                // Play sound first
+                this.comicEffects.playSound('taskEdit');
+                
+                // Don't show menu for default list
+                const currentList = this.getCurrentList();
+                const isDefaultList = (this.currentListId === 'default') || (currentList && currentList.name === 'My Tasks');
+                
+                console.log('Current list:', currentList);
+                console.log('Is default list:', isDefaultList);
+                
+                if (!isDefaultList) {
+                    this.showListContextMenu(e, this.currentListId);
+                }
+            };
+            
+            listMenuBtn.addEventListener('click', this.listMenuClickHandler);
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (this.isInputVisible) {
+                    this.hideTaskInput();
+                    this.comicEffects.playSound('taskCancel');
+                } else if (document.getElementById('createListModal').classList.contains('active')) {
+                    this.hideCreateListModal();
+                } else if (document.getElementById('editListModal').classList.contains('active')) {
+                    this.hideEditListModal();
+                } else if (document.getElementById('deleteListModal').classList.contains('active')) {
+                    this.hideDeleteListModal();
+                } else if (document.getElementById('deleteModal').classList.contains('active')) {
+                    this.hideDeleteModal();
+                } else if (document.getElementById('celebrationOverlay').classList.contains('active')) {
+                    this.hideCelebration();
+                } else if (document.getElementById('contextMenu').classList.contains('active')) {
+                    this.hideContextMenu();
+                } else if (this.isMobileModalOpen) {
+                    this.hideMobileModal();
+                    this.comicEffects.playSound('taskCancel');
+                }
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                // Only handle arrow keys if no modals are open and no input is focused
+                if (!this.isInputVisible && 
+                    !document.getElementById('createListModal').classList.contains('active') &&
+                    !document.getElementById('deleteModal').classList.contains('active') &&
+                    !this.isMobileModalOpen &&
+                    !document.activeElement.tagName.match(/INPUT|TEXTAREA/)) {
+                    
+                    e.preventDefault();
+                    if (e.key === 'ArrowLeft') {
+                        this.switchToPreviousList();
+                    } else if (e.key === 'ArrowRight') {
+                        this.switchToNextList();
+                    }
+                }
+            }
+        });
+        
+        // Enter key to add task (モバイル最適化)
+        document.getElementById('taskTitle').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.saveTask();
+                this.comicEffects.playSound('taskAdd');
+            }
+        });
+        
+        // モバイルキーボード対応
+        document.getElementById('taskTitle').addEventListener('input', (e) => {
+            // モバイルでの入力体験を向上
+            if (window.innerWidth <= 768) {
+                e.target.style.borderColor = 'var(--accent-color)';
+                setTimeout(() => {
+                    e.target.style.borderColor = '';
+                }, 200);
+            }
+        });
+        
+        // Mobile modal event listeners now handled by new system
+        
+        // Keyboard shortcuts - include mobile modal escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (this.isMobileModalOpen) {
+                    this.hideMobileModal();
+                    this.comicEffects.playSound('taskCancel');
+                }
+            }
+        });
+        
+        // List management events
+        document.getElementById('addListBtn').addEventListener('click', () => {
+            this.comicEffects.playSound('taskAdd');
+            this.showCreateListModal();
+        });
+        
+        // List menu button (duplicate removed)
+        
+        // Auth events
+        document.getElementById('signupBtn').addEventListener('click', () => {
+            this.comicEffects.playSound('taskAdd');
+            this.showEmailAuthModal();
+        });
+        
+        // User menu and account management
+        document.getElementById('userAvatarBtn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.comicEffects.playSound('taskEdit');
+            this.toggleUserDropdown();
+        });
+        
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            this.comicEffects.playSound('taskCancel');
+            this.logout();
+        });
+        
+        document.getElementById('deleteAccountBtn')?.addEventListener('click', () => {
+            this.comicEffects.playSound('taskDelete');
+            this.showDeleteAccountModal();
+        });
+        
+        document.getElementById('confirmDeleteAccount')?.addEventListener('click', () => {
+            this.comicEffects.playSound('taskDelete');
+            this.deleteAccount();
+        });
+        
+        document.getElementById('cancelDeleteAccount')?.addEventListener('click', () => {
+            this.comicEffects.playSound('taskCancel');
+            this.hideDeleteAccountModal();
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-menu')) {
+                const userDropdown = document.getElementById('userDropdown');
+                if (userDropdown) {
+                    userDropdown.style.display = 'none';
+                }
+            }
+        });
+        
+        // Close modals when clicking outside
+        document.getElementById('createListModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('createListModal')) {
+                this.hideCreateListModal();
+            }
+        });
+        
+        // Create list form (duplicate - already handled above)
+        // Edit list form (duplicate - already handled above)
+        
+        // Cancel buttons (duplicate - already handled above)
+        // Removed duplicated event listeners
+        
+        // Email auth modal events
+        document.getElementById('emailAuthModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('emailAuthModal')) {
+                this.hideEmailAuthModal();
+            }
+        });
+        
+        // Removed authBackBtn and authSkipBtn event listeners as buttons were removed from HTML
+        
+        document.getElementById('toggleAuthMode').addEventListener('click', () => {
+            this.comicEffects.playSound('taskEdit');
+            this.toggleEmailAuthMode();
+        });
+        
+        document.getElementById('emailAuthForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            this.comicEffects.playSound('taskAdd');
+            await this.handleEmailAuth();
+        });
+        
+        // Password reset events
+        document.getElementById('forgotPasswordBtn').addEventListener('click', () => {
+            this.showPasswordResetModal();
+        });
+        
+        document.getElementById('backToLoginBtn').addEventListener('click', () => {
+            this.hidePasswordResetModal();
+            this.showEmailAuthModal();
+        });
+        
+        document.getElementById('passwordResetForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await this.handlePasswordReset();
+        });
+        
+        // Password reset modal close on outside click
+        document.getElementById('passwordResetModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('passwordResetModal')) {
+                this.hidePasswordResetModal();
+            }
+        });
+        
+        // Password visibility toggle
+        document.getElementById('passwordToggle').addEventListener('click', () => {
+            this.togglePasswordVisibility();
+        });
+        
+        // Password setup form
+        document.getElementById('passwordSetupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handlePasswordSetup();
+        });
+        
+        // Password setup toggles
+        document.getElementById('newPasswordToggle').addEventListener('click', () => {
+            this.togglePasswordVisibility('newPasswordInput', 'newPasswordToggle');
+        });
+        
+        document.getElementById('confirmPasswordToggle').addEventListener('click', () => {
+            this.togglePasswordVisibility('confirmPasswordInput', 'confirmPasswordToggle');
+        });
+        
+        // Social auth buttons removed from HTML
+        
+        // Close modals when clicking outside
+        document.getElementById('editListModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('editListModal')) {
+                this.hideEditListModal();
+            }
+        });
+        
+        document.getElementById('deleteListModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('deleteListModal')) {
+                this.hideDeleteListModal();
+            }
+        });
+        
+        // Context menu events
+        document.getElementById('contextMenuEdit').addEventListener('click', () => {
+            this.hideContextMenu();
+            this.showEditListModal(this.contextMenuListId);
+        });
+        
+        document.getElementById('contextMenuDelete').addEventListener('click', () => {
+            this.hideContextMenu();
+            this.showDeleteListModal(this.contextMenuListId);
+        });
+        
+        // Hide context menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.context-menu')) {
+                this.hideContextMenu();
+            }
+        });
+        
+        document.getElementById('deleteModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('deleteModal')) {
+                this.hideDeleteModal();
+                this.comicEffects.playSound('taskCancel');
+            }
+        });
+    }
+    
+    showTaskInput() {
+        this.isInputVisible = true;
+        
+        // Hide both empty states when showing task input
+        const emptyState = document.getElementById('emptyState');
+        const gameStartEmpty = document.getElementById('gameStartEmpty');
+        if (emptyState) emptyState.style.display = 'none';
+        if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+        
+        // Check if mobile and show modal instead
+        if (window.innerWidth <= 600) {
+            this.showMobileModal();
+            return;
+        } else {
+            const container = document.getElementById('taskInputContainer');
+            container.style.display = 'block';
+            
+            // Focus on title input
+            setTimeout(() => {
+                document.getElementById('taskTitle').focus();
+            }, 100);
+        }
+    }
+
+    showMobileModal() {
+        console.log('showMobileModal called');
+        
+        // Don't allow adding tasks to Smash List
+        const currentList = this.getCurrentList();
+        if (currentList && currentList.id === 'smash-list') {
+            return;
+        }
+        
+        const modal = document.getElementById('mobileModal');
+        if (!modal) {
+            console.error('Mobile modal not found');
+            return;
+        }
+        
+        // Hide empty states
+        const emptyState = document.getElementById('emptyState');
+        const gameStartEmpty = document.getElementById('gameStartEmpty');
+        if (emptyState) emptyState.style.display = 'none';
+        if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+        
+        // Set modal title
+        const modalTitle = document.getElementById('mobileModalTitle');
+        if (modalTitle) {
+            modalTitle.textContent = this.currentTask ? 'Edit Task' : 'Add Task';
+        }
+        
+        // Show modal with explicit styles
+        modal.style.display = 'block';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.zIndex = '10000';
+        modal.style.background = '#f5f5f5';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        
+        this.isMobileModalOpen = true;
+        console.log('Modal displayed with explicit styles');
+        
+        // 表示確認のためのテスト
+        setTimeout(() => {
+            const computed = window.getComputedStyle(modal);
+            console.log('Modal computed styles:', {
+                display: computed.display,
+                position: computed.position,
+                visibility: computed.visibility,
+                zIndex: computed.zIndex,
+                width: computed.width,
+                height: computed.height
+            });
+        }, 50);
+        
+        // Focus on title input
+        setTimeout(() => {
+            const titleInput = document.getElementById('mobileTaskTitle');
+            if (titleInput) {
+                titleInput.focus();
+            }
+        }, 100);
+    }
+
+    hideMobileModal() {
+        const modal = document.getElementById('mobileModal');
+        if (!modal) return;
+        
+        modal.style.display = 'none';
+        this.isMobileModalOpen = false;
+        
+        // Show appropriate empty state
+        const activeTasks = this.tasks.filter(t => !t.completed);
+        const hasNoTasks = this.tasks.length === 0;
+        
+        if (activeTasks.length === 0) {
+            const emptyState = document.getElementById('emptyState');
+            const gameStartEmpty = document.getElementById('gameStartEmpty');
+            
+            if (hasNoTasks) {
+                if (emptyState) emptyState.style.display = 'none';
+                if (gameStartEmpty) gameStartEmpty.style.display = 'block';
+            } else {
+                if (emptyState) emptyState.style.display = 'block';
+                if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+            }
+        }
+        
+        // Old resetMobileForm call removed - now handled by new system
+    }
+    
+    // Make app globally accessible for inline editing
+    setupGlobalAccess() {
+        window.pixDoneApp = this;
+    }
+    
+    // Old setupMobileModalEvents removed - now handled by new system
+    
+    // Old mobile modal functions removed (setupMobileModalEvents, selectMobileDate, etc.)
+    // These are now handled by the new programmatic modal system
+    
+    // The following functions have been removed since they are no longer needed:
+    // - setupMobileModalEvents
+    // - selectMobileDate
+    // - openMobileCalendarPicker
+    // - selectMobileCustomDate
+    // toggleMobileRepeatSelector
+    // - saveMobileTask
+    // - deleteMobileTask
+    // - resetMobileForm
+    // - syncToMobileForm
+    // - syncFromMobileForm
+    
+    showTaskInput() {
+        // Don't allow adding tasks to Smash List
+        const currentList = this.getCurrentList();
+        if (currentList && currentList.id === 'smash-list') {
+            return;
+        }
+        
+        // Desktop task input functionality
+        if (window.innerWidth <= 768) {
+            // Mobile devices use modal
+            this.showMobileModal();
+            return;
+        }
+        
+        // Desktop task input form
+        this.isInputVisible = true;
+        const container = document.getElementById('taskInputContainer');
+        if (container) {
+            container.style.display = 'block';
+            
+            // Hide empty states
+            const emptyState = document.getElementById('emptyState');
+            const gameStartEmpty = document.getElementById('gameStartEmpty');
+            if (emptyState) emptyState.style.display = 'none';
+            if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+            
+            // Focus on title input and set up hyperlink paste
+            const titleInput = document.getElementById('taskTitle');
+            if (titleInput) {
+                titleInput.focus();
+                
+                // Set up paste event handlers for hyperlink creation on title
+                if (!titleInput.hyperlinkPasteSetup) {
+                    this.handleHyperlinkPaste(titleInput);
+                    titleInput.hyperlinkPasteSetup = true;
+                }
+                
+                // Set up real-time link preview for new tasks
+                if (!this.currentTask) {
+                    this.setupInputLinkPreview('taskTitle');
+                }
+            }
+            
+            // Set up paste event handlers for hyperlink creation on details
+            const taskDetailsTextarea = document.getElementById('taskDetails');
+            if (taskDetailsTextarea && !taskDetailsTextarea.hyperlinkPasteSetup) {
+                this.handleHyperlinkPaste(taskDetailsTextarea);
+                taskDetailsTextarea.hyperlinkPasteSetup = true;
+                
+                // Set up rich text editing for new tasks
+                if (!this.currentTask) {
+                    const taskDetailsEl = document.getElementById('taskDetails');
+                    if (taskDetailsEl) {
+                        this.setupRichTextEditor(taskDetailsEl);
+                        // Setup placeholder behavior
+                        if (taskDetailsEl.textContent.trim() === '' && taskDetailsEl.hasAttribute('placeholder')) {
+                            taskDetailsEl.classList.add('empty');
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // All old mobile modal functions have been removed since they are now handled by the new programmatic modal system
+    
+    hideTaskInput() {
+        this.isInputVisible = false;
+        const container = document.getElementById('taskInputContainer');
+        container.style.display = 'none';
+        
+        // Show appropriate empty state
+        const activeTasks = this.tasks.filter(t => !t.completed);
+        const hasNoTasks = this.tasks.length === 0;
+        
+        if (activeTasks.length === 0) {
+            const emptyState = document.getElementById('emptyState');
+            const gameStartEmpty = document.getElementById('gameStartEmpty');
+            
+            if (hasNoTasks) {
+                if (emptyState) emptyState.style.display = 'none';
+                if (gameStartEmpty) gameStartEmpty.style.display = 'block';
+            } else {
+                if (emptyState) emptyState.style.display = 'block';
+                if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+            }
+        }
+        
+        // Hide delete button
+        const deleteBtn = document.getElementById('deleteBtn');
+        if (deleteBtn) {
+            deleteBtn.style.display = 'none';
+        }
+        
+        // Reset form
+        this.resetForm();
+    }
+    
+    resetForm() {
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('taskDetails').value = '';
+        this.selectedDate = null;
+        this.currentTask = null;
+        this.selectedRepeat = 'none';
+        
+        // Reset date buttons
+        document.querySelectorAll('.date-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Reset repeat selector
+        const repeatSelector = document.getElementById('repeatSelector');
+        const repeatInterval = document.getElementById('repeatInterval');
+        const repeatBtn = document.getElementById('repeatBtn');
+        const customDatePicker = document.getElementById('customDatePicker');
+        
+        if (repeatSelector) repeatSelector.style.display = 'none';
+        if (repeatInterval) repeatInterval.value = 'none';
+        if (repeatBtn) repeatBtn.classList.remove('active');
+        
+        // Reset custom date picker
+        if (customDatePicker) {
+            customDatePicker.value = '';
+        }
+        
+        // Reset calendar button text
+        this.updateCalendarButtonText();
+    }
+    
+    updateCalendarButtonText() {
+        const calendarBtn = document.getElementById('calendarBtn');
+        if (!calendarBtn) return;
+        
+        if (this.selectedDate) {
+            // 日付を表示形式に変換
+            const date = new Date(this.selectedDate);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            calendarBtn.innerHTML = `<span>${month}/${day}</span>`;
+        } else {
+            calendarBtn.innerHTML = '<i class="fas fa-calendar"></i>';
+        }
+    }
+    
+    selectDate(dateType) {
+        // Reset all date buttons
+        document.querySelectorAll('.date-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        let selectedBtn;
+        let dueDate = null;
+        
+        if (dateType === 'today') {
+            selectedBtn = document.getElementById('todayBtn');
+            // 既に選択されている場合は解除
+            if (this.selectedDate === new Date().toISOString().split('T')[0]) {
+                this.selectedDate = null;
+                this.updateCalendarButtonText();
+                return;
+            }
+            dueDate = new Date().toISOString().split('T')[0];
+        } else if (dateType === 'tomorrow') {
+            selectedBtn = document.getElementById('tomorrowBtn');
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            // 既に選択されている場合は解除
+            if (this.selectedDate === tomorrowStr) {
+                this.selectedDate = null;
+                this.updateCalendarButtonText();
+                return;
+            }
+            dueDate = tomorrowStr;
+        }
+        
+        if (selectedBtn) {
+            selectedBtn.classList.add('active');
+        }
+        
+        this.selectedDate = dueDate;
+        this.updateCalendarButtonText();
+    }
+    
+    openCalendarPicker() {
+        const datePicker = document.getElementById('customDatePicker');
+        const calendarBtn = document.getElementById('calendarBtn');
+        
+        if (datePicker && calendarBtn) {
+            // カレンダーボタンの位置を取得
+            const rect = calendarBtn.getBoundingClientRect();
+            const form = document.getElementById('taskForm');
+            const formRect = form.getBoundingClientRect();
+            
+            // 日付入力を一時的に表示
+            datePicker.style.position = 'absolute';
+            datePicker.style.left = (rect.left - formRect.left) + 'px';
+            datePicker.style.top = (rect.bottom - formRect.top + 5) + 'px';
+            datePicker.style.opacity = '1';
+            datePicker.style.pointerEvents = 'auto';
+            datePicker.style.zIndex = '9999';
+            datePicker.style.display = 'block';
+            
+            // 即座にカレンダーを開く
+            setTimeout(() => {
+                datePicker.focus();
+                datePicker.click();
+            }, 10);
+            
+            // 選択後に隠すためのイベントリスナーを追加
+            const hideAfterSelection = () => {
+                setTimeout(() => {
+                    datePicker.style.position = 'absolute';
+                    datePicker.style.left = '-9999px';
+                    datePicker.style.top = '-9999px';
+                    datePicker.style.opacity = '0';
+                    datePicker.style.pointerEvents = 'none';
+                    datePicker.style.zIndex = '-1';
+                }, 100);
+            };
+            
+            datePicker.addEventListener('blur', hideAfterSelection, { once: true });
+            datePicker.addEventListener('change', hideAfterSelection, { once: true });
+        }
+    }
+    
+    selectCustomDate(dateStr) {
+        const customDatePicker = document.getElementById('customDatePicker');
+        const calendarBtn = document.getElementById('calendarBtn');
+        
+        if (dateStr) {
+            // 既に選択されている場合は解除
+            if (this.selectedDate === dateStr) {
+                this.selectedDate = null;
+                if (customDatePicker) customDatePicker.value = '';
+                document.querySelectorAll('.date-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.updateCalendarButtonText();
+                return;
+            }
+            
+            this.selectedDate = dateStr;
+            // 他のボタンの状態をリセット
+            document.querySelectorAll('.date-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (calendarBtn) calendarBtn.classList.add('active');
+            
+            // カレンダーボタンのテキストを更新
+            this.updateCalendarButtonText();
+        }
+    }
+    
+    // Inline task editing for desktop
+    showInlineTaskEdit(taskId) {
+        console.log('Showing inline edit for task:', taskId);
+        
+        // Close any existing inline edits first
+        this.closeAllInlineEdits();
+        
+        // Find the task element
+        const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+        if (!taskElement) {
+            console.error('Task element not found for ID:', taskId);
+            return;
+        }
+        
+        // Get task data
+        const currentList = this.getCurrentList();
+        const task = currentList ? currentList.tasks.find(t => String(t.id) === String(taskId)) : null;
+        if (!task) {
+            console.error('Task not found:', taskId);
+            return;
+        }
+        
+        // Create inline edit form
+        const editForm = document.createElement('div');
+        editForm.className = 'inline-edit-form';
+        editForm.setAttribute('data-editing-task', taskId);
+        editForm.innerHTML = `
+            <div class="inline-edit-container">
+                <div class="inline-edit-field">
+                    <div id="inline-title-${taskId}" class="inline-edit-title-rich" contenteditable="true" placeholder="Task title">${this.processLinksForDisplay(task.title)}</div>
+                </div>
+                <div class="inline-edit-field">
+                    <div id="inline-details-${taskId}" class="inline-edit-details-rich" contenteditable="true" placeholder="Details">${this.processLinksForDisplay(task.details || '')}</div>
+                </div>
+                <div class="inline-edit-date-section">
+                    <div class="inline-date-buttons">
+                        <button type="button" class="inline-date-btn" id="inline-today-${taskId}" onclick="window.pixDoneApp.selectInlineDate('${taskId}', 'today')">Today</button>
+                        <button type="button" class="inline-date-btn" id="inline-tomorrow-${taskId}" onclick="window.pixDoneApp.selectInlineDate('${taskId}', 'tomorrow')">Tomorrow</button>
+                        <button type="button" class="inline-date-btn inline-calendar-btn" id="inline-calendar-${taskId}" onclick="window.pixDoneApp.showInlineDatePicker('${taskId}')">
+                            <i class="fa fa-calendar"></i> Pick
+                        </button>
+                        <button type="button" class="inline-repeat-btn" id="inline-repeat-${taskId}" onclick="window.pixDoneApp.toggleInlineRepeat('${taskId}')">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <input type="date" id="inline-date-picker-${taskId}" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;">
+                    </div>
+                    <div class="inline-repeat-selector" id="inline-repeat-selector-${taskId}" style="display: none;">
+                        <label for="inline-repeat-interval-${taskId}">Repeat:</label>
+                        <select id="inline-repeat-interval-${taskId}" onchange="window.pixDoneApp.updateInlineRepeat('${taskId}')">
+                            <option value="none">No repeat</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="inline-edit-actions">
+                    <div class="inline-edit-actions-left">
+                        <button type="button" class="inline-delete-btn" onclick="window.pixDoneApp.deleteInlineTask('${taskId}')">Delete</button>
+                    </div>
+                    <div class="inline-edit-actions-right">
+                        <button type="button" class="inline-cancel-btn" onclick="window.pixDoneApp.cancelInlineEdit('${taskId}')">Cancel</button>
+                        <button type="button" class="inline-save-btn" onclick="window.pixDoneApp.saveInlineEdit('${taskId}')">Save</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insert the edit form after the task element
+        taskElement.style.display = 'none';
+        taskElement.parentNode.insertBefore(editForm, taskElement.nextSibling);
+        
+        // Set up rich text editing and focus
+        setTimeout(() => {
+            const titleInput = document.getElementById(`inline-title-${taskId}`);
+            const detailsInput = document.getElementById(`inline-details-${taskId}`);
+            
+            if (titleInput) {
+                titleInput.focus();
+                this.selectAllText(titleInput);
+                this.setupRichTextEditor(titleInput);
+            }
+            
+            if (detailsInput) {
+                this.setupRichTextEditor(detailsInput);
+            }
+            
+            // Set up date buttons based on task data
+            this.updateInlineDateButtons(taskId, task.dueDate);
+            
+            // Set up repeat selector based on task data
+            this.updateInlineRepeatSelector(taskId, task.repeat || 'none');
+        }, 100);
+        
+        // Set up click-outside-to-close behavior
+        this.setupInlineEditClickOutside(editForm, taskId);
+        
+        // Store current task for saving
+        this.currentTask = { ...task };
+        this.selectedDate = task.dueDate;
+        this.selectedRepeat = task.repeat || 'none';
+    }
+    
+    async saveInlineEdit(taskId) {
+        console.log('Saving inline edit for task:', taskId);
+        
+        const titleInput = document.getElementById(`inline-title-${taskId}`);
+        const detailsInput = document.getElementById(`inline-details-${taskId}`);
+        
+        if (!titleInput || !detailsInput) {
+            console.error('Inline edit inputs not found');
+            return;
+        }
+        
+        const title = this.extractTextFromRichEditor(titleInput);
+        const details = this.extractTextFromRichEditor(detailsInput);
+        
+        if (!title) {
+            titleInput.focus();
+            return;
+        }
+        
+        // Update task
+        const currentList = this.getCurrentList();
+        const taskIndex = currentList ? currentList.tasks.findIndex(t => String(t.id) === String(taskId)) : -1;
+        
+        if (taskIndex === -1) {
+            console.error('Task not found for update');
+            return;
+        }
+        
+        // Update task data
+        currentList.tasks[taskIndex].title = title;
+        currentList.tasks[taskIndex].details = details;
+        currentList.tasks[taskIndex].dueDate = this.selectedDate;
+        currentList.tasks[taskIndex].repeat = this.selectedRepeat;
+        
+        // Update in Firebase if authenticated
+        if (this.isAuthenticated) {
+            try {
+                await deleteTaskFromFirestore(taskId);
+                await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId);
+            } catch (error) {
+                console.error('Error updating task in Firestore:', error);
+            }
+        }
+        
+        // Update global tasks array
+        this.tasks = currentList.tasks;
+        
+        // Clean up inline edit
+        this.cancelInlineEdit(taskId);
+        
+        // Re-render tasks
+        this.saveTasks();
+        this.renderTasks();
+        this.updateCompletedCount();
+        
+        // Play sound
+        if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+            this.comicEffects.playSound('taskEdit');
+        }
+    }
+    
+    cancelInlineEdit(taskId) {
+        console.log('Cancelling inline edit for task:', taskId);
+        
+        // Remove the edit form and clean up event listeners
+        const editForm = document.querySelector(`.inline-edit-form[data-editing-task="${taskId}"]`) || 
+                        document.querySelector('.inline-edit-form');
+        if (editForm) {
+            // Clean up outside click handler
+            if (editForm._outsideClickHandler) {
+                document.removeEventListener('click', editForm._outsideClickHandler);
+            }
+            editForm.remove();
+        }
+        
+        // Show the original task element
+        const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+        if (taskElement) {
+            taskElement.style.display = '';
+        }
+        
+        // Reset current task
+        this.currentTask = null;
+        this.selectedDate = null;
+        this.selectedRepeat = 'none';
+        
+        // Play sound
+        if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+            this.comicEffects.playSound('taskCancel');
+        }
+    }
+    
+    async deleteInlineTask(taskId) {
+        console.log('Deleting inline task:', taskId);
+        
+        // Delete task
+        if (this.isAuthenticated) {
+            try {
+                await deleteTaskFromFirestore(taskId);
+            } catch (error) {
+                console.error('Error deleting task from Firestore:', error);
+            }
+        }
+        
+        // Remove from tasks array
+        const currentList = this.getCurrentList();
+        if (currentList) {
+            currentList.tasks = currentList.tasks.filter(t => String(t.id) !== String(taskId));
+            this.tasks = currentList.tasks;
+        }
+        
+        // Clean up inline edit
+        this.cancelInlineEdit(taskId);
+        
+        // Re-render tasks
+        this.saveTasks();
+        this.renderTasks();
+        this.updateCompletedCount();
+        this.renderListTabs();
+        
+        // Play sound
+        if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+            this.comicEffects.playSound('taskDelete');
+        }
+    }
+    
+    // Close all inline edits
+    closeAllInlineEdits() {
+        document.querySelectorAll('.inline-edit-form').forEach(form => {
+            const taskId = form.getAttribute('data-editing-task');
+            if (taskId) {
+                this.cancelInlineEdit(taskId);
+            } else {
+                form.remove();
+            }
+        });
+    }
+    
+    // Set up click-outside-to-close behavior for inline edit
+    setupInlineEditClickOutside(editForm, taskId) {
+        const handleOutsideClick = (event) => {
+            // Check if click is outside the edit form
+            if (!editForm.contains(event.target)) {
+                // Also check if click is not on the original task element (to avoid closing when clicking to edit)
+                const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                if (!taskElement || !taskElement.contains(event.target)) {
+                    console.log('Click outside detected, closing inline edit');
+                    this.cancelInlineEdit(taskId);
+                    document.removeEventListener('click', handleOutsideClick);
+                }
+            }
+        };
+        
+        // Add the listener after a short delay to avoid immediate closure
+        setTimeout(() => {
+            document.addEventListener('click', handleOutsideClick);
+        }, 100);
+        
+        // Store the listener for cleanup
+        editForm._outsideClickHandler = handleOutsideClick;
+    }
+    
+    // Inline edit date and repeat functions
+    selectInlineDate(taskId, dateType) {
+        // Reset all date buttons
+        document.querySelectorAll(`#inline-today-${taskId}, #inline-tomorrow-${taskId}, #inline-calendar-${taskId}`).forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        if (dateType === 'today') {
+            const btn = document.getElementById(`inline-today-${taskId}`);
+            btn.classList.add('active');
+            btn.textContent = 'Today';
+            this.selectedDate = new Date().toISOString().split('T')[0];
+        } else if (dateType === 'tomorrow') {
+            const btn = document.getElementById(`inline-tomorrow-${taskId}`);
+            btn.classList.add('active');
+            btn.textContent = 'Tomorrow';
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            this.selectedDate = tomorrow.toISOString().split('T')[0];
+        }
+        
+        // Play sound
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskEdit');
+        }
+    }
+    
+    showInlineDatePicker(taskId) {
+        const datePicker = document.getElementById(`inline-date-picker-${taskId}`);
+        if (datePicker) {
+            const today = new Date();
+            datePicker.value = today.toISOString().split('T')[0];
+            datePicker.focus();
+            
+            if (datePicker.showPicker) {
+                datePicker.showPicker();
+            } else {
+                datePicker.click();
+            }
+            
+            datePicker.onchange = () => {
+                const selectedDate = datePicker.value;
+                if (selectedDate) {
+                    this.selectedDate = selectedDate;
+                    
+                    // Reset other buttons
+                    document.querySelectorAll(`#inline-today-${taskId}, #inline-tomorrow-${taskId}`).forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Update calendar button
+                    const calendarBtn = document.getElementById(`inline-calendar-${taskId}`);
+                    calendarBtn.classList.add('active');
+                    const date = new Date(selectedDate);
+                    calendarBtn.innerHTML = `<i class="fa fa-calendar"></i> ${date.getMonth() + 1}/${date.getDate()}`;
+                    
+                    // Play sound
+                    if (this.comicEffects && this.comicEffects.playSound) {
+                        this.comicEffects.playSound('taskEdit');
+                    }
+                }
+            };
+        }
+    }
+    
+    toggleInlineRepeat(taskId) {
+        const repeatSelector = document.getElementById(`inline-repeat-selector-${taskId}`);
+        const repeatBtn = document.getElementById(`inline-repeat-${taskId}`);
+        
+        if (repeatSelector.style.display === 'none') {
+            repeatSelector.style.display = 'block';
+            repeatBtn.classList.add('active');
+        } else {
+            repeatSelector.style.display = 'none';
+            repeatBtn.classList.remove('active');
+            this.selectedRepeat = 'none';
+            document.getElementById(`inline-repeat-interval-${taskId}`).value = 'none';
+        }
+        
+        // Play sound
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskEdit');
+        }
+    }
+    
+    updateInlineRepeat(taskId) {
+        const repeatInterval = document.getElementById(`inline-repeat-interval-${taskId}`);
+        this.selectedRepeat = repeatInterval.value;
+        
+        // Play sound
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskEdit');
+        }
+    }
+    
+    updateInlineDateButtons(taskId, dueDate) {
+        if (!dueDate) return;
+        
+        const today = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        if (dueDate === today) {
+            const btn = document.getElementById(`inline-today-${taskId}`);
+            if (btn) btn.classList.add('active');
+        } else if (dueDate === tomorrowStr) {
+            const btn = document.getElementById(`inline-tomorrow-${taskId}`);
+            if (btn) btn.classList.add('active');
+        } else {
+            const calendarBtn = document.getElementById(`inline-calendar-${taskId}`);
+            if (calendarBtn) {
+                calendarBtn.classList.add('active');
+                const date = new Date(dueDate);
+                calendarBtn.innerHTML = `<i class="fa fa-calendar"></i> ${date.getMonth() + 1}/${date.getDate()}`;
+            }
+        }
+    }
+    
+    updateInlineRepeatSelector(taskId, repeat) {
+        if (repeat && repeat !== 'none') {
+            const repeatSelector = document.getElementById(`inline-repeat-selector-${taskId}`);
+            const repeatBtn = document.getElementById(`inline-repeat-${taskId}`);
+            const repeatInterval = document.getElementById(`inline-repeat-interval-${taskId}`);
+            
+            if (repeatSelector) repeatSelector.style.display = 'block';
+            if (repeatBtn) repeatBtn.classList.add('active');
+            if (repeatInterval) repeatInterval.value = repeat;
+        }
+    }
+    
+    toggleRepeatSelector() {
+        const repeatSelector = document.getElementById('repeatSelector');
+        const repeatBtn = document.getElementById('repeatBtn');
+        const repeatInterval = document.getElementById('repeatInterval');
+        
+        if (!repeatSelector) return;
+        
+        const isVisible = repeatSelector.style.display !== 'none';
+        repeatSelector.style.display = isVisible ? 'none' : 'block';
+        
+        if (!isVisible) {
+            if (repeatBtn) repeatBtn.classList.add('active');
+        } else {
+            if (repeatBtn) repeatBtn.classList.remove('active');
+            this.selectedRepeat = 'none';
+            if (repeatInterval) repeatInterval.value = 'none';
+        }
+    }
+    
+    async saveTask() {
+        const title = document.getElementById('taskTitle').value.trim();
+        const details = this.extractTextFromRichEditor(document.getElementById('taskDetails'));
+        if (!title) {
+            document.getElementById('taskTitle').focus();
+            return;
+        }
+        if (this.currentTask) {
+            // Edit existing task
+            this.currentTask.title = title;
+            this.currentTask.details = details;
+            this.currentTask.dueDate = this.selectedDate;
+            this.currentTask.repeat = this.selectedRepeat;
+            if (this.isAuthenticated) {
+                // Firestoreに更新を送信
+                try {
+                    await deleteTaskFromFirestore(this.currentTask.id);
+                    await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId);
+                } catch (error) {
+                    console.error('Error updating task in Firestore:', error);
+                }
+            } else {
+                // ローカルのみで更新
+                const currentList = this.getCurrentList();
+                if (currentList) {
+                    const idx = currentList.tasks.findIndex(t => t.id === this.currentTask.id);
+                    if (idx !== -1) {
+                        currentList.tasks[idx] = { ...this.currentTask };
+                        // Update the global tasks array for backward compatibility
+                        this.tasks = currentList.tasks;
+                    }
+                }
+            }
+        } else {
+            // Create new task
+            const task = {
+                id: this.taskIdCounter++,
+                title,
+                details,
+                dueDate: this.selectedDate,
+                repeat: this.selectedRepeat,
+                completed: false,
+                createdAt: new Date().toISOString(),
+                completedAt: null
+            };
+            if (this.isAuthenticated) {
+                await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId);
+            } else {
+                // Add to current list for offline users
+                const currentList = this.getCurrentList();
+                if (currentList) {
+                    currentList.tasks.unshift(task);
+                    // Update the global tasks array for backward compatibility
+                    this.tasks = currentList.tasks;
+                }
+            }
+        }
+        this.saveTasks();
+        this.renderTasks();
+        this.updateCompletedCount();
+        this.renderListTabs();
+        this.hideTaskInput();
+        // Animate new task
+        if (!this.currentTask && this.tasks.length > 0 && typeof this.tasks[0].id !== 'undefined') {
+            setTimeout(() => {
+                const taskElement = document.querySelector(`[data-task-id="${this.tasks[0].id}"]`);
+                if (taskElement) {
+                    taskElement.classList.add('task-item-new');
+                }
+            }, 100);
+            this.comicEffects.playSound('taskAdd');
+        }
+    }
+    
+    async toggleTaskCompletion(taskId, taskElement = null) {
+        console.log('toggleTaskCompletion called with taskId:', taskId);
+        
+        // Prevent duplicate completion calls
+        if (this.processingTaskId === taskId) {
+            console.log('Task completion already in progress for:', taskId);
+            return;
+        }
+        this.processingTaskId = taskId;
+        
+        // Find task in current list directly
+        const currentList = this.getCurrentList();
+        if (!currentList || !currentList.tasks) {
+            console.log('No current list or tasks found');
+            this.processingTaskId = null;
+            return;
+        }
+        const task = currentList.tasks.find(t => String(t.id) === String(taskId));
+        if (!task) {
+            console.log('Task not found:', taskId);
+            this.processingTaskId = null;
+            return;
+        }
+        // Clean up all tasks - remove isProcessing flag
+        currentList.tasks.forEach(t => {
+            delete t.isProcessing;
+        });
+        // Use provided element or find it in DOM
+        if (!taskElement) {
+            taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+        }
+        console.log('Task found, toggling completion:', task.title, 'completed:', task.completed);
+        if (task.completed) {
+            // Uncomplete task
+            task.completed = false;
+            task.completedAt = null;
+            if (this.isAuthenticated) {
+                try {
+                    await toggleTaskCompletionFirestore(taskId, false);
+                } catch (error) {
+                    console.error('Error updating task completion in Firestore:', error);
+                }
+            }
+            this.saveTasks();
+            this.renderTasks();
+            this.updateCompletedCount();
+            this.renderListTabs();
+            this.processingTaskId = null;
+        } else {
+            // Complete task without processing flag
+            task.completed = true;
+            task.completedAt = new Date().toISOString();
+            if (this.isAuthenticated) {
+                try {
+                    await toggleTaskCompletionFirestore(taskId, true);
+                } catch (error) {
+                    console.error('Error updating task completion in Firestore:', error);
+                }
+            }
+            // Show celebration effects once for all cases
+            this.showCelebration(task);
+            
+            // Show comic effects immediately with the current task element
+            if (window.taskAnimationEffects && taskElement && taskElement.nodeType === 1) {
+                console.log('Showing effects for element (type check):', taskElement.nodeType, taskElement.tagName);
+                console.log('Element rect before effect:', taskElement.getBoundingClientRect());
+                console.log('Element computed style:', window.getComputedStyle(taskElement));
+                
+                // Force element to be visible and positioned
+                taskElement.style.position = 'relative';
+                taskElement.style.zIndex = '1000';
+                taskElement.style.visibility = 'visible';
+                taskElement.style.display = 'block';
+                
+                // Apply direct visual effect first
+                taskElement.style.backgroundColor = '#4CAF50 !important';
+                taskElement.style.transform = 'scale(1.2)';
+                taskElement.style.transition = 'all 0.5s ease';
+                taskElement.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+                
+                // Then apply animation effects
+                window.taskAnimationEffects.animateTaskCompletion(taskElement);
+                
+                // Special handling for Smash List - delay replenishment until after effects
+                if (currentList.id === 'smash-list' || currentList.name === '💥 Smash List') {
+                    // Wait for the visual effects to complete before removing the task
+                    setTimeout(() => {
+                        // Remove completed task from Smash List after effects finish
+                        currentList.tasks = currentList.tasks.filter(t => t.id !== taskId);
+                        this.replenishSmashTasks();
+                        // Force re-render to show new tasks
+                        this.renderTasks();
+                        this.updateCompletedCount();
+                        this.renderListTabs();
+                        this.processingTaskId = null;
+                    }, 1000); // Wait longer for effects to be visible
+                } else if (taskId.startsWith('tutorial-')) {
+                    // Special handling for tutorial tasks - remove them after completion
+                    setTimeout(() => {
+                        // Remove completed tutorial task from list
+                        currentList.tasks = currentList.tasks.filter(t => t.id !== taskId);
+                        // Force re-render to show remaining tasks
+                        this.renderTasks();
+                        this.updateCompletedCount();
+                        this.renderListTabs();
+                        this.processingTaskId = null;
+                        console.log('Tutorial task removed after completion:', taskId);
+                    }, 1000); // Wait for effects to be visible
+                } else {
+                    // 連続完了のために次のタスクのチェックボックスにフォーカス移動
+                    this.focusNextTaskCheckbox(taskId);
+                    
+                    // Save and re-render after effect starts
+                    setTimeout(() => {
+                        this.saveTasks();
+                        this.renderTasks();
+                        this.updateCompletedCount();
+                        this.renderListTabs(); // Update tab counts
+                        this.processingTaskId = null;
+                    }, 500);
+                }
+            } else {
+                console.warn('No taskAnimationEffects or taskElement available, taskElement:', taskElement);
+                
+                // Special handling for Smash List - delay replenishment for fallback too
+                if (currentList.id === 'smash-list' || currentList.name === '💥 Smash List') {
+                    // Apply basic scaling effect even without animation library
+                    if (taskElement) {
+                        taskElement.style.transform = 'scale(1.2)';
+                        taskElement.style.backgroundColor = '#4CAF50';
+                        taskElement.style.transition = 'all 0.3s ease';
+                        taskElement.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+                    }
+                    
+                    // Wait for effects to complete before removing task
+                    setTimeout(() => {
+                        // Remove completed task from Smash List after effects
+                        currentList.tasks = currentList.tasks.filter(t => t.id !== taskId);
+                        this.replenishSmashTasks();
+                        this.renderTasks();
+                        this.updateCompletedCount();
+                        this.renderListTabs();
+                        this.processingTaskId = null;
+                    }, 800); // Wait for basic effects to be visible
+                } else if (taskId.startsWith('tutorial-')) {
+                    // Special handling for tutorial tasks - remove them after completion (fallback)
+                    if (taskElement) {
+                        taskElement.style.transform = 'scale(1.2)';
+                        taskElement.style.backgroundColor = '#4CAF50';
+                        taskElement.style.transition = 'all 0.3s ease';
+                        taskElement.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+                    }
+                    
+                    setTimeout(() => {
+                        // Remove completed tutorial task from list
+                        currentList.tasks = currentList.tasks.filter(t => t.id !== taskId);
+                        this.renderTasks();
+                        this.updateCompletedCount();
+                        this.renderListTabs();
+                        this.processingTaskId = null;
+                        console.log('Tutorial task removed after completion (fallback):', taskId);
+                    }, 800);
+                } else {
+                    // Don't save Smash List tasks - they're temporary
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.updateCompletedCount();
+                    this.renderListTabs(); // Update tab counts
+                    this.processingTaskId = null;
+                }
+            }
+        }
+    }
+    
+    focusNextTaskCheckbox(completedTaskId) {
+        // 未完了のタスクを取得
+        const incompleteTasks = this.tasks.filter(task => !task.completed);
+        
+        if (incompleteTasks.length > 0) {
+            // 次のタスクのチェックボックスを見つける
+            const nextTaskId = incompleteTasks[0].id;
+            
+            // 少し遅らせて次のチェックボックスにフォーカス
+            setTimeout(() => {
+                const nextCheckbox = document.querySelector(`[data-task-id="${nextTaskId}"] .task-checkbox`);
+                if (nextCheckbox) {
+                    nextCheckbox.focus();
+                    
+                    // 視覚的なフォーカス効果を追加
+                    nextCheckbox.style.boxShadow = '0 0 8px rgba(66, 133, 244, 0.6)';
+                    nextCheckbox.style.borderColor = '#4285f4';
+                    nextCheckbox.style.transition = 'all 0.2s ease';
+                    
+                    // フォーカス効果を一定時間後に削除
+                    setTimeout(() => {
+                        nextCheckbox.style.boxShadow = '';
+                        nextCheckbox.style.borderColor = '';
+                    }, 1000);
+                }
+            }, 300); // エフェクトの開始後に少し遅らせる
+        }
+    }
+    
+    editTask(taskId) {
+        console.log('editTask called with taskId:', taskId);
+        
+        // Check if this is a Smash List task and prevent editing
+        const currentList = this.getCurrentList();
+        if (currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List')) {
+            console.log('Preventing edit of Smash List task');
+            return;
+        }
+        
+        // Find task in current list
+        if (!currentList || !currentList.tasks) {
+            console.log('No current list or tasks found');
+            return;
+        }
+        
+        const task = currentList.tasks.find(t => String(t.id) === String(taskId));
+        if (!task) {
+            console.log('Task not found:', taskId);
+            return;
+        }
+        
+        console.log('Found task for editing:', task);
+        this.currentTask = { ...task }; // Create a copy to avoid reference issues
+        this.selectedDate = task.dueDate;
+        this.selectedRepeat = task.repeat || 'none';
+        
+        // Use mobile modal for mobile devices
+        if (window.innerWidth <= 768) {
+            this.showMobileModal();
+            
+            // Wait for modal to be created, then fill with task data
+            setTimeout(() => {
+                const titleField = document.getElementById('newTaskTitle');
+                const detailsField = document.getElementById('newTaskDetails');
+                
+                if (titleField) {
+                    titleField.innerHTML = this.processLinksForDisplay(task.title);
+                    this.setupRichTextEditor(titleField);
+                }
+                
+                if (detailsField) {
+                    detailsField.innerHTML = this.processLinksForDisplay(task.details || '');
+                    this.setupRichTextEditor(detailsField);
+                }
+                
+                // Show delete button for editing
+                const deleteBtn = document.getElementById('newDeleteBtn');
+                if (deleteBtn) {
+                    deleteBtn.style.display = 'inline-block';
+                }
+                
+                // Update mobile modal date buttons
+                this.updateMobileModalDateButtons(task);
+                this.updateMobileModalRepeatButton(task);
+                
+            }, 50);
+        } else {
+            // Desktop: Show inline editing
+            this.showInlineTaskEdit(taskId);
+            
+            // Fill form with task data for desktop
+            const titleField = document.getElementById('taskTitle');
+            const detailsField = document.getElementById('taskDetails');
+            
+            if (titleField) {
+                if (titleField.tagName === 'INPUT') {
+                    titleField.value = task.title;
+                } else {
+                    titleField.innerHTML = this.processLinksForDisplay(task.title);
+                }
+            }
+            
+            if (detailsField) {
+                detailsField.innerHTML = this.processLinksForDisplay(task.details || '');
+            }
+        }
+        
+        // Set up rich text editing for desktop only (mobile is handled in setTimeout above)
+        if (window.innerWidth > 768) {
+            const taskTitleEl = document.getElementById('taskTitle');
+            const taskDetailsEl = document.getElementById('taskDetails');
+            
+            if (taskTitleEl && taskTitleEl.contentEditable === 'true') {
+                this.setupRichTextEditor(taskTitleEl);
+                
+                // Setup placeholder behavior
+                if (taskTitleEl.textContent.trim() === '' && taskTitleEl.hasAttribute('placeholder')) {
+                    taskTitleEl.classList.add('empty');
+                }
+            }
+            
+            if (taskDetailsEl) {
+                this.setupRichTextEditor(taskDetailsEl);
+                
+                // Setup placeholder behavior
+                if (taskDetailsEl.textContent.trim() === '' && taskDetailsEl.hasAttribute('placeholder')) {
+                    taskDetailsEl.classList.add('empty');
+                }
+            }
+        }
+        
+        // Update date and repeat buttons for desktop only (mobile is handled in setTimeout above)
+        if (window.innerWidth > 768) {
+            // Update date buttons
+            document.querySelectorAll('.date-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (task.dueDate) {
+                const today = new Date().toISOString().split('T')[0];
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                
+                if (task.dueDate === today) {
+                    document.getElementById('todayBtn').classList.add('active');
+                } else if (task.dueDate === tomorrowStr) {
+                    document.getElementById('tomorrowBtn').classList.add('active');
+                } else {
+                    const calendarBtn = document.getElementById('calendarBtn');
+                    const customDatePicker = document.getElementById('customDatePicker');
+                    if (calendarBtn) calendarBtn.classList.add('active');
+                    if (customDatePicker) customDatePicker.value = task.dueDate;
+                }
+            }
+            
+            // Update repeat selector
+            const repeatSelector = document.getElementById('repeatSelector');
+            const repeatInterval = document.getElementById('repeatInterval');
+            const repeatBtn = document.getElementById('repeatBtn');
+            
+            if (task.repeat && task.repeat !== 'none') {
+                if (repeatSelector) repeatSelector.style.display = 'block';
+                if (repeatInterval) repeatInterval.value = task.repeat;
+                if (repeatBtn) repeatBtn.classList.add('active');
+            }
+            
+            // Show delete button in edit mode
+            const deleteBtn = document.getElementById('deleteBtn');
+            if (deleteBtn) {
+                deleteBtn.style.display = 'block';
+            }
+        }
+        
+        // Focus on title input
+        document.getElementById('taskTitle').focus();
+    }
+    
+    deleteTask(taskId) {
+        this.taskToDelete = taskId;
+        this.showDeleteModal();
+    }
+    
+    async confirmDeleteTask() {
+        if (this.taskToDelete) {
+            if (this.isAuthenticated) {
+                // Firestoreから削除
+                try {
+                    await deleteTaskFromFirestore(this.taskToDelete);
+                } catch (error) {
+                    console.error('Error deleting task from Firestore:', error);
+                }
+                this.tasks = this.tasks.filter(t => t.id !== this.taskToDelete);
+            } else {
+                // ローカルのみで削除
+                this.tasks = this.tasks.filter(t => t.id !== this.taskToDelete);
+            }
+            this.saveTasks();
+            this.renderTasks();
+            this.updateCompletedCount();
+            this.renderListTabs();
+            this.comicEffects.playSound('taskDelete');
+            this.hideDeleteModal();
+        }
+    }
+    
+    showDeleteModal() {
+        document.getElementById('deleteModal').classList.add('active');
+        this.comicEffects.playSound('taskAdd');
+    }
+    
+    hideDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+        this.taskToDelete = null;
+        this.comicEffects.playSound('taskCancel');
+    }
+    
+    toggleCompletedSection() {
+        console.log('Toggling completed section');
+        this.isCompletedExpanded = !this.isCompletedExpanded;
+        const completedTasks = document.getElementById('completedTasks');
+        const completedIcon = document.getElementById('completedIcon');
+        const completedToggle = document.getElementById('completedToggle');
+        
+        if (this.isCompletedExpanded) {
+            completedTasks.style.display = 'block';
+            completedIcon.style.transform = 'rotate(90deg)';
+            completedToggle.classList.add('expanded');
+        } else {
+            completedTasks.style.display = 'none';
+            completedIcon.style.transform = 'rotate(0deg)';
+            completedToggle.classList.remove('expanded');
+        }
+        
+        // Play sound feedback
+        if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+            this.comicEffects.playSound('taskAdd');
+        }
+    }
+    
+    renderTasks() {
+        const taskList = document.getElementById('taskList');
+        const completedTasks = document.getElementById('completedTasks');
+        const emptyState = document.getElementById('emptyState');
+        const gameStartEmpty = document.getElementById('gameStartEmpty');
+        
+        // Get tasks from current list
+        const currentList = this.getCurrentList();
+        const currentTasks = currentList ? currentList.tasks : [];
+        
+        // Update global tasks array for backward compatibility
+        this.tasks = currentTasks;
+        
+        const activeTasks = currentTasks.filter(t => !t.completed);
+        const completedTasksList = currentTasks.filter(t => t.completed);
+        
+        // Check if there are NO tasks at all (including completed)
+        const hasNoTasks = currentTasks.length === 0;
+        
+        // Special handling for Smash List
+        if (currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List')) {
+            // Hide both empty states for Smash List
+            if (emptyState) emptyState.style.display = 'none';
+            if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+            
+            // Hide add task button for Smash List
+            const addTaskButton = document.getElementById('addTaskBtn');
+            if (addTaskButton) {
+                addTaskButton.style.display = 'none';
+                addTaskButton.style.visibility = 'hidden';
+            }
+            
+            // Ensure Smash List has exactly 3 tasks at all times
+            this.maintainSmashListTasks();
+            const updatedActiveTasks = currentList.tasks.filter(t => !t.completed);
+            
+            // Always show Smash List message and tasks
+            taskList.innerHTML = `
+                <div class="smash-list-message">
+                    <p class="smash-list-subtitle">This app exists only to let you tap and smash tasks for pure satisfaction. No saving, no planning—just smashing.</p>
+                    <p class="desktop-only smash-list-hint">Press Shift to smash a task</p>
+                </div>
+                ${updatedActiveTasks.map(task => this.renderSmashTask(task)).join('')}
+            `;
+            
+            // Hide completed tasks section for Smash List
+            const completedSection = document.getElementById('completedSection');
+            if (completedSection) completedSection.style.display = 'none';
+        } else {
+            // Regular list rendering
+            // Show add task button for regular lists
+            const addTaskButton = document.getElementById('addTaskBtn');
+            if (addTaskButton) {
+                addTaskButton.style.display = 'block';
+                addTaskButton.style.visibility = 'visible';
+            }
+            
+            if (activeTasks.length === 0) {
+                taskList.innerHTML = '';
+                if (hasNoTasks) {
+                    // Show game start empty state when no tasks exist at all
+                    if (emptyState) emptyState.style.display = 'none';
+                    if (gameStartEmpty) gameStartEmpty.style.display = 'block';
+                } else {
+                    // Show regular empty state when only active tasks are empty
+                    if (emptyState) emptyState.style.display = 'block';
+                    if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+                }
+            } else {
+                if (emptyState) emptyState.style.display = 'none';
+                if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+                taskList.innerHTML = activeTasks.map(task => this.renderTask(task)).join('');
+            }
+            
+            // Render completed tasks for regular lists
+            completedTasks.innerHTML = completedTasksList.map(task => this.renderTask(task)).join('');
+            
+            // Show completed tasks section for regular lists
+            const completedSection = document.getElementById('completedSection');
+            if (completedSection) completedSection.style.display = 'block';
+        }
+        
+        // Setup event listeners for tasks (only once)
+        if (!this.taskEventListenersSetup) {
+            this.setupTaskEventListeners();
+        }
+        
+        // Setup keyboard shortcuts (only once)
+        if (!this.keyboardShortcutsSetup) {
+            this.setupKeyboardShortcuts();
+        }
+        
+        // Re-setup drag listeners after render
+        if (this.setupTaskDragListeners) {
+            this.setupTaskDragListeners();
+        }
+    }
+    
+    renderTask(task) {
+        const dueStatus = this.getDueStatus(task.dueDate);
+        const dateDisplay = this.formatDateDisplay(task.dueDate);
+        return `
+            <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" draggable="${!task.completed}">
+                <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}">
+                    ${task.completed ? '<i class="fas fa-check"></i>' : ''}
+                </div>
+                <div class="task-content">
+                    <div class="task-title">${this.parseMarkdownLinks(task.title)}</div>
+                    ${task.details ? `<div class="task-details-text">${this.parseMarkdownLinks(task.details)}</div>` : ''}
+                    ${dateDisplay ? `<div class="task-date ${dueStatus}">${dateDisplay}</div>` : ''}
+                </div>
+                <div class="task-actions">
+                    <button class="task-action-btn edit-btn" data-task-id="${task.id}" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="task-action-btn delete-btn" data-task-id="${task.id}" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    renderSmashTask(task) {
+        // Special rendering for Smash List tasks - no edit/delete buttons
+        return `
+            <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" draggable="false">
+                <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}">
+                    ${task.completed ? '<i class="fas fa-check"></i>' : ''}
+                </div>
+                <div class="task-content">
+                    <div class="task-title">${this.parseMarkdownLinks(task.title)}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    setupTaskEventListeners() {
+        console.log('Setting up task event listeners');
+        
+        // Prevent duplicate event listeners
+        if (this.taskEventListenersSetup) {
+            console.log('Event listeners already set up, skipping');
+            return;
+        }
+        this.taskEventListenersSetup = true;
+        
+        // Clear any existing event listeners by removing them first
+        const existingListeners = document.querySelectorAll('.task-event-listener');
+        existingListeners.forEach(listener => {
+            listener.remove();
+        });
+        
+        // Single click handler for all task interactions
+        document.addEventListener('click', (e) => {
+            // Prevent click events immediately after touch events
+            if (this.lastTouchTime && Date.now() - this.lastTouchTime < 500) {
+                console.log('Preventing click event after touch');
+                return;
+            }
+            
+            // Checkbox clicks
+            if (e.target.closest('.task-checkbox')) {
+                e.stopPropagation();
+                e.preventDefault();
+                const taskItem = e.target.closest('.task-item');
+                const taskId = taskItem.dataset.taskId;
+                console.log('Checkbox clicked via delegation for task:', taskId);
+                this.toggleTaskCompletion(taskId, taskItem);
+                return;
+            }
+            
+            // Edit button clicks
+            if (e.target.closest('.edit-btn')) {
+                e.stopPropagation();
+                const taskId = e.target.closest('.task-action-btn').dataset.taskId;
+                console.log('Edit button clicked for task:', taskId);
+                if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                    this.comicEffects.playSound('taskEdit');
+                }
+                this.editTask(taskId);
+                return;
+            }
+            
+            // Delete button clicks
+            if (e.target.closest('.delete-btn')) {
+                e.stopPropagation();
+                const taskId = e.target.closest('.task-action-btn').dataset.taskId;
+                console.log('Delete button clicked for task:', taskId);
+                this.deleteTask(taskId);
+                return;
+            }
+            
+            // Task item clicks (for editing)
+            if (e.target.closest('.task-item') && 
+                !e.target.closest('.task-checkbox') && 
+                !e.target.closest('.task-actions') &&
+                !e.target.closest('.task-action-btn')) {
+                const taskItem = e.target.closest('.task-item');
+                const taskId = taskItem.dataset.taskId;
+                console.log('Task item clicked for editing:', taskId);
+                if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                    this.comicEffects.playSound('taskEdit');
+                }
+                this.editTask(taskId);
+                return;
+            }
+        });
+        
+        // Mobile touch events - simplified approach
+        let touchStartData = null;
+        
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.task-item')) {
+                const touch = e.touches[0];
+                touchStartData = { 
+                    x: touch.clientX, 
+                    y: touch.clientY, 
+                    time: Date.now() 
+                };
+            }
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            // Record touch time to prevent duplicate click events
+            this.lastTouchTime = Date.now();
+            
+            // Handle checkbox touches
+            if (e.target.closest('.task-checkbox')) {
+                e.stopPropagation();
+                e.preventDefault();
+                const taskItem = e.target.closest('.task-item');
+                const taskId = taskItem.dataset.taskId;
+                console.log('Mobile checkbox touched - task:', taskId);
+                console.log('Task element found:', taskItem);
+                console.log('About to trigger effects for mobile completion');
+                this.toggleTaskCompletion(taskId, taskItem);
+                return;
+            }
+            
+            // Handle task item touches for editing
+            if (e.target.closest('.task-item') && 
+                !e.target.closest('.task-checkbox') && 
+                !e.target.closest('.task-actions') &&
+                !e.target.closest('.task-action-btn')) {
+                
+                const taskItem = e.target.closest('.task-item');
+                const taskId = taskItem.dataset.taskId;
+                
+                if (touchStartData) {
+                    const touch = e.changedTouches[0];
+                    const deltaX = Math.abs(touch.clientX - touchStartData.x);
+                    const deltaY = Math.abs(touch.clientY - touchStartData.y);
+                    const timeDiff = Date.now() - touchStartData.time;
+                    
+                    // Simple tap detection: under 500ms and minimal movement
+                    if (timeDiff < 500 && deltaX < 20 && deltaY < 20) {
+                        console.log('Mobile tap edit for task:', taskId);
+                        if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                            this.comicEffects.playSound('taskEdit');
+                        }
+                        this.editTask(taskId);
+                    }
+                    
+                    touchStartData = null;
+                }
+            }
+        });
+        
+        // Setup drag and drop
+        this.setupDragAndDrop();
+    }
+
+    setupKeyboardShortcuts() {
+        console.log('Setting up keyboard shortcuts');
+        
+        // Prevent duplicate event listeners
+        if (this.keyboardShortcutsSetup) {
+            console.log('Keyboard shortcuts already set up, skipping');
+            return;
+        }
+        this.keyboardShortcutsSetup = true;
+        
+        // Initialize debounce timestamp
+        this.lastShiftSmashTime = 0;
+        
+        // Check if device is desktop (has hover and fine pointer)
+        const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        
+        if (!isDesktop) {
+            console.log('Not a desktop device, skipping keyboard shortcuts');
+            return;
+        }
+        
+        // Add keydown listener for Shift key
+        document.addEventListener('keydown', (e) => {
+            // Only respond to Shift key without modifiers
+            if (e.key !== 'Shift' || e.ctrlKey || e.altKey || e.metaKey) {
+                return;
+            }
+            
+            // Check if currently on Smash List
+            const currentList = this.getCurrentList();
+            if (!currentList || (currentList.id !== 'smash-list' && currentList.name !== '💥 Smash List')) {
+                return;
+            }
+            
+            // Ignore if focus is in editable element
+            const activeElement = document.activeElement;
+            if (activeElement && (
+                activeElement.tagName === 'INPUT' ||
+                activeElement.tagName === 'TEXTAREA' ||
+                activeElement.isContentEditable ||
+                activeElement.closest('.modal') ||
+                activeElement.closest('.task-form')
+            )) {
+                return;
+            }
+            
+            // Debounce: prevent rapid repeat triggers (300ms cooldown)
+            const now = Date.now();
+            if (now - this.lastShiftSmashTime < 300) {
+                return;
+            }
+            this.lastShiftSmashTime = now;
+            
+            // Get first active Smash List task
+            const activeTasks = currentList.tasks.filter(t => !t.completed);
+            if (activeTasks.length === 0) {
+                return;
+            }
+            
+            const firstTask = activeTasks[0];
+            const taskElement = document.querySelector(`.task-item[data-task-id="${firstTask.id}"]`);
+            
+            if (taskElement) {
+                console.log('Shift key pressed - smashing task:', firstTask.id);
+                // Trigger task completion with existing animation
+                this.toggleTaskCompletion(firstTask.id, taskElement);
+            }
+        });
+        
+        console.log('Keyboard shortcuts set up successfully');
+    }
+
+    // --- D&D用内部メソッド例（既存のものを流用・整理） ---
+    _startTaskDrag(taskItem, x, y, e) {
+        this.draggedTask = taskItem;
+        this.draggedTask.classList.add('dragging');
+        this.dragStartY = y;
+    }
+
+    _moveTaskDrag(taskItem, x, y, e) {
+        if (!this.draggedTask) return;
+        const taskList = this.draggedTask.parentNode;
+        const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.dragging)'));
+        const mouseY = y;
+        let insertBefore = null;
+        for (const t of tasks) {
+            const rect = t.getBoundingClientRect();
+            if (mouseY < rect.top + rect.height / 2) {
+                insertBefore = t;
+                break;
+            }
+        }
+        if (insertBefore) {
+            taskList.insertBefore(this.draggedTask, insertBefore);
+        } else {
+            taskList.appendChild(this.draggedTask);
+        }
+    }
+
+    _endTaskDrag(taskItem, x, y, e) {
+        if (this.draggedTask) {
+            this.draggedTask.classList.remove('dragging');
+            this.draggedTask = null;
+            // 並び替え後の順序でthis.tasksを更新
+            this._updateTaskOrderFromDOM();
+        }
+    }
+
+    _updateTaskOrderFromDOM() {
+        // 現在のDOM順序に合わせてthis.tasksを並び替え
+        const taskList = document.getElementById('taskList');
+        if (!taskList) return;
+        const newOrder = Array.from(taskList.querySelectorAll('.task-item')).map(item => item.dataset.taskId);
+        this.tasks = newOrder.map(id => this.tasks.find(t => String(t.id) === String(id))).filter(Boolean);
+        // 必要ならFirestore等にも保存
+        // this.saveTasks();
+    }
+    
+    setupDragAndDrop() {
+        console.log('Setting up drag and drop functionality');
+        
+        // Simplified drag and drop variables
+        let draggedElement = null;
+        let draggedIndex = -1;
+        let isMouseDown = false;
+        let isDraggingNow = false;
+        let startY = 0;
+        let startX = 0;
+        let dragThreshold = 15;
+        let floatingClone = null;
+        let isTouchDevice = false;
+
+        const setupTaskDragListeners = () => {
+            console.log('Setting up task drag listeners');
+            document.querySelectorAll('.task-item:not(.completed)').forEach((taskItem, index) => {
+                console.log('Adding listeners to task:', taskItem.dataset.taskId);
+                
+                // マウスイベント（PC用）
+                taskItem.addEventListener('mousedown', (e) => {
+                    if (isTouchDevice) return; // タッチデバイスでは無効化
+                    
+                    // Don't start drag on interactive elements
+                    if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn')) {
+                        return;
+                    }
+                    
+                    isMouseDown = true;
+                    isDraggingNow = false; // 追加: ドラッグ開始前にリセット
+                    startY = e.clientY;
+                    startX = e.clientX;
+                    draggedElement = taskItem;
+                    draggedIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
+                    
+                    e.preventDefault();
+                });
+                
+                taskItem.addEventListener('mousemove', (e) => {
+                    if (isTouchDevice) return; // タッチデバイスでは無効化
+                    if (!isMouseDown || !draggedElement || isDraggingNow) return;
+                    
+                    const deltaY = Math.abs(e.clientY - startY);
+                    const deltaX = Math.abs(e.clientX - startX);
+                    
+                    if (deltaY > dragThreshold || deltaX > dragThreshold) {
+                        // ドラッグ開始
+                        isDraggingNow = true;
+                        draggedElement.classList.add('dragging');
+                        draggedElement.style.opacity = '0.5';
+
+                        // サウンドは一度だけ
+                        if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                            this.comicEffects.playSound('taskAdd');
+                        }
+
+                        // フローティングクローン生成
+                        floatingClone = draggedElement.cloneNode(true);
+                        floatingClone.classList.add('floating-clone');
+                        floatingClone.style.position = 'fixed';
+                        floatingClone.style.pointerEvents = 'none';
+                        floatingClone.style.opacity = '0.85';
+                        floatingClone.style.left = `${e.clientX - draggedElement.offsetWidth / 2}px`;
+                        floatingClone.style.top = `${e.clientY - draggedElement.offsetHeight / 2}px`;
+                        floatingClone.style.width = `${draggedElement.offsetWidth}px`;
+                        floatingClone.style.height = `${draggedElement.offsetHeight}px`;
+                        document.body.appendChild(floatingClone);
+
+                        // ドキュメント全体で追従
+                        document.addEventListener('mousemove', handleDocumentMouseMove);
+                        document.addEventListener('mouseup', handleDocumentMouseUp);
+                    }
+                });
+                
+                taskItem.addEventListener('mouseup', () => {
+                    if (isTouchDevice) return; // タッチデバイスでは無効化
+                    if (isMouseDown && draggedElement && !draggedElement.classList.contains('dragging')) {
+                        // This was a click, not a drag
+                        isMouseDown = false;
+                        draggedElement = null;
+                        draggedIndex = -1;
+                    }
+                });
+
+                // Touch events for mobile - 300ms long press implementation
+                let longPressTimer = null;
+                let touchStartTime = 0;
+                let touchMoved = false;
+                
+                taskItem.addEventListener('touchstart', (e) => {
+                    if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn')) {
+                        return;
+                    }
+                    
+                    console.log('Touch start on task:', taskItem.dataset.taskId);
+                    isTouchDevice = true;
+                    const touch = e.touches[0];
+                    touchStartTime = Date.now();
+                    touchMoved = false;
+                    startY = touch.clientY;
+                    startX = touch.clientX;
+                    draggedElement = taskItem;
+                    draggedIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
+                    
+                    // Start 300ms timer for long press detection
+                    longPressTimer = setTimeout(() => {
+                        if (!touchMoved && draggedElement) {
+                            console.log('Long press detected, starting drag for task:', taskItem.dataset.taskId);
+                            isDraggingNow = true;
+                            isMouseDown = true;
+                            draggedElement.classList.add('dragging');
+                            
+                            // Add sound feedback for successful long press
+                            if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                                this.comicEffects.playSound('taskAdd');
+                            }
+                            
+                            document.addEventListener('touchmove', handleDocumentTouchMove, { passive: false });
+                            document.addEventListener('touchend', handleDocumentTouchEnd, { passive: false });
+                            console.log('Document touch listeners added for long press drag');
+                        }
+                    }, 300);
+                    
+                    // Don't prevent default to allow normal scrolling
+                }, { passive: true });
+                
+                taskItem.addEventListener('touchmove', (e) => {
+                    if (!isTouchDevice) return;
+                    
+                    const touch = e.touches[0];
+                    const deltaY = Math.abs(touch.clientY - startY);
+                    const deltaX = Math.abs(touch.clientX - startX);
+                    
+                    // Cancel long press if finger moves too much (8px threshold)
+                    if ((deltaY > 8 || deltaX > 8) && !isDraggingNow) {
+                        touchMoved = true;
+                        if (longPressTimer) {
+                            clearTimeout(longPressTimer);
+                            longPressTimer = null;
+                        }
+                    }
+                    
+                    // Only prevent default if already in drag mode
+                    if (isDraggingNow) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                taskItem.addEventListener('touchend', (e) => {
+                    if (!isTouchDevice) return;
+                    
+                    // Clear timer if touch ends before long press completes
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                    
+                    console.log('Task touchend called, isDraggingNow:', isDraggingNow);
+                    
+                    // Don't reset drag state here if we're actively dragging
+                    // Let the document handler manage it
+                    if (!isDraggingNow) {
+                        // Reset drag state only if not actively dragging
+                        isMouseDown = false;
+                        isDraggingNow = false;
+                        draggedElement = null;
+                        draggedIndex = -1;
+                        touchMoved = false;
+                    }
+                }, { passive: true });
+            });
+        };
+
+        const handleDocumentMouseMove = (e) => {
+            if (!draggedElement || !isDraggingNow) return;
+            // フローティングクローンをマウスに追従
+            if (floatingClone) {
+                floatingClone.style.left = `${e.clientX - floatingClone.offsetWidth / 2}px`;
+                floatingClone.style.top = `${e.clientY - floatingClone.offsetHeight / 2}px`;
+            }
+            const taskList = document.getElementById('taskList');
+            const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.completed):not(.dragging)'));
+            let dropIndex = -1;
+            let minDistance = Infinity;
+            tasks.forEach((task, index) => {
+                const rect = task.getBoundingClientRect();
+                const taskCenterY = rect.top + rect.height / 2;
+                const distance = Math.abs(e.clientY - taskCenterY);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    dropIndex = index;
+                }
+            });
+            // If mouse is below all tasks, drop at the end
+            if (tasks.length > 0) {
+                const lastTask = tasks[tasks.length - 1];
+                const lastRect = lastTask.getBoundingClientRect();
+                if (e.clientY > lastRect.bottom) {
+                    dropIndex = tasks.length;
+                }
+            }
+            // Show drop indicator
+            this.showSimpleDropIndicator(dropIndex, tasks);
+        };
+
+        const handleDocumentMouseUp = (e) => {
+            if (!draggedElement || !isDraggingNow) return;
+            const taskList = document.getElementById('taskList');
+            const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.completed):not(.dragging)'));
+            let dropIndex = -1;
+            let minDistance = Infinity;
+            tasks.forEach((task, index) => {
+                const rect = task.getBoundingClientRect();
+                const taskCenterY = rect.top + rect.height / 2;
+                const distance = Math.abs(e.clientY - taskCenterY);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    dropIndex = index;
+                }
+            });
+            if (tasks.length > 0) {
+                const lastTask = tasks[tasks.length - 1];
+                const lastRect = lastTask.getBoundingClientRect();
+                if (e.clientY > lastRect.bottom) {
+                    dropIndex = tasks.length;
+                }
+            }
+            // Cleanup
+            draggedElement.classList.remove('dragging');
+            draggedElement.style.opacity = '';
+            this.removeDropIndicators();
+            // フローティングクローン削除
+            if (floatingClone && floatingClone.parentNode) {
+                floatingClone.parentNode.removeChild(floatingClone);
+            }
+            floatingClone = null;
+            // Reorder tasks if needed
+            if (dropIndex >= 0 && dropIndex !== draggedIndex) {
+                this.reorderTasksWithAnimation(draggedIndex, dropIndex);
+                if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                    this.comicEffects.playSound('taskAdd');
+                }
+            }
+            // Reset state
+            isMouseDown = false;
+            isDraggingNow = false;
+            draggedElement = null;
+            draggedIndex = -1;
+            // Remove document listeners
+            document.removeEventListener('mousemove', handleDocumentMouseMove);
+            document.removeEventListener('mouseup', handleDocumentMouseUp);
+        };
+
+        // タッチイベント用のハンドラー
+        const handleDocumentTouchMove = (e) => {
+            if (!draggedElement || !isDraggingNow) return;
+            const touch = e.touches[0];
+            // フローティングクローンをタッチに追従
+            if (floatingClone) {
+                floatingClone.style.left = `${touch.clientX - floatingClone.offsetWidth / 2}px`;
+                floatingClone.style.top = `${touch.clientY - floatingClone.offsetHeight / 2}px`;
+            }
+            const taskList = document.getElementById('taskList');
+            const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.completed):not(.dragging)'));
+            let dropIndex = -1;
+            let minDistance = Infinity;
+            tasks.forEach((task, index) => {
+                const rect = task.getBoundingClientRect();
+                const taskCenterY = rect.top + rect.height / 2;
+                const distance = Math.abs(touch.clientY - taskCenterY);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    dropIndex = index;
+                }
+            });
+            // If touch is below all tasks, drop at the end
+            if (tasks.length > 0) {
+                const lastTask = tasks[tasks.length - 1];
+                const lastRect = lastTask.getBoundingClientRect();
+                if (touch.clientY > lastRect.bottom) {
+                    dropIndex = tasks.length;
+                }
+            }
+            // Show drop indicator
+            this.showSimpleDropIndicator(dropIndex, tasks);
+        };
+
+        const handleDocumentTouchEnd = (e) => {
+            console.log('handleDocumentTouchEnd called');
+            if (!draggedElement || !isDraggingNow) {
+                console.log('No dragged element or not dragging');
+                return;
+            }
+            
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            const taskList = document.getElementById('taskList');
+            const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.completed):not(.dragging)'));
+            let dropIndex = -1;
+            let minDistance = Infinity;
+            
+            // Find drop position
+            tasks.forEach((task, index) => {
+                const rect = task.getBoundingClientRect();
+                const taskCenterY = rect.top + rect.height / 2;
+                const distance = Math.abs(touch.clientY - taskCenterY);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    dropIndex = index;
+                }
+            });
+            
+            // Handle drop at end
+            if (tasks.length > 0) {
+                const lastTask = tasks[tasks.length - 1];
+                const lastRect = lastTask.getBoundingClientRect();
+                if (touch.clientY > lastRect.bottom) {
+                    dropIndex = tasks.length;
+                }
+            }
+            
+            console.log('Touch end - draggedIndex:', draggedIndex, 'dropIndex:', dropIndex);
+            
+            // Cleanup dragging styles
+            draggedElement.classList.remove('dragging');
+            draggedElement.style.opacity = '';
+            this.removeDropIndicators();
+            
+            // Remove floating clone if exists
+            if (floatingClone && floatingClone.parentNode) {
+                floatingClone.parentNode.removeChild(floatingClone);
+            }
+            floatingClone = null;
+            
+            // Reorder tasks if position changed
+            if (dropIndex >= 0 && dropIndex !== draggedIndex) {
+                console.log('Reordering tasks from', draggedIndex, 'to', dropIndex);
+                this.reorderTasksWithAnimation(draggedIndex, dropIndex);
+                
+                // Sound temporarily disabled for debugging
+                // if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                //     this.comicEffects.playSound('taskAdd');
+                // }
+            }
+            
+            // Reset drag state
+            isMouseDown = false;
+            isDraggingNow = false;
+            draggedElement = null;
+            draggedIndex = -1;
+            
+            // Remove document listeners
+            document.removeEventListener('touchmove', handleDocumentTouchMove);
+            document.removeEventListener('touchend', handleDocumentTouchEnd);
+            console.log('Document touch listeners removed');
+        };
+
+        // Initial setup
+        setupTaskDragListeners();
+        
+        // Store the setup function for later use
+        this.setupTaskDragListeners = setupTaskDragListeners;
+    }
+
+    showSimpleDropIndicator(index, tasks) {
+        this.removeDropIndicators();
+        
+        if (tasks.length === 0) return;
+        
+        const indicator = document.createElement('div');
+        indicator.className = 'drop-indicator';
+        indicator.style.position = 'fixed';
+        indicator.style.height = '3px';
+        indicator.style.backgroundColor = '#4285f4';
+        indicator.style.borderRadius = '2px';
+        indicator.style.pointerEvents = 'none';
+        indicator.style.zIndex = '99999';
+        indicator.style.opacity = '0.8';
+        
+        if (index === 0) {
+            // Insert at the beginning
+            const firstTask = tasks[0];
+            const rect = firstTask.getBoundingClientRect();
+            indicator.style.top = `${rect.top - 2}px`;
+            indicator.style.left = `${rect.left}px`;
+            indicator.style.width = `${rect.width}px`;
+        } else if (index >= tasks.length) {
+            // Insert at the end
+            const lastTask = tasks[tasks.length - 1];
+            const rect = lastTask.getBoundingClientRect();
+            indicator.style.top = `${rect.bottom + 2}px`;
+            indicator.style.left = `${rect.left}px`;
+            indicator.style.width = `${rect.width}px`;
+        } else {
+            // Insert between tasks
+            const prevTask = tasks[index - 1];
+            const rect = prevTask.getBoundingClientRect();
+            indicator.style.top = `${rect.bottom + 2}px`;
+            indicator.style.left = `${rect.left}px`;
+            indicator.style.width = `${rect.width}px`;
+        }
+        
+        document.body.appendChild(indicator);
+    }
+
+    removeDropIndicators() {
+        document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+    }
+    
+    reorderTasksWithAnimation(fromIndex, toIndex) {
+        console.log('reorderTasksWithAnimation called:', fromIndex, '->', toIndex);
+        const activeTasks = this.tasks.filter(t => !t.completed);
+        console.log('Active tasks before reorder:', activeTasks.length);
+        
+        if (fromIndex < 0 || fromIndex >= activeTasks.length || toIndex < 0 || toIndex > activeTasks.length) {
+            console.log('Invalid indices, returning');
+            return;
+        }
+        
+        // 1. すべてのタスクの現在位置を記録
+        const taskElements = Array.from(document.querySelectorAll('.task-item:not(.completed)'));
+        const prevRects = taskElements.map(el => ({
+            id: el.dataset.taskId,
+            rect: el.getBoundingClientRect()
+        }));
+        
+        // 2. タスク配列を入れ替えてDOMを再描画
+        const taskToMove = activeTasks[fromIndex];
+        console.log('Moving task:', taskToMove.title, 'from', fromIndex, 'to', toIndex);
+        activeTasks.splice(fromIndex, 1);
+        activeTasks.splice(toIndex, 0, taskToMove);
+        
+        const completedTasks = this.tasks.filter(t => t.completed);
+        this.tasks = [...activeTasks, ...completedTasks];
+        this.saveTasks();
+        this.renderTasks();
+        this.renderListTabs();
+        
+        // 3. 新しい位置を取得し、アニメーションを適用
+        setTimeout(() => {
+            const newTaskElements = Array.from(document.querySelectorAll('.task-item:not(.completed)'));
+            
+            newTaskElements.forEach(el => {
+                const prev = prevRects.find(r => r.id === el.dataset.taskId);
+                if (prev) {
+                    const currentRect = el.getBoundingClientRect();
+                    const deltaY = prev.rect.top - currentRect.top;
+                    
+                    if (Math.abs(deltaY) > 1) {
+                        // アニメーション用のスタイルを適用
+                        el.style.transition = 'none';
+                        el.style.transform = `translateY(${deltaY}px)`;
+                        el.classList.add('reordering');
+                        
+                        // 次のフレームでアニメーション開始
+                        requestAnimationFrame(() => {
+                            el.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+                            el.style.transform = '';
+                            
+                            // アニメーション完了後にクリーンアップ
+                            setTimeout(() => {
+                                el.classList.remove('reordering');
+                                el.style.transition = '';
+                            }, 300);
+                        });
+                    }
+                }
+            });
+        }, 10);
+    }
+    
+    reorderTasks(fromIndex, toIndex) {
+        const activeTasks = this.tasks.filter(t => !t.completed);
+        
+        if (fromIndex < 0 || fromIndex >= activeTasks.length || 
+            toIndex < 0 || toIndex > activeTasks.length) {
+            return;
+        }
+        
+        // Get the task to move
+        const taskToMove = activeTasks[fromIndex];
+        
+        // Remove from original position
+        activeTasks.splice(fromIndex, 1);
+        
+        // Insert at new position
+        activeTasks.splice(toIndex, 0, taskToMove);
+        
+        // Update the main tasks array with the new order
+        const completedTasks = this.tasks.filter(t => t.completed);
+        this.tasks = [...activeTasks, ...completedTasks];
+        
+        // Save the new order
+        this.saveTasks();
+        this.renderTasks();
+        this.renderListTabs();
+    }
+    
+    getDueStatus(dueDate) {
+        if (!dueDate) return '';
+        
+        const today = new Date().toISOString().split('T')[0];
+        const taskDate = new Date(dueDate).toISOString().split('T')[0];
+        
+        if (taskDate < today) return 'overdue';
+        if (taskDate === today) return 'today';
+        return 'upcoming';
+    }
+    
+    formatDateDisplay(dueDate) {
+        if (!dueDate) return '';
+        
+        const today = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        if (dueDate === today) return 'Today';
+        if (dueDate === tomorrowStr) return 'Tomorrow';
+        
+        // Format as date
+        const date = new Date(dueDate);
+        return date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric' 
+        });
+    }
+    
+    updateCompletedCount() {
+        const currentList = this.getCurrentList();
+        if (!currentList) return; // null/undefinedガードを追加
+        const currentListId = currentList.id;
+        const allCompletedTasks = this.tasks.filter(t => t.completed);
+        const currentListCompletedTasks = allCompletedTasks.filter(t => t.listId === currentListId);
+        const completedCount = currentListCompletedTasks.length;
+        const completedCountElement = document.getElementById('completedCount');
+        if (completedCountElement) {
+            completedCountElement.textContent = completedCount;
+        }
+        // Hide completed section if no completed tasks
+        const completedSection = document.getElementById('completedSection');
+        if (completedSection) {
+            if (completedCount === 0) {
+                completedSection.style.display = 'none';
+            } else {
+                completedSection.style.display = 'block';
+            }
+        }
+    }
+    
+    showCelebration(task) {
+        // Prevent duplicate celebration for the same task
+        if (this.celebratingTaskId === task.id) {
+            console.log('Celebration already in progress for task:', task.id);
+            return;
+        }
+        this.celebratingTaskId = task.id;
+        
+        // Show celebration message (effects are handled by animateTaskCompletion to avoid duplicates)
+        const message = getCelebrationMessage(task);
+        console.log('Celebration:', message);
+        
+        // Clear celebration flag after effects complete
+        setTimeout(() => {
+            this.celebratingTaskId = null;
+        }, 2000); // Wait for effects to complete
+    }
+    
+    hideCelebration() {
+        // No overlay to hide - comic effects auto-dismiss
+    }
+    
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // URL handling functions
+    autoLinkUrls(text) {
+        // First escape HTML to prevent XSS
+        const escapedText = this.escapeHtml(text);
+        
+        // URL regex pattern that matches http:// and https:// URLs
+        const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+        
+        // Replace URLs with anchor tags
+        return escapedText.replace(urlRegex, (url) => {
+            // Clean URL (remove trailing punctuation that shouldn't be part of the link)
+            const cleanUrl = url.replace(/[.,;:!?]+$/, '');
+            const trailingPunctuation = url.substring(cleanUrl.length);
+            
+            return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="task-link" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${cleanUrl}</a>${trailingPunctuation}`;
+        });
+    }
+    
+    processTaskText(text) {
+        if (!text) return '';
+        return this.parseMarkdownLinks(text);
+    }
+    
+    // Handle paste events for hyperlink creation
+    handleHyperlinkPaste(inputElement) {
+        console.log('[PixDone] Setting up hyperlink paste handler for:', inputElement.id);
+        
+        inputElement.addEventListener('paste', (e) => {
+            console.log('[PixDone] Paste event triggered');
+            const clipboardText = e.clipboardData.getData('text/plain');
+            console.log('[PixDone] Clipboard text:', clipboardText);
+            
+            // Check if pasted text is a URL
+            const urlRegex = /^https?:\/\/[^\s<>"']+$/i;
+            if (!urlRegex.test(clipboardText.trim())) {
+                console.log('[PixDone] Not a URL, allowing default paste');
+                return; // Not a URL, let default paste behavior happen
+            }
+            
+            const selectionStart = inputElement.selectionStart;
+            const selectionEnd = inputElement.selectionEnd;
+            const selectedText = inputElement.value.substring(selectionStart, selectionEnd);
+            console.log('[PixDone] Selected text:', selectedText);
+            
+            // If text is selected and we're pasting a URL, create a hyperlink
+            if (selectedText && selectedText.trim() !== '') {
+                console.log('[PixDone] Creating hyperlink');
+                e.preventDefault();
+                
+                // Create hyperlink markdown-style format: [text](url)
+                const hyperlinkText = `[${selectedText}](${clipboardText.trim()})`;
+                console.log('[PixDone] Hyperlink text:', hyperlinkText);
+                
+                // Replace selected text with hyperlink
+                const beforeSelection = inputElement.value.substring(0, selectionStart);
+                const afterSelection = inputElement.value.substring(selectionEnd);
+                inputElement.value = beforeSelection + hyperlinkText + afterSelection;
+                
+                // Position cursor after the inserted hyperlink
+                const newCursorPosition = selectionStart + hyperlinkText.length;
+                inputElement.setSelectionRange(newCursorPosition, newCursorPosition);
+                
+                // Trigger input event to update any listeners
+                inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+                
+                // Play sound feedback
+                if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                    this.comicEffects.playSound('taskEdit');
+                }
+                
+                console.log('[PixDone] Hyperlink created successfully');
+            } else {
+                console.log('[PixDone] No text selected, allowing default paste');
+            }
+        });
+    }
+    
+    // Parse markdown-style links and convert to HTML
+    parseMarkdownLinks(text) {
+        if (!text) return '';
+        
+        // First escape HTML
+        let processedText = this.escapeHtml(text);
+        
+        // Convert markdown links [text](url) to HTML anchor tags with inline style
+        const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi;
+        processedText = processedText.replace(markdownLinkRegex, (match, linkText, url) => {
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="task-link" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${linkText}</a>`;
+        });
+        
+        // Then auto-link any remaining plain URLs that are not already inside anchor tags with inline style
+        const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+        processedText = processedText.replace(urlRegex, (url) => {
+            // Don't replace URLs that are already part of an anchor tag
+            const beforeUrl = processedText.substring(0, processedText.indexOf(url));
+            const isInsideAnchor = beforeUrl.lastIndexOf('<a ') > beforeUrl.lastIndexOf('</a>');
+            
+            if (isInsideAnchor) {
+                return url; // Keep original URL if inside anchor
+            }
+            
+            // Clean URL (remove trailing punctuation that shouldn't be part of the link)
+            const cleanUrl = url.replace(/[.,;:!?]+$/, '');
+            const trailingPunctuation = url.substring(cleanUrl.length);
+            
+            return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="task-link" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${cleanUrl}</a>${trailingPunctuation}`;
+        });
+        
+        return processedText;
+    }
+    
+    // Set up real-time link preview for input fields
+    setupInputLinkPreview(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input || input.linkPreviewSetup) {
+            console.log(`[PixDone] Input ${inputId} not found or already setup`);
+            return;
+        }
+        
+        // Create preview overlay
+        const container = input.parentElement;
+        if (!container.classList.contains('task-input-field')) {
+            container.classList.add('task-input-field');
+            
+            const preview = document.createElement('div');
+            preview.className = 'task-input-preview';
+            preview.id = inputId + '-preview';
+            container.appendChild(preview);
+        }
+        
+        // Update preview on input
+        const updatePreview = () => {
+            const preview = document.getElementById(inputId + '-preview');
+            if (!preview) return;
+            
+            const text = input.value;
+            const processedText = this.highlightMarkdownLinks(text);
+            preview.innerHTML = processedText;
+        };
+        
+        input.addEventListener('input', updatePreview);
+        input.addEventListener('focus', updatePreview);
+        input.addEventListener('blur', updatePreview);
+        
+        // Initial preview update
+        setTimeout(updatePreview, 100);
+        
+        input.linkPreviewSetup = true;
+    }
+    
+    // Highlight markdown links in text without converting to HTML links
+    highlightMarkdownLinks(text) {
+        if (!text) return '';
+        
+        // Escape HTML first
+        let processedText = this.escapeHtml(text);
+        
+        // Highlight markdown links [text](url) 
+        const markdownLinkRegex = /(\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))/gi;
+        processedText = processedText.replace(markdownLinkRegex, (match, fullMatch, linkText, url) => {
+            return `<span class="markdown-link-preview">${fullMatch}</span>`;
+        });
+        
+        // Highlight plain URLs
+        const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+        processedText = processedText.replace(urlRegex, (url) => {
+            // Don't highlight URLs that are already inside markdown links
+            const beforeUrl = processedText.substring(0, processedText.indexOf(url));
+            const isInsideMarkdown = beforeUrl.includes('[') && beforeUrl.lastIndexOf('[') > beforeUrl.lastIndexOf(']');
+            
+            if (isInsideMarkdown) {
+                return url; // Keep original URL if inside markdown
+            }
+            
+            return `<span class="markdown-link-preview">${url}</span>`;
+        });
+        
+        return processedText;
+    }
+    
+    // Process links for rich text display
+    processLinksForDisplay(text) {
+        if (!text) return '';
+        
+        // Escape HTML first
+        let processedText = this.escapeHtml(text);
+        
+        // Convert markdown links [text](url) to HTML links with inline style for mobile
+        const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi;
+        processedText = processedText.replace(markdownLinkRegex, (match, linkText, url) => {
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="task-link" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${linkText}</a>`;
+        });
+        
+        // Convert plain URLs to HTML links with inline style for mobile
+        const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
+        processedText = processedText.replace(urlRegex, (url) => {
+            // Don't convert URLs that are already inside HTML links
+            const beforeUrl = processedText.substring(0, processedText.indexOf(url));
+            const isInsideLink = beforeUrl.includes('<a href="') && beforeUrl.lastIndexOf('<a href="') > beforeUrl.lastIndexOf('</a>');
+            
+            if (isInsideLink) {
+                return url; // Keep original URL if inside HTML link
+            }
+            
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="task-link" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${url}</a>`;
+        });
+        
+        return processedText;
+    }
+    
+    // Set up rich text editor with live link conversion
+    setupRichTextEditor(element) {
+        if (!element || element.richTextSetup) return;
+        
+        // Handle input to convert links in real-time
+        const handleInput = () => {
+            const selection = window.getSelection();
+            const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+            const offset = range ? range.startOffset : 0;
+            
+            // Get current text content
+            const text = element.textContent || '';
+            
+            // Process and update HTML
+            const newHTML = this.processLinksForDisplay(text);
+            
+            if (element.innerHTML !== newHTML) {
+                element.innerHTML = newHTML;
+                
+                // Restore cursor position
+                if (range && element.firstChild) {
+                    try {
+                        const textNode = this.findTextNodeAtOffset(element, offset);
+                        if (textNode) {
+                            range.setStart(textNode.node, Math.min(textNode.offset, textNode.node.textContent.length));
+                            range.collapse(true);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                    } catch (e) {
+                        // Fallback: place cursor at end
+                        const lastNode = this.getLastTextNode(element);
+                        if (lastNode) {
+                            range.setStart(lastNode, lastNode.textContent.length);
+                            range.collapse(true);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Handle paste to convert pasted URLs
+        const handlePaste = (e) => {
+            e.preventDefault();
+            
+            const selection = window.getSelection();
+            const pastedData = e.clipboardData.getData('text/plain');
+            
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const selectedText = selection.toString();
+                
+                // If text is selected and pasted data is URL, create markdown link
+                if (selectedText && this.isValidURL(pastedData)) {
+                    const markdownLink = `[${selectedText}](${pastedData})`;
+                    range.deleteContents();
+                    range.insertNode(document.createTextNode(markdownLink));
+                    range.collapse(false);
+                } else {
+                    // Regular paste
+                    range.insertNode(document.createTextNode(pastedData));
+                    range.collapse(false);
+                }
+                
+                // Trigger link processing
+                setTimeout(handleInput, 10);
+            }
+        };
+        
+        element.addEventListener('input', handleInput);
+        element.addEventListener('paste', handlePaste);
+        element.richTextSetup = true;
+        
+        // Set placeholder behavior
+        if (element.textContent.trim() === '' && element.hasAttribute('placeholder')) {
+            element.classList.add('empty');
+        }
+        
+        element.addEventListener('focus', () => {
+            if (element.classList.contains('empty')) {
+                element.classList.remove('empty');
+            }
+        });
+        
+        element.addEventListener('blur', () => {
+            if (element.textContent.trim() === '') {
+                element.classList.add('empty');
+            }
+        });
+    }
+    
+    // Extract plain text with markdown from rich editor
+    extractTextFromRichEditor(element) {
+        let text = '';
+        
+        const processNode = (node) => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                text += node.textContent;
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                if (node.tagName === 'A') {
+                    const href = node.getAttribute('href');
+                    const linkText = node.textContent;
+                    if (href && linkText !== href) {
+                        text += `[${linkText}](${href})`;
+                    } else {
+                        text += href || linkText;
+                    }
+                } else {
+                    // Process child nodes for other elements
+                    for (let child of node.childNodes) {
+                        processNode(child);
+                    }
+                    // Add line break for block elements
+                    if (['DIV', 'P', 'BR'].includes(node.tagName)) {
+                        text += '\n';
+                    }
+                }
+            }
+        };
+        
+        for (let child of element.childNodes) {
+            processNode(child);
+        }
+        
+        return text.trim();
+    }
+    
+    // Select all text in contenteditable element
+    selectAllText(element) {
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+    
+    // Find text node at specific offset
+    findTextNodeAtOffset(element, targetOffset) {
+        let currentOffset = 0;
+        
+        const walk = (node) => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const length = node.textContent.length;
+                if (currentOffset + length >= targetOffset) {
+                    return {
+                        node: node,
+                        offset: targetOffset - currentOffset
+                    };
+                }
+                currentOffset += length;
+            } else {
+                for (let child of node.childNodes) {
+                    const result = walk(child);
+                    if (result) return result;
+                }
+            }
+            return null;
+        };
+        
+        return walk(element);
+    }
+    
+    // Get last text node in element
+    getLastTextNode(element) {
+        let lastTextNode = null;
+        
+        const walk = (node) => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                lastTextNode = node;
+            } else {
+                for (let child of node.childNodes) {
+                    walk(child);
+                }
+            }
+        };
+        
+        walk(element);
+        return lastTextNode;
+    }
+
+    // Error handling utility
+    showErrorMessage(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        } else {
+            // Fallback if no error div exists
+            alert(message);
+        }
+    }
+    
+    // List management methods
+    renderListTabs() {
+        // --- 追加: My Tasksを先頭に ---
+        if (this.lists && this.lists.length > 1) {
+            const myTasksIdx = this.lists.findIndex(l => l.name === 'My Tasks');
+            if (myTasksIdx > 0) {
+                const [myTasksList] = this.lists.splice(myTasksIdx, 1);
+                this.lists.unshift(myTasksList);
+            }
+        }
+        // --- ここまで追加 ---
+        const container = document.getElementById('listTabs');
+        container.innerHTML = this.lists.map(list => `
+            <button class="list-tab ${list.id === this.currentListId ? 'active' : ''}" 
+                    data-list-id="${list.id}">
+                <span class="list-name">${this.escapeHtml(list.name)}</span>
+                ${(list.id === 'smash-list' || list.name === '💥 Smash List') ? '' : `<span class="list-count">${list.tasks.filter(t => !t.completed).length}</span>`}
+            </button>
+        `).join('');
+        
+        // Add event listeners to list tabs
+        container.querySelectorAll('.list-tab').forEach(tab => {
+            // Left click to switch
+            tab.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.switchToList(tab.dataset.listId);
+            });
+            
+            // Right click for context menu
+            tab.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                this.showListContextMenu(e, tab.dataset.listId);
+            });
+        });
+        
+        // Scroll to active tab
+        this.scrollToActiveTab();
+    }
+    
+    scrollToActiveTab() {
+        const container = document.getElementById('listTabs');
+        const activeTab = container.querySelector('.list-tab.active');
+        
+        if (activeTab && container.scrollWidth > container.clientWidth) {
+            const containerRect = container.getBoundingClientRect();
+            const activeTabRect = activeTab.getBoundingClientRect();
+            const scrollLeft = activeTabRect.left - containerRect.left + container.scrollLeft - (containerRect.width / 2) + (activeTabRect.width / 2);
+            
+            container.scrollTo({
+                left: scrollLeft,
+                behavior: 'smooth'
+            });
+        }
+    }
+    
+    switchToPreviousList() {
+        const currentIndex = this.lists.findIndex(list => list.id === this.currentListId);
+        if (currentIndex > 0) {
+            this.switchToList(this.lists[currentIndex - 1].id, 'right');
+        } else if (this.lists.length > 1) {
+            // Wrap to last list
+            this.switchToList(this.lists[this.lists.length - 1].id, 'right');
+        }
+    }
+    
+    switchToNextList() {
+        const currentIndex = this.lists.findIndex(list => list.id === this.currentListId);
+        if (currentIndex < this.lists.length - 1) {
+            this.switchToList(this.lists[currentIndex + 1].id, 'left');
+        } else if (this.lists.length > 1) {
+            // Wrap to first list
+            this.switchToList(this.lists[0].id, 'left');
+        }
+    }
+    
+    animateListSwitch(direction, callback) {
+        const tasksContainer = document.querySelector('.task-list-container');
+        if (!tasksContainer) {
+            callback();
+            return;
+        }
+        
+        const translateX = direction === 'left' ? -30 : 30;
+        
+        // Start animation - slide out current content
+        tasksContainer.style.transition = 'all 0.15s ease';
+        tasksContainer.style.transform = `translateX(${translateX}px)`;
+        tasksContainer.style.opacity = '0.5';
+        
+        setTimeout(() => {
+            // Switch content
+            callback();
+            
+            // Slide in new content from opposite direction
+            tasksContainer.style.transform = `translateX(${-translateX}px)`;
+            
+            setTimeout(() => {
+                tasksContainer.style.transform = 'translateX(0)';
+                tasksContainer.style.opacity = '1';
+                
+                setTimeout(() => {
+                    tasksContainer.style.transition = '';
+                }, 150);
+            }, 10);
+        }, 150);
+    }
+    
+    switchToList(listId, direction = 'none') {
+        if (direction !== 'none') {
+            this.animateListSwitch(direction, () => {
+                this.currentListId = listId;
+                this.renderListTabs();
+                this.updateListTitle();
+                this.renderTasks();
+                this.updateCompletedCount();
+                this.comicEffects.playSound('taskAdd');
+            });
+        } else {
+            this.currentListId = listId;
+            this.renderListTabs();
+            this.updateListTitle();
+            this.renderTasks();
+            this.updateCompletedCount();
+            this.comicEffects.playSound('taskAdd');
+        }
+    }
+    
+    getCurrentList() {
+        return this.lists.find(list => list.id === this.currentListId) || this.lists[0];
+    }
+    
+    get tasks() {
+        const currentList = this.getCurrentList();
+        if (!currentList) return [];
+        // Clean up tasks - remove isProcessing flag
+        return currentList.tasks.map(task => {
+            const cleanTask = { ...task };
+            delete cleanTask.isProcessing;
+            return cleanTask;
+        });
+    }
+    
+    set tasks(newTasks) {
+        const currentList = this.getCurrentList();
+        if (currentList) {
+            // Clean up tasks - remove isProcessing flag
+            currentList.tasks = newTasks.map(task => {
+                const cleanTask = { ...task };
+                delete cleanTask.isProcessing;
+                return cleanTask;
+            });
+        }
+    }
+    
+    showCreateListModal() {
+        const modal = document.getElementById('createListModal');
+        const input = document.getElementById('listNameInput');
+        modal.classList.add('active');
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskAdd');
+        }
+        setTimeout(() => {
+            input.focus();
+        }, 100);
+    }
+    
+    hideCreateListModal() {
+        const modal = document.getElementById('createListModal');
+        const input = document.getElementById('listNameInput');
+        modal.classList.remove('active');
+        input.value = '';
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskCancel');
+        }
+    }
+    
+    async handleCreateList() {
+        const input = document.getElementById('listNameInput');
+        const listName = input.value.trim();
+        if (listName) {
+            await this.createNewList(listName);
+            this.hideCreateListModal();
+        }
+    }
+    
+    async createNewList(name) {
+        if (this.isAuthenticated) {
+            try {
+                const newListId = await addListToFirestore(name);
+                // Firestoreからリストを再取得してUIを更新
+                this.lists = await loadListsFromFirestore();
+                this.switchToList(newListId);
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskAdd');
+                }
+                this.renderListTabs();
+                return;
+            } catch (error) {
+                console.error('Error creating list:', error);
+            }
+        }
+        // Fallback to local storage for unauthenticated users
+        const newList = {
+            id: `list-${this.listIdCounter++}`,
+            name: name,
+            tasks: [],
+            createdAt: new Date().toISOString()
+        };
+        this.lists.push(newList);
+        this.saveLists();
+        this.switchToList(newList.id);
+        this.updateListTitle();
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskAdd');
+        }
+    }
+    
+    // Context menu methods
+    showListContextMenu(event, listId) {
+        // Don't show context menu for default list
+        if (listId === 'default') {
+            return;
+        }
+        
+        this.contextMenuListId = listId;
+        const contextMenu = document.getElementById('contextMenu');
+        
+        // Position context menu
+        const x = event.clientX;
+        const y = event.clientY;
+        
+        contextMenu.style.left = x + 'px';
+        contextMenu.style.top = y + 'px';
+        contextMenu.classList.add('active');
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskEdit');
+        }
+        
+        // Adjust position if menu goes off screen
+        setTimeout(() => {
+            const rect = contextMenu.getBoundingClientRect();
+            if (rect.right > window.innerWidth) {
+                contextMenu.style.left = (x - rect.width) + 'px';
+            }
+            if (rect.bottom > window.innerHeight) {
+                contextMenu.style.top = (y - rect.height) + 'px';
+            }
+        }, 10);
+    }
+    
+    hideContextMenu() {
+        const contextMenu = document.getElementById('contextMenu');
+        if (contextMenu && contextMenu.classList.contains('active')) {
+            contextMenu.classList.remove('active');
+            this.contextMenuListId = null;
+            if (this.comicEffects && this.comicEffects.playSound) {
+                this.comicEffects.playSound('taskCancel');
+            }
+        }
+    }
+
+    // List management methods
+    showEditListModal(listId) {
+        // Don't allow editing default list
+        if (listId === 'default') {
+            return;
+        }
+        
+        const list = this.lists.find(l => l.id == listId);
+        if (!list) return;
+        
+        this.editingListId = listId;
+        const modal = document.getElementById('editListModal');
+        const input = document.getElementById('editListNameInput');
+        
+        input.value = list.name;
+        modal.classList.add('active');
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskAdd');
+        }
+        
+        setTimeout(() => {
+            input.focus();
+            input.select();
+        }, 100);
+    }
+    
+    hideEditListModal() {
+        const modal = document.getElementById('editListModal');
+        const input = document.getElementById('editListNameInput');
+        modal.classList.remove('active');
+        input.value = '';
+        this.editingListId = null;
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskCancel');
+        }
+    }
+    
+    async handleEditList() {
+        const input = document.getElementById('editListNameInput');
+        const newName = input.value.trim();
+        if (!newName || !this.editingListId) return;
+        if (this.isAuthenticated) {
+            try {
+                await editListInFirestore(this.editingListId, newName);
+                this.lists = await loadListsFromFirestore();
+                this.renderListTabs();
+                this.updateListTitle();
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskAdd');
+                }
+                this.hideEditListModal();
+                return;
+            } catch (error) {
+                console.error('Error updating list:', error);
+            }
+        }
+        // Fallback to local storage
+        const list = this.lists.find(l => l.id === this.editingListId);
+        if (list) {
+            list.name = newName;
+            this.saveLists();
+            this.renderListTabs();
+            this.updateListTitle();
+            if (this.comicEffects && this.comicEffects.playSound) {
+                this.comicEffects.playSound('taskAdd');
+            }
+        }
+        this.hideEditListModal();
+    }
+    
+    showDeleteListModal(listId) {
+        // Don't allow deleting default list
+        if (listId === 'default') {
+            return;
+        }
+        
+        const list = this.lists.find(l => l.id == listId);
+        if (!list) return;
+        
+        this.deletingListId = listId;
+        const modal = document.getElementById('deleteListModal');
+        const message = document.getElementById('deleteListMessage');
+        
+        message.textContent = `Are you sure you want to delete "${list.name}" and all its tasks?`;
+        modal.classList.add('active');
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskAdd');
+        }
+    }
+    
+    hideDeleteListModal() {
+        const modal = document.getElementById('deleteListModal');
+        modal.classList.remove('active');
+        this.deletingListId = null;
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskCancel');
+        }
+    }
+    
+    async handleDeleteList() {
+        if (!this.deletingListId) return;
+        if (this.isAuthenticated) {
+            try {
+                await deleteListFromFirestore(this.deletingListId);
+                this.lists = await loadListsFromFirestore();
+                // --- 追加: 各リストのtasksを再構築 ---
+                const user = firebase.auth().currentUser;
+                if (user) {
+                    const tasksSnap = await db.collection('tasks').where('uid', '==', user.uid).get();
+                    const allTasks = tasksSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    this.lists.forEach(list => {
+                        list.tasks = allTasks.filter(t => t.listId === list.id);
+                    });
+                }
+                // --- ここまで追加 ---
+                this.renderListTabs();
+                this.updateListTitle();
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskAdd');
+                }
+                this.hideDeleteListModal();
+                return;
+            } catch (error) {
+                console.error('Error deleting list:', error);
+            }
+        }
+        // Fallback to local storage
+        this.lists = this.lists.filter(l => l.id !== this.deletingListId);
+        this.saveLists();
+        this.renderListTabs();
+        this.updateListTitle();
+        if (this.comicEffects && this.comicEffects.playSound) {
+            this.comicEffects.playSound('taskAdd');
+        }
+        this.hideDeleteListModal();
+    }
+
+    getCurrentList() {
+        return this.lists.find(l => l.id === this.currentListId);
+    }
+    
+    ensureDefaultList() {
+        // デフォルトリストが存在しない場合は作成
+        if (!this.lists.some(l => l.name === 'My Tasks')) {
+            const defaultList = {
+                id: 'default',
+                name: 'My Tasks',
+                tasks: []
+            };
+            this.lists.unshift(defaultList);
+            this.currentListId = 'default';
+            this.saveLists();
+        }
+        
+        // currentListIdが未設定の場合はデフォルトリストを選択
+        if (!this.currentListId || !this.lists.some(l => l.id === this.currentListId)) {
+            const defaultList = this.lists.find(l => l.name === 'My Tasks');
+            this.currentListId = defaultList ? defaultList.id : this.lists[0]?.id;
+        }
+    }
+    
+    // List title methods
+    updateListTitle() {
+        const titleElement = document.getElementById('listTitle');
+        const menuButton = document.getElementById('listMenuBtn');
+        const currentList = this.getCurrentList();
+        if (titleElement && currentList) {
+            titleElement.textContent = currentList.name;
+        }
+        
+        // Hide menu button for default list and Smash List
+        if (menuButton) {
+            const currentList = this.getCurrentList();
+            const isDefaultList = (this.currentListId === 'default') || (currentList && currentList.name === 'My Tasks');
+            const isSmashList = (this.currentListId === 'smash-list') || (currentList && currentList.name === '💥 Smash List');
+            
+            if (isDefaultList || isSmashList) {
+                menuButton.style.display = 'none';
+                menuButton.classList.add('hidden');
+                menuButton.style.visibility = 'hidden';
+                menuButton.style.opacity = '0';
+            } else {
+                menuButton.style.display = 'block';
+                menuButton.classList.remove('hidden');
+                menuButton.style.visibility = 'visible';
+                menuButton.style.opacity = '1';
+                
+                // Re-add event listener for non-default lists
+                this.setupListMenuButton();
+            }
+        }
+    }
+    
+    // Setup list menu button event listener
+    setupListMenuButton() {
+        const menuButton = document.getElementById('listMenuBtn');
+        if (menuButton) {
+            // Remove existing event listener
+            menuButton.removeEventListener('click', this.listMenuClickHandler);
+            
+            // Create new handler
+            this.listMenuClickHandler = (e) => {
+                e.stopPropagation();
+                
+                // Play sound feedback
+                this.comicEffects.playSound('taskEdit');
+                
+                // Show context menu
+                this.showListContextMenu(e, this.currentListId);
+            };
+            
+            // Add event listener
+            menuButton.addEventListener('click', this.listMenuClickHandler);
+        }
+    }
+
+    // Data persistence
+    saveLists() {
+        try {
+            // 認証されていない場合はローカルストレージに保存
+            if (!this.isAuthenticated) {
+                localStorage.setItem('google_tasks_lists', JSON.stringify({
+                    lists: this.lists,
+                    currentListId: this.currentListId,
+                    listIdCounter: this.listIdCounter,
+                    taskIdCounter: this.taskIdCounter
+                }));
+                return;
+            }
+
+            // 認証されている場合はサーバーに保存
+            this.saveToServer();
+        } catch (error) {
+            console.error('Error saving lists:', error);
+        }
+    }
+
+    async saveToServer() {
+        if (!this.isAuthenticated) return;
+
+        try {
+            // リスト保存
+            for (const list of this.lists) {
+                if (!list.id) {
+                    // 新規リスト
+                    list.id = await addListToFirestore(list.name);
+                } else {
+                    await editListInFirestore(list.id, list.name);
+                }
+            }
+            // タスク保存
+            for (const list of this.lists) {
+                for (const task of list.tasks) {
+                    if (!task.id) {
+                        // 新規タスク
+                        await addTaskToFirestore(task.title, task.details, task.dueDate, task.repeat, list.id);
+                    } else if (typeof task.id === 'string') {
+                        await db.collection('tasks').doc(task.id).set({ ...task, uid: firebase.auth().currentUser.uid, listId: list.id }, { merge: true });
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error saving to Firestore:', error);
+        }
+    }
+    
+    loadLists() {
+        try {
+            const data = localStorage.getItem('google_tasks_lists');
+            if (data) {
+                const parsed = JSON.parse(data);
+                this.lists = parsed.lists || [];
+                this.currentListId = parsed.currentListId || 'default';
+                this.listIdCounter = parsed.listIdCounter || 1;
+                this.taskIdCounter = parsed.taskIdCounter || 1;
+            }
+            
+            // Create default list if no lists exist
+            if (this.lists.length === 0) {
+                const defaultTasks = [];
+                
+                // Add tutorial tasks for unauthenticated users
+                if (!this.isAuthenticated) {
+                    defaultTasks.push(...this.tutorialTasks.map(task => ({ ...task })));
+                }
+                
+                this.lists.push({
+                    id: 'default',
+                    name: 'My Tasks',
+                    tasks: defaultTasks,
+                    createdAt: new Date().toISOString()
+                });
+                this.currentListId = 'default';
+            } else {
+                // If default list exists, add tutorial tasks for unauthenticated users
+                if (!this.isAuthenticated) {
+                    const defaultList = this.lists.find(list => list.id === 'default');
+                    if (defaultList) {
+                        // Check if tutorial tasks already exist (avoid duplicates)
+                        const existingTutorialIds = defaultList.tasks.map(t => t.id);
+                        
+                        this.tutorialTasks.forEach(tutorialTask => {
+                            if (!existingTutorialIds.includes(tutorialTask.id)) {
+                                const taskCopy = { ...tutorialTask };
+                                taskCopy.listId = defaultList.id;
+                                defaultList.tasks.push(taskCopy);
+                            }
+                        });
+                    }
+                }
+            }
+            
+            // Ensure default list has English name
+            const defaultList = this.lists.find(list => list.id === 'default');
+            if (defaultList && defaultList.name === 'マイタスク') {
+                defaultList.name = 'My Tasks';
+                this.saveLists();
+            }
+            
+            // Ensure Smash List exists (only for unauthenticated users)
+            // Authenticated users will get Smash List from Firebase
+            if (!this.isAuthenticated && !this.lists.some(l => l.name === '💥 Smash List')) {
+                const smashList = {
+                    id: 'smash-list',
+                    name: '💥 Smash List',
+                    tasks: this.generateSmashTasks(),
+                    createdAt: new Date().toISOString()
+                };
+                this.lists.push(smashList);
+                this.saveLists();
+            }
+            
+            // Ensure current list ID is valid
+            const currentListExists = this.lists.some(list => list.id === this.currentListId);
+            if (!currentListExists && this.lists.length > 0) {
+                this.currentListId = this.lists[0].id;
+                this.saveLists();
+            }
+            
+            // Migrate old tasks data if exists
+            this.migrateOldTasksData();
+        } catch (error) {
+            console.error('Error loading lists:', error);
+        }
+    }
+    
+    migrateOldTasksData() {
+        try {
+            const oldData = localStorage.getItem('google_tasks_data');
+            if (oldData) {
+                const parsed = JSON.parse(oldData);
+                if (parsed.tasks && parsed.tasks.length > 0) {
+                    const defaultList = this.lists.find(list => list.id === 'default');
+                    if (defaultList && defaultList.tasks.length === 0) {
+                        defaultList.tasks = parsed.tasks;
+                        this.taskIdCounter = parsed.taskIdCounter || this.taskIdCounter;
+                        this.saveLists();
+                        localStorage.removeItem('google_tasks_data');
+                    }
+                }
+            }
+            
+            // Migrate Japanese list names to English and update Smash List name
+            let hasChanges = false;
+            this.lists.forEach(list => {
+                if (list.name === 'マイタスク') {
+                    list.name = 'My Tasks';
+                    hasChanges = true;
+                }
+                if (list.name === 'Smash List') {
+                    list.name = '💥 Smash List';
+                    hasChanges = true;
+                }
+            });
+            
+            if (hasChanges) {
+                this.saveLists();
+            }
+            
+            // Ensure current list ID is still valid after migration
+            const currentListExists = this.lists.some(list => list.id === this.currentListId);
+            if (!currentListExists && this.lists.length > 0) {
+                this.currentListId = this.lists[0].id;
+                this.saveLists();
+            }
+        } catch (error) {
+            console.error('Error migrating old tasks data:', error);
+        }
+    }
+    
+    // Update save method to use new structure
+    saveTasks() {
+        this.saveLists();
+    }
+    
+    // Email Authentication Methods
+    showEmailAuthModal() {
+        document.getElementById('emailAuthModal').classList.add('active');
+        this.isEmailAuthRegistering = true; // デフォルトでサインアップモード
+        this.updateEmailAuthModal();
+        this.comicEffects.playSound('taskAdd');
+    }
+    
+    hideEmailAuthModal() {
+        document.getElementById('emailAuthModal').classList.remove('active');
+        this.resetEmailAuthForm();
+        this.comicEffects.playSound('taskCancel');
+    }
+    
+    toggleEmailAuthMode() {
+        this.isEmailAuthRegistering = !this.isEmailAuthRegistering;
+        this.updateEmailAuthModal();
+        this.comicEffects.playSound('taskEdit');
+    }
+    
+    updateEmailAuthModal() {
+        const title = document.getElementById('emailAuthTitle');
+        const submitBtn = document.getElementById('emailAuthSubmit');
+        const toggleBtn = document.getElementById('toggleAuthMode');
+        const authFooter = document.querySelector('.auth-footer span');
+        const forgotPasswordSection = document.getElementById('forgotPasswordSection');
+        
+        if (this.isEmailAuthRegistering) {
+            title.textContent = 'Sign up';
+            submitBtn.textContent = 'Sign up';
+            toggleBtn.textContent = 'Log in';
+            authFooter.textContent = 'Already have an account? ';
+            forgotPasswordSection.style.display = 'none';
+        } else {
+            title.textContent = 'Log in';
+            submitBtn.textContent = 'Log in';
+            toggleBtn.textContent = 'Sign up';
+            authFooter.textContent = "Don't have an account? ";
+            forgotPasswordSection.style.display = 'block';
+        }
+    }
+    
+    togglePasswordVisibility(inputId = 'passwordInput', toggleId = 'passwordToggle') {
+        const passwordInput = document.getElementById(inputId);
+        const toggleBtn = document.getElementById(toggleId);
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleBtn.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            toggleBtn.textContent = '👁';
+        }
+        this.comicEffects.playSound('taskEdit');
+    }
+    
+    resetEmailAuthForm() {
+        document.getElementById('emailInput').value = '';
+        document.getElementById('passwordInput').value = '';
+    }
+
+    // Password reset methods
+    showPasswordResetModal() {
+        document.getElementById('emailAuthModal').classList.remove('active');
+        document.getElementById('passwordResetModal').classList.add('active');
+        this.comicEffects.playSound('taskAdd');
+    }
+
+    hidePasswordResetModal() {
+        document.getElementById('passwordResetModal').classList.remove('active');
+        document.getElementById('resetEmailInput').value = '';
+        this.comicEffects.playSound('taskCancel');
+    }
+
+    async handlePasswordReset() {
+        const email = document.getElementById('resetEmailInput').value.trim();
+        
+        if (!email) {
+            alert('Please enter your email address');
+            return;
+        }
+
+        try {
+            const result = await window.firebaseAuth.resetPassword(email);
+            
+            if (result.success) {
+                this.comicEffects.playSound('taskComplete');
+                alert(result.message);
+                this.hidePasswordResetModal();
+                this.showEmailAuthModal();
+            } else {
+                this.comicEffects.playSound('taskCancel');
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('Password reset error:', error);
+            this.comicEffects.playSound('taskCancel');
+            alert('Failed to send reset email. Please try again.');
+        }
+    }
+    
+    // Password setup methods
+    showPasswordSetupModal(token) {
+        document.getElementById('passwordSetupModal').style.display = 'flex';
+        this.verificationToken = token;
+    }
+    
+    hidePasswordSetupModal() {
+        document.getElementById('passwordSetupModal').style.display = 'none';
+        document.getElementById('newPasswordInput').value = '';
+        document.getElementById('confirmPasswordInput').value = '';
+        this.verificationToken = null;
+    }
+    
+    async handlePasswordSetup() {
+        const password = document.getElementById('newPasswordInput').value;
+        const confirmPassword = document.getElementById('confirmPasswordInput').value;
+        
+        if (!password || !confirmPassword) {
+            alert('Please enter both passwords');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+        
+        if (password.length < 6) {
+            alert('Password must be at least 6 characters long');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/auth/set-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    token: this.verificationToken,
+                    password: password
+                }),
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                alert('Password setup completed! Please log in.');
+                this.hidePasswordSetupModal();
+                this.showEmailAuthModal();
+                this.isEmailAuthRegistering = false;
+                this.updateEmailAuthModal();
+            } else {
+                alert(result.message || 'Password setup failed');
+            }
+        } catch (error) {
+            console.error('Password setup error:', error);
+            alert('Error occurred during password setup');
+        }
+    }
+    
+    toggleUserDropdown() {
+        const userDropdown = document.getElementById('userDropdown');
+        const isVisible = userDropdown.style.display === 'block';
+        userDropdown.style.display = isVisible ? 'none' : 'block';
+    }
+    
+    showDeleteAccountModal() {
+        const modal = document.getElementById('deleteAccountModal');
+        modal.style.display = 'flex';
+    }
+    
+    hideDeleteAccountModal() {
+        const modal = document.getElementById('deleteAccountModal');
+        modal.style.display = 'none';
+    }
+    
+    async deleteAccount() {
+        try {
+            const result = await window.firebaseAuth.deleteAccount();
+            if (result.success) {
+                this.hideDeleteAccountModal();
+                alert('Account deleted successfully');
+                window.location.reload();
+            } else {
+                alert(result.message || 'Failed to delete account');
+            }
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            alert('Error deleting account');
+        }
+    }
+    
+    async logout() {
+        try {
+            // まずサーバーセッションを終了
+            const res = await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            if (!res.ok) {
+                this.comicEffects.playSound('taskCancel');
+                alert('Server logout failed');
+                return;
+            }
+            // 次にFirebaseサインアウト
+            const result = await window.firebaseAuth.logout();
+            if (result.success) {
+                this.comicEffects.playSound('taskComplete');
+                this.user = null;
+                this.isAuthenticated = false;
+                window.location.reload();
+            } else {
+                this.comicEffects.playSound('taskCancel');
+                alert('Logout failed');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            this.comicEffects.playSound('taskCancel');
+            alert('Logout failed');
+        }
+    }
+    
+    async handleEmailAuth() {
+        const email = document.getElementById('emailInput').value;
+        const password = document.getElementById('passwordInput').value;
+        
+        if (!email || !password) {
+            this.comicEffects.playSound('taskCancel');
+            alert('Please enter email and password');
+            return;
+        }
+        
+        try {
+            let result;
+            
+            if (this.isEmailAuthRegistering) {
+                // Use Firebase for registration
+                result = await window.firebaseAuth.register(email, password);
+            } else {
+                // Use Firebase for login
+                result = await window.firebaseAuth.login(email, password);
+            }
+            
+            if (result.success) {
+                this.comicEffects.playSound('taskComplete');
+                if (this.isEmailAuthRegistering && result.needsVerification) {
+                    alert(result.message);
+                    this.hideEmailAuthModal();
+                } else {
+                    alert(result.message);
+                    this.hideEmailAuthModal();
+                    // --- MIGRATION LOGIC ---
+                    await this.migrateLocalDataToServer();
+                    window.location.reload();
+                }
+            } else {
+                this.comicEffects.playSound('taskCancel');
+                // Duplicate email error handling
+                if (result.message && (result.message.includes('User already exists') || result.message.includes('already in use'))) {
+                    alert('An account with this email already exists.');
+                } else {
+                    alert(result.message);
+                }
+            }
+        } catch (error) {
+            console.error('Auth error:', error);
+            this.comicEffects.playSound('taskCancel');
+            alert('Authentication error occurred');
+        }
+    }
+
+    // --- MIGRATION LOGIC ---
+    async migrateLocalDataToServer() {
+        if (!this.isAuthenticated) return;
+        // Get local lists
+        const local = localStorage.getItem('google_tasks_lists');
+        if (!local) return;
+        let localData;
+        try {
+            localData = JSON.parse(local);
+        } catch (e) { return; }
+        if (!localData.lists || localData.lists.length === 0) return;
+        // Upload lists and tasks
+        for (const list of localData.lists) {
+            // Create list on Firestore
+            let createdListId = null;
+            try {
+                createdListId = await addListToFirestore(list.name);
+            } catch (e) { continue; }
+            if (!createdListId || !list.tasks) continue;
+            // Upload tasks for this list
+            for (const task of list.tasks) {
+                try {
+                    await addTaskToFirestore(task.title, task.details, task.dueDate, task.repeat, createdListId);
+                } catch (e) { continue; }
+            }
+        }
+        // Remove local data after migration
+        localStorage.removeItem('google_tasks_lists');
+    }
+}
+
+// Initialize app when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.pixDoneApp = new PixDoneApp();
+    
+    // Initialize task animation effects
+    if (typeof TaskAnimationEffects !== 'undefined') {
+        window.taskAnimationEffects = new TaskAnimationEffects();
+    }
+});
+
+// サーバーにIDトークンを送ってセッション確立
+async function establishSession(user) {
+  const idToken = await user.getIdToken();
+  const res = await fetch('/api/auth/session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ idToken })
+  });
+  if (!res.ok) throw new Error('サーバーセッション確立失敗');
+}
+
+// PixDoneのログイン/新規登録UIイベントで↓を呼ぶようにする
+async function handleLogin(email, password) {
+  const userCred = await auth.signInWithEmailAndPassword(email, password);
+  await establishSession(userCred.user);
+  // 以降はPixDoneのUI更新ロジックを呼ぶ
+}
+async function handleRegister(email, password) {
+  const userCred = await auth.createUserWithEmailAndPassword(email, password);
+  await establishSession(userCred.user);
+  // 以降はPixDoneのUI更新ロジックを呼ぶ
+}
+
+// タスク取得・追加・削除などはfetch＋credentials: 'include'でAPIを叩く
+// 例: タスク取得
+async function fetchTasks() {
+  const res = await fetch('/api/tasks', { credentials: 'include' });
+  if (!res.ok) throw new Error('タスク取得失敗');
+  return await res.json();
+}
+// 例: タスク追加
+async function addTask(title) {
+  const res = await fetch('/api/tasks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ title })
+  });
+  if (!res.ok) throw new Error('タスク追加失敗');
+  return await res.json();
+}
+
+// ログアウト時はサーバー→Firebase signOut
+async function handleLogout() {
+  await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+  await auth.signOut();
+  // 以降はPixDoneのUI更新ロジックを呼ぶ
+}
+
+// PixDoneのUIイベントハンドラで上記関数を使うように修正
+// ... 既存のUI/UX・描画ロジックはそのまま ...
+
+// 1. すべてのfetch('/api/lists'), fetch('/api/tasks')などサーバーAPI呼び出しを削除
+// 2. FirestoreのJS APIでタスク管理するロジックに置換
+// 3. UI/UXやイベントハンドラはPixDoneのまま維持
+// 4. 認証はFirebase Authのまま
+// 5. 例: タスク取得
+async function loadTasksFromFirestore() {
+  const user = firebase.auth().currentUser;
+  if (!user) return [];
+  const snap = await db.collection('tasks').where('uid', '==', user.uid).orderBy('createdAt', 'desc').get();
+  return snap.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .filter(task => typeof task.id !== 'undefined');
+}
+// 例: タスク追加
+async function addTaskToFirestore(title, details = '', dueDate = null, repeat = 'none', listId) {
+  const user = firebase.auth().currentUser;
+  if (!user || !listId) return;
+  await db.collection('tasks').add({
+    uid: user.uid,
+    listId, // ← 追加
+    title,
+    details,
+    dueDate,
+    repeat,
+    completed: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+// 例: タスク削除
+async function deleteTaskFromFirestore(taskId) {
+  await db.collection('tasks').doc(taskId).delete();
+}
+// 例: タスク完了トグル
+async function toggleTaskCompletionFirestore(taskId, completed) {
+  const docRef = db.collection('tasks').doc(taskId);
+  const doc = await docRef.get();
+  if (doc.exists) {
+    await docRef.update({ completed: !completed });
+  } else {
+    // ドキュメントがなければ何もしない（またはエラー処理）
+    console.warn('No such task to update:', taskId);
+  }
+}
+// 以降、UIイベントでこれらのFirestore関数を使うように修正
+// ... 既存のUI/UX・描画ロジックはそのまま ...
+
+// 1. Firestoreリスト管理用関数を追加
+async function loadListsFromFirestore() {
+  const user = firebase.auth().currentUser;
+  if (!user) return [];
+  const snap = await db.collection('lists').where('uid', '==', user.uid).orderBy('createdAt', 'asc').get();
+  return snap.docs
+    .map(doc => ({ id: doc.id, ...doc.data(), tasks: [] }))
+    .filter(list => typeof list.id !== 'undefined');
+}
+async function addListToFirestore(name) {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+  const docRef = await db.collection('lists').add({
+    uid: user.uid,
+    name,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    tasks: []
+  });
+  
+  // Smash Listの場合は初期タスクを追加
+  if (name === '💥 Smash List') {
+    const smashTasks = [
+      { title: 'Check notifications', completed: false },
+      { title: 'Organize desk', completed: false },
+      { title: 'Review emails', completed: false },
+      { title: 'Take deep breaths', completed: false },
+      { title: 'Stretch muscles', completed: false },
+      { title: 'Clear browser tabs', completed: false },
+      { title: 'Clean keyboard', completed: false },
+      { title: 'Water plants', completed: false },
+      { title: 'Tidy up files', completed: false },
+      { title: 'Quick workout', completed: false }
+    ];
+    
+    const batch = db.batch();
+    smashTasks.forEach(task => {
+      const taskRef = db.collection('tasks').doc();
+      batch.set(taskRef, {
+        ...task,
+        listId: docRef.id,
+        uid: user.uid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    await batch.commit();
+  }
+  
+  return docRef.id;
+}
+async function editListInFirestore(listId, name) {
+  const docRef = db.collection('lists').doc(listId);
+  const doc = await docRef.get();
+  if (doc.exists) {
+    await docRef.update({ name });
+  } else {
+    await docRef.set({ name }); // 必要なら他のフィールドもセット
+  }
+}
+async function deleteListFromFirestore(listId) {
+  await db.collection('lists').doc(listId).delete();
+  // そのリストのtasksも削除（listIdが厳密一致するものだけ）
+  const snap = await db.collection('tasks').where('listId', '==', String(listId)).get();
+  const batch = db.batch();
+  snap.forEach(doc => {
+    const data = doc.data();
+    // listIdがundefined/nullのタスクは絶対に消さない
+    if (data.listId === String(listId)) {
+      batch.delete(doc.ref);
+    }
+  });
+  await batch.commit();
+}
+
+/**
+ * Firestoreのtasksコレクションをリアルタイム監視し、UIに即時反映する
+ * @param {string} listId - 現在のリストID
+ * @param {function} onUpdate - タスク配列を受け取るコールバック
+ */
+function listenTasksFromFirestore(listId, onUpdate) {
+  const user = firebase.auth().currentUser;
+  if (!user || !listId) return () => {};
+  return db.collection('tasks')
+    .where('uid', '==', user.uid)
+    .where('listId', '==', listId)
+    .orderBy('createdAt', 'desc')
+    .limit(50)
+    .onSnapshot(snap => {
+      const tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      onUpdate(tasks);
+    });
+}
+
+/**
+ * Firestoreのlistsコレクションをリアルタイム監視し、UIに即時反映する
+ * @param {function} onUpdate - リスト配列を受け取るコールバック
+ */
+function listenListsFromFirestore(onUpdate) {
+  const user = firebase.auth().currentUser;
+  if (!user) return () => {};
+  // リスト一覧のonSnapshot
+  return db.collection('lists')
+    .where('uid', '==', user.uid)
+    .orderBy('createdAt', 'asc')
+    .limit(20)
+    .onSnapshot(async snap => {
+      const lists = snap.docs.map(doc => ({ id: doc.id, ...doc.data(), tasks: [] }));
+      // 各リストのtasks数を即時反映
+      const tasksSnap = await db.collection('tasks').where('uid', '==', user.uid).get();
+      const allTasks = tasksSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      lists.forEach(list => {
+        list.tasks = allTasks.filter(t => t.listId === list.id);
+      });
+      onUpdate(lists);
+    });
+}
+
+// Add Task Button
+const addTaskBtn = document.getElementById('addTaskBtn');
+if (addTaskBtn) {
+  addTaskBtn.addEventListener('click', () => {
+    this.currentTask = null;
+    this.showMobileModal();
+  });
+}

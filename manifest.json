@@ -1,0 +1,32 @@
+{
+    "name": "PixDone",
+    "short_name": "PixDone",
+    "description": "A friendly, emotionally-rewarding task management app with 8-bit retro game design aesthetic",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#202124",
+    "theme_color": "#1a73e8",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "PixDone.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "PixDone.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "PixDone.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "scope": "/",
+    "lang": "en",
+    "categories": ["productivity", "utilities"]
+}

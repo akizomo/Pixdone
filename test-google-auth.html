@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Auth Test</title>
+</head>
+<body>
+    <h1>Google OAuth Test Page</h1>
+    <a href="/api/auth/google">Login with Google (Direct Link)</a>
+    <script>
+        // Test Google auth endpoint
+        function testGoogleAuth() {
+            fetch('/api/auth/google')
+                .then(response => console.log('Response:', response))
+                .catch(error => console.error('Error:', error));
+        }
+        
+        console.log('Testing Google auth endpoint...');
+        testGoogleAuth();
+    </script>
+</body>
+</html>

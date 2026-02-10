@@ -1,0 +1,24 @@
+🎨 Effect List:
+
+| Name              | Type               | Description                                                                 | Visual Style       | Implementation Suggestion         |
+|-------------------|--------------------|-----------------------------------------------------------------------------|---------------------|------------------------------------|
+| Confetti          | Visual + Sound     | Confetti bursts from the task item, celebrating success                     | 🎉 Celebration      | Lottie + Howler.js                 |
+| Crumple           | Visual + Sound     | Task crumples like paper and vanishes into a bin                           | 🗑️ Disposal          | SVG morph + paper crumple sound   |
+| Fire              | Visual + Sound     | Task ignites and disappears with a fiery crackle                           | 🔥 Release/burn     | Lottie flame + crackling SE       |
+| Pop               | Visual + Sound     | Task pops like a bubble and vanishes                                       | 💥 Quick burst      | anime.js scale + pop sound        |
+| BAM!              | Visual + Text      | A bold “BAM!” comic-style overlay appears briefly over the task            | 💢 Comic panel       | SVG text + punch sound + flash    |
+| “済” Stamp        | Visual + Sound     | A red “済” stamp slams onto the task, marking it as done                   | 📬 Official stamp    | SVG or image overlay + thump SE   |
+| Panel Swipe       | Visual             | Task slides out like a manga panel transition                              | 📖 Page transition   | CSS slide + fade to black & white |
+| Monologue         | Visual + Text      | Comic-style speech line appears: “...やっと終わったか。”                  | 😎 Dramatic pause    | Typing animation + fade           |
+| Speech Bubble Boom| Visual + Sound     | Speech bubble pops with “ドカーン！” + explosion sound                    | 💬 Gag comic         | SVG bubble + explosion SE         |
+
+💬 Message Examples (shown with effect):
+- “ドカーン！そのタスク、木っ端微塵！”
+- “完ッ了ォッ！…いい響きだね”
+- “スタンプ！よし、次っ！”
+- “……やっと終わったか、ふふ”
+- “Nice! Another one done.”
+
+💡 Optional:
+- Use `anime.js`, `Lottie`, and `Howler.js` for effects
+- Add light vibration if mobile (optional)

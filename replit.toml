@@ -1,0 +1,17 @@
+[run]
+command = "tsx server/index.ts"
+
+[env]
+NODE_ENV = "production"
+PORT = "5000"
+
+[deployment]
+deploymentTarget = "cloudrun"
+run = "tsx server/index.ts"
+
+[dev]
+run = "tsx server/index.ts"
+
+[health]
+path = "/health"
+port = 5000
