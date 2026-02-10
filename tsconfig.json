@@ -1,15 +1,17 @@
 {
     "compilerOptions": {
         "target": "ESNext",
-        "module": "ESNext",
-        "moduleResolution": "node",
+        "module": "node16",
+        "moduleResolution": "node16",
         "baseUrl": ".",
         "paths": {
             "/*": [
                 "./*"
             ]
         },
-        "strict": true,
+        "strict": false,
+        "useUnknownInCatchVariables": false,
+        "noImplicitAny": false,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,

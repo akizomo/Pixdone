@@ -1,5 +1,5 @@
 import express from "express";
-import { registerRoutes } from "./routes";
+import { registerRoutes } from "./routes.js";
 import cors from "cors";
 import helmet from "helmet";
 import path from "path";

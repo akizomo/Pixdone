@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import type { Express } from "express";
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 
 export function setupGoogleAuth(app: Express) {
   // Check if Google OAuth credentials are available
@@ -42,7 +42,7 @@ export function setupGoogleAuth(app: Express) {
   }));
 
   // Google OAuth routes
-  app.get('/api/auth/google', 
+  app.get('/api/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
   );
 

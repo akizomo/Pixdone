@@ -8,8 +8,8 @@ import {
   type TaskList,
   type InsertTask,
   type InsertTaskList,
-} from "../shared/schema";
-import { db } from "./db";
+} from "../shared/schema.js";
+import { db } from "./db.js";
 import { eq, and, desc } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
@@ -20,13 +20,13 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  
+
   // Task operations
   getUserTasks(userId: string): Promise<Task[]>;
   createTask(task: InsertTask): Promise<Task>;
   updateTask(taskId: number, updates: Partial<Task>): Promise<Task>;
   deleteTask(taskId: number): Promise<void>;
-  
+
   // TaskList operations
   getUserTaskLists(userId: string): Promise<TaskList[]>;
   createTaskList(taskList: InsertTaskList): Promise<TaskList>;
@@ -62,10 +62,10 @@ export class DatabaseStorage implements IStorage {
         },
       })
       .returning();
-    
+
     // Create default "My Tasks" list if it doesn't exist
     await this.ensureDefaultTaskList(user.id);
-    
+
     return user;
   }
 
@@ -74,7 +74,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(taskLists)
       .where(eq(taskLists.userId, userId));
-    
+
     if (existingLists.length === 0) {
       await db.insert(taskLists).values({
         name: 'My Tasks',

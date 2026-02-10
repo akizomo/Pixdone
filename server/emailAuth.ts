@@ -2,9 +2,9 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcrypt";
 import type { Express } from "express";
-import { storage } from "./storage";
-import { users, tasks, taskLists } from "../shared/schema";
-import { db } from "./db";
+import { storage } from "./storage.js";
+import { users, tasks, taskLists } from "../shared/schema.js";
+import { db } from "./db.js";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 
@@ -21,17 +21,17 @@ export function setupEmailAuth(app: Express) {
                 if (!user) {
                     return done(null, false);
                 }
-                
+
                 // Check if user is verified
                 if (!user.emailVerified) {
                     return done(null, false);
                 }
-                
+
                 const isValidPassword = await bcrypt.compare(password, user.password);
                 if (!isValidPassword) {
                     return done(null, false);
                 }
-                
+
                 return done(null, user);
             } catch (error) {
                 return done(error);
@@ -57,35 +57,35 @@ export function setupEmailAuth(app: Express) {
     app.post('/api/auth/register', async (req, res) => {
         try {
             const { email, password } = req.body;
-            
+
             if (!email || !password) {
                 return res.status(400).json({ message: 'Email and password are required' });
             }
-            
+
             // Check if user already exists
             const existingUser = await storage.getUserByEmail(email);
             if (existingUser) {
                 return res.status(400).json({ message: 'User already exists' });
             }
-            
+
             // Hash password
             const hashedPassword = await bcrypt.hash(password, 10);
-            
+
             // Generate verification token
             const verificationToken = crypto.randomUUID();
             const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-            
+
             // Store token temporarily
             verificationTokens.set(verificationToken, {
                 email,
                 password: hashedPassword,
                 expires
             });
-            
+
             // For development, show verification link directly
             const verificationUrl = `${req.protocol}://${req.get('host')}/api/auth/verify-email?token=${verificationToken}`;
-            
-            res.status(200).json({ 
+
+            res.status(200).json({
                 message: `Please verify your email by clicking this link: ${verificationUrl}`,
                 needsVerification: true,
                 verificationUrl: verificationUrl
@@ -100,21 +100,21 @@ export function setupEmailAuth(app: Express) {
     app.get('/api/auth/verify-email', async (req, res) => {
         try {
             const { token } = req.query;
-            
+
             if (!token || typeof token !== 'string') {
                 return res.status(400).send('Invalid verification token');
             }
-            
+
             const tokenData = verificationTokens.get(token);
             if (!tokenData) {
                 return res.status(400).send('Invalid or expired verification token');
             }
-            
+
             if (new Date() > tokenData.expires) {
                 verificationTokens.delete(token);
                 return res.status(400).send('Verification token has expired');
             }
-            
+
             // Create user account
             const newUser = await storage.upsertUser({
                 id: crypto.randomUUID(),
@@ -127,10 +127,10 @@ export function setupEmailAuth(app: Express) {
                 createdAt: new Date(),
                 updatedAt: new Date()
             });
-            
+
             // Clean up token
             verificationTokens.delete(token);
-            
+
             // Redirect to login page with success message
             res.redirect('/?verified=true');
         } catch (error) {
@@ -148,7 +148,7 @@ export function setupEmailAuth(app: Express) {
             if (!user) {
                 return res.status(401).json({ message: 'Invalid credentials or email not verified' });
             }
-            
+
             req.login(user, (err) => {
                 if (err) {
                     return res.status(500).json({ message: 'Login failed' });
@@ -182,18 +182,18 @@ export function setupEmailAuth(app: Express) {
             if (!req.user) {
                 return res.status(401).json({ message: 'Not authenticated' });
             }
-            
+
             const userId = (req.user as any).id;
-            
+
             // Delete user's tasks
             await db.delete(tasks).where(eq(tasks.userId, userId));
-            
+
             // Delete user's task lists
             await db.delete(taskLists).where(eq(taskLists.userId, userId));
-            
+
             // Delete user
             await db.delete(users).where(eq(users.id, userId));
-            
+
             // Logout user
             req.logout((err) => {
                 if (err) {
@@ -212,7 +212,7 @@ export function setupEmailAuth(app: Express) {
         if (!req.user) {
             return res.status(401).json({ message: 'Not authenticated' });
         }
-        
+
         const user = req.user as any;
         res.json({
             id: user.id,

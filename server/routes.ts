@@ -1,11 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import path from "path";
-import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
-import { setupGoogleAuth } from "./googleAuth";
-import { setupEmailAuth } from "./emailAuth";
-import { db } from "./db";
+import { storage } from "./storage.js";
+import { setupAuth, isAuthenticated } from "./replitAuth.js";
+import { setupGoogleAuth } from "./googleAuth.js";
+import { setupEmailAuth } from "./emailAuth.js";
+import { db } from "./db.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Validate database connection on startup
