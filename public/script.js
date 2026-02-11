@@ -6588,10 +6588,6 @@ class PixDoneApp {
 
         newFab.addEventListener('click', (e) => {
             e.stopPropagation();
-            // #region agent log
-            const isModalOpen = this.isAnyModalOpen();
-            fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'script.js:6554',message:'FAB clicked',data:{isMobileModalOpen:this.isMobileModalOpen,isAnyModalOpen:isModalOpen},timestamp:Date.now(),runId:'post-fix',hypothesisId:'D'})}).catch(()=>{});
-            // #endregion
 
             // Prevent FAB click when any modal is open
             if (this.isAnyModalOpen()) {
@@ -6644,10 +6640,6 @@ class PixDoneApp {
     renderMobileFab() {
         const fab = document.getElementById('mobileFab');
         if (!fab) return;
-        // #region agent log
-        const isModalOpen = this.isAnyModalOpen();
-        fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'script.js:6580',message:'renderMobileFab called',data:{isMobileModalOpen:this.isMobileModalOpen,isAnyModalOpen:isModalOpen,fabDisplay:fab.style.display},timestamp:Date.now(),runId:'post-fix',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
 
         // Don't show FAB if any modal is open
         if (this.isAnyModalOpen()) {
