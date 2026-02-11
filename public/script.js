@@ -5472,15 +5472,25 @@ class PixDoneApp {
                 this.saveLists();
             }
 
-            // Ensure default list has correct name based on auth status
+            // Ensure default list has correct name (未ログインは this.isAuthenticated のみで判定し、キャッシュの currentUser に左右されない)
             const defaultList = this.lists.find(list => list.id === 'default');
             if (defaultList) {
-                // Check both property and firebase user directly to handle transition state
-                const firebaseUser = firebase.auth().currentUser;
-                const isAuth = this.isAuthenticated || !!firebaseUser;
-                const targetName = isAuth ? 'My Tasks' : 'Tutorial';
+                const targetName = this.isAuthenticated ? 'My Tasks' : 'Tutorial';
                 if (defaultList.name !== targetName && (defaultList.name === 'My Tasks' || defaultList.name === 'Tutorial' || defaultList.name === 'マイタスク')) {
                     defaultList.name = targetName;
+                    this.saveLists();
+                }
+            }
+
+            // 未ログイン時は必ず Tutorial（id: default）を選択し、先頭にしておく
+            if (!this.isAuthenticated) {
+                const defaultIdx = this.lists.findIndex(l => l.id === 'default');
+                if (defaultIdx > 0) {
+                    const [def] = this.lists.splice(defaultIdx, 1);
+                    this.lists.unshift(def);
+                }
+                this.currentListId = 'default';
+                if (this.lists.some(l => l.id === 'default')) {
                     this.saveLists();
                 }
             }
