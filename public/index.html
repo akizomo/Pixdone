@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PixDone</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="modal-override.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Caveat:wght@400;500;600&family=VT323&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Caveat:wght@400;500;600&family=VT323&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="PixDone.png" sizes="32x32">
     <link rel="icon" type="image/svg+xml" href="PixDone.svg">
@@ -17,11 +20,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="PixDone">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Error Message Display -->
         <div id="errorMessage" class="error-message" style="display: none;"></div>
-        
+
         <!-- Header -->
         <header class="app-header">
             <div class="app-title-section">
@@ -91,7 +95,7 @@
                 <div class="input-group">
                     <input type="text" id="taskTitle" placeholder="Title" class="task-input">
                     <div id="taskDetails" contenteditable="true" placeholder="Details" class="task-details"></div>
-                    
+
                     <div class="date-buttons">
                         <button type="button" class="date-btn" id="todayBtn">Today</button>
                         <button type="button" class="date-btn" id="tomorrowBtn">Tomorrow</button>
@@ -101,9 +105,10 @@
                         <button type="button" class="repeat-btn" id="repeatBtn">
                             <i class="fas fa-redo"></i>
                         </button>
-                        <input type="date" id="customDatePicker" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;">
+                        <input type="date" id="customDatePicker"
+                            style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;">
                     </div>
-                    
+
                     <div class="repeat-selector" id="repeatSelector" style="display: none;">
                         <label for="repeatInterval">Repeat:</label>
                         <select id="repeatInterval">
@@ -115,7 +120,7 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="input-actions">
                     <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
                     <button type="button" class="btn-delete" id="deleteBtn" style="display: none;">Delete</button>
@@ -129,7 +134,7 @@
             <div class="task-list" id="taskList">
                 <!-- Tasks will be dynamically inserted here -->
             </div>
-            
+
             <!-- Game Start Empty State (when no tasks exist at all) -->
             <div class="game-start-empty" id="gameStartEmpty" style="display: none;">
                 <div class="game-start-content">
@@ -137,7 +142,7 @@
                     <div class="start-instruction">Press + to start your first task.</div>
                 </div>
             </div>
-            
+
             <!-- Regular Empty State (when only active tasks are empty) -->
             <div class="empty-state" id="emptyState">
                 <div class="empty-illustration">
@@ -149,7 +154,7 @@
                 </div>
                 <p>No tasks - Time to rest!</p>
             </div>
-            
+
             <!-- Completed Tasks Section -->
             <div class="completed-section" id="completedSection">
                 <button class="completed-header" id="completedToggle">
@@ -248,13 +253,13 @@
                 <div class="auth-header">
                     <h2 id="emailAuthTitle">Sign up</h2>
                 </div>
-                
+
                 <form id="emailAuthForm" class="auth-form">
                     <div class="auth-field">
                         <label for="emailInput">Email</label>
                         <input type="email" id="emailInput" placeholder="your.email@example.com" required>
                     </div>
-                    
+
                     <div class="auth-field">
                         <label for="passwordInput">Password</label>
                         <div class="password-field">
@@ -262,20 +267,21 @@
                             <button type="button" class="password-toggle" id="passwordToggle">👁</button>
                         </div>
                     </div>
-                    
+
                     <button type="submit" class="auth-primary-btn" id="emailAuthSubmit">Sign up</button>
-                    
+
                     <!-- Social login buttons removed -->
-                    
+
                     <div class="auth-footer">
                         <span>Already have an account? </span>
                         <button type="button" class="auth-link-btn" id="toggleAuthMode">Log in</button>
                     </div>
-                    
+
                     <div class="auth-forgot-password" id="forgotPasswordSection" style="display: none;">
-                        <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot your password?</button>
+                        <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot your
+                            password?</button>
                     </div>
-                    
+
 
                 </form>
             </div>
@@ -287,15 +293,15 @@
                 <div class="auth-header">
                     <h2>Reset Password</h2>
                 </div>
-                
+
                 <form id="passwordResetForm" class="auth-form">
                     <div class="auth-field">
                         <label for="resetEmailInput">Email</label>
                         <input type="email" id="resetEmailInput" placeholder="Enter your email address" required>
                     </div>
-                    
+
                     <button type="submit" class="auth-primary-btn">Send Reset Email</button>
-                    
+
                     <div class="auth-footer">
                         <button type="button" class="auth-link-btn" id="backToLoginBtn">Back to Login</button>
                     </div>
@@ -309,7 +315,7 @@
                 <div class="auth-header">
                     <h2>Set Password</h2>
                 </div>
-                
+
                 <form id="passwordSetupForm" class="auth-form">
                     <div class="auth-field">
                         <label for="newPasswordInput">New Password</label>
@@ -318,7 +324,7 @@
                             <button type="button" class="password-toggle" id="newPasswordToggle">👁</button>
                         </div>
                     </div>
-                    
+
                     <div class="auth-field">
                         <label for="confirmPasswordInput">Confirm Password</label>
                         <div class="password-field">
@@ -326,7 +332,7 @@
                             <button type="button" class="password-toggle" id="confirmPasswordToggle">👁</button>
                         </div>
                     </div>
-                    
+
                     <button type="submit" class="auth-primary-btn">Set Password</button>
                 </form>
             </div>
@@ -349,9 +355,9 @@
 
     <!-- Firebase config（windowにセット） -->
     <script>
-      window.FIREBASE_API_KEY = 'AIzaSyDekUSz8JzAjrOeMu_I-ODUoM46eronrSo';
-      window.FIREBASE_PROJECT_ID = 'red-girder-465715-n6';
-      window.FIREBASE_APP_ID = '1:516445042682:web:f66cbcdfb4a00cf2e09643';
+        window.FIREBASE_API_KEY = 'AIzaSyDekUSz8JzAjrOeMu_I-ODUoM46eronrSo';
+        window.FIREBASE_PROJECT_ID = 'red-girder-465715-n6';
+        window.FIREBASE_APP_ID = '1:516445042682:web:f66cbcdfb4a00cf2e09643';
     </script>
     <!-- Firebase v8系CDN（互換性のため） -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -372,20 +378,21 @@
     <script src="new-system-test.js"></script>
     <script src="dom-debug.js"></script>
     <script type="module" src="script.js"></script>
-    
+
     <!-- PWA Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
+            window.addEventListener('load', function () {
                 navigator.serviceWorker.register('/service-worker.js')
-                    .then(function(registration) {
+                    .then(function (registration) {
                         console.log('ServiceWorker registration successful with scope: ', registration.scope);
                     })
-                    .catch(function(error) {
+                    .catch(function (error) {
                         console.log('ServiceWorker registration failed: ', error);
                     });
             });
         }
     </script>
 </body>
+
 </html>

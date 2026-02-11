@@ -1,6 +1,4 @@
-/* Import Pixel/Retro Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
 /* Subtle 8-bit Style with Good Usability */
 :root {
@@ -18,7 +16,7 @@
     --completed-color: #34a853;
     --danger-color: #ea4335;
     --warning-color: #fbbc04;
-    
+
     /* 8-bit effect colors (for effects only) */
     --pixel-blue: #0066ff;
     --pixel-red: #ff3333;
@@ -206,7 +204,11 @@ body {
     flex-wrap: wrap;
 }
 
-.login-btn, .logout-btn, .google-login-btn, .email-login-btn, .signup-btn {
+.login-btn,
+.logout-btn,
+.google-login-btn,
+.email-login-btn,
+.signup-btn {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -301,7 +303,8 @@ body {
     background: var(--bg-secondary);
 }
 
-.auth-back-btn, .auth-skip-btn {
+.auth-back-btn,
+.auth-skip-btn {
     display: none;
 }
 
@@ -504,13 +507,15 @@ body {
     margin-top: 12px;
 }
 
-.login-btn:hover, .logout-btn:hover {
+.login-btn:hover,
+.logout-btn:hover {
     background-color: #2196F3;
     transform: translate(-1px, -1px);
     box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
 }
 
-.login-btn:active, .logout-btn:active {
+.login-btn:active,
+.logout-btn:active {
     transform: translate(0px, 0px);
     box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
 }
@@ -589,6 +594,7 @@ body {
         opacity: 0;
         transform: scale(0.8) translate(2px, 2px);
     }
+
     100% {
         opacity: 1;
         transform: scale(1) translate(0, 0);
@@ -724,7 +730,7 @@ body {
 }
 
 .pixel-modal h3 {
-    font-family: 'Orbitron', 'VT323', 'Courier New', monospace;
+    font-family: 'VT323', 'Courier New', monospace;
     font-size: 18px;
     font-weight: 700;
     color: var(--text-primary);
@@ -799,7 +805,7 @@ body {
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
-    font-family: 'Orbitron', 'VT323', 'Courier New', monospace;
+    font-family: 'VT323', 'Courier New', monospace;
     image-rendering: pixelated;
     text-rendering: optimizeSpeed;
     letter-spacing: 1px;
@@ -891,6 +897,7 @@ body {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -914,13 +921,13 @@ body {
     outline: none;
     transition: all 0.2s ease;
     font-family: 'Inter', sans-serif;
-    box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1);
+    box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1);
     image-rendering: pixelated;
 }
 
 .task-input:focus {
     border-color: var(--accent-color);
-    box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1), 0 0 0 2px rgba(26, 115, 232, 0.2);
+    box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(26, 115, 232, 0.2);
 }
 
 .task-input::placeholder {
@@ -937,7 +944,7 @@ body {
     outline: none;
     min-height: 60px;
     font-family: 'Inter', sans-serif;
-    box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1);
+    box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1);
     image-rendering: pixelated;
     transition: all 0.2s ease;
     white-space: pre-wrap;
@@ -947,7 +954,7 @@ body {
 
 .task-details:focus {
     border-color: var(--accent-color);
-    box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1), 0 0 0 2px rgba(26, 115, 232, 0.2);
+    box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(26, 115, 232, 0.2);
 }
 
 .task-details::placeholder {
@@ -1130,12 +1137,13 @@ body {
 
 /* Mobile Optimization */
 @media (max-width: 600px) {
+
     /* Larger tap targets for mobile */
     .add-task-button {
         padding: 16px 20px;
         font-size: 16px;
     }
-    
+
     /* Preserve new modal button layout on mobile */
     .mobile-modal-buttons-container {
         display: flex !important;
@@ -1143,75 +1151,81 @@ body {
         align-items: center !important;
         width: 100% !important;
     }
-    
+
     .mobile-modal-buttons-left,
     .mobile-modal-buttons-right {
         display: flex !important;
         gap: 12px !important;
         align-items: center !important;
     }
-    
+
     .task-input {
         padding: 12px 16px;
-        font-size: 16px; /* Prevents iOS zoom on input focus */
+        font-size: 16px;
+        /* Prevents iOS zoom on input focus */
     }
-    
+
     .task-details {
         padding: 12px 16px;
         font-size: 16px;
         min-height: 80px;
     }
-    
-    .date-btn, .repeat-btn {
+
+    .date-btn,
+    .repeat-btn {
         padding: 10px 16px;
         font-size: 14px;
-        min-height: 44px; /* Apple's recommended minimum touch target */
+        min-height: 44px;
+        /* Apple's recommended minimum touch target */
     }
-    
-    .btn-save, .btn-cancel, .btn-delete {
+
+    .btn-save,
+    .btn-cancel,
+    .btn-delete {
         padding: 12px 24px;
         font-size: 16px;
         min-height: 44px;
     }
-    
+
     .task-checkbox {
         width: 24px;
         height: 24px;
         padding: 12px;
         border: 3px solid var(--border-color);
     }
-    
+
     .task-item {
         padding: 16px 20px;
         gap: 16px;
     }
-    
+
     .task-action-btn {
         padding: 8px 12px;
         min-height: 44px;
         min-width: 44px;
     }
-    
+
     /* Improve input focus on mobile */
-    .task-input:focus, .task-details:focus {
+    .task-input:focus,
+    .task-details:focus {
         transform: scale(1.02);
         transition: transform 0.2s ease;
     }
-    
+
     /* Better spacing for mobile */
     .app-container {
         padding: 16px;
     }
-    
+
     .input-group {
         gap: 16px;
     }
-    
+
     .date-buttons {
         gap: 12px;
         flex-wrap: wrap;
     }
-    
+
     .input-actions {
         gap: 16px;
         margin-top: 20px;
@@ -1227,8 +1241,15 @@ body {
 
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Input Actions */
@@ -1276,17 +1297,18 @@ body {
 
 /* ---- btn-delete: デスクトップもモバイルと同じCancel風、テキストだけ赤 ---- */
 .btn-delete {
-  background: var(--bg-secondary);
-  color: var(--danger-color);
-  border-color: var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--danger-color);
+    border-color: var(--border-color);
 }
+
 .btn-delete:hover,
 .btn-delete:active {
-  background: var(--bg-hover);
-  color: #b71c1c;
-  border-color: var(--border-color);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--shadow-color);
+    background: var(--bg-hover);
+    color: #b71c1c;
+    border-color: var(--border-color);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--shadow-color);
 }
 
 .btn-save:hover {
@@ -1318,6 +1340,7 @@ body {
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -1373,26 +1396,26 @@ body {
         user-select: none;
         touch-action: pan-y;
     }
-    
+
     .task-item:not(.completed):active,
     .task-item.dragging {
         cursor: grabbing !important;
         touch-action: none;
     }
-    
+
     .task-item.dragging {
         transform: scale(0.95) rotate(2deg);
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
         border-radius: 8px !important;
     }
-    
+
     .floating-clone {
         transform: scale(0.95) rotate(2deg) !important;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
         border-radius: 8px !important;
         border: 2px solid var(--accent-color) !important;
     }
-    
+
     .drop-indicator {
         height: 4px !important;
         background-color: var(--accent-color) !important;
@@ -1414,6 +1437,7 @@ body {
     transition: none !important;
     border-radius: 0px !important;
 }
+
 .floating-clone .task-checkbox {
     background: inherit !important;
     color: inherit !important;
@@ -1446,7 +1470,9 @@ body {
 .task-item:not(.completed):hover {
     cursor: grab;
 }
-.task-item:not(.completed):active, .task-item.dragging {
+
+.task-item:not(.completed):active,
+.task-item.dragging {
     cursor: grabbing !important;
 }
 
@@ -1459,9 +1485,17 @@ body {
 }
 
 @keyframes taskMove {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
-    100% { transform: translateY(0); }
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
 }
 
 .task-item.drop-above {
@@ -1507,7 +1541,6 @@ body {
     justify-content: center;
     width: 24px;
     height: 24px;
-    padding: 12px;
     border: 2px solid var(--border-color);
     border-radius: 0px;
     background: var(--bg-primary);
@@ -1516,6 +1549,7 @@ body {
     margin-right: 12px;
     position: relative;
     flex-shrink: 0;
+    box-shadow: 2px 2px 0px var(--shadow-color);
 }
 
 .task-checkbox:hover {
@@ -1531,10 +1565,16 @@ body {
 .task-checkbox.completed::after {
     content: '';
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
     background: white;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    /* Clean pixel-art checkmark */
+    clip-path: polygon(15% 45%,
+            45% 75%,
+            85% 15%,
+            100% 30%,
+            45% 95%,
+            0% 55%);
 }
 
 /* Task Content */
@@ -1674,6 +1714,7 @@ body {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -2117,7 +2158,7 @@ div[id="newTaskDetails"] a:hover {
 
 .smash-list-title {
     color: #fff;
-    font-family: 'Orbitron', monospace;
+    font-family: 'VT323', 'Courier New', monospace;
     font-size: 32px;
     margin-bottom: 16px;
     text-shadow: 3px 3px 0px #000;
@@ -2170,7 +2211,7 @@ div[id="newTaskDetails"] a:hover {
         width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     .smash-list-subtitle {
         font-size: 1rem;
         line-height: 1.3;
@@ -2188,8 +2229,16 @@ div[id="newTaskDetails"] a:hover {
 }
 
 @keyframes retro-blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.3; }
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0.3;
+    }
 }
 
 /* Regular Empty State */
@@ -2235,30 +2284,28 @@ div[id="newTaskDetails"] a:hover {
     width: 24px;
     height: 20px;
     background-color: var(--text-primary);
-    clip-path: polygon(
-        0 0,
-        20px 0,
-        20px 2px,
-        18px 2px,
-        18px 4px,
-        16px 4px,
-        16px 6px,
-        14px 6px,
-        14px 8px,
-        12px 8px,
-        12px 10px,
-        10px 10px,
-        10px 12px,
-        8px 12px,
-        8px 14px,
-        6px 14px,
-        6px 16px,
-        4px 16px,
-        4px 18px,
-        2px 18px,
-        2px 20px,
-        0 20px
-    );
+    clip-path: polygon(0 0,
+            20px 0,
+            20px 2px,
+            18px 2px,
+            18px 4px,
+            16px 4px,
+            16px 6px,
+            14px 6px,
+            14px 8px,
+            12px 8px,
+            12px 10px,
+            10px 10px,
+            10px 12px,
+            8px 12px,
+            8px 14px,
+            6px 14px,
+            6px 16px,
+            4px 16px,
+            4px 18px,
+            2px 18px,
+            2px 20px,
+            0 20px);
 }
 
 .sleep-bubble::after {
@@ -2269,24 +2316,22 @@ div[id="newTaskDetails"] a:hover {
     width: 18px;
     height: 16px;
     background-color: var(--bg-primary);
-    clip-path: polygon(
-        0 0,
-        14px 0,
-        14px 2px,
-        12px 2px,
-        12px 4px,
-        10px 4px,
-        10px 6px,
-        8px 6px,
-        8px 8px,
-        6px 8px,
-        6px 10px,
-        4px 10px,
-        4px 12px,
-        2px 12px,
-        2px 14px,
-        0 14px
-    );
+    clip-path: polygon(0 0,
+            14px 0,
+            14px 2px,
+            12px 2px,
+            12px 4px,
+            10px 4px,
+            10px 6px,
+            8px 6px,
+            8px 8px,
+            6px 8px,
+            6px 10px,
+            4px 10px,
+            4px 12px,
+            2px 12px,
+            2px 14px,
+            0 14px);
 }
 
 .bubble-text {
@@ -2305,26 +2350,34 @@ div[id="newTaskDetails"] a:hover {
 }
 
 @keyframes float {
-    0%, 100% { 
+
+    0%,
+    100% {
         transform: translateY(0);
     }
-    50% { 
+
+    50% {
         transform: translateY(-8px);
     }
 }
 
 @keyframes sleepingCharacter {
-    0%, 80% { 
+
+    0%,
+    80% {
         opacity: 0.8;
         transform: scale(1);
         filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.1));
     }
-    85%, 95% { 
+
+    85%,
+    95% {
         opacity: 0.5;
         transform: scale(0.98);
         filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.05));
     }
-    100% { 
+
+    100% {
         opacity: 0.8;
         transform: scale(1);
         filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.1));
@@ -2372,6 +2425,7 @@ div[id="newTaskDetails"] a:hover {
         opacity: 0;
         transform: scale(0.8);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -2436,21 +2490,21 @@ div[id="newTaskDetails"] a:hover {
         overflow-y: auto;
         padding: 20px;
     }
-    
+
     .modal-overlay .modal-content {
         margin: 0;
         margin-top: 20px;
         max-height: none;
         overflow-y: visible;
     }
-    
+
     .modal-overlay .pixel-modal {
         margin: 0;
         margin-top: 20px;
         max-height: none;
         overflow-y: visible;
     }
-    
+
     /* Mobile keyboard support for programmatic modal */
     #newModalBottomButtons {
         /* Mobile-specific positioning */
@@ -2482,13 +2536,15 @@ div[id="newTaskDetails"] a:hover {
 /* PWA standalone mode specific styles */
 @media (display-mode: standalone) {
     .app-container {
-        padding-top: 30px; /* Additional top padding for standalone mode */
+        padding-top: 30px;
+        /* Additional top padding for standalone mode */
     }
-    
+
     .app-header {
-        padding-top: 10px; /* Extra space at top for standalone mode */
+        padding-top: 10px;
+        /* Extra space at top for standalone mode */
     }
-    
+
     /* Ensure proper safe area handling for notched devices */
     .app-container {
         padding-top: max(30px, env(safe-area-inset-top));
@@ -2496,7 +2552,7 @@ div[id="newTaskDetails"] a:hover {
         padding-left: max(20px, env(safe-area-inset-left));
         padding-right: max(20px, env(safe-area-inset-right));
     }
-    
+
     /* PWA modal bottom buttons positioning */
     #newModalBottomButtons {
         /* Enhanced PWA positioning */
@@ -2629,7 +2685,7 @@ div[id="newTaskDetails"] a:hover {
     .app-container {
         padding-top: max(40px, env(safe-area-inset-top));
     }
-    
+
     /* iOS specific keyboard handling */
     #newModalBottomButtons {
         /* iOS safe area adjustments */
@@ -2655,6 +2711,7 @@ div[id="newTaskDetails"] a:hover {
 
 /* Additional keyboard handling for various mobile browsers */
 @media screen and (max-width: 768px) {
+
     /* Preserve button layout on mobile */
     .mobile-modal-buttons-container {
         display: flex !important;
@@ -2662,21 +2719,21 @@ div[id="newTaskDetails"] a:hover {
         align-items: center !important;
         width: 100% !important;
     }
-    
+
     .mobile-modal-buttons-left,
     .mobile-modal-buttons-right {
         display: flex !important;
         gap: 12px !important;
         align-items: center !important;
     }
-    
+
     /* When virtual keyboard is present, adjust modal positioning */
     @supports (bottom: env(keyboard-inset-height)) {
         #newModalBottomButtons {
             bottom: max(0px, env(keyboard-inset-height));
         }
     }
-    
+
     /* iOS Safari specific handling */
     @supports (-webkit-touch-callout: none) {
         #newModalBottomButtons {
@@ -2700,6 +2757,7 @@ div[id="newTaskDetails"] a:hover {
         opacity: 0;
         transform: scale(0.9);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -2754,54 +2812,58 @@ div[id="newTaskDetails"] a:hover {
 
 /* ---- modal-buttons: デスクトップもモバイルと同じスタイルに統一 ---- */
 .modal-buttons .btn-cancel {
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  border-color: var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
 }
+
 .modal-buttons .btn-cancel:hover,
 .modal-buttons .btn-cancel:active {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--shadow-color);
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--shadow-color);
 }
 
 .modal-buttons .btn-delete {
-  background: var(--bg-secondary);
-  color: var(--danger-color);
-  border-color: var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--danger-color);
+    border-color: var(--border-color);
 }
+
 .modal-buttons .btn-delete:hover,
 .modal-buttons .btn-delete:active {
-  background: var(--bg-hover);
-  color: #b71c1c;
-  border-color: var(--border-color);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--shadow-color);
+    background: var(--bg-hover);
+    color: #b71c1c;
+    border-color: var(--border-color);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--shadow-color);
 }
 
 .modal-buttons .btn-save {
-  background: var(--accent-color);
-  color: white;
-  border-color: var(--accent-color);
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
 }
+
 .modal-buttons .btn-save:hover,
 .modal-buttons .btn-save:active {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
-  color: white;
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--shadow-color);
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: white;
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--shadow-color);
 }
+
 .modal-buttons .btn-save:disabled {
-  background: var(--bg-secondary);
-  color: var(--text-muted);
-  border-color: var(--border-color);
-  cursor: not-allowed;
-  opacity: 0.6;
-  transform: none;
-  box-shadow: 2px 2px 0px var(--shadow-color);
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    border-color: var(--border-color);
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: 2px 2px 0px var(--shadow-color);
 }
 
 /* ---- Cancel/Deleteボタンの枠線を消す ---- */
@@ -2811,7 +2873,7 @@ div[id="newTaskDetails"] a:hover {
 .mobile-modal-buttons .btn-delete,
 .mobile-btn-cancel,
 .mobile-btn-delete {
-  border: none;
+    border: none;
 }
 
 .modal-buttons .btn-cancel:hover,
@@ -2826,7 +2888,7 @@ div[id="newTaskDetails"] a:hover {
 .mobile-btn-cancel:active,
 .mobile-btn-delete:hover,
 .mobile-btn-delete:active {
-  border: none;
+    border: none;
 }
 
 /* Canvas for animations */
@@ -2852,6 +2914,7 @@ div[id="newTaskDetails"] a:hover {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -2866,9 +2929,11 @@ div[id="newTaskDetails"] a:hover {
     0% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.02);
     }
+
     100% {
         transform: scale(1);
     }
@@ -2882,9 +2947,11 @@ div[id="newTaskDetails"] a:hover {
     0% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.2);
     }
+
     100% {
         transform: scale(1);
     }
@@ -2892,25 +2959,54 @@ div[id="newTaskDetails"] a:hover {
 
 /* 8-bit Animations */
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-    20%, 40%, 60%, 80% { transform: translateX(2px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-2px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(2px);
+    }
 }
 
 @keyframes pixel-glow {
-    0%, 100% { 
+
+    0%,
+    100% {
         box-shadow: 0 0 4px var(--accent-color);
         filter: brightness(1);
     }
-    50% { 
+
+    50% {
         box-shadow: 0 0 12px var(--accent-color);
         filter: brightness(1.5);
     }
 }
 
 @keyframes pixel-blink {
-    0%, 50%, 100% { opacity: 1; }
-    25%, 75% { opacity: 0.3; }
+
+    0%,
+    50%,
+    100% {
+        opacity: 1;
+    }
+
+    25%,
+    75% {
+        opacity: 0.3;
+    }
 }
 
 /* Hide scrollbar while keeping functionality */
@@ -2963,37 +3059,39 @@ div[id="newTaskDetails"] a:hover {
     transform: none !important;
     transition: none !important;
 }
+
 .floating-clone .task-checkbox {
     background: inherit !important;
     color: inherit !important;
     border-color: inherit !important;
 }
-div#newMobileModal > div.mobile-modal-buttons > div.mobile-modal-buttons-container {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  flex-wrap: nowrap !important;
-  width: 100% !important;
+
+div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
 }
 
-div#newMobileModal > div.mobile-modal-buttons > div.mobile-modal-buttons-container > div.mobile-modal-buttons-left {
-  flex: 1 1 0 !important;
-  display: flex !important;
-  justify-content: flex-start !important;
-  align-items: center !important;
+div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>div.mobile-modal-buttons-left {
+    flex: 1 1 0 !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
 }
 
-div#newMobileModal > div.mobile-modal-buttons > div.mobile-modal-buttons-container > div.mobile-modal-buttons-right {
-  flex: 1 1 0 !important;
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-  gap: 12px !important;
+div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>div.mobile-modal-buttons-right {
+    flex: 1 1 0 !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    gap: 12px !important;
 }
 
 /* Hide delete button by default, show only when editing */
-div#newMobileModal > div.mobile-modal-buttons > div.mobile-modal-buttons-container > div.mobile-modal-buttons-right > button#newDeleteBtn {
-  display: none !important;
+div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>div.mobile-modal-buttons-right>button#newDeleteBtn {
+    display: none !important;
 }
 
 /* Long Press Drag & Drop Styles */

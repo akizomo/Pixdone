@@ -3098,6 +3098,16 @@ class PixDoneApp {
             // Show celebration effects once for all cases
             this.showCelebration(task);
 
+            // Update DOM immediately for visual feedback
+            if (taskElement) {
+                taskElement.classList.add('completed');
+                const checkbox = taskElement.querySelector('.task-checkbox');
+                if (checkbox) {
+                    checkbox.classList.add('completed');
+                    checkbox.setAttribute('aria-checked', 'true');
+                }
+            }
+
             // Show comic effects immediately with the current task element
             if (window.taskAnimationEffects && taskElement && taskElement.nodeType === 1) {
                 console.log('Showing effects for element (type check):', taskElement.nodeType, taskElement.tagName);
@@ -3489,7 +3499,7 @@ class PixDoneApp {
             // Always show Smash List message and tasks
             taskList.innerHTML = `
                 <div class="smash-list-message">
-                    <p class="smash-list-subtitle">This app exists only to let you tap and smash tasks for pure satisfaction. No saving, no planning—just smashing.</p>
+                    <p class="smash-list-subtitle">This list exists only to let you tap and smash tasks for pure satisfaction.<br>No saving, no planning—just smashing.</p>
                     <p class="desktop-only smash-list-hint">Press Shift to smash a task</p>
                 </div>
                 ${updatedActiveTasks.map(task => this.renderSmashTask(task)).join('')}
@@ -3554,7 +3564,6 @@ class PixDoneApp {
         return `
             <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" draggable="${!task.completed}">
                 <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}">
-                    ${task.completed ? '<i class="fas fa-check"></i>' : ''}
                 </div>
                 <div class="task-content">
                     <div class="task-title">${this.parseMarkdownLinks(task.title)}</div>
@@ -3578,7 +3587,6 @@ class PixDoneApp {
         return `
             <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" draggable="false">
                 <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}">
-                    ${task.completed ? '<i class="fas fa-check"></i>' : ''}
                 </div>
                 <div class="task-content">
                     <div class="task-title">${this.parseMarkdownLinks(task.title)}</div>
@@ -5408,7 +5416,10 @@ class PixDoneApp {
             // Ensure default list has correct name based on auth status
             const defaultList = this.lists.find(list => list.id === 'default');
             if (defaultList) {
-                const targetName = this.isAuthenticated ? 'My Tasks' : 'Tutorial';
+                // Check both property and firebase user directly to handle transition state
+                const firebaseUser = firebase.auth().currentUser;
+                const isAuth = this.isAuthenticated || !!firebaseUser;
+                const targetName = isAuth ? 'My Tasks' : 'Tutorial';
                 if (defaultList.name !== targetName && (defaultList.name === 'My Tasks' || defaultList.name === 'Tutorial' || defaultList.name === 'マイタスク')) {
                     defaultList.name = targetName;
                     this.saveLists();
