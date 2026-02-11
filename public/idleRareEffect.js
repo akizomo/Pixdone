@@ -17,7 +17,7 @@
 
 // Configuration constants
 const IDLE_MS = 10000; // 10 seconds
-const COOLDOWN_MS = 90000; // 90 seconds
+const COOLDOWN_MS = 0; // 0 = no cooldown, repeat every 10 seconds of idle time
 const SHOW_MS = 5000; // 5 seconds
 const PROBABILITY = 1.0; // 1.0 = always show (for testing), change to 0.2 for 20% chance
 // Use relative path to work with both dev (public/) and production (/) environments
