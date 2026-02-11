@@ -60,16 +60,6 @@ class PixDoneApp {
                 category: 'general',
                 description: '',
                 listId: 'default'
-            },
-            {
-                id: 'tutorial-4',
-                title: '[Log in](action:signup) to manage your own personalized task list!',
-                completed: false,
-                dueDate: null,
-                priority: 'normal',
-                category: 'general',
-                description: '',
-                listId: 'default'
             }
         ];
 
@@ -1621,61 +1611,161 @@ class PixDoneApp {
     }
 
     setupTouchGestures() {
-        // Apply swipe gestures to the entire main container for better coverage
-        const mainContainer = document.querySelector('.container');
-        if (!mainContainer) return;
+        // Skip if only one list exists
+        if (!this.lists || this.lists.length <= 1) {
+            return;
+        }
+
+        // Apply swipe gestures to the task list container for better coverage
+        const tasksContainer = document.querySelector('.task-list-container');
+        const appContainer = document.querySelector('.app-container');
+        const mainContainer = tasksContainer || appContainer;
+        
+        if (!mainContainer) {
+            console.warn('[PixDone] Swipe container not found');
+            return;
+        }
 
         let startX = 0;
+        let startY = 0;
         let isDragging = false;
+        let isSwipeGesture = false;
 
         mainContainer.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea')) {
+            // Skip if only one list exists
+            if (!this.lists || this.lists.length <= 1) {
+                return;
+            }
+            // Skip if interacting with interactive elements
+            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea, .task-link, .task-action-link')) {
+                return;
+            }
+            // Skip if modal is open
+            if (document.getElementById('createListModal')?.classList.contains('active') ||
+                document.getElementById('deleteModal')?.classList.contains('active') ||
+                document.getElementById('taskModal')?.classList.contains('active')) {
+                return;
+            }
+            // Skip if input is visible
+            if (this.isInputVisible) {
                 return;
             }
             startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
             isDragging = false;
-        });
+            isSwipeGesture = false;
+        }, { passive: true });
 
         mainContainer.addEventListener('touchmove', (e) => {
-            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea')) {
+            // Skip if interacting with interactive elements
+            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea, .task-link, .task-action-link')) {
                 return;
             }
-            isDragging = true;
-        });
+            // Skip if modal is open
+            if (document.getElementById('createListModal')?.classList.contains('active') ||
+                document.getElementById('deleteModal')?.classList.contains('active') ||
+                document.getElementById('taskModal')?.classList.contains('active')) {
+                return;
+            }
+            // Skip if input is visible
+            if (this.isInputVisible) {
+                return;
+            }
+
+            if (!isDragging && startX !== 0) {
+                const currentX = e.touches[0].clientX;
+                const currentY = e.touches[0].clientY;
+                const deltaX = Math.abs(currentX - startX);
+                const deltaY = Math.abs(currentY - startY);
+
+                // Determine if this is a horizontal swipe (more horizontal than vertical)
+                if (deltaX > 10 && deltaX > deltaY * 1.5) {
+                    isDragging = true;
+                    isSwipeGesture = true;
+                    // Initialize swipe animation
+                    const initialDeltaX = currentX - startX;
+                    this.startSwipeAnimation(initialDeltaX);
+                    // Prevent default scrolling when swiping horizontally
+                    e.preventDefault();
+                } else if (deltaY > 10) {
+                    // Vertical scroll detected, cancel swipe
+                    isDragging = false;
+                    isSwipeGesture = false;
+                    startX = 0;
+                    return;
+                }
+            }
+
+            if (isDragging && isSwipeGesture) {
+                const currentX = e.touches[0].clientX;
+                const deltaX = currentX - startX;
+                this.updateSwipeAnimation(deltaX);
+                // Prevent default scrolling when actively swiping
+                e.preventDefault();
+            }
+        }, { passive: false });
 
         mainContainer.addEventListener('touchend', (e) => {
-            if (!isDragging || e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea')) {
+            if (!isDragging || !isSwipeGesture) {
+                startX = 0;
+                startY = 0;
+                isDragging = false;
+                isSwipeGesture = false;
+                return;
+            }
+
+            // Skip if interacting with interactive elements
+            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea, .task-link, .task-action-link')) {
+                this.finishSwipeAnimation(0);
+                startX = 0;
+                startY = 0;
+                isDragging = false;
+                isSwipeGesture = false;
+                return;
+            }
+
+            // Skip if modal is open
+            if (document.getElementById('createListModal')?.classList.contains('active') ||
+                document.getElementById('deleteModal')?.classList.contains('active') ||
+                document.getElementById('taskModal')?.classList.contains('active')) {
+                this.finishSwipeAnimation(0);
+                startX = 0;
+                startY = 0;
+                isDragging = false;
+                isSwipeGesture = false;
                 return;
             }
 
             const endX = e.changedTouches[0].clientX;
             const deltaX = endX - startX;
 
-            if (Math.abs(deltaX) > 30) {
-                if (deltaX > 0) {
-                    this.switchToPreviousList();
-                } else {
-                    this.switchToNextList();
-                }
-            }
+            // Use finishSwipeAnimation to handle the swipe completion
+            this.finishSwipeAnimation(deltaX);
 
+            startX = 0;
+            startY = 0;
             isDragging = false;
-        });
+            isSwipeGesture = false;
+        }, { passive: true });
     }
 
     startSwipeAnimation(deltaX) {
         const tasksContainer = document.querySelector('.task-list-container');
         if (!tasksContainer) return;
 
+        // Disable transition for smooth animation
         tasksContainer.style.transition = 'none';
-        tasksContainer.style.transform = `translateX(${deltaX * 0.2}px)`;
-        tasksContainer.style.opacity = `${1 - Math.abs(deltaX) * 0.001}`;
+        const clampedDelta = Math.max(-120, Math.min(120, deltaX));
+        tasksContainer.style.transform = `translateX(${clampedDelta * 0.2}px)`;
+        tasksContainer.style.opacity = `${1 - Math.abs(clampedDelta) * 0.001}`;
     }
 
     updateSwipeAnimation(deltaX) {
         const tasksContainer = document.querySelector('.task-list-container');
         if (!tasksContainer) return;
 
+        // Ensure transition is disabled during animation
+        tasksContainer.style.transition = 'none';
         const clampedDelta = Math.max(-120, Math.min(120, deltaX));
         tasksContainer.style.transform = `translateX(${clampedDelta * 0.2}px)`;
         tasksContainer.style.opacity = `${1 - Math.abs(clampedDelta) * 0.001}`;
@@ -1690,26 +1780,38 @@ class PixDoneApp {
 
         if (shouldSwitch) {
             // Prevent if any modal is open or input is focused
-            if (!this.isInputVisible &&
-                !document.getElementById('createListModal').classList.contains('active') &&
-                !document.getElementById('deleteModal').classList.contains('active') &&
-                !document.activeElement.tagName.match(/INPUT|TEXTAREA/)) {
+            const createListModal = document.getElementById('createListModal');
+            const deleteModal = document.getElementById('deleteModal');
+            const taskModal = document.getElementById('taskModal');
+            const isModalOpen = (createListModal && createListModal.classList.contains('active')) ||
+                               (deleteModal && deleteModal.classList.contains('active')) ||
+                               (taskModal && taskModal.classList.contains('active'));
+            const isInputFocused = document.activeElement && document.activeElement.tagName.match(/INPUT|TEXTAREA/);
+            const isInputVisible = this.isInputVisible || false;
 
+            if (!isInputVisible && !isModalOpen && !isInputFocused && this.lists.length > 1) {
                 if (deltaX > 0) {
                     this.switchToPreviousList();
                 } else {
                     this.switchToNextList();
                 }
+            } else {
+                // Reset animation if switch was prevented
+                tasksContainer.style.transition = 'all 0.2s ease';
+                tasksContainer.style.transform = 'translateX(0)';
+                tasksContainer.style.opacity = '1';
             }
+        } else {
+            // Reset animation if threshold not met
+            tasksContainer.style.transition = 'all 0.2s ease';
+            tasksContainer.style.transform = 'translateX(0)';
+            tasksContainer.style.opacity = '1';
         }
 
-        // Reset animation
-        tasksContainer.style.transition = 'all 0.2s ease';
-        tasksContainer.style.transform = 'translateX(0)';
-        tasksContainer.style.opacity = '1';
-
         setTimeout(() => {
-            tasksContainer.style.transition = '';
+            if (tasksContainer) {
+                tasksContainer.style.transition = '';
+            }
         }, 200);
     }
 
@@ -3170,49 +3272,6 @@ class PixDoneApp {
                 }
             }
 
-            // Layout debug before celebration/effects
-            const debugFabEl = document.getElementById('mobileFab');
-            const debugAppContainer = document.querySelector('.app-container');
-            const debugFabRect = debugFabEl ? debugFabEl.getBoundingClientRect() : null;
-            const debugAppRect = debugAppContainer ? debugAppContainer.getBoundingClientRect() : null;
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: 'log_' + Date.now(),
-                    runId: 'pre-fix',
-                    hypothesisId: 'H_fab_layout',
-                    location: 'script.js:3168',
-                    message: 'Task completion before celebration',
-                    data: {
-                        phase: 'before_celebration',
-                        taskId,
-                        isMobileFabPresent: !!debugFabEl,
-                        innerHeight: window.innerHeight,
-                        scrollY: window.scrollY,
-                        fabRect: debugFabRect ? {
-                            top: debugFabRect.top,
-                            left: debugFabRect.left,
-                            bottom: debugFabRect.bottom,
-                            right: debugFabRect.right,
-                            width: debugFabRect.width,
-                            height: debugFabRect.height
-                        } : null,
-                        appRect: debugAppRect ? {
-                            top: debugAppRect.top,
-                            left: debugAppRect.left,
-                            bottom: debugAppRect.bottom,
-                            right: debugAppRect.right,
-                            width: debugAppRect.width,
-                            height: debugAppRect.height
-                        } : null
-                    },
-                    timestamp: Date.now()
-                })
-            }).catch(() => { });
-            // #endregion
-
             // Show celebration effects once for all cases
             this.showCelebration(task);
 
@@ -3232,6 +3291,12 @@ class PixDoneApp {
                 console.log('Element rect before effect:', taskElement.getBoundingClientRect());
                 console.log('Element computed style:', window.getComputedStyle(taskElement));
 
+                // Prevent scrollbar from appearing during animation
+                const originalBodyOverflow = document.body.style.overflow;
+                const originalHtmlOverflow = document.documentElement.style.overflow;
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
+
                 // Force element to be visible and positioned
                 taskElement.style.position = 'relative';
                 taskElement.style.zIndex = '1000';
@@ -3239,6 +3304,11 @@ class PixDoneApp {
                 taskElement.style.display = 'block';
 
                 // Apply direct visual effect first
+                // Use transform-origin to center the scale animation and minimize layout impact
+                const taskRect = taskElement.getBoundingClientRect();
+                const centerX = taskRect.left + taskRect.width / 2;
+                const centerY = taskRect.top + taskRect.height / 2;
+                taskElement.style.transformOrigin = `${centerX - taskRect.left}px ${centerY - taskRect.top}px`;
                 taskElement.style.backgroundColor = '#4CAF50 !important';
                 taskElement.style.transform = 'scale(1.2)';
                 taskElement.style.transition = 'all 0.5s ease';
@@ -3247,47 +3317,12 @@ class PixDoneApp {
                 // Then apply animation effects
                 window.taskAnimationEffects.animateTaskCompletion(taskElement);
 
-                const debugFabEl2 = document.getElementById('mobileFab');
-                const debugAppContainer2 = document.querySelector('.app-container');
-                const debugFabRect2 = debugFabEl2 ? debugFabEl2.getBoundingClientRect() : null;
-                const debugAppRect2 = debugAppContainer2 ? debugAppContainer2.getBoundingClientRect() : null;
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: 'log_' + Date.now(),
-                        runId: 'pre-fix',
-                        hypothesisId: 'H_fab_layout',
-                        location: 'script.js:3204',
-                        message: 'Task completion after animation start',
-                        data: {
-                            phase: 'after_animation_start',
-                            taskId,
-                            isMobileFabPresent: !!debugFabEl2,
-                            innerHeight: window.innerHeight,
-                            scrollY: window.scrollY,
-                            fabRect: debugFabRect2 ? {
-                                top: debugFabRect2.top,
-                                left: debugFabRect2.left,
-                                bottom: debugFabRect2.bottom,
-                                right: debugFabRect2.right,
-                                width: debugFabRect2.width,
-                                height: debugFabRect2.height
-                            } : null,
-                            appRect: debugAppRect2 ? {
-                                top: debugAppRect2.top,
-                                left: debugAppRect2.left,
-                                bottom: debugAppRect2.bottom,
-                                right: debugAppRect2.right,
-                                width: debugAppRect2.width,
-                                height: debugAppRect2.height
-                            } : null
-                        },
-                        timestamp: Date.now()
-                    })
-                }).catch(() => { });
-                // #endregion
+                // Restore overflow after animation completes
+                // Shrink animation takes 1000ms, so we wait slightly longer to ensure FAB position stays fixed
+                setTimeout(() => {
+                    document.body.style.overflow = originalBodyOverflow || '';
+                    document.documentElement.style.overflow = originalHtmlOverflow || '';
+                }, 1100); // Wait for longest animation (shrink: 1000ms) plus buffer
 
                 // Special handling for Smash List - delay replenishment until after effects
                 if (currentList.id === 'smash-list' || currentList.name === '💥 Smash List') {
@@ -3322,49 +3357,6 @@ class PixDoneApp {
                         this.renderTasks();
                         this.updateCompletedCount();
                         this.renderListTabs(); // Update tab counts
-
-                        const debugFabEl3 = document.getElementById('mobileFab');
-                        const debugAppContainer3 = document.querySelector('.app-container');
-                        const debugFabRect3 = debugFabEl3 ? debugFabEl3.getBoundingClientRect() : null;
-                        const debugAppRect3 = debugAppContainer3 ? debugAppContainer3.getBoundingClientRect() : null;
-                        // #region agent log
-                        fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                id: 'log_' + Date.now(),
-                                runId: 'pre-fix',
-                                hypothesisId: 'H_fab_layout',
-                                location: 'script.js:3235',
-                                message: 'Task completion after re-render',
-                                data: {
-                                    phase: 'after_rerender',
-                                    taskId,
-                                    isMobileFabPresent: !!debugFabEl3,
-                                    innerHeight: window.innerHeight,
-                                    scrollY: window.scrollY,
-                                    fabRect: debugFabRect3 ? {
-                                        top: debugFabRect3.top,
-                                        left: debugFabRect3.left,
-                                        bottom: debugFabRect3.bottom,
-                                        right: debugFabRect3.right,
-                                        width: debugFabRect3.width,
-                                        height: debugFabRect3.height
-                                    } : null,
-                                    appRect: debugAppRect3 ? {
-                                        top: debugAppRect3.top,
-                                        left: debugAppRect3.left,
-                                        bottom: debugAppRect3.bottom,
-                                        right: debugAppRect3.right,
-                                        width: debugAppRect3.width,
-                                        height: debugAppRect3.height
-                                    } : null
-                                },
-                                timestamp: Date.now()
-                            })
-                        }).catch(() => { });
-                        // #endregion
-
                         this.processingTaskId = null;
                     }, 500);
                 }
@@ -3876,35 +3868,6 @@ class PixDoneApp {
                 !e.target.closest('a.task-action-link')) {
                 const taskItem = e.target.closest('.task-item');
                 const taskId = taskItem.dataset.taskId;
-
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: 'log_' + Date.now(),
-                        runId: 'pre-fix',
-                        hypothesisId: 'H_link_tap',
-                        location: 'script.js:3748',
-                        message: 'Task item click edit triggered',
-                        data: {
-                            eventType: e.type,
-                            taskId,
-                            targetTag: e.target && e.target.tagName,
-                            targetClasses: e.target && e.target.className,
-                            isTaskItem: !!e.target.closest('.task-item'),
-                            isTaskCheckbox: !!e.target.closest('.task-checkbox'),
-                            isTaskActions: !!e.target.closest('.task-actions'),
-                            isTaskActionBtn: !!e.target.closest('.task-action-btn'),
-                            isAnyLink: !!e.target.closest('a'),
-                            isTaskLink: !!e.target.closest('a.task-link'),
-                            isTaskActionLink: !!e.target.closest('a.task-action-link')
-                        },
-                        timestamp: Date.now()
-                    })
-                }).catch(() => { });
-                // #endregion
-
                 console.log('Task item clicked for editing:', taskId);
                 if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
                     this.comicEffects.playSound('taskEdit');
@@ -3955,34 +3918,6 @@ class PixDoneApp {
 
                 const taskItem = e.target.closest('.task-item');
                 const taskId = taskItem.dataset.taskId;
-
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: 'log_' + Date.now(),
-                        runId: 'pre-fix',
-                        hypothesisId: 'H_link_tap',
-                        location: 'script.js:3798',
-                        message: 'Task item touch edit triggered',
-                        data: {
-                            eventType: e.type,
-                            taskId,
-                            targetTag: e.target && e.target.tagName,
-                            targetClasses: e.target && e.target.className,
-                            isTaskItem: !!e.target.closest('.task-item'),
-                            isTaskCheckbox: !!e.target.closest('.task-checkbox'),
-                            isTaskActions: !!e.target.closest('.task-actions'),
-                            isTaskActionBtn: !!e.target.closest('.task-action-btn'),
-                            isAnyLink: !!e.target.closest('a'),
-                            isTaskLink: !!e.target.closest('a.task-link'),
-                            isTaskActionLink: !!e.target.closest('a.task-action-link')
-                        },
-                        timestamp: Date.now()
-                    })
-                }).catch(() => { });
-                // #endregion
 
                 if (touchStartData) {
                     const touch = e.changedTouches[0];

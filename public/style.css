@@ -3188,11 +3188,11 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 
 /* Mobile Floating Action Button */
 .mobile-fab {
-    position: fixed;
-    bottom: calc(24px + env(safe-area-inset-bottom));
-    right: 24px;
-    width: 56px;
-    height: 56px;
+    position: fixed !important;
+    bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+    right: 24px !important;
+    width: 56px !important;
+    height: 56px !important;
     border-radius: 50%;
     background-color: var(--accent-color);
     color: white;
@@ -3205,21 +3205,24 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     font-size: 24px;
     cursor: pointer;
     z-index: 1000;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     image-rendering: pixelated;
     -webkit-tap-highlight-color: transparent;
-    /* Prevent layout shifts */
+    /* Prevent layout shifts - use transform instead of position changes */
     transform: translateZ(0);
-    will-change: transform;
+    /* Isolate FAB from layout changes in other elements */
+    contain: layout style paint;
+    /* Remove will-change to prevent browser optimizations that might cause shifts */
 }
 
 .mobile-fab:active {
-    transform: scale(0.9);
+    transform: translateZ(0) scale(0.9);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .mobile-fab i {
     pointer-events: none;
+    font-size: 18px;
 }
 
 /* Smash Mode Style */
@@ -3231,7 +3234,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 }
 
 .mobile-fab.smash-mode:active {
-    transform: none;
+    transform: translateZ(0);
     animation: hammerSmash 0.3s ease-in-out;
 }
 
@@ -3254,6 +3257,15 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     .mobile-fab {
         display: none !important;
     }
+    
+    /* Larger icon size for desktop if FAB is shown */
+    .mobile-fab i {
+        font-size: 24px;
+    }
+    
+    .mobile-fab span.emoji-icon {
+        font-size: 24px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -3274,7 +3286,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 
     /* Ensure emoji renders correctly */
     .mobile-fab span.emoji-icon {
-        font-size: 28px;
+        font-size: 18px;
         line-height: 1;
         image-rendering: auto;
         /* Important for emoji clarity */

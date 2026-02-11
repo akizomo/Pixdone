@@ -2391,6 +2391,12 @@ class ComicEffectsManager {
     }
 
     createShrinkEffect(taskElement) {
+        // Set transform-origin to center to minimize layout impact on FAB position
+        const taskRect = taskElement.getBoundingClientRect();
+        const centerX = taskRect.left + taskRect.width / 2;
+        const centerY = taskRect.top + taskRect.height / 2;
+        taskElement.style.transformOrigin = `${centerX - taskRect.left}px ${centerY - taskRect.top}px`;
+        
         // Add text effect
         const rect = taskElement.getBoundingClientRect();
         const shrinkText = document.createElement("div");
@@ -2423,6 +2429,8 @@ class ComicEffectsManager {
         taskElement.classList.add("shrink-effect");
         setTimeout(() => {
             taskElement.classList.remove("shrink-effect");
+            // Restore transform-origin after animation
+            taskElement.style.transformOrigin = "";
         }, 1000);
     }
 
