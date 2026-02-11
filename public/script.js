@@ -204,24 +204,15 @@ class PixDoneApp {
     setupSyncIndicator() {
         const el = document.getElementById('syncIndicator');
         if (!el) return;
-        const updateStatus = () => {
-            const online = typeof navigator !== 'undefined' && navigator.onLine;
-            el.textContent = online ? 'Synced' : 'Offline – changes will sync when back online';
-            el.classList.toggle('sync-offline', !online);
-        };
-        window.addEventListener('online', updateStatus);
-        window.addEventListener('offline', updateStatus);
-        this.updateSyncIndicatorVisibility();
-        updateStatus();
+        // Always hide sync indicator
+        el.style.display = 'none';
     }
 
     updateSyncIndicatorVisibility() {
         const el = document.getElementById('syncIndicator');
         if (!el) return;
-        el.style.display = this.isAuthenticated ? '' : 'none';
-        const online = typeof navigator !== 'undefined' && navigator.onLine;
-        el.textContent = online ? 'Synced' : 'Offline – changes will sync when back online';
-        el.classList.toggle('sync-offline', !online);
+        // Always hide sync indicator
+        el.style.display = 'none';
     }
 
     /**
@@ -243,256 +234,175 @@ class PixDoneApp {
     }
 
     fixMobileModalDirectly() {
-        console.log('[PixDone] Creating completely new modal system');
+        console.log('[PixDone] Creating bottom sheet modal system');
 
-        // 既存のモーダルを完全に削除
+        // Initialize subtasks state
+        this.currentSubtasks = [];
+
         // Remove any existing modal
         const existingModal = document.getElementById('newMobileModal');
         if (existingModal) {
             existingModal.remove();
         }
 
-        // モーダルを非表示にする関数
+        // Hide modal function
         this.hideMobileModal = () => {
             const modal = document.getElementById('newMobileModal');
             if (modal) {
-                modal.style.transform = 'translateY(100%)';
+                modal.classList.remove('open');
                 setTimeout(() => {
                     modal.remove();
+                    this.currentSubtasks = [];
                 }, 300);
             }
-            console.log('[PixDone] New modal hidden');
+            this.isMobileModalOpen = false;
+            console.log('[PixDone] Bottom sheet hidden');
         };
 
-        // 新しいモーダルを作成
+        // Show modal function
         this.showMobileModal = () => {
-            console.log('[PixDone] Creating new modal');
+            console.log('[PixDone] Creating bottom sheet');
 
-            // 既存のモーダルがあれば削除
+            // Remove existing modal
             const existing = document.getElementById('newMobileModal');
             if (existing) {
                 existing.remove();
             }
 
-            // 新しいモーダルを作成（フルスクリーン）
-            const modal = document.createElement('div');
-            modal.id = 'newMobileModal';
-            modal.style.cssText = `
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                bottom: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                background: var(--bg-primary) !important;
-                z-index: 99999 !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                box-sizing: border-box !important;
-                font-family: Inter, sans-serif !important;
-                display: flex !important;
-                flex-direction: column !important;
-                transform: translateY(100%) !important;
-                transition: transform 0.3s ease !important;
-            `;
+            // Create bottom sheet container
+            const sheet = document.createElement('div');
+            sheet.id = 'newMobileModal';
+            sheet.className = 'task-bottom-sheet';
 
-            // モーダルの内容を作成
-            modal.innerHTML = `
-                <!-- スクロール可能なコンテンツ部分 -->
-                <div style="flex: 1 !important; overflow-y: auto !important; padding: 20px !important; padding-bottom: 100px !important;">
-                    <!-- Task Title -->
-                    <div style="margin-bottom: 16px !important;">
-                        <div id="newTaskTitle" contenteditable="true" placeholder="Enter task title" 
-                               style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; font-size: 16px !important; box-sizing: border-box !important; display: block !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-family: Inter, sans-serif !important; outline: none !important; font-weight: 500 !important; image-rendering: pixelated !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; min-height: 20px !important; white-space: pre-wrap !important; word-wrap: break-word !important;"></div>
-                    </div>
-                    
-                    <!-- Task Details -->
-                    <div style="margin-bottom: 16px !important;">
-                        <div id="newTaskDetails" contenteditable="true" placeholder="Details (optional)" 
-                                  style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; font-size: 16px !important; box-sizing: border-box !important; display: block !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-family: Inter, sans-serif !important; min-height: 80px !important; max-height: 120px !important; outline: none !important; font-weight: 500 !important; image-rendering: pixelated !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; white-space: pre-wrap !important; word-wrap: break-word !important; overflow-y: auto !important;"></div>
-                    </div>
-                    
-                    <!-- Date Selection -->
-                    <div style="display: flex !important; gap: 8px !important; flex-wrap: wrap !important;">
-                        <button id="newTodayBtn" class="new-date-btn" style="flex: 1 !important; padding: 8px 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; min-width: 80px !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; min-height: 44px !important; image-rendering: pixelated !important; font-weight: 500 !important;">Today</button>
-                        <button id="newTomorrowBtn" class="new-date-btn" style="flex: 1 !important; padding: 8px 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; min-width: 80px !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; min-height: 44px !important; image-rendering: pixelated !important; font-weight: 500 !important;">Tomorrow</button>
-                        <button id="newCalendarBtn" class="new-date-btn" style="flex: 1 !important; padding: 8px 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; min-width: 80px !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; min-height: 44px !important; image-rendering: pixelated !important; font-weight: 500 !important;"><i class="fa fa-calendar"></i> Pick</button>
-                        <button id="newRepeatBtn" class="new-repeat-btn" style="flex: 1 !important; padding: 8px 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; min-width: 80px !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; min-height: 44px !important; image-rendering: pixelated !important; font-weight: 500 !important;"><i class="fa fa-repeat"></i> Repeat</button>
-                    </div>
-                    
-                    <!-- Hidden native date picker -->
-                    <input type="date" id="newNativeDatePicker" style="display: none !important;" />
-                    
-                    <!-- Hidden storage -->
-                    <input type="hidden" id="newRepeatInterval" value="none" />
+            // Build HTML structure
+            sheet.innerHTML = `
+                <!-- Fixed Header -->
+                <div class="task-sheet-header">
+                    <h3 id="taskSheetTitle">${this.currentTask ? 'Edit Task' : 'New Task'}</h3>
+                    <button class="task-sheet-close-btn" id="taskSheetCloseBtn" aria-label="Close">×</button>
                 </div>
-                
-                <!-- 固定ボタン -->
-                <div id="newModalBottomButtons" style="position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 999999 !important; background: var(--bg-primary) !important; border-top: 2px solid var(--border-color) !important; padding: 20px !important; box-shadow: 0 -4px 0px var(--shadow-color) !important; backdrop-filter: blur(10px) !important; -webkit-backdrop-filter: blur(10px) !important; image-rendering: pixelated !important; min-height: 80px !important;">
-                    <div style="display: flex !important; justify-content: space-between !important; align-items: center !important; flex-wrap: nowrap !important; width: 100% !important;">
-                        <div style="flex: 1 !important; display: flex !important; justify-content: flex-start !important; align-items: center !important;">
-                            <button id="newCancelBtn" style="padding: 12px 16px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; font-size: 14px !important; font-weight: 500 !important; cursor: pointer !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; min-height: 44px !important; flex-shrink: 0 !important; white-space: nowrap !important; display: inline-block !important; background: var(--bg-secondary) !important; color: var(--text-secondary) !important; border-color: var(--border-color) !important;">Cancel</button>
-                        </div>
-                        <div style="flex: 1 !important; display: flex !important; justify-content: flex-end !important; align-items: center !important; gap: 12px !important;">
-                            <button id="newDeleteBtn" style="padding: 12px 16px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; font-size: 14px !important; font-weight: 500 !important; cursor: pointer !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; min-height: 44px !important; flex-shrink: 0 !important; white-space: nowrap !important; display: none !important; background: var(--bg-secondary) !important; color: var(--danger-color) !important; border-color: var(--border-color) !important;">Delete</button>
-                            <button id="newSaveBtn" style="padding: 12px 16px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; font-size: 14px !important; font-weight: 500 !important; cursor: pointer !important; transition: all 0.2s ease !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; min-height: 44px !important; flex-shrink: 0 !important; white-space: nowrap !important; display: inline-block !important; background: var(--accent-color) !important; color: white !important; border-color: var(--accent-color) !important;">Save</button>
+
+                <!-- Scrollable Body -->
+                <div class="task-sheet-body" id="taskSheetBody">
+                    <!-- Section 1: Title -->
+                    <div class="task-sheet-section" id="titleSection">
+                        <div class="task-sheet-section-content">
+                            <div id="newTaskTitle" class="task-sheet-title-input" contenteditable="true" placeholder="Enter task title"></div>
                         </div>
                     </div>
+
+                    <!-- Section 2: Details -->
+                    <div class="task-sheet-section" id="detailsSection">
+                        <!-- Empty state row (shown when details is empty) -->
+                        <div class="task-sheet-empty-state" id="detailsEmptyState" style="display: none;">
+                            <span class="task-sheet-empty-state-text">Add details…</span>
+                        </div>
+                        <!-- Details input (shown when details has content or when focused) -->
+                        <div class="task-sheet-section-content" id="detailsContent" style="display: none;">
+                            <div id="newTaskDetails" class="task-sheet-details-input" contenteditable="true" placeholder="Details (optional)"></div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Date Buttons -->
+                    <div class="task-sheet-section" id="dateSection">
+                        <div class="task-sheet-section-content">
+                            <div class="task-sheet-date-buttons">
+                                <button id="newTodayBtn" class="task-sheet-date-btn">Today</button>
+                                <button id="newTomorrowBtn" class="task-sheet-date-btn">Tomorrow</button>
+                                <button id="newCalendarBtn" class="task-sheet-date-btn"><i class="fa fa-calendar"></i> Pick</button>
+                                <button id="newRepeatBtn" class="task-sheet-date-btn"><i class="fa fa-repeat"></i> Repeat</button>
+                            </div>
+                            <input type="date" id="newNativeDatePicker" style="display: none;" />
+                            <input type="hidden" id="newRepeatInterval" value="none" />
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Subtasks -->
+                    <div class="task-sheet-section" id="subtasksSection">
+                        <!-- Empty state row (shown when subtasks is empty) -->
+                        <div class="task-sheet-empty-state" id="subtasksEmptyState" style="display: none;">
+                            <span class="task-sheet-empty-state-text">Add subtasks…</span>
+                        </div>
+                        <!-- Subtasks content (shown when subtasks has content or when input is focused) -->
+                        <div class="task-sheet-section-content" id="subtasksContent" style="display: none;">
+                            <div class="task-sheet-subtasks-header">
+                                <span class="task-sheet-section-title">Subtasks (<span id="subtasksCount">0</span>)</span>
+                            </div>
+                            <ul class="task-sheet-subtasks-list" id="subtasksList"></ul>
+                            <div class="task-sheet-subtask-add">
+                                <input type="text" id="subtaskInput" class="task-sheet-subtask-input" placeholder="Add subtask (press Enter)..." />
+                                <button id="subtaskAddBtn" class="task-sheet-subtask-add-btn" style="display: none;" aria-label="Add subtask">+ Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fixed Footer -->
+                <div class="task-sheet-footer" id="taskSheetFooter">
+                    <div class="task-sheet-footer-left">
+                        <button id="newCancelBtn" class="task-sheet-btn task-sheet-btn-cancel">Cancel</button>
+                    </div>
+                    <div class="task-sheet-footer-right">
+                        <button id="newDeleteBtn" class="task-sheet-btn task-sheet-btn-delete" style="display: none;">Delete</button>
+                        <button id="newSaveBtn" class="task-sheet-btn task-sheet-btn-save">Save</button>
+                    </div>
                 </div>
             `;
 
-            // DOMに追加
-            document.body.appendChild(modal);
+            document.body.appendChild(sheet);
 
-            // アニメーションでモーダルを表示
-            setTimeout(() => {
-                modal.style.transform = 'translateY(0)';
-            }, 10);
-
-            // 強化されたキーボード検知システム
-            const bottomButtons = document.getElementById('newModalBottomButtons');
-            if (bottomButtons) {
-                let initialViewportHeight = window.innerHeight;
-                let keyboardHeight = 0;
-
-                // 複数の方法でキーボード検知
-                const detectKeyboard = () => {
-                    const currentViewportHeight = window.innerHeight;
-                    const documentHeight = document.documentElement.clientHeight;
-
-                    console.log('Keyboard detection:', {
-                        currentViewportHeight,
-                        initialViewportHeight,
-                        documentHeight,
-                        visualViewport: window.visualViewport ? {
-                            height: window.visualViewport.height,
-                            width: window.visualViewport.width
-                        } : null
-                    });
-
-                    // Method 1: Visual Viewport API (最も確実)
-                    if (window.visualViewport) {
-                        keyboardHeight = window.innerHeight - window.visualViewport.height;
-                        const isKeyboardOpen = keyboardHeight > 50;
-                        console.log('Visual Viewport API: keyboard height =', keyboardHeight, 'isOpen =', isKeyboardOpen);
-                        return isKeyboardOpen;
-                    }
-
-                    // Method 2: Viewport height comparison
-                    const heightDifference = initialViewportHeight - currentViewportHeight;
-                    if (heightDifference > 150) {
-                        keyboardHeight = heightDifference;
-                        console.log('Viewport height method: keyboard height =', keyboardHeight);
-                        return true;
-                    }
-
-                    // Method 3: Document vs window height
-                    const documentViewportDiff = documentHeight - currentViewportHeight;
-                    if (documentViewportDiff > 100) {
-                        keyboardHeight = documentViewportDiff;
-                        console.log('Document height method: keyboard height =', keyboardHeight);
-                        return true;
-                    }
-
-                    console.log('No keyboard detected');
-                    return false;
-                };
-
-                // キーボード表示時のボタン位置調整
-                const adjustButtonPosition = () => {
-                    const isKeyboardOpen = detectKeyboard();
-
-                    if (isKeyboardOpen) {
-                        // キーボード表示時：キーボード上部に固定
-                        bottomButtons.style.setProperty('position', 'fixed', 'important');
-                        bottomButtons.style.setProperty('bottom', Math.max(keyboardHeight, 0) + 'px', 'important');
-                        bottomButtons.style.setProperty('left', '0', 'important');
-                        bottomButtons.style.setProperty('right', '0', 'important');
-                        bottomButtons.style.setProperty('z-index', '999999', 'important');
-                        bottomButtons.style.setProperty('transform', 'translateY(0)', 'important');
-                        bottomButtons.style.setProperty('transition', 'bottom 0.3s ease', 'important');
-
-                        // 可視領域確保
-                        bottomButtons.style.setProperty('max-height', '80px', 'important');
-                        bottomButtons.style.setProperty('overflow', 'hidden', 'important');
-
-                        console.log('Keyboard detected, moving buttons above keyboard:', keyboardHeight + 'px');
-                    } else {
-                        // キーボード非表示時：通常の底部固定
-                        bottomButtons.style.setProperty('position', 'fixed', 'important');
-                        bottomButtons.style.setProperty('bottom', '0', 'important');
-                        bottomButtons.style.setProperty('left', '0', 'important');
-                        bottomButtons.style.setProperty('right', '0', 'important');
-                        bottomButtons.style.setProperty('z-index', '999999', 'important');
-                        bottomButtons.style.setProperty('transform', 'translateY(0)', 'important');
-                        bottomButtons.style.setProperty('transition', 'bottom 0.3s ease', 'important');
-
-                        bottomButtons.style.setProperty('max-height', 'none', 'important');
-                        bottomButtons.style.setProperty('overflow', 'visible', 'important');
-
-                        console.log('Keyboard hidden, buttons at bottom');
-                    }
-                };
-
-                // 初期化
-                setTimeout(() => {
-                    initialViewportHeight = window.innerHeight;
-                    adjustButtonPosition();
-                }, 100);
-
-                // Visual Viewport API (推奨)
-                if (window.visualViewport) {
-                    window.visualViewport.addEventListener('resize', adjustButtonPosition);
-                }
-
-                // フォールバック: 従来の方法
-                window.addEventListener('resize', adjustButtonPosition);
-                window.addEventListener('orientationchange', () => {
-                    setTimeout(() => {
-                        initialViewportHeight = window.innerHeight;
-                        adjustButtonPosition();
-                    }, 500);
-                });
-
-                // 入力フィールドのフォーカス/ブラーイベント
-                const inputs = modal.querySelectorAll('input, textarea');
-                inputs.forEach(input => {
-                    input.addEventListener('focus', () => {
-                        setTimeout(adjustButtonPosition, 300);
-                        // 追加の遅延チェック
-                        setTimeout(adjustButtonPosition, 600);
-                    });
-                    input.addEventListener('blur', () => {
-                        setTimeout(adjustButtonPosition, 300);
-                    });
-                });
-
-                // 定期的なチェック（フォールバック）
-                const intervalCheck = setInterval(() => {
-                    if (document.getElementById('newModalBottomButtons')) {
-                        adjustButtonPosition();
-                    } else {
-                        clearInterval(intervalCheck);
-                    }
-                }, 500);
-
-                // モーダルが閉じられたときにクリーンアップ
-                modal.addEventListener('DOMNodeRemoved', () => {
-                    clearInterval(intervalCheck);
-                });
+            // Initialize subtasks from current task
+            if (this.currentTask && this.currentTask.subtasks) {
+                this.currentSubtasks = [...this.currentTask.subtasks];
+            } else {
+                this.currentSubtasks = [];
             }
 
-            // イベントリスナーを追加
-            document.getElementById('newCancelBtn').addEventListener('click', () => {
+            // Setup event listeners
+            this.setupBottomSheetEvents(sheet);
+
+            // Setup empty state rows
+            this.setupEmptyStates(sheet);
+
+            // Setup subtasks functionality
+            this.setupSubtasks(sheet);
+
+            // Setup keyboard scroll handling
+            this.setupKeyboardScrollHandling(sheet);
+
+            // Setup keyboard avoidance using visualViewport
+            this.setupKeyboardAvoidance(sheet);
+
+            // Populate form data if editing
+            this.populateBottomSheetData(sheet);
+
+            // Animate sheet in
+            setTimeout(() => {
+                sheet.classList.add('open');
+            }, 10);
+
+            this.isMobileModalOpen = true;
+            console.log('[PixDone] Bottom sheet created');
+        };
+
+        // Setup bottom sheet helper functions
+        this.setupBottomSheetEvents = (sheet) => {
+            // Close button
+            sheet.querySelector('#taskSheetCloseBtn').addEventListener('click', () => {
+                this.hideMobileModal();
+            });
+
+            // Cancel button
+            sheet.querySelector('#newCancelBtn').addEventListener('click', () => {
                 this.hideMobileModal();
                 if (this.comicEffects && this.comicEffects.playSound) {
                     this.comicEffects.playSound('taskCancel');
                 }
             });
 
-            document.getElementById('newSaveBtn').addEventListener('click', () => {
-                const titleEl = document.getElementById('newTaskTitle');
+            // Save button
+            sheet.querySelector('#newSaveBtn').addEventListener('click', () => {
+                const titleEl = sheet.querySelector('#newTaskTitle');
                 const title = titleEl.textContent.trim();
                 if (!title) {
                     if (this.comicEffects && this.comicEffects.playSound) {
@@ -500,14 +410,15 @@ class PixDoneApp {
                     }
                     return;
                 }
-                this.saveNewModalTask();
+                this.saveBottomSheetTask(sheet);
                 if (this.comicEffects && this.comicEffects.playSound) {
                     this.comicEffects.playSound('taskAdd');
                 }
             });
 
-            // Delete button (only visible when editing)
-            document.getElementById('newDeleteBtn').addEventListener('click', () => {
+            // Delete button
+            const deleteBtn = sheet.querySelector('#newDeleteBtn');
+            deleteBtn.addEventListener('click', () => {
                 if (this.currentTask && this.currentTask.id) {
                     this.deleteTask(this.currentTask.id);
                     this.hideMobileModal();
@@ -517,73 +428,388 @@ class PixDoneApp {
                 }
             });
 
-            // Date selection buttons
-            document.getElementById('newTodayBtn').addEventListener('click', () => {
-                this.selectNewModalDate('today');
-                if (this.comicEffects && this.comicEffects.playSound) {
-                    this.comicEffects.playSound('taskAdd');
+            // Date buttons
+            sheet.querySelector('#newTodayBtn').addEventListener('click', () => {
+                this.selectBottomSheetDate(sheet, 'today');
+            });
+
+            sheet.querySelector('#newTomorrowBtn').addEventListener('click', () => {
+                this.selectBottomSheetDate(sheet, 'tomorrow');
+            });
+
+            sheet.querySelector('#newCalendarBtn').addEventListener('click', () => {
+                this.showNativeDatePicker(sheet);
+            });
+
+            sheet.querySelector('#newRepeatBtn').addEventListener('click', () => {
+                this.showBottomSheetRepeat(sheet);
+            });
+
+            // Native date picker
+            const nativeDatePicker = sheet.querySelector('#newNativeDatePicker');
+            if (nativeDatePicker) {
+                nativeDatePicker.addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        this.selectBottomSheetDate(sheet, 'custom', e.target.value);
+                    }
+                });
+            }
+
+            // Title input validation
+            const titleInput = sheet.querySelector('#newTaskTitle');
+            if (titleInput) {
+                titleInput.addEventListener('input', () => {
+                    this.updateSaveButtonState(sheet);
+                });
+            }
+        };
+
+        // Setup empty state rows and visibility logic
+        this.setupEmptyStates = (sheet) => {
+            const detailsEmptyState = sheet.querySelector('#detailsEmptyState');
+            const detailsContent = sheet.querySelector('#detailsContent');
+            const detailsInput = sheet.querySelector('#newTaskDetails');
+            const subtasksEmptyState = sheet.querySelector('#subtasksEmptyState');
+            const subtasksContent = sheet.querySelector('#subtasksContent');
+            const subtaskInput = sheet.querySelector('#subtaskInput');
+
+            // Details empty state click handler
+            if (detailsEmptyState) {
+                detailsEmptyState.addEventListener('click', () => {
+                    detailsEmptyState.style.display = 'none';
+                    detailsContent.style.display = 'block';
+                    setTimeout(() => {
+                        detailsInput.focus();
+                        this.setupRichTextEditor(detailsInput);
+                    }, 10);
+                });
+            }
+
+            // Subtasks empty state click handler
+            if (subtasksEmptyState) {
+                subtasksEmptyState.addEventListener('click', () => {
+                    subtasksEmptyState.style.display = 'none';
+                    subtasksContent.style.display = 'block';
+                    setTimeout(() => {
+                        subtaskInput.focus();
+                    }, 10);
+                });
+            }
+
+            // Update visibility based on content
+            this.updateSectionVisibility(sheet);
+        };
+
+        // Update section visibility based on content
+        this.updateSectionVisibility = (sheet) => {
+            const detailsInput = sheet.querySelector('#newTaskDetails');
+            const detailsEmptyState = sheet.querySelector('#detailsEmptyState');
+            const detailsContent = sheet.querySelector('#detailsContent');
+            const subtasksEmptyState = sheet.querySelector('#subtasksEmptyState');
+            const subtasksContent = sheet.querySelector('#subtasksContent');
+
+            // Details visibility
+            const hasDetails = detailsInput && detailsInput.textContent.trim();
+            if (hasDetails) {
+                detailsEmptyState.style.display = 'none';
+                detailsContent.style.display = 'block';
+            } else {
+                // Check if input is focused
+                const isDetailsFocused = document.activeElement === detailsInput;
+                if (isDetailsFocused) {
+                    detailsEmptyState.style.display = 'none';
+                    detailsContent.style.display = 'block';
+                } else {
+                    detailsEmptyState.style.display = 'block';
+                    detailsContent.style.display = 'none';
+                }
+            }
+
+            // Subtasks visibility
+            const hasSubtasks = this.currentSubtasks && this.currentSubtasks.length > 0;
+            const subtaskInput = sheet.querySelector('#subtaskInput');
+            const isSubtaskFocused = subtaskInput && document.activeElement === subtaskInput;
+            
+            if (hasSubtasks || isSubtaskFocused) {
+                subtasksEmptyState.style.display = 'none';
+                subtasksContent.style.display = 'block';
+            } else {
+                subtasksEmptyState.style.display = 'block';
+                subtasksContent.style.display = 'none';
+            }
+        };
+
+        // Setup subtasks functionality
+        this.setupSubtasks = (sheet) => {
+            const subtaskInput = sheet.querySelector('#subtaskInput');
+            const subtaskAddBtn = sheet.querySelector('#subtaskAddBtn');
+            const subtasksList = sheet.querySelector('#subtasksList');
+
+            // Add subtask on button click
+            subtaskAddBtn.addEventListener('click', () => {
+                this.addSubtask(sheet);
+            });
+
+            // Add subtask on Enter key
+            subtaskInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.addSubtask(sheet);
                 }
             });
 
-            document.getElementById('newTomorrowBtn').addEventListener('click', () => {
-                this.selectNewModalDate('tomorrow');
-                if (this.comicEffects && this.comicEffects.playSound) {
-                    this.comicEffects.playSound('taskAdd');
-                }
+            // Show subtasks content when input is focused
+            subtaskInput.addEventListener('focus', () => {
+                this.updateSectionVisibility(sheet);
             });
 
-            document.getElementById('newCalendarBtn').addEventListener('click', () => {
-                this.showNativeDatePicker();
-                if (this.comicEffects && this.comicEffects.playSound) {
-                    this.comicEffects.playSound('taskAdd');
-                }
+            // Initial render
+            this.renderSubtasks(sheet);
+            this.updateSubtasksCount(sheet);
+        };
+
+        // Add subtask
+        this.addSubtask = (sheet) => {
+            const subtaskInput = sheet.querySelector('#subtaskInput');
+            const text = subtaskInput.value.trim();
+            if (!text) return;
+
+            const newSubtask = {
+                id: Date.now().toString(),
+                text: text,
+                done: false
+            };
+
+            this.currentSubtasks.push(newSubtask);
+            subtaskInput.value = '';
+            this.renderSubtasks(sheet);
+            this.updateSubtasksCount(sheet);
+            this.updateSectionVisibility(sheet);
+        };
+
+        // Delete subtask
+        this.deleteSubtask = (sheet, subtaskId) => {
+            this.currentSubtasks = this.currentSubtasks.filter(st => st.id !== subtaskId);
+            this.renderSubtasks(sheet);
+            this.updateSubtasksCount(sheet);
+            this.updateSectionVisibility(sheet);
+        };
+
+        // Toggle subtask done state
+        this.toggleSubtask = (sheet, subtaskId) => {
+            const subtask = this.currentSubtasks.find(st => st.id === subtaskId);
+            if (subtask) {
+                subtask.done = !subtask.done;
+                this.renderSubtasks(sheet);
+            }
+        };
+
+        // Render subtasks list
+        this.renderSubtasks = (sheet) => {
+            const subtasksList = sheet.querySelector('#subtasksList');
+            subtasksList.innerHTML = '';
+
+            this.currentSubtasks.forEach(subtask => {
+                const li = document.createElement('li');
+                li.className = `task-sheet-subtask-item ${subtask.done ? 'done' : ''}`;
+                li.innerHTML = `
+                    <input type="checkbox" class="task-sheet-subtask-checkbox" ${subtask.done ? 'checked' : ''} data-subtask-id="${subtask.id}" />
+                    <span class="task-sheet-subtask-text">${this.escapeHtml(subtask.text)}</span>
+                    <button class="task-sheet-subtask-delete" data-subtask-id="${subtask.id}" aria-label="Delete">×</button>
+                `;
+
+                // Checkbox event
+                const checkbox = li.querySelector('.task-sheet-subtask-checkbox');
+                checkbox.addEventListener('change', () => {
+                    this.toggleSubtask(sheet, subtask.id);
+                });
+
+                // Delete button event
+                const deleteBtn = li.querySelector('.task-sheet-subtask-delete');
+                deleteBtn.addEventListener('click', () => {
+                    this.deleteSubtask(sheet, subtask.id);
+                });
+
+                subtasksList.appendChild(li);
             });
+        };
 
-            document.getElementById('newRepeatBtn').addEventListener('click', () => {
-                this.showNewModalRepeat();
-                if (this.comicEffects && this.comicEffects.playSound) {
-                    this.comicEffects.playSound('taskAdd');
+        // Update subtasks count
+        this.updateSubtasksCount = (sheet) => {
+            const countEl = sheet.querySelector('#subtasksCount');
+            if (countEl) {
+                countEl.textContent = this.currentSubtasks.length;
+            }
+        };
+
+        // Setup keyboard avoidance using visualViewport API
+        this.setupKeyboardAvoidance = (sheet) => {
+            // Only apply on mobile devices (not desktop)
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+            
+            if (!isMobile || isDesktop || !window.visualViewport) {
+                return;
+            }
+
+            const footer = sheet.querySelector('.task-sheet-footer');
+            const body = sheet.querySelector('.task-sheet-body');
+            if (!footer || !body) return;
+
+            let resizeHandler = null;
+            let scrollHandler = null;
+
+            const updateSheetPosition = () => {
+                const viewport = window.visualViewport;
+                const windowHeight = window.innerHeight;
+                const viewportHeight = viewport.height;
+                const viewportTop = viewport.offsetTop;
+                const keyboardHeight = windowHeight - viewportHeight - viewportTop;
+
+                if (keyboardHeight > 50) {
+                    // Keyboard is visible, adjust sheet bottom position
+                    sheet.style.bottom = `${keyboardHeight}px`;
+                } else {
+                    // Keyboard is hidden, reset sheet position
+                    sheet.style.bottom = '0px';
                 }
+            };
+
+            resizeHandler = updateSheetPosition;
+            scrollHandler = updateSheetPosition;
+
+            // Initial check
+            updateSheetPosition();
+
+            // Listen for viewport resize (keyboard show/hide)
+            window.visualViewport.addEventListener('resize', resizeHandler);
+            window.visualViewport.addEventListener('scroll', scrollHandler);
+
+            // Store cleanup function on sheet element
+            sheet._keyboardAvoidanceCleanup = () => {
+                if (window.visualViewport) {
+                    if (resizeHandler) {
+                        window.visualViewport.removeEventListener('resize', resizeHandler);
+                    }
+                    if (scrollHandler) {
+                        window.visualViewport.removeEventListener('scroll', scrollHandler);
+                    }
+                }
+                sheet.style.bottom = '';
+            };
+        };
+
+        // Setup keyboard scroll handling and auto-grow for details
+        this.setupKeyboardScrollHandling = (sheet) => {
+            const body = sheet.querySelector('.task-sheet-body');
+            const inputs = sheet.querySelectorAll('input, [contenteditable="true"]');
+            const detailsInput = sheet.querySelector('#newTaskDetails');
+
+            // Auto-grow for details input
+            if (detailsInput) {
+                const autoGrowDetails = () => {
+                    // Reset height to auto to get the correct scrollHeight
+                    detailsInput.style.height = 'auto';
+                    const scrollHeight = detailsInput.scrollHeight;
+                    const lineHeight = parseFloat(getComputedStyle(detailsInput).lineHeight);
+                    const maxHeight = lineHeight * 4 + 12; // 4 lines max
+                    
+                    if (scrollHeight <= maxHeight) {
+                        detailsInput.style.height = scrollHeight + 'px';
+                        detailsInput.style.overflowY = 'hidden';
+                    } else {
+                        detailsInput.style.height = maxHeight + 'px';
+                        detailsInput.style.overflowY = 'auto';
+                    }
+                };
+
+                // Initial height
+                autoGrowDetails();
+
+                // Auto-grow on input
+                detailsInput.addEventListener('input', autoGrowDetails);
+                detailsInput.addEventListener('paste', () => {
+                    setTimeout(autoGrowDetails, 10);
+                });
+
+                // Show details content when focused
+                detailsInput.addEventListener('focus', () => {
+                    this.updateSectionVisibility(sheet);
+                    setTimeout(() => {
+                        autoGrowDetails();
+                    }, 10);
+                });
+
+                // Update visibility on blur
+                detailsInput.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        this.updateSectionVisibility(sheet);
+                    }, 100);
+                });
+            }
+
+            // Scroll into view for all inputs with keyboard avoidance
+            const footer = sheet.querySelector('.task-sheet-footer');
+            const footerHeight = footer ? footer.offsetHeight : 72;
+            
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    // Set scroll-padding-bottom to account for footer
+                    const body = sheet.querySelector('.task-sheet-body');
+                    if (body) {
+                        body.style.scrollPaddingBottom = `${footerHeight + 20}px`;
+                    }
+
+                    setTimeout(() => {
+                        input.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center',
+                            inline: 'nearest'
+                        });
+                    }, 300); // Delay for keyboard animation
+                });
             });
+        };
 
-            // Native date picker event handler - delay to ensure element exists
-            setTimeout(() => {
-                const nativeDatePicker = document.getElementById('newNativeDatePicker');
-                if (nativeDatePicker) {
-                    nativeDatePicker.addEventListener('change', (e) => {
-                        if (e.target.value) {
-                            this.selectNewModalDate('custom', e.target.value);
-                            if (this.comicEffects && this.comicEffects.playSound) {
-                                this.comicEffects.playSound('taskAdd');
-                            }
-                        }
-                    });
-
-                    // Also handle input event for better compatibility
-                    nativeDatePicker.addEventListener('input', (e) => {
-                        if (e.target.value) {
-                            this.selectNewModalDate('custom', e.target.value);
-                            if (this.comicEffects && this.comicEffects.playSound) {
-                                this.comicEffects.playSound('taskAdd');
-                            }
-                        }
-                    });
-                }
-            }, 100);
-
-            // Calendar picker event handlers - these are no longer needed since we use native date picker
-            // Repeat selector event handlers - these are now handled in the showNewModalRepeat method
-
-            // Populate form data if editing
+        // Populate bottom sheet data
+        this.populateBottomSheetData = (sheet) => {
             if (this.currentTask) {
-                document.getElementById('newTaskTitle').value = this.currentTask.title || '';
-                document.getElementById('newTaskDetails').innerHTML = this.processLinksForDisplay(this.currentTask.details || '');
-                // Show delete button for editing
-                const deleteBtn = document.getElementById('newDeleteBtn');
-                deleteBtn.style.display = 'inline-block';
-                console.log('[PixDone] Delete button shown for editing');
+                // Title
+                const titleEl = sheet.querySelector('#newTaskTitle');
+                titleEl.textContent = this.currentTask.title || '';
+                this.setupRichTextEditor(titleEl);
 
-                // Set date selection if exists
+                // Details
+                const detailsEl = sheet.querySelector('#newTaskDetails');
+                detailsEl.innerHTML = this.processLinksForDisplay(this.currentTask.details || '');
+                this.setupRichTextEditor(detailsEl);
+                // Trigger auto-grow after setting content
+                setTimeout(() => {
+                    const autoGrowDetails = () => {
+                        detailsEl.style.height = 'auto';
+                        const scrollHeight = detailsEl.scrollHeight;
+                        const lineHeight = parseFloat(getComputedStyle(detailsEl).lineHeight);
+                        const maxHeight = lineHeight * 4 + 12;
+                        if (scrollHeight <= maxHeight) {
+                            detailsEl.style.height = scrollHeight + 'px';
+                            detailsEl.style.overflowY = 'hidden';
+                        } else {
+                            detailsEl.style.height = maxHeight + 'px';
+                            detailsEl.style.overflowY = 'auto';
+                        }
+                    };
+                    autoGrowDetails();
+                }, 50);
+
+                // Show delete button
+                sheet.querySelector('#newDeleteBtn').style.display = 'inline-block';
+
+                // Subtasks - already loaded in showMobileModal via this.currentSubtasks
+                // Render them
+                this.renderSubtasks(sheet);
+                this.updateSubtasksCount(sheet);
+
+                // Date selection
                 if (this.currentTask.dueDate) {
                     const dueDate = new Date(this.currentTask.dueDate);
                     const today = new Date();
@@ -591,80 +817,190 @@ class PixDoneApp {
                     tomorrow.setDate(today.getDate() + 1);
 
                     if (dueDate.toDateString() === today.toDateString()) {
-                        this.selectNewModalDate('today');
+                        this.selectBottomSheetDate(sheet, 'today');
                     } else if (dueDate.toDateString() === tomorrow.toDateString()) {
-                        this.selectNewModalDate('tomorrow');
+                        this.selectBottomSheetDate(sheet, 'tomorrow');
                     } else {
                         this.selectedDate = dueDate;
-                        document.getElementById('newCalendarBtn').classList.add('active');
+                        sheet.querySelector('#newCalendarBtn').classList.add('active');
                     }
                 }
 
-                // Set repeat selection if exists
+                // Repeat
                 if (this.currentTask.repeat && this.currentTask.repeat !== 'none') {
                     this.selectedRepeat = this.currentTask.repeat;
                     setTimeout(() => {
-                        this.updateRepeatButtonState();
+                        this.updateRepeatButtonState(sheet);
                     }, 100);
                 }
+
             } else {
-                // Clear form for new task and hide delete button
-                document.getElementById('newTaskTitle').textContent = '';
-                document.getElementById('newTaskDetails').innerHTML = '';
-                // Force hide delete button for new tasks
-                const deleteBtn = document.getElementById('newDeleteBtn');
-                deleteBtn.style.display = 'none';
-                console.log('[PixDone] Delete button hidden for new task');
+                // Clear for new task
+                sheet.querySelector('#newTaskTitle').textContent = '';
+                sheet.querySelector('#newTaskDetails').innerHTML = '';
+                sheet.querySelector('#newDeleteBtn').style.display = 'none';
                 this.selectedDate = null;
                 this.selectedRepeat = 'none';
+                this.currentSubtasks = [];
+                this.renderSubtasks(sheet);
+                this.updateSubtasksCount(sheet);
             }
 
-            // Focus on title input and setup validation
+            // Update section visibility after populating
             setTimeout(() => {
-                const titleInput = document.getElementById('newTaskTitle');
-                const taskDetailsTextarea = document.getElementById('newTaskDetails');
+                this.updateSectionVisibility(sheet);
+            }, 50);
 
+            // Focus title input
+            setTimeout(() => {
+                const titleInput = sheet.querySelector('#newTaskTitle');
                 if (titleInput) {
                     titleInput.focus();
-                    this.selectAllText(titleInput); // Select all text for contentEditable
-
-                    // Add validation event listener
-                    this.updateSaveButtonState();
-                    titleInput.addEventListener('input', () => {
-                        this.updateSaveButtonState();
-                    });
-
-                    // Set up paste event handlers for hyperlink creation on title
-                    if (!titleInput.hyperlinkPasteSetup) {
-                        this.handleHyperlinkPaste(titleInput);
-                        titleInput.hyperlinkPasteSetup = true;
-                    }
-
-                    // Set up rich text editing for title
                     this.setupRichTextEditor(titleInput);
-
-                    console.log('[PixDone] Focus set on new title input');
                 }
-
-                // Set up paste event handlers for hyperlink creation on details
-                if (taskDetailsTextarea && !taskDetailsTextarea.hyperlinkPasteSetup) {
-                    this.handleHyperlinkPaste(taskDetailsTextarea);
-                    taskDetailsTextarea.hyperlinkPasteSetup = true;
-                }
-
-                // Set up rich text editing for mobile modal input fields
-                if (taskDetailsTextarea) {
-                    this.setupRichTextEditor(taskDetailsTextarea);
-                }
-
-                // Set up placeholder behavior for contenteditable
-                if (taskDetailsTextarea && taskDetailsTextarea.textContent.trim() === '' && taskDetailsTextarea.hasAttribute('placeholder')) {
-                    taskDetailsTextarea.classList.add('empty');
-                }
+                this.updateSaveButtonState(sheet);
             }, 100);
+        };
 
-            this.isMobileModalOpen = true;
-            console.log('[PixDone] New modal created and displayed');
+        // Helper: Escape HTML
+        this.escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        };
+
+        // Save bottom sheet task
+        this.saveBottomSheetTask = (sheet) => {
+            const titleEl = sheet.querySelector('#newTaskTitle');
+            const title = titleEl.textContent.trim();
+            const detailsEl = sheet.querySelector('#newTaskDetails');
+            const details = this.extractTextFromRichEditor(detailsEl);
+
+            if (!title) {
+                if (this.comicEffects && this.comicEffects.playSound) {
+                    this.comicEffects.playSound('taskCancel');
+                }
+                return;
+            }
+
+            if (this.currentTask) {
+                // Update existing task
+                this.currentTask.title = title;
+                this.currentTask.details = details;
+                this.currentTask.dueDate = this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null;
+                this.currentTask.repeat = this.selectedRepeat || 'none';
+                this.currentTask.subtasks = [...this.currentSubtasks];
+
+                // Update task in current list
+                const currentList = this.getCurrentList();
+                if (currentList && currentList.tasks) {
+                    const taskIndex = currentList.tasks.findIndex(t => t.id === this.currentTask.id);
+                    if (taskIndex >= 0) {
+                        currentList.tasks[taskIndex] = { ...this.currentTask };
+                    }
+                }
+            } else {
+                // Create new task
+                const currentList = this.getCurrentList();
+                const newTask = {
+                    id: Date.now().toString(),
+                    title: title,
+                    details: details,
+                    dueDate: this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null,
+                    repeat: this.selectedRepeat || 'none',
+                    completed: false,
+                    listId: this.currentListId || 'default',
+                    subtasks: [...this.currentSubtasks]
+                };
+
+                if (currentList && currentList.tasks) {
+                    currentList.tasks.unshift(newTask);
+                }
+            }
+
+            this.saveTasks();
+            this.renderTasks();
+            this.hideMobileModal();
+
+            // Reset form state
+            this.currentTask = null;
+            this.selectedDate = null;
+            this.selectedRepeat = 'none';
+            this.currentSubtasks = [];
+        };
+
+        // Select date in bottom sheet
+        this.selectBottomSheetDate = (sheet, dateType, customDate) => {
+            const buttons = sheet.querySelectorAll('.task-sheet-date-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            if (dateType === 'today') {
+                const btn = sheet.querySelector('#newTodayBtn');
+                btn.classList.add('active');
+                this.selectedDate = new Date();
+            } else if (dateType === 'tomorrow') {
+                const btn = sheet.querySelector('#newTomorrowBtn');
+                btn.classList.add('active');
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                this.selectedDate = tomorrow;
+            } else if (dateType === 'custom' && customDate) {
+                const btn = sheet.querySelector('#newCalendarBtn');
+                btn.classList.add('active');
+                this.selectedDate = new Date(customDate);
+            }
+        };
+
+        // Show native date picker
+        this.showNativeDatePicker = (sheet) => {
+            const nativeDatePicker = sheet.querySelector('#newNativeDatePicker');
+            if (nativeDatePicker) {
+                nativeDatePicker.showPicker();
+            }
+        };
+
+        // Show repeat selector in bottom sheet
+        this.showBottomSheetRepeat = (sheet) => {
+            // Simple toggle for now - can be enhanced with dropdown
+            const repeatBtn = sheet.querySelector('#newRepeatBtn');
+            const repeatOptions = ['none', 'daily', 'weekly', 'monthly', 'yearly'];
+            const currentIndex = repeatOptions.indexOf(this.selectedRepeat || 'none');
+            const nextIndex = (currentIndex + 1) % repeatOptions.length;
+            this.selectedRepeat = repeatOptions[nextIndex];
+            this.updateRepeatButtonState(sheet);
+        };
+
+        // Update repeat button state
+        this.updateRepeatButtonState = (sheet) => {
+            const repeatBtn = sheet.querySelector('#newRepeatBtn');
+            if (repeatBtn && this.selectedRepeat && this.selectedRepeat !== 'none') {
+                repeatBtn.classList.add('active');
+            } else if (repeatBtn) {
+                repeatBtn.classList.remove('active');
+            }
+        };
+
+        // Update save button state
+        this.updateSaveButtonState = (sheet) => {
+            const titleInput = sheet.querySelector('#newTaskTitle');
+            const saveButton = sheet.querySelector('#newSaveBtn');
+
+            if (titleInput && saveButton) {
+                const title = titleInput.textContent.trim();
+                const isEmpty = title === '';
+
+                if (isEmpty) {
+                    saveButton.disabled = true;
+                    saveButton.style.opacity = '0.6';
+                    saveButton.style.cursor = 'not-allowed';
+                } else {
+                    saveButton.disabled = false;
+                    saveButton.style.opacity = '1';
+                    saveButton.style.cursor = 'pointer';
+                }
+            }
         };
 
         // Save button validation
@@ -974,9 +1310,18 @@ class PixDoneApp {
         };
 
         this.saveNewModalTask = () => {
+            // Legacy function - redirects to bottom sheet save if using new modal
+            const sheet = document.getElementById('newMobileModal');
+            if (sheet && sheet.classList.contains('task-bottom-sheet')) {
+                this.saveBottomSheetTask(sheet);
+                return;
+            }
+
+            // Fallback for old modal structure
             const titleEl = document.getElementById('newTaskTitle');
-            const title = titleEl.textContent.trim();
-            const details = this.extractTextFromRichEditor(document.getElementById('newTaskDetails'));
+            const title = titleEl ? titleEl.textContent.trim() : '';
+            const detailsEl = document.getElementById('newTaskDetails');
+            const details = detailsEl ? this.extractTextFromRichEditor(detailsEl) : '';
 
             if (!title) {
                 if (this.comicEffects && this.comicEffects.playSound) {
@@ -985,31 +1330,38 @@ class PixDoneApp {
                 return;
             }
 
+            const currentList = this.getCurrentList();
             if (this.currentTask) {
                 // Update existing task
                 this.currentTask.title = title;
                 this.currentTask.details = details;
                 this.currentTask.dueDate = this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null;
                 this.currentTask.repeat = this.selectedRepeat || 'none';
+                this.currentTask.subtasks = this.currentSubtasks || [];
 
-                // Update task in array
-                const taskIndex = this.tasks.findIndex(t => t.id === this.currentTask.id);
-                if (taskIndex >= 0) {
-                    this.tasks[taskIndex] = { ...this.currentTask };
+                // Update task in current list
+                if (currentList && currentList.tasks) {
+                    const taskIndex = currentList.tasks.findIndex(t => t.id === this.currentTask.id);
+                    if (taskIndex >= 0) {
+                        currentList.tasks[taskIndex] = { ...this.currentTask };
+                    }
                 }
             } else {
                 // Create new task
                 const newTask = {
-                    id: Date.now(),
+                    id: Date.now().toString(),
                     title: title,
                     details: details,
                     dueDate: this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null,
                     repeat: this.selectedRepeat || 'none',
                     completed: false,
-                    listId: this.currentListId || 'default'
+                    listId: this.currentListId || 'default',
+                    subtasks: this.currentSubtasks || []
                 };
 
-                this.tasks.unshift(newTask);
+                if (currentList && currentList.tasks) {
+                    currentList.tasks.unshift(newTask);
+                }
             }
 
             this.saveTasks();
@@ -1020,11 +1372,16 @@ class PixDoneApp {
             this.currentTask = null;
             this.selectedDate = null;
             this.selectedRepeat = 'none';
+            this.currentSubtasks = [];
         };
 
         this.hideMobileModal = () => {
             const modal = document.getElementById('newMobileModal');
             if (modal) {
+                // Cleanup keyboard avoidance listeners
+                if (modal._keyboardAvoidanceCleanup) {
+                    modal._keyboardAvoidanceCleanup();
+                }
                 modal.remove();
             }
 
@@ -2779,6 +3136,16 @@ class PixDoneApp {
                         </select>
                     </div>
                 </div>
+                <div class="inline-edit-subtasks-section">
+                    <div class="inline-subtasks-header">
+                        <span class="inline-subtasks-title">Subtasks (<span id="inline-subtasks-count-${taskId}">0</span>)</span>
+                    </div>
+                    <ul class="inline-subtasks-list" id="inline-subtasks-list-${taskId}"></ul>
+                    <div class="inline-subtask-add">
+                        <input type="text" id="inline-subtask-input-${taskId}" class="inline-subtask-input" placeholder="Add subtask (press Enter)..." />
+                        <button id="inline-subtask-add-btn-${taskId}" class="inline-subtask-add-btn" style="display: none;" aria-label="Add subtask">+ Add</button>
+                    </div>
+                </div>
                 <div class="inline-edit-actions">
                     <div class="inline-edit-actions-left">
                         <button type="button" class="inline-delete-btn" onclick="window.pixDoneApp.deleteInlineTask('${taskId}')">Delete</button>
@@ -2815,6 +3182,9 @@ class PixDoneApp {
 
             // Set up repeat selector based on task data
             this.updateInlineRepeatSelector(taskId, task.repeat || 'none');
+
+            // Set up subtasks for desktop
+            this.setupInlineSubtasks(taskId);
         }, 100);
 
         // Set up click-outside-to-close behavior
@@ -2824,6 +3194,13 @@ class PixDoneApp {
         this.currentTask = { ...task };
         this.selectedDate = task.dueDate;
         this.selectedRepeat = task.repeat || 'none';
+        
+        // Initialize subtasks from current task
+        if (task.subtasks && Array.isArray(task.subtasks)) {
+            this.currentSubtasks = [...task.subtasks];
+        } else {
+            this.currentSubtasks = [];
+        }
     }
 
     async saveInlineEdit(taskId) {
@@ -2859,12 +3236,13 @@ class PixDoneApp {
         currentList.tasks[taskIndex].details = details;
         currentList.tasks[taskIndex].dueDate = this.selectedDate;
         currentList.tasks[taskIndex].repeat = this.selectedRepeat;
+        currentList.tasks[taskIndex].subtasks = this.currentSubtasks || [];
 
         // Update in Firebase if authenticated
         if (this.isAuthenticated) {
             try {
                 await deleteTaskFromFirestore(taskId);
-                await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId);
+                await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId, this.currentSubtasks || []);
             } catch (error) {
                 console.error('Error updating task in Firestore:', error);
             }
@@ -2911,10 +3289,137 @@ class PixDoneApp {
         this.currentTask = null;
         this.selectedDate = null;
         this.selectedRepeat = 'none';
+        this.currentSubtasks = [];
 
         // Play sound
         if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
             this.comicEffects.playSound('taskCancel');
+        }
+    }
+
+    // Setup subtasks for desktop inline edit
+    setupInlineSubtasks(taskId) {
+        const subtaskInput = document.getElementById(`inline-subtask-input-${taskId}`);
+        const subtaskAddBtn = document.getElementById(`inline-subtask-add-btn-${taskId}`);
+        const subtasksList = document.getElementById(`inline-subtasks-list-${taskId}`);
+
+        if (!subtaskInput || !subtasksList) return;
+
+        // Add subtask on button click
+        if (subtaskAddBtn) {
+            subtaskAddBtn.addEventListener('click', () => {
+                this.addInlineSubtask(taskId);
+            });
+        }
+
+        // Add subtask on Enter key
+        subtaskInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.addInlineSubtask(taskId);
+            }
+        });
+
+        // Show add button when input has text
+        subtaskInput.addEventListener('input', () => {
+            if (subtaskAddBtn) {
+                subtaskAddBtn.style.display = subtaskInput.value.trim() ? 'inline-flex' : 'none';
+            }
+        });
+
+        // Initial render
+        this.renderInlineSubtasks(taskId);
+        this.updateInlineSubtasksCount(taskId);
+    }
+
+    // Add subtask for desktop inline edit
+    addInlineSubtask(taskId) {
+        const subtaskInput = document.getElementById(`inline-subtask-input-${taskId}`);
+        if (!subtaskInput) return;
+
+        const text = subtaskInput.value.trim();
+        if (!text) return;
+
+        const newSubtask = {
+            id: Date.now().toString(),
+            text: text,
+            done: false
+        };
+
+        if (!this.currentSubtasks) {
+            this.currentSubtasks = [];
+        }
+        this.currentSubtasks.push(newSubtask);
+        subtaskInput.value = '';
+        
+        const subtaskAddBtn = document.getElementById(`inline-subtask-add-btn-${taskId}`);
+        if (subtaskAddBtn) {
+            subtaskAddBtn.style.display = 'none';
+        }
+
+        this.renderInlineSubtasks(taskId);
+        this.updateInlineSubtasksCount(taskId);
+    }
+
+    // Delete subtask for desktop inline edit
+    deleteInlineSubtask(taskId, subtaskId) {
+        if (!this.currentSubtasks) return;
+        this.currentSubtasks = this.currentSubtasks.filter(st => st.id !== subtaskId);
+        this.renderInlineSubtasks(taskId);
+        this.updateInlineSubtasksCount(taskId);
+    }
+
+    // Toggle subtask done state for desktop inline edit
+    toggleInlineSubtask(taskId, subtaskId) {
+        if (!this.currentSubtasks) return;
+        const subtask = this.currentSubtasks.find(st => st.id === subtaskId);
+        if (subtask) {
+            subtask.done = !subtask.done;
+            this.renderInlineSubtasks(taskId);
+        }
+    }
+
+    // Render subtasks list for desktop inline edit
+    renderInlineSubtasks(taskId) {
+        const subtasksList = document.getElementById(`inline-subtasks-list-${taskId}`);
+        if (!subtasksList) return;
+
+        subtasksList.innerHTML = '';
+
+        if (!this.currentSubtasks || this.currentSubtasks.length === 0) {
+            return;
+        }
+
+        this.currentSubtasks.forEach(subtask => {
+            const li = document.createElement('li');
+            li.className = `inline-subtask-item ${subtask.done ? 'done' : ''}`;
+            li.innerHTML = `
+                <input type="checkbox" class="inline-subtask-checkbox" ${subtask.done ? 'checked' : ''} data-subtask-id="${subtask.id}" />
+                <span class="inline-subtask-text">${this.escapeHtml(subtask.text)}</span>
+                <button class="inline-subtask-delete" data-subtask-id="${subtask.id}" aria-label="Delete">×</button>
+            `;
+
+            // Checkbox event
+            const checkbox = li.querySelector('.inline-subtask-checkbox');
+            checkbox.addEventListener('change', () => {
+                this.toggleInlineSubtask(taskId, subtask.id);
+            });
+
+            // Delete button event
+            const deleteBtn = li.querySelector('.inline-subtask-delete');
+            deleteBtn.addEventListener('click', () => {
+                this.deleteInlineSubtask(taskId, subtask.id);
+            });
+
+            subtasksList.appendChild(li);
+        });
+    }
+
+    // Update subtasks count for desktop inline edit
+    updateInlineSubtasksCount(taskId) {
+        const countEl = document.getElementById(`inline-subtasks-count-${taskId}`);
+        if (countEl) {
+            countEl.textContent = this.currentSubtasks ? this.currentSubtasks.length : 0;
         }
     }
 
@@ -3155,7 +3660,7 @@ class PixDoneApp {
                 // Firestoreに更新を送信
                 try {
                     await deleteTaskFromFirestore(this.currentTask.id);
-                    await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId);
+                    await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId, this.currentSubtasks || []);
                 } catch (error) {
                     console.error('Error updating task in Firestore:', error);
                 }
@@ -3165,7 +3670,7 @@ class PixDoneApp {
                 if (currentList) {
                     const idx = currentList.tasks.findIndex(t => t.id === this.currentTask.id);
                     if (idx !== -1) {
-                        currentList.tasks[idx] = { ...this.currentTask };
+                        currentList.tasks[idx] = { ...this.currentTask, subtasks: this.currentSubtasks || [] };
                         // Update the global tasks array for backward compatibility
                         this.tasks = currentList.tasks;
                     }
@@ -3179,12 +3684,13 @@ class PixDoneApp {
                 details,
                 dueDate: this.selectedDate,
                 repeat: this.selectedRepeat,
+                subtasks: this.currentSubtasks || [],
                 completed: false,
                 createdAt: new Date().toISOString(),
                 completedAt: null
             };
             if (this.isAuthenticated) {
-                await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId);
+                await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId, this.currentSubtasks || []);
             } else {
                 // Add to current list for offline users
                 const currentList = this.getCurrentList();
@@ -3465,37 +3971,17 @@ class PixDoneApp {
         this.currentTask = { ...task }; // Create a copy to avoid reference issues
         this.selectedDate = task.dueDate;
         this.selectedRepeat = task.repeat || 'none';
+        // Initialize subtasks if they exist
+        if (task.subtasks && Array.isArray(task.subtasks)) {
+            this.currentSubtasks = [...task.subtasks];
+        } else {
+            this.currentSubtasks = [];
+        }
 
-        // Use mobile modal for mobile devices
+        // Use mobile bottom sheet for mobile devices
         if (window.innerWidth <= 768) {
             this.showMobileModal();
-
-            // Wait for modal to be created, then fill with task data
-            setTimeout(() => {
-                const titleField = document.getElementById('newTaskTitle');
-                const detailsField = document.getElementById('newTaskDetails');
-
-                if (titleField) {
-                    titleField.innerHTML = this.processLinksForDisplay(task.title);
-                    this.setupRichTextEditor(titleField);
-                }
-
-                if (detailsField) {
-                    detailsField.innerHTML = this.processLinksForDisplay(task.details || '');
-                    this.setupRichTextEditor(detailsField);
-                }
-
-                // Show delete button for editing
-                const deleteBtn = document.getElementById('newDeleteBtn');
-                if (deleteBtn) {
-                    deleteBtn.style.display = 'inline-block';
-                }
-
-                // Update mobile modal date buttons
-                this.updateMobileModalDateButtons(task);
-                this.updateMobileModalRepeatButton(task);
-
-            }, 50);
+            // Bottom sheet will populate data via populateBottomSheetData()
         } else {
             // Desktop: Show inline editing
             this.showInlineTaskEdit(taskId);
@@ -4848,6 +5334,10 @@ class PixDoneApp {
     setupRichTextEditor(element) {
         if (!element || element.richTextSetup) return;
 
+        // Check if this is the details input for auto-grow
+        const isDetailsInput = element.id === 'newTaskDetails';
+        const sheet = element.closest('.task-bottom-sheet');
+
         // Handle input to convert links in real-time
         const handleInput = () => {
             const selection = window.getSelection();
@@ -4885,6 +5375,31 @@ class PixDoneApp {
                     }
                 }
             }
+
+            // Auto-grow for details input
+            if (isDetailsInput) {
+                setTimeout(() => {
+                    element.style.height = 'auto';
+                    const scrollHeight = element.scrollHeight;
+                    const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+                    const maxHeight = lineHeight * 4 + 12;
+                    
+                    if (scrollHeight <= maxHeight) {
+                        element.style.height = scrollHeight + 'px';
+                        element.style.overflowY = 'hidden';
+                    } else {
+                        element.style.height = maxHeight + 'px';
+                        element.style.overflowY = 'auto';
+                    }
+                }, 0);
+            }
+
+            // Update section visibility
+            if (sheet) {
+                setTimeout(() => {
+                    this.updateSectionVisibility(sheet);
+                }, 10);
+            }
         };
 
         // Handle paste to convert pasted URLs
@@ -4904,6 +5419,13 @@ class PixDoneApp {
                     range.deleteContents();
                     range.insertNode(document.createTextNode(markdownLink));
                     range.collapse(false);
+                    
+                    // Trigger auto-grow for details input after paste
+                    if (isDetailsInput) {
+                        setTimeout(() => {
+                            handleInput();
+                        }, 10);
+                    }
                 } else {
                     // Regular paste
                     range.insertNode(document.createTextNode(pastedData));
@@ -5199,6 +5721,11 @@ class PixDoneApp {
         const modal = document.getElementById('createListModal');
         const input = document.getElementById('listNameInput');
         modal.classList.add('active');
+        // Hide FAB when modal opens
+        const fab = document.getElementById('mobileFab');
+        if (fab) {
+            fab.style.display = 'none';
+        }
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskAdd');
         }
@@ -5212,6 +5739,8 @@ class PixDoneApp {
         const input = document.getElementById('listNameInput');
         modal.classList.remove('active');
         input.value = '';
+        // Show FAB when modal closes
+        this.renderMobileFab();
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskCancel');
         }
@@ -5318,6 +5847,11 @@ class PixDoneApp {
 
         input.value = list.name;
         modal.classList.add('active');
+        // Hide FAB when modal opens
+        const fab = document.getElementById('mobileFab');
+        if (fab) {
+            fab.style.display = 'none';
+        }
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskAdd');
         }
@@ -5333,6 +5867,8 @@ class PixDoneApp {
         const input = document.getElementById('editListNameInput');
         modal.classList.remove('active');
         input.value = '';
+        // Show FAB when modal closes
+        this.renderMobileFab();
         this.editingListId = null;
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskCancel');
@@ -5387,6 +5923,11 @@ class PixDoneApp {
 
         message.textContent = `Are you sure you want to delete "${list.name}" and all its tasks?`;
         modal.classList.add('active');
+        // Hide FAB when modal opens
+        const fab = document.getElementById('mobileFab');
+        if (fab) {
+            fab.style.display = 'none';
+        }
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskAdd');
         }
@@ -5396,6 +5937,8 @@ class PixDoneApp {
         const modal = document.getElementById('deleteListModal');
         modal.classList.remove('active');
         this.deletingListId = null;
+        // Show FAB when modal closes
+        this.renderMobileFab();
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskCancel');
         }
@@ -5570,7 +6113,7 @@ class PixDoneApp {
                 for (const task of list.tasks) {
                     if (!task.id) {
                         // 新規タスク
-                        await addTaskToFirestore(task.title, task.details, task.dueDate, task.repeat, list.id);
+                        await addTaskToFirestore(task.title, task.details, task.dueDate, task.repeat, list.id, task.subtasks || []);
                     } else if (typeof task.id === 'string') {
                         await db.collection('tasks').doc(task.id).set({ ...task, uid: firebase.auth().currentUser.uid, listId: list.id }, { merge: true });
                     }
@@ -5749,6 +6292,11 @@ class PixDoneApp {
     // Email Authentication Methods
     showEmailAuthModal() {
         document.getElementById('emailAuthModal').classList.add('active');
+        // Hide FAB when modal opens
+        const fab = document.getElementById('mobileFab');
+        if (fab) {
+            fab.style.display = 'none';
+        }
         this.isEmailAuthRegistering = true; // デフォルトでサインアップモード
         this.updateEmailAuthModal();
         this.comicEffects.playSound('taskAdd');
@@ -5757,6 +6305,8 @@ class PixDoneApp {
     hideEmailAuthModal() {
         document.getElementById('emailAuthModal').classList.remove('active');
         this.resetEmailAuthForm();
+        // Show FAB when modal closes
+        this.renderMobileFab();
         this.comicEffects.playSound('taskCancel');
     }
 
@@ -5811,12 +6361,19 @@ class PixDoneApp {
     showPasswordResetModal() {
         document.getElementById('emailAuthModal').classList.remove('active');
         document.getElementById('passwordResetModal').classList.add('active');
+        // FAB is already hidden by emailAuthModal, but ensure it stays hidden
+        const fab = document.getElementById('mobileFab');
+        if (fab) {
+            fab.style.display = 'none';
+        }
         this.comicEffects.playSound('taskAdd');
     }
 
     hidePasswordResetModal() {
         document.getElementById('passwordResetModal').classList.remove('active');
         document.getElementById('resetEmailInput').value = '';
+        // Show FAB when modal closes (if no other modals are open)
+        this.renderMobileFab();
         this.comicEffects.playSound('taskCancel');
     }
 
@@ -6031,6 +6588,15 @@ class PixDoneApp {
 
         newFab.addEventListener('click', (e) => {
             e.stopPropagation();
+            // #region agent log
+            const isModalOpen = this.isAnyModalOpen();
+            fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'script.js:6554',message:'FAB clicked',data:{isMobileModalOpen:this.isMobileModalOpen,isAnyModalOpen:isModalOpen},timestamp:Date.now(),runId:'post-fix',hypothesisId:'D'})}).catch(()=>{});
+            // #endregion
+
+            // Prevent FAB click when any modal is open
+            if (this.isAnyModalOpen()) {
+                return;
+            }
 
             const currentList = this.getCurrentList();
             const isSmashList = currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List');
@@ -6055,9 +6621,39 @@ class PixDoneApp {
         });
     }
 
+    // Check if any modal is currently open
+    isAnyModalOpen() {
+        const createListModal = document.getElementById('createListModal');
+        const editListModal = document.getElementById('editListModal');
+        const deleteListModal = document.getElementById('deleteListModal');
+        const emailAuthModal = document.getElementById('emailAuthModal');
+        const passwordResetModal = document.getElementById('passwordResetModal');
+        const deleteModal = document.getElementById('deleteModal');
+        const newMobileModal = document.getElementById('newMobileModal');
+        
+        return (createListModal && createListModal.classList.contains('active')) ||
+               (editListModal && editListModal.classList.contains('active')) ||
+               (deleteListModal && deleteListModal.classList.contains('active')) ||
+               (emailAuthModal && emailAuthModal.classList.contains('active')) ||
+               (passwordResetModal && passwordResetModal.classList.contains('active')) ||
+               (deleteModal && deleteModal.classList.contains('active')) ||
+               (newMobileModal && newMobileModal.classList.contains('open')) ||
+               this.isMobileModalOpen;
+    }
+
     renderMobileFab() {
         const fab = document.getElementById('mobileFab');
         if (!fab) return;
+        // #region agent log
+        const isModalOpen = this.isAnyModalOpen();
+        fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'script.js:6580',message:'renderMobileFab called',data:{isMobileModalOpen:this.isMobileModalOpen,isAnyModalOpen:isModalOpen,fabDisplay:fab.style.display},timestamp:Date.now(),runId:'post-fix',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+
+        // Don't show FAB if any modal is open
+        if (this.isAnyModalOpen()) {
+            fab.style.display = 'none';
+            return;
+        }
 
         const currentList = this.getCurrentList();
         const isSmashList = currentList && (currentList.id === 'smash-list' || (currentList.name && currentList.name.includes('Smash List')));
@@ -6136,7 +6732,7 @@ class PixDoneApp {
             // Upload tasks for this list
             for (const task of list.tasks) {
                 try {
-                    await addTaskToFirestore(task.title, task.details, task.dueDate, task.repeat, createdListId);
+                    await addTaskToFirestore(task.title, task.details, task.dueDate, task.repeat, createdListId, task.subtasks || []);
                 } catch (e) { continue; }
             }
         }
@@ -6224,7 +6820,7 @@ async function loadTasksFromFirestore() {
         .filter(task => typeof task.id !== 'undefined');
 }
 // 例: タスク追加
-async function addTaskToFirestore(title, details = '', dueDate = null, repeat = 'none', listId) {
+async function addTaskToFirestore(title, details = '', dueDate = null, repeat = 'none', listId, subtasks = []) {
     const user = firebase.auth().currentUser;
     if (!user || !listId) return;
     await db.collection('tasks').add({
@@ -6234,6 +6830,7 @@ async function addTaskToFirestore(title, details = '', dueDate = null, repeat = 
         details,
         dueDate,
         repeat,
+        subtasks: subtasks || [],
         completed: false,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });

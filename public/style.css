@@ -2012,6 +2012,141 @@ body {
     font-size: 14px;
 }
 
+/* Desktop inline edit subtasks section */
+.inline-edit-subtasks-section {
+    margin: 12px 0;
+}
+
+.inline-subtasks-header {
+    padding: 8px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(60, 64, 67, 0.2);
+}
+
+@media (prefers-color-scheme: light) {
+    .inline-subtasks-header {
+        border-bottom-color: rgba(218, 220, 224, 0.4);
+    }
+}
+
+.inline-subtasks-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+}
+
+.inline-subtasks-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px 0;
+}
+
+.inline-subtask-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(60, 64, 67, 0.2);
+}
+
+@media (prefers-color-scheme: light) {
+    .inline-subtask-item {
+        border-bottom-color: rgba(218, 220, 224, 0.4);
+    }
+}
+
+.inline-subtask-item:last-child {
+    border-bottom: none;
+}
+
+.inline-subtask-checkbox {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: var(--accent-color);
+}
+
+.inline-subtask-text {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    padding: 2px 0;
+}
+
+.inline-subtask-item.done .inline-subtask-text {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.inline-subtask-delete {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 6px;
+    line-height: 1;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.inline-subtask-delete:hover,
+.inline-subtask-delete:active {
+    color: var(--text-secondary);
+    opacity: 1;
+}
+
+.inline-subtask-add {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.inline-subtask-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    font-size: 14px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    box-shadow: 1px 1px 0px var(--shadow-color);
+    image-rendering: pixelated;
+    height: 28px;
+    box-sizing: border-box;
+}
+
+.inline-subtask-add-btn {
+    padding: 0 12px;
+    height: 28px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 1px 1px 0px var(--shadow-color);
+    transition: all 0.2s ease;
+    image-rendering: pixelated;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inline-subtask-add-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+}
+
 /* Mobile modal contenteditable placeholder styling */
 #newTaskDetails.empty:before {
     content: attr(placeholder);
@@ -2179,6 +2314,7 @@ div[id="newTaskDetails"] a:hover {
     color: #7b24df;
     font-size: 1.25rem;
     font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
     margin-bottom: 0;
     line-height: 1.2;
     opacity: 1;
@@ -2192,6 +2328,7 @@ div[id="newTaskDetails"] a:hover {
 .smash-list-hint {
     color: #9b4aef;
     font-size: 1.25rem;
+    font-weight: 600;
     margin-top: 8px;
     margin-bottom: 0;
     line-height: 1.2;
@@ -3190,7 +3327,8 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 .mobile-fab {
     position: fixed !important;
     bottom: calc(24px + env(safe-area-inset-bottom)) !important;
-    right: 24px !important;
+    left: 50% !important;
+    right: auto !important;
     width: 56px !important;
     height: 56px !important;
     border-radius: 50%;
@@ -3209,14 +3347,14 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     image-rendering: pixelated;
     -webkit-tap-highlight-color: transparent;
     /* Prevent layout shifts - use transform instead of position changes */
-    transform: translateZ(0);
+    transform: translateX(-50%) translateZ(0);
     /* Isolate FAB from layout changes in other elements */
     contain: layout style paint;
     /* Remove will-change to prevent browser optimizations that might cause shifts */
 }
 
 .mobile-fab:active {
-    transform: translateZ(0) scale(0.9);
+    transform: translateX(-50%) translateZ(0) scale(0.9);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
@@ -3234,21 +3372,21 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 }
 
 .mobile-fab.smash-mode:active {
-    transform: translateZ(0);
+    transform: translateX(-50%) translateZ(0);
     animation: hammerSmash 0.3s ease-in-out;
 }
 
 @keyframes hammerSmash {
     0% {
-        transform: rotate(0deg) scale(1);
+        transform: translateX(-50%) translateZ(0) rotate(0deg) scale(1);
     }
 
     50% {
-        transform: rotate(-45deg) scale(1.1);
+        transform: translateX(-50%) translateZ(0) rotate(-45deg) scale(1.1);
     }
 
     100% {
-        transform: rotate(0deg) scale(1);
+        transform: translateX(-50%) translateZ(0) rotate(0deg) scale(1);
     }
 }
 
@@ -3290,5 +3428,505 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
         line-height: 1;
         image-rendering: auto;
         /* Important for emoji clarity */
+    }
+}
+
+/* ============================================
+   Bottom Sheet Task Edit Modal (Mobile)
+   ============================================ */
+
+/* Bottom Sheet Container */
+.task-bottom-sheet {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-primary);
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    image-rendering: pixelated;
+}
+
+.task-bottom-sheet.open {
+    transform: translateY(0);
+}
+
+/* Fixed Header */
+.task-sheet-header {
+    flex-shrink: 0;
+    padding: 16px 20px;
+    border-bottom: 2px solid var(--border-color);
+    background: var(--bg-primary);
+    box-shadow: 0 2px 0px var(--shadow-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+}
+
+.task-sheet-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+}
+
+.task-sheet-close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.task-sheet-close-btn:hover {
+    color: var(--text-primary);
+}
+
+/* Scrollable Body */
+.task-sheet-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px 20px;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-bottom: 88px; /* Footer height + padding for keyboard avoidance */
+}
+
+/* Section Styling */
+.task-sheet-section {
+    margin-bottom: 24px;
+}
+
+.task-sheet-section:last-child {
+    margin-bottom: 0;
+}
+
+/* Title section - no extra margin needed */
+#titleSection {
+    margin-bottom: 20px;
+}
+
+/* Collapsible Section Header */
+.task-sheet-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    border-bottom: 1px solid rgba(60, 64, 67, 0.3);
+    margin-bottom: 10px;
+}
+
+@media (prefers-color-scheme: light) {
+    .task-sheet-section-header {
+        border-bottom-color: rgba(218, 220, 224, 0.5);
+    }
+}
+
+.task-sheet-section-header:hover {
+    color: var(--text-primary);
+}
+
+.task-sheet-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+}
+
+.task-sheet-section-content {
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+}
+
+/* Title Section */
+.task-sheet-title-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    font-size: 16px;
+    box-sizing: border-box;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    font-weight: 500;
+    image-rendering: pixelated;
+    box-shadow: 1px 1px 0px var(--shadow-color);
+    min-height: 44px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.task-sheet-title-input[contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+/* Date Buttons Section - Compact Outline Chips */
+.task-sheet-date-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-top: 12px;
+}
+
+.task-sheet-date-btn {
+    padding: 0 10px;
+    min-height: 36px;
+    height: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 14px;
+    background: transparent;
+    color: var(--text-secondary);
+    box-shadow: 1px 1px 0px var(--shadow-color);
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+    image-rendering: pixelated;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.task-sheet-date-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+}
+
+.task-sheet-date-btn.active {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    box-shadow: inset 0 0 0 1px var(--accent-color), 1px 1px 0px var(--shadow-color);
+    background: transparent;
+}
+
+.task-sheet-date-btn.active:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+/* Subtasks Section */
+.task-sheet-subtasks-header {
+    padding: 8px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(60, 64, 67, 0.2);
+    padding-top: 12px;
+}
+
+@media (prefers-color-scheme: light) {
+    .task-sheet-subtasks-header {
+        border-bottom-color: rgba(218, 220, 224, 0.4);
+    }
+}
+
+.task-sheet-subtasks-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px 0;
+}
+
+.task-sheet-subtask-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(60, 64, 67, 0.2);
+}
+
+@media (prefers-color-scheme: light) {
+    .task-sheet-subtask-item {
+        border-bottom-color: rgba(218, 220, 224, 0.4);
+    }
+}
+
+.task-sheet-subtask-item:last-child {
+    border-bottom: none;
+}
+
+.task-sheet-subtask-checkbox {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: var(--accent-color);
+}
+
+.task-sheet-subtask-text {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    padding: 2px 0;
+}
+
+.task-sheet-subtask-item.done .task-sheet-subtask-text {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.task-sheet-subtask-delete {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 6px;
+    line-height: 1;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.task-sheet-subtask-delete:hover,
+.task-sheet-subtask-delete:active {
+    color: var(--text-secondary);
+    opacity: 1;
+}
+
+.task-sheet-subtask-add {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 12px;
+}
+
+.task-sheet-subtask-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    font-size: 14px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    box-shadow: 1px 1px 0px var(--shadow-color);
+    image-rendering: pixelated;
+    min-height: 36px;
+    box-sizing: border-box;
+    line-height: 1.5;
+}
+
+.task-sheet-subtask-add-btn {
+    padding: 0 12px;
+    min-height: 36px;
+    height: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 1px 1px 0px var(--shadow-color);
+    transition: all 0.2s ease;
+    image-rendering: pixelated;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.task-sheet-subtask-add-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+}
+
+/* Empty State Row */
+.task-sheet-empty-state {
+    padding: 8px 0;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    border-bottom: 1px solid rgba(60, 64, 67, 0.2);
+    transition: color 0.2s ease;
+}
+
+@media (prefers-color-scheme: light) {
+    .task-sheet-empty-state {
+        border-bottom-color: rgba(218, 220, 224, 0.4);
+    }
+}
+
+.task-sheet-empty-state:hover {
+    color: var(--text-primary);
+}
+
+.task-sheet-empty-state-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+}
+
+/* Details Section - Compact Auto-growing */
+.task-sheet-details-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    min-height: 36px;
+    max-height: calc(1.5em * 4 + 12px); /* 4 lines max */
+    outline: none;
+    font-weight: 400;
+    image-rendering: pixelated;
+    box-shadow: 1px 1px 0px var(--shadow-color);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-y: auto;
+    resize: none;
+    line-height: 1.5;
+    transition: height 0.1s ease;
+}
+
+.task-sheet-details-input[contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+/* Sticky Footer - Stays at bottom of sheet */
+.task-sheet-footer {
+    position: sticky;
+    bottom: 0;
+    flex-shrink: 0;
+    padding: 16px 20px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    border-top: 2px solid var(--border-color);
+    background: var(--bg-primary);
+    box-shadow: 0 -2px 0px var(--shadow-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    min-height: 72px;
+    z-index: 10;
+}
+
+.task-sheet-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.task-sheet-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.task-sheet-btn {
+    padding: 10px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+    image-rendering: pixelated;
+    box-shadow: 1px 1px 0px var(--shadow-color);
+    min-height: 40px;
+    white-space: nowrap;
+}
+
+.task-sheet-btn-cancel {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.task-sheet-btn-cancel:hover {
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.task-sheet-btn-delete {
+    background: transparent;
+    color: var(--danger-color);
+    border-color: var(--border-color);
+}
+
+.task-sheet-btn-delete:hover {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.task-sheet-btn-save {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    border-width: 2px;
+    box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.task-sheet-btn-save:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--shadow-color);
+}
+
+/* Desktop: Keep centered modal */
+@media (min-width: 769px) {
+    .task-bottom-sheet {
+        /* Desktop can use centered modal if desired */
+        /* For now, keep bottom sheet but make it smaller */
+        max-width: 600px;
+        max-height: 80vh;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) translateY(100%);
+        border-radius: 0;
+        box-shadow: 4px 4px 0px var(--shadow-color);
+    }
+    
+    .task-bottom-sheet.open {
+        transform: translate(-50%, -50%) translateY(0);
+    }
+
+    /* Desktop: Footer doesn't need sticky positioning */
+    .task-sheet-footer {
+        position: relative;
+    }
+
+    /* Desktop: Reset scroll padding */
+    .task-sheet-body {
+        scroll-padding-bottom: 0;
     }
 }
