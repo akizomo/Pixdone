@@ -2178,6 +2178,7 @@ div[id="newTaskDetails"] a:hover {
 .smash-list-subtitle {
     color: #7b24df;
     font-size: 1.25rem;
+    font-family: 'Inter', system-ui, sans-serif;
     margin-bottom: 0;
     line-height: 1.2;
     opacity: 1;
@@ -2195,7 +2196,23 @@ div[id="newTaskDetails"] a:hover {
     margin-bottom: 0;
     line-height: 1.2;
     opacity: 0.9;
-    font-style: italic;
+}
+
+.command-key {
+    display: inline-block;
+    padding: 2px 6px;
+    background-color: #3c4043;
+    color: #fff;
+    border: 1px solid #5f6368;
+    border-radius: 0px;
+    font-family: 'VT323', 'Courier New', monospace;
+    font-size: 0.7em;
+    font-weight: 400;
+    line-height: 1.2;
+    vertical-align: baseline;
+    box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+    image-rendering: pixelated;
+    letter-spacing: 0.5px;
 }
 
 /* Desktop-only visibility */

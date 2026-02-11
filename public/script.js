@@ -3571,7 +3571,7 @@ class PixDoneApp {
             taskList.innerHTML = `
                 <div class="smash-list-message">
                     <p class="smash-list-subtitle">This list exists only to let you tap and smash tasks for pure satisfaction.<br>No saving, no planning—just smashing.</p>
-                    <p class="desktop-only smash-list-hint">Press Space to smash a task</p>
+                    <p class="desktop-only smash-list-hint">Press <span class="command-key">Space</span> to smash a task</p>
                 </div>
                 ${updatedActiveTasks.map(task => this.renderSmashTask(task)).join('')}
             `;
