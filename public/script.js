@@ -28,7 +28,7 @@ class PixDoneApp {
         this.listsUnsubscribe = null;
         this.isCreatingMyTasksList = false;
         this.isCreatingSmashList = false;
-        
+
         // Tutorial tasks for unauthenticated users
         this.tutorialTasks = [
             {
@@ -53,7 +53,7 @@ class PixDoneApp {
             },
             {
                 id: 'tutorial-3',
-                title: 'Try the Smash List for even more fun!',
+                title: 'Try the [Smash List](action:smash-list) for even more fun!',
                 completed: false,
                 dueDate: null,
                 priority: 'normal',
@@ -63,7 +63,7 @@ class PixDoneApp {
             },
             {
                 id: 'tutorial-4',
-                title: 'Log in to manage your own personalized task list!',
+                title: '[Log in](action:signup) to manage your own personalized task list!',
                 completed: false,
                 dueDate: null,
                 priority: 'normal',
@@ -72,7 +72,7 @@ class PixDoneApp {
                 listId: 'default'
             }
         ];
-        
+
         // Smash List dummy tasks
         this.smashListTasks = [
             "Fix the coffee machine",
@@ -126,14 +126,14 @@ class PixDoneApp {
             "High-five yourself",
             "Say something nice"
         ];
-        
+
         this.initializeApp();
         this.setupGlobalAccess();
     }
-    
+
     initializeApp() {
         console.log('[PixDone] Initializing PixDone application...');
-        
+
         // DOM読み込み完了を待つ
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
@@ -145,11 +145,11 @@ class PixDoneApp {
             this.setupAfterDOMLoaded();
         }
     }
-    
+
     setupAfterDOMLoaded() {
         // 新しいコンポーネント管理システムの初期化
         this.initializeComponentSystem();
-        
+
         // 従来のシステムも並行して動作
         this.setupFirebaseAuthListener();
         this.setupEventListeners();
@@ -162,12 +162,12 @@ class PixDoneApp {
             this.comicEffects = null;
         }
         // Global access setup moved to setupGlobalAccess()
-        
+
         // UI要素の検証を遅延実行
         setTimeout(() => {
             this.validateUIComponents();
         }, 1000);
-        
+
         // 認証前でもデフォルトリストを初期化
         this.ensureDefaultList();
         this.loadTasks();
@@ -177,7 +177,7 @@ class PixDoneApp {
         this.updateCompletedCount();
         this.updateListTitle();
     }
-    
+
     /**
      * 新しいコンポーネント管理システムの初期化
      */
@@ -186,7 +186,7 @@ class PixDoneApp {
         console.log('[PixDone] Skipping new component system, using direct fix...');
         this.fixMobileModalDirectly();
     }
-    
+
     /**
      * 既存システムと新システムの統合
      */
@@ -195,17 +195,17 @@ class PixDoneApp {
         console.log('[PixDone] Applying direct modal fix...');
         this.fixMobileModalDirectly();
     }
-    
+
     fixMobileModalDirectly() {
         console.log('[PixDone] Creating completely new modal system');
-        
+
         // 既存のモーダルを完全に削除
         // Remove any existing modal
         const existingModal = document.getElementById('newMobileModal');
         if (existingModal) {
             existingModal.remove();
         }
-        
+
         // モーダルを非表示にする関数
         this.hideMobileModal = () => {
             const modal = document.getElementById('newMobileModal');
@@ -217,17 +217,17 @@ class PixDoneApp {
             }
             console.log('[PixDone] New modal hidden');
         };
-        
+
         // 新しいモーダルを作成
         this.showMobileModal = () => {
             console.log('[PixDone] Creating new modal');
-            
+
             // 既存のモーダルがあれば削除
             const existing = document.getElementById('newMobileModal');
             if (existing) {
                 existing.remove();
             }
-            
+
             // 新しいモーダルを作成（フルスクリーン）
             const modal = document.createElement('div');
             modal.id = 'newMobileModal';
@@ -250,7 +250,7 @@ class PixDoneApp {
                 transform: translateY(100%) !important;
                 transition: transform 0.3s ease !important;
             `;
-            
+
             // モーダルの内容を作成
             modal.innerHTML = `
                 <!-- スクロール可能なコンテンツ部分 -->
@@ -295,26 +295,26 @@ class PixDoneApp {
                     </div>
                 </div>
             `;
-            
+
             // DOMに追加
             document.body.appendChild(modal);
-            
+
             // アニメーションでモーダルを表示
             setTimeout(() => {
                 modal.style.transform = 'translateY(0)';
             }, 10);
-            
+
             // 強化されたキーボード検知システム
             const bottomButtons = document.getElementById('newModalBottomButtons');
             if (bottomButtons) {
                 let initialViewportHeight = window.innerHeight;
                 let keyboardHeight = 0;
-                
+
                 // 複数の方法でキーボード検知
                 const detectKeyboard = () => {
                     const currentViewportHeight = window.innerHeight;
                     const documentHeight = document.documentElement.clientHeight;
-                    
+
                     console.log('Keyboard detection:', {
                         currentViewportHeight,
                         initialViewportHeight,
@@ -324,7 +324,7 @@ class PixDoneApp {
                             width: window.visualViewport.width
                         } : null
                     });
-                    
+
                     // Method 1: Visual Viewport API (最も確実)
                     if (window.visualViewport) {
                         keyboardHeight = window.innerHeight - window.visualViewport.height;
@@ -332,7 +332,7 @@ class PixDoneApp {
                         console.log('Visual Viewport API: keyboard height =', keyboardHeight, 'isOpen =', isKeyboardOpen);
                         return isKeyboardOpen;
                     }
-                    
+
                     // Method 2: Viewport height comparison
                     const heightDifference = initialViewportHeight - currentViewportHeight;
                     if (heightDifference > 150) {
@@ -340,7 +340,7 @@ class PixDoneApp {
                         console.log('Viewport height method: keyboard height =', keyboardHeight);
                         return true;
                     }
-                    
+
                     // Method 3: Document vs window height
                     const documentViewportDiff = documentHeight - currentViewportHeight;
                     if (documentViewportDiff > 100) {
@@ -348,15 +348,15 @@ class PixDoneApp {
                         console.log('Document height method: keyboard height =', keyboardHeight);
                         return true;
                     }
-                    
+
                     console.log('No keyboard detected');
                     return false;
                 };
-                
+
                 // キーボード表示時のボタン位置調整
                 const adjustButtonPosition = () => {
                     const isKeyboardOpen = detectKeyboard();
-                    
+
                     if (isKeyboardOpen) {
                         // キーボード表示時：キーボード上部に固定
                         bottomButtons.style.setProperty('position', 'fixed', 'important');
@@ -366,11 +366,11 @@ class PixDoneApp {
                         bottomButtons.style.setProperty('z-index', '999999', 'important');
                         bottomButtons.style.setProperty('transform', 'translateY(0)', 'important');
                         bottomButtons.style.setProperty('transition', 'bottom 0.3s ease', 'important');
-                        
+
                         // 可視領域確保
                         bottomButtons.style.setProperty('max-height', '80px', 'important');
                         bottomButtons.style.setProperty('overflow', 'hidden', 'important');
-                        
+
                         console.log('Keyboard detected, moving buttons above keyboard:', keyboardHeight + 'px');
                     } else {
                         // キーボード非表示時：通常の底部固定
@@ -381,25 +381,25 @@ class PixDoneApp {
                         bottomButtons.style.setProperty('z-index', '999999', 'important');
                         bottomButtons.style.setProperty('transform', 'translateY(0)', 'important');
                         bottomButtons.style.setProperty('transition', 'bottom 0.3s ease', 'important');
-                        
+
                         bottomButtons.style.setProperty('max-height', 'none', 'important');
                         bottomButtons.style.setProperty('overflow', 'visible', 'important');
-                        
+
                         console.log('Keyboard hidden, buttons at bottom');
                     }
                 };
-                
+
                 // 初期化
                 setTimeout(() => {
                     initialViewportHeight = window.innerHeight;
                     adjustButtonPosition();
                 }, 100);
-                
+
                 // Visual Viewport API (推奨)
                 if (window.visualViewport) {
                     window.visualViewport.addEventListener('resize', adjustButtonPosition);
                 }
-                
+
                 // フォールバック: 従来の方法
                 window.addEventListener('resize', adjustButtonPosition);
                 window.addEventListener('orientationchange', () => {
@@ -408,7 +408,7 @@ class PixDoneApp {
                         adjustButtonPosition();
                     }, 500);
                 });
-                
+
                 // 入力フィールドのフォーカス/ブラーイベント
                 const inputs = modal.querySelectorAll('input, textarea');
                 inputs.forEach(input => {
@@ -421,7 +421,7 @@ class PixDoneApp {
                         setTimeout(adjustButtonPosition, 300);
                     });
                 });
-                
+
                 // 定期的なチェック（フォールバック）
                 const intervalCheck = setInterval(() => {
                     if (document.getElementById('newModalBottomButtons')) {
@@ -430,13 +430,13 @@ class PixDoneApp {
                         clearInterval(intervalCheck);
                     }
                 }, 500);
-                
+
                 // モーダルが閉じられたときにクリーンアップ
                 modal.addEventListener('DOMNodeRemoved', () => {
                     clearInterval(intervalCheck);
                 });
             }
-            
+
             // イベントリスナーを追加
             document.getElementById('newCancelBtn').addEventListener('click', () => {
                 this.hideMobileModal();
@@ -444,7 +444,7 @@ class PixDoneApp {
                     this.comicEffects.playSound('taskCancel');
                 }
             });
-            
+
             document.getElementById('newSaveBtn').addEventListener('click', () => {
                 const titleEl = document.getElementById('newTaskTitle');
                 const title = titleEl.textContent.trim();
@@ -459,7 +459,7 @@ class PixDoneApp {
                     this.comicEffects.playSound('taskAdd');
                 }
             });
-            
+
             // Delete button (only visible when editing)
             document.getElementById('newDeleteBtn').addEventListener('click', () => {
                 if (this.currentTask && this.currentTask.id) {
@@ -470,7 +470,7 @@ class PixDoneApp {
                     }
                 }
             });
-            
+
             // Date selection buttons
             document.getElementById('newTodayBtn').addEventListener('click', () => {
                 this.selectNewModalDate('today');
@@ -478,28 +478,28 @@ class PixDoneApp {
                     this.comicEffects.playSound('taskAdd');
                 }
             });
-            
+
             document.getElementById('newTomorrowBtn').addEventListener('click', () => {
                 this.selectNewModalDate('tomorrow');
                 if (this.comicEffects && this.comicEffects.playSound) {
                     this.comicEffects.playSound('taskAdd');
                 }
             });
-            
+
             document.getElementById('newCalendarBtn').addEventListener('click', () => {
                 this.showNativeDatePicker();
                 if (this.comicEffects && this.comicEffects.playSound) {
                     this.comicEffects.playSound('taskAdd');
                 }
             });
-            
+
             document.getElementById('newRepeatBtn').addEventListener('click', () => {
                 this.showNewModalRepeat();
                 if (this.comicEffects && this.comicEffects.playSound) {
                     this.comicEffects.playSound('taskAdd');
                 }
             });
-            
+
             // Native date picker event handler - delay to ensure element exists
             setTimeout(() => {
                 const nativeDatePicker = document.getElementById('newNativeDatePicker');
@@ -512,7 +512,7 @@ class PixDoneApp {
                             }
                         }
                     });
-                    
+
                     // Also handle input event for better compatibility
                     nativeDatePicker.addEventListener('input', (e) => {
                         if (e.target.value) {
@@ -524,10 +524,10 @@ class PixDoneApp {
                     });
                 }
             }, 100);
-            
+
             // Calendar picker event handlers - these are no longer needed since we use native date picker
             // Repeat selector event handlers - these are now handled in the showNewModalRepeat method
-            
+
             // Populate form data if editing
             if (this.currentTask) {
                 document.getElementById('newTaskTitle').value = this.currentTask.title || '';
@@ -536,14 +536,14 @@ class PixDoneApp {
                 const deleteBtn = document.getElementById('newDeleteBtn');
                 deleteBtn.style.display = 'inline-block';
                 console.log('[PixDone] Delete button shown for editing');
-                
+
                 // Set date selection if exists
                 if (this.currentTask.dueDate) {
                     const dueDate = new Date(this.currentTask.dueDate);
                     const today = new Date();
                     const tomorrow = new Date(today);
                     tomorrow.setDate(today.getDate() + 1);
-                    
+
                     if (dueDate.toDateString() === today.toDateString()) {
                         this.selectNewModalDate('today');
                     } else if (dueDate.toDateString() === tomorrow.toDateString()) {
@@ -553,7 +553,7 @@ class PixDoneApp {
                         document.getElementById('newCalendarBtn').classList.add('active');
                     }
                 }
-                
+
                 // Set repeat selection if exists
                 if (this.currentTask.repeat && this.currentTask.repeat !== 'none') {
                     this.selectedRepeat = this.currentTask.repeat;
@@ -572,64 +572,64 @@ class PixDoneApp {
                 this.selectedDate = null;
                 this.selectedRepeat = 'none';
             }
-            
+
             // Focus on title input and setup validation
             setTimeout(() => {
                 const titleInput = document.getElementById('newTaskTitle');
                 const taskDetailsTextarea = document.getElementById('newTaskDetails');
-                
+
                 if (titleInput) {
                     titleInput.focus();
                     this.selectAllText(titleInput); // Select all text for contentEditable
-                    
+
                     // Add validation event listener
                     this.updateSaveButtonState();
                     titleInput.addEventListener('input', () => {
                         this.updateSaveButtonState();
                     });
-                    
+
                     // Set up paste event handlers for hyperlink creation on title
                     if (!titleInput.hyperlinkPasteSetup) {
                         this.handleHyperlinkPaste(titleInput);
                         titleInput.hyperlinkPasteSetup = true;
                     }
-                    
+
                     // Set up rich text editing for title
                     this.setupRichTextEditor(titleInput);
-                    
+
                     console.log('[PixDone] Focus set on new title input');
                 }
-                
+
                 // Set up paste event handlers for hyperlink creation on details
                 if (taskDetailsTextarea && !taskDetailsTextarea.hyperlinkPasteSetup) {
                     this.handleHyperlinkPaste(taskDetailsTextarea);
                     taskDetailsTextarea.hyperlinkPasteSetup = true;
                 }
-                
+
                 // Set up rich text editing for mobile modal input fields
                 if (taskDetailsTextarea) {
                     this.setupRichTextEditor(taskDetailsTextarea);
                 }
-                
+
                 // Set up placeholder behavior for contenteditable
                 if (taskDetailsTextarea && taskDetailsTextarea.textContent.trim() === '' && taskDetailsTextarea.hasAttribute('placeholder')) {
                     taskDetailsTextarea.classList.add('empty');
                 }
             }, 100);
-            
+
             this.isMobileModalOpen = true;
             console.log('[PixDone] New modal created and displayed');
         };
-        
+
         // Save button validation
         this.updateSaveButtonState = () => {
             const titleInput = document.getElementById('newTaskTitle');
             const saveButton = document.getElementById('newSaveBtn');
-            
+
             if (titleInput && saveButton) {
                 const title = titleInput.textContent.trim();
                 const isEmpty = title === '';
-                
+
                 if (isEmpty) {
                     // Disable save button
                     saveButton.disabled = true;
@@ -649,7 +649,7 @@ class PixDoneApp {
                 }
             }
         };
-        
+
         // Modal helper functions
         this.selectNewModalDate = (dateType, customDate) => {
             const buttons = document.querySelectorAll('.new-date-btn');
@@ -659,7 +659,7 @@ class PixDoneApp {
                 btn.style.color = 'var(--text-secondary)';
                 btn.style.borderColor = 'var(--border-color)';
             });
-            
+
             if (dateType === 'today') {
                 const btn = document.getElementById('newTodayBtn');
                 btn.classList.add('active');
@@ -684,10 +684,10 @@ class PixDoneApp {
                 btn.style.borderColor = 'var(--accent-color)';
                 this.selectedDate = new Date(customDate);
             }
-            
+
             // No need to hide anything for native date picker
         };
-        
+
         // Helper method to reset all date buttons
         this.resetAllDateButtons = () => {
             document.querySelectorAll('.new-date-btn').forEach(btn => {
@@ -695,7 +695,7 @@ class PixDoneApp {
                 btn.style.color = 'var(--text-secondary)';
                 btn.style.borderColor = 'var(--border-color)';
             });
-            
+
             // Reset button text
             const todayBtn = document.getElementById('newTodayBtn');
             const tomorrowBtn = document.getElementById('newTomorrowBtn');
@@ -704,7 +704,7 @@ class PixDoneApp {
             if (tomorrowBtn) tomorrowBtn.innerHTML = 'Tomorrow';
             if (calendarBtn) calendarBtn.innerHTML = '<i class="fa fa-calendar"></i> Pick';
         };
-        
+
         this.showNativeDatePicker = () => {
             const datePicker = document.getElementById('newNativeDatePicker');
             if (datePicker) {
@@ -723,16 +723,16 @@ class PixDoneApp {
                 }
             }
         };
-        
+
         // Native date picker doesn't need these methods
-        
+
         this.showNewModalRepeat = () => {
             // Remove existing repeat modal if any
             const existingModal = document.getElementById('newRepeatSelector');
             if (existingModal) {
                 existingModal.remove();
             }
-            
+
             // Create new repeat modal
             const repeatModal = document.createElement('div');
             repeatModal.id = 'newRepeatSelector';
@@ -749,7 +749,7 @@ class PixDoneApp {
                 justify-content: center !important;
                 box-sizing: border-box !important;
             `;
-            
+
             repeatModal.innerHTML = `
                 <div id="repeatModalContent" style="width: 300px !important; max-width: 90% !important; background: var(--bg-primary) !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; box-shadow: 4px 4px 0px var(--shadow-color) !important; padding: 16px !important; box-sizing: border-box !important;">
                     <div style="display: flex !important; flex-direction: column !important; gap: 12px !important;">
@@ -769,9 +769,9 @@ class PixDoneApp {
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(repeatModal);
-            
+
             // Add background click to close
             repeatModal.addEventListener('click', (e) => {
                 if (e.target === repeatModal) {
@@ -779,13 +779,13 @@ class PixDoneApp {
                     this.comicEffects.playSound('taskCancel');
                 }
             });
-            
+
             // Prevent content clicks from bubbling to background
             const content = repeatModal.querySelector('#repeatModalContent');
             content.addEventListener('click', (e) => {
                 e.stopPropagation();
             });
-            
+
             // Add event listeners for repeat options
             repeatModal.querySelectorAll('.repeat-option').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -796,7 +796,7 @@ class PixDoneApp {
                     this.comicEffects.playSound('taskAdd');
                 });
             });
-            
+
             // Cancel button
             const cancelBtn = repeatModal.querySelector('#newCancelRepeatBtn');
             cancelBtn.addEventListener('click', () => {
@@ -804,7 +804,7 @@ class PixDoneApp {
                 this.comicEffects.playSound('taskCancel');
             });
         };
-        
+
         this.updateRepeatButtonState = () => {
             const btn = document.getElementById('newRepeatBtn');
             if (this.selectedRepeat === 'none') {
@@ -818,25 +818,25 @@ class PixDoneApp {
                 btn.style.background = 'var(--accent-color)';
                 btn.style.color = 'white';
                 btn.style.borderColor = 'var(--accent-color)';
-                
+
                 // Show selected repeat frequency
                 const repeatLabels = {
                     'daily': 'Daily',
-                    'weekly': 'Weekly', 
+                    'weekly': 'Weekly',
                     'monthly': 'Monthly',
                     'yearly': 'Yearly'
                 };
                 btn.innerHTML = `🔄 ${repeatLabels[this.selectedRepeat] || 'Repeat'}`;
             }
         };
-        
+
         this.hideNewModalRepeat = () => {
             const repeatSelector = document.getElementById('newRepeatSelector');
             if (repeatSelector) {
                 repeatSelector.remove();
             }
         };
-        
+
         // Helper functions for mobile modal updates
         this.updateMobileModalDateButtons = (task) => {
             // Update date buttons for mobile modal
@@ -846,13 +846,13 @@ class PixDoneApp {
                 btn.style.color = 'var(--text-secondary)';
                 btn.style.borderColor = 'var(--border-color)';
             });
-            
+
             if (task.dueDate) {
                 const today = new Date().toISOString().split('T')[0];
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 const tomorrowStr = tomorrow.toISOString().split('T')[0];
-                
+
                 if (task.dueDate === today) {
                     const todayBtn = document.getElementById('newTodayBtn');
                     if (todayBtn) {
@@ -889,25 +889,25 @@ class PixDoneApp {
                 }
             }
         };
-        
+
         this.updateMobileModalRepeatButton = (task) => {
             const repeatBtn = document.getElementById('newRepeatBtn');
             const repeatInterval = document.getElementById('newRepeatInterval');
-            
+
             if (task.repeat && task.repeat !== 'none') {
                 this.selectedRepeat = task.repeat;
                 if (repeatInterval) repeatInterval.value = task.repeat;
-                
+
                 if (repeatBtn) {
                     repeatBtn.classList.add('active');
                     repeatBtn.style.background = 'var(--accent-color)';
                     repeatBtn.style.color = 'white';
                     repeatBtn.style.borderColor = 'var(--accent-color)';
-                    
+
                     // Show selected repeat frequency
                     const repeatLabels = {
                         'daily': 'Daily',
-                        'weekly': 'Weekly', 
+                        'weekly': 'Weekly',
                         'monthly': 'Monthly',
                         'yearly': 'Yearly'
                     };
@@ -916,7 +916,7 @@ class PixDoneApp {
             } else {
                 this.selectedRepeat = 'none';
                 if (repeatInterval) repeatInterval.value = 'none';
-                
+
                 if (repeatBtn) {
                     repeatBtn.classList.remove('active');
                     repeatBtn.style.background = 'var(--bg-primary)';
@@ -926,26 +926,26 @@ class PixDoneApp {
                 }
             }
         };
-        
+
         this.saveNewModalTask = () => {
             const titleEl = document.getElementById('newTaskTitle');
             const title = titleEl.textContent.trim();
             const details = this.extractTextFromRichEditor(document.getElementById('newTaskDetails'));
-            
+
             if (!title) {
                 if (this.comicEffects && this.comicEffects.playSound) {
                     this.comicEffects.playSound('taskCancel');
                 }
                 return;
             }
-            
+
             if (this.currentTask) {
                 // Update existing task
                 this.currentTask.title = title;
                 this.currentTask.details = details;
                 this.currentTask.dueDate = this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null;
                 this.currentTask.repeat = this.selectedRepeat || 'none';
-                
+
                 // Update task in array
                 const taskIndex = this.tasks.findIndex(t => t.id === this.currentTask.id);
                 if (taskIndex >= 0) {
@@ -962,42 +962,42 @@ class PixDoneApp {
                     completed: false,
                     listId: this.currentListId || 'default'
                 };
-                
+
                 this.tasks.unshift(newTask);
             }
-            
+
             this.saveTasks();
             this.renderTasks();
             this.hideMobileModal();
-            
+
             // Reset form state
             this.currentTask = null;
             this.selectedDate = null;
             this.selectedRepeat = 'none';
         };
-        
+
         this.hideMobileModal = () => {
             const modal = document.getElementById('newMobileModal');
             if (modal) {
                 modal.remove();
             }
-            
+
             // Also hide any open repeat modal
             const repeatModal = document.getElementById('newRepeatSelector');
             if (repeatModal) {
                 repeatModal.remove();
             }
-            
+
             this.isMobileModalOpen = false;
-            
+
             // Show appropriate empty state
             const activeTasks = this.tasks.filter(t => !t.completed);
             const hasNoTasks = this.tasks.length === 0;
-            
+
             if (activeTasks.length === 0) {
                 const emptyState = document.getElementById('emptyState');
                 const gameStartEmpty = document.getElementById('gameStartEmpty');
-                
+
                 if (hasNoTasks) {
                     if (emptyState) emptyState.style.display = 'none';
                     if (gameStartEmpty) gameStartEmpty.style.display = 'block';
@@ -1006,21 +1006,21 @@ class PixDoneApp {
                     if (gameStartEmpty) gameStartEmpty.style.display = 'none';
                 }
             }
-            
+
             console.log('[PixDone] New modal hidden');
         };
-        
+
         // Duplicate function removed - using the correct one above
-        
+
         // Date selection methods
         this.selectNewModalDate = (type, customDate = null) => {
             const today = new Date();
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 1);
-            
+
             const todayStr = today.toISOString().split('T')[0];
             const tomorrowStr = tomorrow.toISOString().split('T')[0];
-            
+
             // Check if we're toggling off an already selected date
             if (type === 'today' && this.selectedDate === todayStr) {
                 // Deselect today
@@ -1033,11 +1033,11 @@ class PixDoneApp {
                 this.resetAllDateButtons();
                 return;
             }
-            
+
             // Otherwise, proceed with normal selection
             // Remove active class from all date buttons and reset text
             this.resetAllDateButtons();
-            
+
             if (type === 'today') {
                 this.selectedDate = todayStr;
                 const todayBtn = document.getElementById('newTodayBtn');
@@ -1063,7 +1063,7 @@ class PixDoneApp {
                     calendarBtn.style.background = 'var(--accent-color)';
                     calendarBtn.style.color = 'white';
                     calendarBtn.style.borderColor = 'var(--accent-color)';
-                    
+
                     // Show the selected date on the button
                     const selectedDateObj = new Date(customDate);
                     const formattedDate = selectedDateObj.toLocaleDateString('ja-JP', {
@@ -1073,13 +1073,13 @@ class PixDoneApp {
                     calendarBtn.innerHTML = `<i class="fa fa-calendar"></i> ${formattedDate}`;
                 }
             }
-            
+
             // Play sound if available
             if (this.comicEffects && this.comicEffects.playSound) {
                 this.comicEffects.playSound('buttonClick');
             }
         };
-        
+
         this.toggleNewModalCalendar = () => {
             const picker = document.getElementById('newCalendarPicker');
             if (picker.style.display === 'none') {
@@ -1089,11 +1089,11 @@ class PixDoneApp {
                 this.hideNewModalCalendar();
             }
         };
-        
+
         this.hideNewModalCalendar = () => {
             document.getElementById('newCalendarPicker').style.display = 'none';
         };
-        
+
         this.toggleNewModalRepeat = () => {
             const selector = document.getElementById('newRepeatSelector');
             if (selector.style.display === 'none') {
@@ -1114,15 +1114,15 @@ class PixDoneApp {
                 this.comicEffects.playSound('buttonClick');
             }
         };
-        
+
         this.setNewModalDate = (dueDate) => {
             if (!dueDate) return;
-            
+
             const today = new Date().toISOString().split('T')[0];
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             const tomorrowStr = tomorrow.toISOString().split('T')[0];
-            
+
             if (dueDate === today) {
                 this.selectNewModalDate('today');
             } else if (dueDate === tomorrowStr) {
@@ -1132,44 +1132,44 @@ class PixDoneApp {
                 this.selectNewModalDate('custom', dueDate);
             }
         };
-        
+
         this.setNewModalRepeat = (repeat) => {
             if (repeat && repeat !== 'none') {
                 document.getElementById('newRepeatInterval').value = repeat;
                 this.toggleNewModalRepeat();
             }
         };
-        
+
         console.log('[PixDone] New modal system created');
     }
-    
+
     validateUIComponents() {
         console.log('[PixDone] Starting UI component validation...');
-        
+
         // Skip old modal validation - using new programmatic system
         const requiredElements = [];
-        
+
         // DOM ready状態を確認
         console.log('[PixDone] DOM ready state:', document.readyState);
-        
+
         const missing = requiredElements.filter(id => {
             const element = document.getElementById(id);
             console.log(`[PixDone] Checking element '${id}':`, element ? 'FOUND' : 'NOT FOUND');
             return !element;
         });
-        
+
         if (missing.length > 0) {
             console.error('Missing UI elements:', missing);
             console.log('[PixDone] Searching for mobile modal in DOM...');
-            
+
             // モバイルモーダルが存在するか確認
             const mobileModal = document.querySelector('#mobileModal');
             console.log('[PixDone] Mobile modal element:', mobileModal);
-            
+
             if (mobileModal) {
                 console.log('[PixDone] Mobile modal innerHTML:', mobileModal.innerHTML);
             }
-            
+
             // HTML構造を確認して、実際のIDを表示
             const modal = document.getElementById('mobileModal');
             if (modal) {
@@ -1177,13 +1177,13 @@ class PixDoneApp {
                 const allIds = Array.from(modal.querySelectorAll('*')).map(el => el.id).filter(id => id);
                 console.log('Available IDs in modal:', allIds);
             }
-            
+
             return false;
         }
         console.log('All UI components validated successfully');
         return true;
     }
-    
+
     setupFirebaseAuthListener() {
         firebase.auth().onAuthStateChanged(async (user) => {
             this.user = user;
@@ -1199,7 +1199,7 @@ class PixDoneApp {
                 // ログアウト時：Firestoreリスナーを解除してローカルデータに切り替え
                 if (this.listsUnsubscribe) this.listsUnsubscribe();
                 if (this.tasksUnsubscribe) this.tasksUnsubscribe();
-                
+
                 // 未ログインでもデフォルトリストを確保
                 this.loadTasks();
                 this.loadLists();
@@ -1212,26 +1212,26 @@ class PixDoneApp {
             }
         });
     }
-    
+
     async migrateLocalDataToFirebase() {
         try {
             // ローカルデータを確認
             this.loadTasks();
             this.loadLists();
-            
+
             // ローカルタスクがあるかチェック（チュートリアルタスクは除外）
-            const localTasks = this.tasks.filter(task => 
-                task.listId === 'default' && 
+            const localTasks = this.tasks.filter(task =>
+                task.listId === 'default' &&
                 !task.id.startsWith('tutorial-')
             );
-            
+
             if (localTasks.length > 0) {
                 console.log('Migrating local tasks to Firebase...');
-                
+
                 // Firebase上のMy Tasksリストを取得または作成
                 const user = firebase.auth().currentUser;
                 const listsSnap = await db.collection('lists').where('uid', '==', user.uid).where('name', '==', 'My Tasks').get();
-                
+
                 let myTasksListId;
                 if (listsSnap.empty) {
                     // My Tasksリストが存在しない場合は作成
@@ -1254,7 +1254,7 @@ class PixDoneApp {
                         console.log('Removed duplicate My Tasks lists');
                     }
                 }
-                
+
                 // ローカルタスクをFirebaseに移行（チュートリアルタスクは除外）
                 const batch = db.batch();
                 localTasks.forEach(task => {
@@ -1267,10 +1267,10 @@ class PixDoneApp {
                     });
                 });
                 await batch.commit();
-                
+
                 console.log(`Migrated ${localTasks.length} tasks to Firebase`);
             }
-            
+
             // ローカルデータをクリア（認証後はチュートリアルタスクは不要）
             this.lists = [];
             this.tasks = [];
@@ -1284,9 +1284,9 @@ class PixDoneApp {
             localStorage.removeItem('pixTaskListIdCounter');
             localStorage.removeItem('google_tasks_data');
             localStorage.removeItem('google_tasks_lists');
-            
+
             console.log('Local data cleared, tutorial tasks removed');
-            
+
         } catch (error) {
             console.error('Error migrating local data to Firebase:', error);
         }
@@ -1318,11 +1318,11 @@ class PixDoneApp {
             }
             // --- ここまで追加 ---
             this.lists = lists;
-            
+
             // 必要なリストを確保
             const hasMyTasks = lists.some(l => l.name === 'My Tasks');
             const hasSmashList = lists.some(l => l.name === '💥 Smash List');
-            
+
             // My Tasksリストがなければ作成
             if (!hasMyTasks && !this.isCreatingMyTasksList) {
                 this.isCreatingMyTasksList = true;
@@ -1330,7 +1330,7 @@ class PixDoneApp {
                 this.isCreatingMyTasksList = false;
                 return; // 生成後は次のonSnapshotで再取得
             }
-            
+
             // Smash Listがなければ作成
             if (!hasSmashList && !this.isCreatingSmashList) {
                 this.isCreatingSmashList = true;
@@ -1348,7 +1348,7 @@ class PixDoneApp {
             this.setupTasksRealtimeListener();
         });
     }
-    
+
     setupTasksRealtimeListener() {
         if (this.tasksUnsubscribe) this.tasksUnsubscribe();
         if (!this.currentListId) {
@@ -1367,28 +1367,28 @@ class PixDoneApp {
             this.renderTasks();
         });
     }
-    
+
     showUserInfo() {
         const userInfo = document.getElementById('userInfo');
         const authButtons = document.getElementById('authButtons');
         const userEmail = document.getElementById('userEmail');
-        
+
         if (this.user) {
             userEmail.textContent = this.user.email || 'User';
-            
+
             userInfo.style.display = 'flex';
             authButtons.style.display = 'none';
         }
     }
-    
+
     showLoginButton() {
         const userInfo = document.getElementById('userInfo');
         const authButtons = document.getElementById('authButtons');
-        
+
         if (userInfo) userInfo.style.display = 'none';
         if (authButtons) authButtons.style.display = 'flex';
     }
-    
+
     loadTasks() {
         try {
             const data = localStorage.getItem('google_tasks_data');
@@ -1398,23 +1398,23 @@ class PixDoneApp {
                 this.taskIdCounter = parsed.taskIdCounter || 1;
                 this.currentListId = parsed.currentListId || 'default';
             }
-            
+
             // Tutorial tasks are now handled in loadLists() method
         } catch (error) {
             console.error('Error loading tasks:', error);
         }
     }
-    
 
-    
+
+
     hideUserInfo() {
         const userInfo = document.getElementById('userInfo');
         const authButtons = document.getElementById('authButtons');
-        
+
         if (userInfo) userInfo.style.display = 'none';
         if (authButtons) authButtons.style.display = 'flex';
     }
-    
+
     generateSmashTasks() {
         const tasks = [];
         for (let i = 0; i < 3; i++) {
@@ -1432,7 +1432,7 @@ class PixDoneApp {
         }
         return tasks;
     }
-    
+
     replenishSmashTasks() {
         const smashList = this.lists.find(l => l.id === 'smash-list' || l.name === '💥 Smash List');
         if (smashList) {
@@ -1457,13 +1457,13 @@ class PixDoneApp {
             }
         }
     }
-    
+
     maintainSmashListTasks() {
         const currentList = this.getCurrentList();
         if (currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List')) {
             // Remove all completed tasks from Smash List
             currentList.tasks = currentList.tasks.filter(t => !t.completed);
-            
+
             // Ensure exactly 3 tasks
             while (currentList.tasks.length < 3) {
                 const randomTask = this.smashListTasks[Math.floor(Math.random() * this.smashListTasks.length)];
@@ -1479,20 +1479,20 @@ class PixDoneApp {
                 };
                 currentList.tasks.push(newTask);
             }
-            
+
             // Keep only 3 tasks
             if (currentList.tasks.length > 3) {
                 currentList.tasks = currentList.tasks.slice(0, 3);
             }
         }
     }
-    
+
     async loadServerData() {
         if (!this.isAuthenticated) {
             // User not authenticated, skip server data load
             return;
         }
-        
+
         try {
             // Load Firestore data for authenticated user
             // Firestoreからリスト取得
@@ -1527,7 +1527,7 @@ class PixDoneApp {
             this.showErrorMessage('Failed to load tasks and lists from server.');
         }
     }
-    
+
     updateCountersFromServerData() {
         // Update taskIdCounter based on server data
         let maxTaskId = 0;
@@ -1539,7 +1539,7 @@ class PixDoneApp {
             }
         }
         this.taskIdCounter = maxTaskId + 1;
-        
+
         // Update listIdCounter based on server data
         let maxListId = 0;
         for (const list of this.lists) {
@@ -1549,15 +1549,15 @@ class PixDoneApp {
         }
         this.listIdCounter = maxListId + 1;
     }
-    
+
     setupTouchGestures() {
         // Apply swipe gestures to the entire main container for better coverage
         const mainContainer = document.querySelector('.container');
         if (!mainContainer) return;
-        
+
         let startX = 0;
         let isDragging = false;
-        
+
         mainContainer.addEventListener('touchstart', (e) => {
             if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea')) {
                 return;
@@ -1565,22 +1565,22 @@ class PixDoneApp {
             startX = e.touches[0].clientX;
             isDragging = false;
         });
-        
+
         mainContainer.addEventListener('touchmove', (e) => {
             if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea')) {
                 return;
             }
             isDragging = true;
         });
-        
+
         mainContainer.addEventListener('touchend', (e) => {
             if (!isDragging || e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea')) {
                 return;
             }
-            
+
             const endX = e.changedTouches[0].clientX;
             const deltaX = endX - startX;
-            
+
             if (Math.abs(deltaX) > 30) {
                 if (deltaX > 0) {
                     this.switchToPreviousList();
@@ -1588,43 +1588,43 @@ class PixDoneApp {
                     this.switchToNextList();
                 }
             }
-            
+
             isDragging = false;
         });
     }
-    
+
     startSwipeAnimation(deltaX) {
         const tasksContainer = document.querySelector('.task-list-container');
         if (!tasksContainer) return;
-        
+
         tasksContainer.style.transition = 'none';
         tasksContainer.style.transform = `translateX(${deltaX * 0.2}px)`;
         tasksContainer.style.opacity = `${1 - Math.abs(deltaX) * 0.001}`;
     }
-    
+
     updateSwipeAnimation(deltaX) {
         const tasksContainer = document.querySelector('.task-list-container');
         if (!tasksContainer) return;
-        
+
         const clampedDelta = Math.max(-120, Math.min(120, deltaX));
         tasksContainer.style.transform = `translateX(${clampedDelta * 0.2}px)`;
         tasksContainer.style.opacity = `${1 - Math.abs(clampedDelta) * 0.001}`;
     }
-    
+
     finishSwipeAnimation(deltaX) {
         const tasksContainer = document.querySelector('.task-list-container');
         if (!tasksContainer) return;
-        
+
         const threshold = 80;
         const shouldSwitch = Math.abs(deltaX) > threshold;
-        
+
         if (shouldSwitch) {
             // Prevent if any modal is open or input is focused
-            if (!this.isInputVisible && 
+            if (!this.isInputVisible &&
                 !document.getElementById('createListModal').classList.contains('active') &&
                 !document.getElementById('deleteModal').classList.contains('active') &&
                 !document.activeElement.tagName.match(/INPUT|TEXTAREA/)) {
-                
+
                 if (deltaX > 0) {
                     this.switchToPreviousList();
                 } else {
@@ -1632,25 +1632,40 @@ class PixDoneApp {
                 }
             }
         }
-        
+
         // Reset animation
         tasksContainer.style.transition = 'all 0.2s ease';
         tasksContainer.style.transform = 'translateX(0)';
         tasksContainer.style.opacity = '1';
-        
+
         setTimeout(() => {
             tasksContainer.style.transition = '';
         }, 200);
     }
-    
+
     setupEventListeners() {
+        // Handle internal action links ([text](action:command))
+        document.addEventListener('click', (e) => {
+            const actionLink = e.target.closest('.task-action-link');
+            if (actionLink) {
+                e.preventDefault();
+                const action = actionLink.dataset.action;
+                console.log('Action link clicked:', action);
+                if (action === 'smash-list') {
+                    this.switchToList('smash-list');
+                } else if (action === 'signup') {
+                    this.showEmailAuthModal();
+                }
+            }
+        });
+
         // Add task button
         document.getElementById('addTaskBtn').addEventListener('click', () => {
             this.showTaskInput();
             // メニュー選択音を再生
             this.comicEffects.playSound('taskAdd');
         });
-        
+
         // Task form submission
         document.getElementById('taskForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -1660,7 +1675,7 @@ class PixDoneApp {
                 this.hideMobileModal();
             }
         });
-        
+
         // Cancel button
         document.getElementById('cancelBtn').addEventListener('click', () => {
             if (this.isMobileModalOpen) {
@@ -1670,13 +1685,13 @@ class PixDoneApp {
             }
             this.comicEffects.playSound('taskCancel');
         });
-        
+
         // Delete button
         document.getElementById('deleteBtn').addEventListener('click', async () => {
             if (this.currentTask) {
                 console.log('Delete button clicked for task:', this.currentTask.id);
                 this.comicEffects.playSound('taskDelete');
-                
+
                 // Delete task directly without modal
                 if (this.isAuthenticated) {
                     try {
@@ -1685,69 +1700,81 @@ class PixDoneApp {
                         console.error('Error deleting task from Firestore:', error);
                     }
                 }
-                
+
                 this.tasks = this.tasks.filter(t => t.id !== this.currentTask.id);
                 this.saveTasks();
                 this.renderTasks();
                 this.updateCompletedCount();
                 this.renderListTabs(); // Update tab counts
-                
+
                 // Hide task input if it was open
                 if (this.isInputVisible) {
                     this.hideTaskInput();
                 }
-                
+
                 // Hide mobile modal if it was open
                 if (this.isMobileModalOpen) {
                     this.hideMobileModal();
                 }
             }
         });
-        
-        // フォーム外クリックで閉じる（モバイル最適化）
+
+        // フォーム外クリックで閉じる（自動保存）
         document.addEventListener('click', (e) => {
             const taskForm = document.getElementById('taskForm');
             const addTaskBtn = document.getElementById('addTaskBtn');
-            
-            if (this.isInputVisible && 
-                taskForm && !taskForm.contains(e.target) && 
+
+            if (this.isInputVisible &&
+                taskForm && !taskForm.contains(e.target) &&
                 addTaskBtn && !addTaskBtn.contains(e.target)) {
-                this.hideTaskInput();
-                this.comicEffects.playSound('taskCancel');
+
+                const title = document.getElementById('taskTitle').value.trim();
+                if (title) {
+                    this.saveTask();
+                } else {
+                    this.hideTaskInput();
+                    this.comicEffects.playSound('taskCancel');
+                }
             }
         });
-        
-        // モバイル用のタッチイベント対応
+
+        // モバイル用のタッチイベント対応（自動保存）
         document.addEventListener('touchstart', (e) => {
             const taskForm = document.getElementById('taskForm');
             const addTaskBtn = document.getElementById('addTaskBtn');
-            
-            if (this.isInputVisible && 
-                taskForm && !taskForm.contains(e.target) && 
+
+            if (this.isInputVisible &&
+                taskForm && !taskForm.contains(e.target) &&
                 addTaskBtn && !addTaskBtn.contains(e.target)) {
-                this.hideTaskInput();
-                this.comicEffects.playSound('taskCancel');
+
+                const title = document.getElementById('taskTitle').value.trim();
+                if (title) {
+                    this.saveTask();
+                } else {
+                    this.hideTaskInput();
+                    this.comicEffects.playSound('taskCancel');
+                }
             }
         });
-        
 
-        
+
+
         // Date buttons
         document.getElementById('todayBtn').addEventListener('click', () => {
             this.selectDate('today');
             this.comicEffects.playSound('taskAdd');
         });
-        
+
         document.getElementById('tomorrowBtn').addEventListener('click', () => {
             this.selectDate('tomorrow');
             this.comicEffects.playSound('taskAdd');
         });
-        
+
         document.getElementById('calendarBtn').addEventListener('click', () => {
             this.openCalendarPicker();
             this.comicEffects.playSound('taskAdd');
         });
-        
+
         // カスタム日付選択
         const customDatePicker = document.getElementById('customDatePicker');
         if (customDatePicker) {
@@ -1758,7 +1785,7 @@ class PixDoneApp {
                 }
             });
         }
-        
+
         // 繰り返しボタン
         const repeatBtn = document.getElementById('repeatBtn');
         if (repeatBtn) {
@@ -1767,7 +1794,7 @@ class PixDoneApp {
                 this.comicEffects.playSound('taskAdd');
             });
         }
-        
+
         // 繰り返し選択
         const repeatInterval = document.getElementById('repeatInterval');
         if (repeatInterval) {
@@ -1775,7 +1802,7 @@ class PixDoneApp {
                 this.selectedRepeat = e.target.value;
             });
         }
-        
+
         // Completed section toggle
         const completedToggle = document.getElementById('completedToggle');
         if (completedToggle) {
@@ -1784,7 +1811,7 @@ class PixDoneApp {
                 e.stopPropagation();
                 this.toggleCompletedSection();
             });
-            
+
             // Add touch event for mobile
             completedToggle.addEventListener('touchend', (e) => {
                 e.preventDefault();
@@ -1792,108 +1819,113 @@ class PixDoneApp {
                 this.toggleCompletedSection();
             });
         }
-        
+
         // Delete modal buttons
         document.getElementById('cancelDelete').addEventListener('click', () => {
             this.hideDeleteModal();
         });
-        
+
         document.getElementById('confirmDelete').addEventListener('click', () => {
             this.confirmDeleteTask();
         });
-        
+
         // Create list modal events
         document.getElementById('createListForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.comicEffects.playSound('taskAdd');
             this.handleCreateList();
         });
-        
+
         document.getElementById('cancelCreateList').addEventListener('click', () => {
             this.comicEffects.playSound('taskCancel');
             this.hideCreateListModal();
         });
-        
+
         // Edit list modal events
         document.getElementById('editListForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.comicEffects.playSound('taskAdd');
             this.handleEditList();
         });
-        
+
         document.getElementById('cancelEditList').addEventListener('click', () => {
             this.comicEffects.playSound('taskCancel');
             this.hideEditListModal();
         });
-        
+
         // Delete list modal events
         document.getElementById('cancelDeleteList').addEventListener('click', () => {
             this.comicEffects.playSound('taskCancel');
             this.hideDeleteListModal();
         });
-        
+
         document.getElementById('confirmDeleteList').addEventListener('click', () => {
             this.comicEffects.playSound('taskDelete');
             this.handleDeleteList();
         });
-        
+
         // Context menu events
         document.getElementById('contextMenuEdit').addEventListener('click', () => {
             this.comicEffects.playSound('taskEdit');
             this.showEditListModal(this.contextMenuListId);
             this.hideContextMenu();
         });
-        
+
         document.getElementById('contextMenuDelete').addEventListener('click', () => {
             this.comicEffects.playSound('taskDelete');
             this.showDeleteListModal(this.contextMenuListId);
             this.hideContextMenu();
         });
-        
+
         // Close context menu when clicking outside
         document.addEventListener('click', (e) => {
             const contextMenu = document.getElementById('contextMenu');
-            if (contextMenu && contextMenu.classList.contains('active') && 
+            if (contextMenu && contextMenu.classList.contains('active') &&
                 !e.target.closest('#contextMenu') && !e.target.closest('.list-tab')) {
                 this.hideContextMenu();
             }
         });
-        
+
         // List menu button
         const listMenuBtn = document.getElementById('listMenuBtn');
         if (listMenuBtn) {
             // Remove any existing event listeners
             listMenuBtn.removeEventListener('click', this.listMenuClickHandler);
-            
+
             // Create a new handler and store it
             this.listMenuClickHandler = (e) => {
                 e.stopPropagation();
                 console.log('List menu button clicked');
-                
+
                 // Play sound first
                 this.comicEffects.playSound('taskEdit');
-                
+
                 // Don't show menu for default list
                 const currentList = this.getCurrentList();
                 const isDefaultList = (this.currentListId === 'default') || (currentList && currentList.name === 'My Tasks');
-                
+
                 console.log('Current list:', currentList);
                 console.log('Is default list:', isDefaultList);
-                
+
                 if (!isDefaultList) {
                     this.showListContextMenu(e, this.currentListId);
                 }
             };
-            
+
             listMenuBtn.addEventListener('click', this.listMenuClickHandler);
         }
-        
+
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (this.isInputVisible) {
-                    this.hideTaskInput();
-                    this.comicEffects.playSound('taskCancel');
+                    const title = document.getElementById('taskTitle').value.trim();
+                    if (title) {
+                        this.saveTask();
+                    } else {
+                        this.hideTaskInput();
+                        this.comicEffects.playSound('taskCancel');
+                    }
                 } else if (document.getElementById('createListModal').classList.contains('active')) {
                     this.hideCreateListModal();
                 } else if (document.getElementById('editListModal').classList.contains('active')) {
@@ -1907,17 +1939,23 @@ class PixDoneApp {
                 } else if (document.getElementById('contextMenu').classList.contains('active')) {
                     this.hideContextMenu();
                 } else if (this.isMobileModalOpen) {
-                    this.hideMobileModal();
-                    this.comicEffects.playSound('taskCancel');
+                    const titleEl = document.getElementById('newTaskTitle');
+                    const title = titleEl ? titleEl.textContent.trim() : '';
+                    if (title) {
+                        this.saveNewModalTask();
+                    } else {
+                        this.hideMobileModal();
+                        this.comicEffects.playSound('taskCancel');
+                    }
                 }
             } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                 // Only handle arrow keys if no modals are open and no input is focused
-                if (!this.isInputVisible && 
+                if (!this.isInputVisible &&
                     !document.getElementById('createListModal').classList.contains('active') &&
                     !document.getElementById('deleteModal').classList.contains('active') &&
                     !this.isMobileModalOpen &&
                     !document.activeElement.tagName.match(/INPUT|TEXTAREA/)) {
-                    
+
                     e.preventDefault();
                     if (e.key === 'ArrowLeft') {
                         this.switchToPreviousList();
@@ -1927,7 +1965,7 @@ class PixDoneApp {
                 }
             }
         });
-        
+
         // Enter key to add task (モバイル最適化)
         document.getElementById('taskTitle').addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -1936,7 +1974,7 @@ class PixDoneApp {
                 this.comicEffects.playSound('taskAdd');
             }
         });
-        
+
         // モバイルキーボード対応
         document.getElementById('taskTitle').addEventListener('input', (e) => {
             // モバイルでの入力体験を向上
@@ -1947,60 +1985,50 @@ class PixDoneApp {
                 }, 200);
             }
         });
-        
+
         // Mobile modal event listeners now handled by new system
-        
-        // Keyboard shortcuts - include mobile modal escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (this.isMobileModalOpen) {
-                    this.hideMobileModal();
-                    this.comicEffects.playSound('taskCancel');
-                }
-            }
-        });
-        
+
         // List management events
         document.getElementById('addListBtn').addEventListener('click', () => {
             this.comicEffects.playSound('taskAdd');
             this.showCreateListModal();
         });
-        
+
         // List menu button (duplicate removed)
-        
+
         // Auth events
         document.getElementById('signupBtn').addEventListener('click', () => {
             this.comicEffects.playSound('taskAdd');
             this.showEmailAuthModal();
         });
-        
+
         // User menu and account management
         document.getElementById('userAvatarBtn')?.addEventListener('click', (e) => {
             e.stopPropagation();
             this.comicEffects.playSound('taskEdit');
             this.toggleUserDropdown();
         });
-        
+
         document.getElementById('logoutBtn')?.addEventListener('click', () => {
             this.comicEffects.playSound('taskCancel');
             this.logout();
         });
-        
+
         document.getElementById('deleteAccountBtn')?.addEventListener('click', () => {
             this.comicEffects.playSound('taskDelete');
             this.showDeleteAccountModal();
         });
-        
+
         document.getElementById('confirmDeleteAccount')?.addEventListener('click', () => {
             this.comicEffects.playSound('taskDelete');
             this.deleteAccount();
         });
-        
+
         document.getElementById('cancelDeleteAccount')?.addEventListener('click', () => {
             this.comicEffects.playSound('taskCancel');
             this.hideDeleteAccountModal();
         });
-        
+
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.user-menu')) {
@@ -2010,115 +2038,115 @@ class PixDoneApp {
                 }
             }
         });
-        
+
         // Close modals when clicking outside
         document.getElementById('createListModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('createListModal')) {
                 this.hideCreateListModal();
             }
         });
-        
+
         // Create list form (duplicate - already handled above)
         // Edit list form (duplicate - already handled above)
-        
+
         // Cancel buttons (duplicate - already handled above)
         // Removed duplicated event listeners
-        
+
         // Email auth modal events
         document.getElementById('emailAuthModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('emailAuthModal')) {
                 this.hideEmailAuthModal();
             }
         });
-        
+
         // Removed authBackBtn and authSkipBtn event listeners as buttons were removed from HTML
-        
+
         document.getElementById('toggleAuthMode').addEventListener('click', () => {
             this.comicEffects.playSound('taskEdit');
             this.toggleEmailAuthMode();
         });
-        
+
         document.getElementById('emailAuthForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             this.comicEffects.playSound('taskAdd');
             await this.handleEmailAuth();
         });
-        
+
         // Password reset events
         document.getElementById('forgotPasswordBtn').addEventListener('click', () => {
             this.showPasswordResetModal();
         });
-        
+
         document.getElementById('backToLoginBtn').addEventListener('click', () => {
             this.hidePasswordResetModal();
             this.showEmailAuthModal();
         });
-        
+
         document.getElementById('passwordResetForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             await this.handlePasswordReset();
         });
-        
+
         // Password reset modal close on outside click
         document.getElementById('passwordResetModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('passwordResetModal')) {
                 this.hidePasswordResetModal();
             }
         });
-        
+
         // Password visibility toggle
         document.getElementById('passwordToggle').addEventListener('click', () => {
             this.togglePasswordVisibility();
         });
-        
+
         // Password setup form
         document.getElementById('passwordSetupForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handlePasswordSetup();
         });
-        
+
         // Password setup toggles
         document.getElementById('newPasswordToggle').addEventListener('click', () => {
             this.togglePasswordVisibility('newPasswordInput', 'newPasswordToggle');
         });
-        
+
         document.getElementById('confirmPasswordToggle').addEventListener('click', () => {
             this.togglePasswordVisibility('confirmPasswordInput', 'confirmPasswordToggle');
         });
-        
+
         // Social auth buttons removed from HTML
-        
+
         // Close modals when clicking outside
         document.getElementById('editListModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('editListModal')) {
                 this.hideEditListModal();
             }
         });
-        
+
         document.getElementById('deleteListModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('deleteListModal')) {
                 this.hideDeleteListModal();
             }
         });
-        
+
         // Context menu events
         document.getElementById('contextMenuEdit').addEventListener('click', () => {
             this.hideContextMenu();
             this.showEditListModal(this.contextMenuListId);
         });
-        
+
         document.getElementById('contextMenuDelete').addEventListener('click', () => {
             this.hideContextMenu();
             this.showDeleteListModal(this.contextMenuListId);
         });
-        
+
         // Hide context menu when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.context-menu')) {
                 this.hideContextMenu();
             }
         });
-        
+
         document.getElementById('deleteModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('deleteModal')) {
                 this.hideDeleteModal();
@@ -2126,16 +2154,16 @@ class PixDoneApp {
             }
         });
     }
-    
+
     showTaskInput() {
         this.isInputVisible = true;
-        
+
         // Hide both empty states when showing task input
         const emptyState = document.getElementById('emptyState');
         const gameStartEmpty = document.getElementById('gameStartEmpty');
         if (emptyState) emptyState.style.display = 'none';
         if (gameStartEmpty) gameStartEmpty.style.display = 'none';
-        
+
         // Check if mobile and show modal instead
         if (window.innerWidth <= 600) {
             this.showMobileModal();
@@ -2143,7 +2171,7 @@ class PixDoneApp {
         } else {
             const container = document.getElementById('taskInputContainer');
             container.style.display = 'block';
-            
+
             // Focus on title input
             setTimeout(() => {
                 document.getElementById('taskTitle').focus();
@@ -2153,31 +2181,31 @@ class PixDoneApp {
 
     showMobileModal() {
         console.log('showMobileModal called');
-        
+
         // Don't allow adding tasks to Smash List
         const currentList = this.getCurrentList();
         if (currentList && currentList.id === 'smash-list') {
             return;
         }
-        
+
         const modal = document.getElementById('mobileModal');
         if (!modal) {
             console.error('Mobile modal not found');
             return;
         }
-        
+
         // Hide empty states
         const emptyState = document.getElementById('emptyState');
         const gameStartEmpty = document.getElementById('gameStartEmpty');
         if (emptyState) emptyState.style.display = 'none';
         if (gameStartEmpty) gameStartEmpty.style.display = 'none';
-        
+
         // Set modal title
         const modalTitle = document.getElementById('mobileModalTitle');
         if (modalTitle) {
             modalTitle.textContent = this.currentTask ? 'Edit Task' : 'Add Task';
         }
-        
+
         // Show modal with explicit styles
         modal.style.display = 'block';
         modal.style.position = 'fixed';
@@ -2189,10 +2217,10 @@ class PixDoneApp {
         modal.style.background = '#f5f5f5';
         modal.style.visibility = 'visible';
         modal.style.opacity = '1';
-        
+
         this.isMobileModalOpen = true;
         console.log('Modal displayed with explicit styles');
-        
+
         // 表示確認のためのテスト
         setTimeout(() => {
             const computed = window.getComputedStyle(modal);
@@ -2205,7 +2233,7 @@ class PixDoneApp {
                 height: computed.height
             });
         }, 50);
-        
+
         // Focus on title input
         setTimeout(() => {
             const titleInput = document.getElementById('mobileTaskTitle');
@@ -2218,18 +2246,18 @@ class PixDoneApp {
     hideMobileModal() {
         const modal = document.getElementById('mobileModal');
         if (!modal) return;
-        
+
         modal.style.display = 'none';
         this.isMobileModalOpen = false;
-        
+
         // Show appropriate empty state
         const activeTasks = this.tasks.filter(t => !t.completed);
         const hasNoTasks = this.tasks.length === 0;
-        
+
         if (activeTasks.length === 0) {
             const emptyState = document.getElementById('emptyState');
             const gameStartEmpty = document.getElementById('gameStartEmpty');
-            
+
             if (hasNoTasks) {
                 if (emptyState) emptyState.style.display = 'none';
                 if (gameStartEmpty) gameStartEmpty.style.display = 'block';
@@ -2238,20 +2266,20 @@ class PixDoneApp {
                 if (gameStartEmpty) gameStartEmpty.style.display = 'none';
             }
         }
-        
+
         // Old resetMobileForm call removed - now handled by new system
     }
-    
+
     // Make app globally accessible for inline editing
     setupGlobalAccess() {
         window.pixDoneApp = this;
     }
-    
+
     // Old setupMobileModalEvents removed - now handled by new system
-    
+
     // Old mobile modal functions removed (setupMobileModalEvents, selectMobileDate, etc.)
     // These are now handled by the new programmatic modal system
-    
+
     // The following functions have been removed since they are no longer needed:
     // - setupMobileModalEvents
     // - selectMobileDate
@@ -2263,56 +2291,56 @@ class PixDoneApp {
     // - resetMobileForm
     // - syncToMobileForm
     // - syncFromMobileForm
-    
+
     showTaskInput() {
         // Don't allow adding tasks to Smash List
         const currentList = this.getCurrentList();
         if (currentList && currentList.id === 'smash-list') {
             return;
         }
-        
+
         // Desktop task input functionality
         if (window.innerWidth <= 768) {
             // Mobile devices use modal
             this.showMobileModal();
             return;
         }
-        
+
         // Desktop task input form
         this.isInputVisible = true;
         const container = document.getElementById('taskInputContainer');
         if (container) {
             container.style.display = 'block';
-            
+
             // Hide empty states
             const emptyState = document.getElementById('emptyState');
             const gameStartEmpty = document.getElementById('gameStartEmpty');
             if (emptyState) emptyState.style.display = 'none';
             if (gameStartEmpty) gameStartEmpty.style.display = 'none';
-            
+
             // Focus on title input and set up hyperlink paste
             const titleInput = document.getElementById('taskTitle');
             if (titleInput) {
                 titleInput.focus();
-                
+
                 // Set up paste event handlers for hyperlink creation on title
                 if (!titleInput.hyperlinkPasteSetup) {
                     this.handleHyperlinkPaste(titleInput);
                     titleInput.hyperlinkPasteSetup = true;
                 }
-                
+
                 // Set up real-time link preview for new tasks
                 if (!this.currentTask) {
                     this.setupInputLinkPreview('taskTitle');
                 }
             }
-            
+
             // Set up paste event handlers for hyperlink creation on details
             const taskDetailsTextarea = document.getElementById('taskDetails');
             if (taskDetailsTextarea && !taskDetailsTextarea.hyperlinkPasteSetup) {
                 this.handleHyperlinkPaste(taskDetailsTextarea);
                 taskDetailsTextarea.hyperlinkPasteSetup = true;
-                
+
                 // Set up rich text editing for new tasks
                 if (!this.currentTask) {
                     const taskDetailsEl = document.getElementById('taskDetails');
@@ -2327,22 +2355,22 @@ class PixDoneApp {
             }
         }
     }
-    
+
     // All old mobile modal functions have been removed since they are now handled by the new programmatic modal system
-    
+
     hideTaskInput() {
         this.isInputVisible = false;
         const container = document.getElementById('taskInputContainer');
         container.style.display = 'none';
-        
+
         // Show appropriate empty state
         const activeTasks = this.tasks.filter(t => !t.completed);
         const hasNoTasks = this.tasks.length === 0;
-        
+
         if (activeTasks.length === 0) {
             const emptyState = document.getElementById('emptyState');
             const gameStartEmpty = document.getElementById('gameStartEmpty');
-            
+
             if (hasNoTasks) {
                 if (emptyState) emptyState.style.display = 'none';
                 if (gameStartEmpty) gameStartEmpty.style.display = 'block';
@@ -2351,52 +2379,52 @@ class PixDoneApp {
                 if (gameStartEmpty) gameStartEmpty.style.display = 'none';
             }
         }
-        
+
         // Hide delete button
         const deleteBtn = document.getElementById('deleteBtn');
         if (deleteBtn) {
             deleteBtn.style.display = 'none';
         }
-        
+
         // Reset form
         this.resetForm();
     }
-    
+
     resetForm() {
         document.getElementById('taskTitle').value = '';
         document.getElementById('taskDetails').value = '';
         this.selectedDate = null;
         this.currentTask = null;
         this.selectedRepeat = 'none';
-        
+
         // Reset date buttons
         document.querySelectorAll('.date-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        
+
         // Reset repeat selector
         const repeatSelector = document.getElementById('repeatSelector');
         const repeatInterval = document.getElementById('repeatInterval');
         const repeatBtn = document.getElementById('repeatBtn');
         const customDatePicker = document.getElementById('customDatePicker');
-        
+
         if (repeatSelector) repeatSelector.style.display = 'none';
         if (repeatInterval) repeatInterval.value = 'none';
         if (repeatBtn) repeatBtn.classList.remove('active');
-        
+
         // Reset custom date picker
         if (customDatePicker) {
             customDatePicker.value = '';
         }
-        
+
         // Reset calendar button text
         this.updateCalendarButtonText();
     }
-    
+
     updateCalendarButtonText() {
         const calendarBtn = document.getElementById('calendarBtn');
         if (!calendarBtn) return;
-        
+
         if (this.selectedDate) {
             // 日付を表示形式に変換
             const date = new Date(this.selectedDate);
@@ -2407,16 +2435,16 @@ class PixDoneApp {
             calendarBtn.innerHTML = '<i class="fas fa-calendar"></i>';
         }
     }
-    
+
     selectDate(dateType) {
         // Reset all date buttons
         document.querySelectorAll('.date-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        
+
         let selectedBtn;
         let dueDate = null;
-        
+
         if (dateType === 'today') {
             selectedBtn = document.getElementById('todayBtn');
             // 既に選択されている場合は解除
@@ -2439,25 +2467,25 @@ class PixDoneApp {
             }
             dueDate = tomorrowStr;
         }
-        
+
         if (selectedBtn) {
             selectedBtn.classList.add('active');
         }
-        
+
         this.selectedDate = dueDate;
         this.updateCalendarButtonText();
     }
-    
+
     openCalendarPicker() {
         const datePicker = document.getElementById('customDatePicker');
         const calendarBtn = document.getElementById('calendarBtn');
-        
+
         if (datePicker && calendarBtn) {
             // カレンダーボタンの位置を取得
             const rect = calendarBtn.getBoundingClientRect();
             const form = document.getElementById('taskForm');
             const formRect = form.getBoundingClientRect();
-            
+
             // 日付入力を一時的に表示
             datePicker.style.position = 'absolute';
             datePicker.style.left = (rect.left - formRect.left) + 'px';
@@ -2466,13 +2494,13 @@ class PixDoneApp {
             datePicker.style.pointerEvents = 'auto';
             datePicker.style.zIndex = '9999';
             datePicker.style.display = 'block';
-            
+
             // 即座にカレンダーを開く
             setTimeout(() => {
                 datePicker.focus();
                 datePicker.click();
             }, 10);
-            
+
             // 選択後に隠すためのイベントリスナーを追加
             const hideAfterSelection = () => {
                 setTimeout(() => {
@@ -2484,16 +2512,16 @@ class PixDoneApp {
                     datePicker.style.zIndex = '-1';
                 }, 100);
             };
-            
+
             datePicker.addEventListener('blur', hideAfterSelection, { once: true });
             datePicker.addEventListener('change', hideAfterSelection, { once: true });
         }
     }
-    
+
     selectCustomDate(dateStr) {
         const customDatePicker = document.getElementById('customDatePicker');
         const calendarBtn = document.getElementById('calendarBtn');
-        
+
         if (dateStr) {
             // 既に選択されている場合は解除
             if (this.selectedDate === dateStr) {
@@ -2505,33 +2533,33 @@ class PixDoneApp {
                 this.updateCalendarButtonText();
                 return;
             }
-            
+
             this.selectedDate = dateStr;
             // 他のボタンの状態をリセット
             document.querySelectorAll('.date-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             if (calendarBtn) calendarBtn.classList.add('active');
-            
+
             // カレンダーボタンのテキストを更新
             this.updateCalendarButtonText();
         }
     }
-    
+
     // Inline task editing for desktop
     showInlineTaskEdit(taskId) {
         console.log('Showing inline edit for task:', taskId);
-        
+
         // Close any existing inline edits first
         this.closeAllInlineEdits();
-        
+
         // Find the task element
         const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
         if (!taskElement) {
             console.error('Task element not found for ID:', taskId);
             return;
         }
-        
+
         // Get task data
         const currentList = this.getCurrentList();
         const task = currentList ? currentList.tasks.find(t => String(t.id) === String(taskId)) : null;
@@ -2539,7 +2567,7 @@ class PixDoneApp {
             console.error('Task not found:', taskId);
             return;
         }
-        
+
         // Create inline edit form
         const editForm = document.createElement('div');
         editForm.className = 'inline-edit-form';
@@ -2586,76 +2614,76 @@ class PixDoneApp {
                 </div>
             </div>
         `;
-        
+
         // Insert the edit form after the task element
         taskElement.style.display = 'none';
         taskElement.parentNode.insertBefore(editForm, taskElement.nextSibling);
-        
+
         // Set up rich text editing and focus
         setTimeout(() => {
             const titleInput = document.getElementById(`inline-title-${taskId}`);
             const detailsInput = document.getElementById(`inline-details-${taskId}`);
-            
+
             if (titleInput) {
                 titleInput.focus();
                 this.selectAllText(titleInput);
                 this.setupRichTextEditor(titleInput);
             }
-            
+
             if (detailsInput) {
                 this.setupRichTextEditor(detailsInput);
             }
-            
+
             // Set up date buttons based on task data
             this.updateInlineDateButtons(taskId, task.dueDate);
-            
+
             // Set up repeat selector based on task data
             this.updateInlineRepeatSelector(taskId, task.repeat || 'none');
         }, 100);
-        
+
         // Set up click-outside-to-close behavior
         this.setupInlineEditClickOutside(editForm, taskId);
-        
+
         // Store current task for saving
         this.currentTask = { ...task };
         this.selectedDate = task.dueDate;
         this.selectedRepeat = task.repeat || 'none';
     }
-    
+
     async saveInlineEdit(taskId) {
         console.log('Saving inline edit for task:', taskId);
-        
+
         const titleInput = document.getElementById(`inline-title-${taskId}`);
         const detailsInput = document.getElementById(`inline-details-${taskId}`);
-        
+
         if (!titleInput || !detailsInput) {
             console.error('Inline edit inputs not found');
             return;
         }
-        
+
         const title = this.extractTextFromRichEditor(titleInput);
         const details = this.extractTextFromRichEditor(detailsInput);
-        
+
         if (!title) {
             titleInput.focus();
             return;
         }
-        
+
         // Update task
         const currentList = this.getCurrentList();
         const taskIndex = currentList ? currentList.tasks.findIndex(t => String(t.id) === String(taskId)) : -1;
-        
+
         if (taskIndex === -1) {
             console.error('Task not found for update');
             return;
         }
-        
+
         // Update task data
         currentList.tasks[taskIndex].title = title;
         currentList.tasks[taskIndex].details = details;
         currentList.tasks[taskIndex].dueDate = this.selectedDate;
         currentList.tasks[taskIndex].repeat = this.selectedRepeat;
-        
+
         // Update in Firebase if authenticated
         if (this.isAuthenticated) {
             try {
@@ -2665,30 +2693,30 @@ class PixDoneApp {
                 console.error('Error updating task in Firestore:', error);
             }
         }
-        
+
         // Update global tasks array
         this.tasks = currentList.tasks;
-        
+
         // Clean up inline edit
         this.cancelInlineEdit(taskId);
-        
+
         // Re-render tasks
         this.saveTasks();
         this.renderTasks();
         this.updateCompletedCount();
-        
+
         // Play sound
         if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
             this.comicEffects.playSound('taskEdit');
         }
     }
-    
+
     cancelInlineEdit(taskId) {
         console.log('Cancelling inline edit for task:', taskId);
-        
+
         // Remove the edit form and clean up event listeners
-        const editForm = document.querySelector(`.inline-edit-form[data-editing-task="${taskId}"]`) || 
-                        document.querySelector('.inline-edit-form');
+        const editForm = document.querySelector(`.inline-edit-form[data-editing-task="${taskId}"]`) ||
+            document.querySelector('.inline-edit-form');
         if (editForm) {
             // Clean up outside click handler
             if (editForm._outsideClickHandler) {
@@ -2696,27 +2724,27 @@ class PixDoneApp {
             }
             editForm.remove();
         }
-        
+
         // Show the original task element
         const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
         if (taskElement) {
             taskElement.style.display = '';
         }
-        
+
         // Reset current task
         this.currentTask = null;
         this.selectedDate = null;
         this.selectedRepeat = 'none';
-        
+
         // Play sound
         if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
             this.comicEffects.playSound('taskCancel');
         }
     }
-    
+
     async deleteInlineTask(taskId) {
         console.log('Deleting inline task:', taskId);
-        
+
         // Delete task
         if (this.isAuthenticated) {
             try {
@@ -2725,29 +2753,29 @@ class PixDoneApp {
                 console.error('Error deleting task from Firestore:', error);
             }
         }
-        
+
         // Remove from tasks array
         const currentList = this.getCurrentList();
         if (currentList) {
             currentList.tasks = currentList.tasks.filter(t => String(t.id) !== String(taskId));
             this.tasks = currentList.tasks;
         }
-        
+
         // Clean up inline edit
         this.cancelInlineEdit(taskId);
-        
+
         // Re-render tasks
         this.saveTasks();
         this.renderTasks();
         this.updateCompletedCount();
         this.renderListTabs();
-        
+
         // Play sound
         if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
             this.comicEffects.playSound('taskDelete');
         }
     }
-    
+
     // Close all inline edits
     closeAllInlineEdits() {
         document.querySelectorAll('.inline-edit-form').forEach(form => {
@@ -2759,7 +2787,7 @@ class PixDoneApp {
             }
         });
     }
-    
+
     // Set up click-outside-to-close behavior for inline edit
     setupInlineEditClickOutside(editForm, taskId) {
         const handleOutsideClick = (event) => {
@@ -2774,23 +2802,23 @@ class PixDoneApp {
                 }
             }
         };
-        
+
         // Add the listener after a short delay to avoid immediate closure
         setTimeout(() => {
             document.addEventListener('click', handleOutsideClick);
         }, 100);
-        
+
         // Store the listener for cleanup
         editForm._outsideClickHandler = handleOutsideClick;
     }
-    
+
     // Inline edit date and repeat functions
     selectInlineDate(taskId, dateType) {
         // Reset all date buttons
         document.querySelectorAll(`#inline-today-${taskId}, #inline-tomorrow-${taskId}, #inline-calendar-${taskId}`).forEach(btn => {
             btn.classList.remove('active');
         });
-        
+
         if (dateType === 'today') {
             const btn = document.getElementById(`inline-today-${taskId}`);
             btn.classList.add('active');
@@ -2804,42 +2832,42 @@ class PixDoneApp {
             tomorrow.setDate(tomorrow.getDate() + 1);
             this.selectedDate = tomorrow.toISOString().split('T')[0];
         }
-        
+
         // Play sound
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskEdit');
         }
     }
-    
+
     showInlineDatePicker(taskId) {
         const datePicker = document.getElementById(`inline-date-picker-${taskId}`);
         if (datePicker) {
             const today = new Date();
             datePicker.value = today.toISOString().split('T')[0];
             datePicker.focus();
-            
+
             if (datePicker.showPicker) {
                 datePicker.showPicker();
             } else {
                 datePicker.click();
             }
-            
+
             datePicker.onchange = () => {
                 const selectedDate = datePicker.value;
                 if (selectedDate) {
                     this.selectedDate = selectedDate;
-                    
+
                     // Reset other buttons
                     document.querySelectorAll(`#inline-today-${taskId}, #inline-tomorrow-${taskId}`).forEach(btn => {
                         btn.classList.remove('active');
                     });
-                    
+
                     // Update calendar button
                     const calendarBtn = document.getElementById(`inline-calendar-${taskId}`);
                     calendarBtn.classList.add('active');
                     const date = new Date(selectedDate);
                     calendarBtn.innerHTML = `<i class="fa fa-calendar"></i> ${date.getMonth() + 1}/${date.getDate()}`;
-                    
+
                     // Play sound
                     if (this.comicEffects && this.comicEffects.playSound) {
                         this.comicEffects.playSound('taskEdit');
@@ -2848,11 +2876,11 @@ class PixDoneApp {
             };
         }
     }
-    
+
     toggleInlineRepeat(taskId) {
         const repeatSelector = document.getElementById(`inline-repeat-selector-${taskId}`);
         const repeatBtn = document.getElementById(`inline-repeat-${taskId}`);
-        
+
         if (repeatSelector.style.display === 'none') {
             repeatSelector.style.display = 'block';
             repeatBtn.classList.add('active');
@@ -2862,31 +2890,31 @@ class PixDoneApp {
             this.selectedRepeat = 'none';
             document.getElementById(`inline-repeat-interval-${taskId}`).value = 'none';
         }
-        
+
         // Play sound
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskEdit');
         }
     }
-    
+
     updateInlineRepeat(taskId) {
         const repeatInterval = document.getElementById(`inline-repeat-interval-${taskId}`);
         this.selectedRepeat = repeatInterval.value;
-        
+
         // Play sound
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskEdit');
         }
     }
-    
+
     updateInlineDateButtons(taskId, dueDate) {
         if (!dueDate) return;
-        
+
         const today = new Date().toISOString().split('T')[0];
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowStr = tomorrow.toISOString().split('T')[0];
-        
+
         if (dueDate === today) {
             const btn = document.getElementById(`inline-today-${taskId}`);
             if (btn) btn.classList.add('active');
@@ -2902,29 +2930,29 @@ class PixDoneApp {
             }
         }
     }
-    
+
     updateInlineRepeatSelector(taskId, repeat) {
         if (repeat && repeat !== 'none') {
             const repeatSelector = document.getElementById(`inline-repeat-selector-${taskId}`);
             const repeatBtn = document.getElementById(`inline-repeat-${taskId}`);
             const repeatInterval = document.getElementById(`inline-repeat-interval-${taskId}`);
-            
+
             if (repeatSelector) repeatSelector.style.display = 'block';
             if (repeatBtn) repeatBtn.classList.add('active');
             if (repeatInterval) repeatInterval.value = repeat;
         }
     }
-    
+
     toggleRepeatSelector() {
         const repeatSelector = document.getElementById('repeatSelector');
         const repeatBtn = document.getElementById('repeatBtn');
         const repeatInterval = document.getElementById('repeatInterval');
-        
+
         if (!repeatSelector) return;
-        
+
         const isVisible = repeatSelector.style.display !== 'none';
         repeatSelector.style.display = isVisible ? 'none' : 'block';
-        
+
         if (!isVisible) {
             if (repeatBtn) repeatBtn.classList.add('active');
         } else {
@@ -2933,7 +2961,7 @@ class PixDoneApp {
             if (repeatInterval) repeatInterval.value = 'none';
         }
     }
-    
+
     async saveTask() {
         const title = document.getElementById('taskTitle').value.trim();
         const details = this.extractTextFromRichEditor(document.getElementById('taskDetails'));
@@ -3007,17 +3035,17 @@ class PixDoneApp {
             this.comicEffects.playSound('taskAdd');
         }
     }
-    
+
     async toggleTaskCompletion(taskId, taskElement = null) {
         console.log('toggleTaskCompletion called with taskId:', taskId);
-        
+
         // Prevent duplicate completion calls
         if (this.processingTaskId === taskId) {
             console.log('Task completion already in progress for:', taskId);
             return;
         }
         this.processingTaskId = taskId;
-        
+
         // Find task in current list directly
         const currentList = this.getCurrentList();
         if (!currentList || !currentList.tasks) {
@@ -3069,28 +3097,28 @@ class PixDoneApp {
             }
             // Show celebration effects once for all cases
             this.showCelebration(task);
-            
+
             // Show comic effects immediately with the current task element
             if (window.taskAnimationEffects && taskElement && taskElement.nodeType === 1) {
                 console.log('Showing effects for element (type check):', taskElement.nodeType, taskElement.tagName);
                 console.log('Element rect before effect:', taskElement.getBoundingClientRect());
                 console.log('Element computed style:', window.getComputedStyle(taskElement));
-                
+
                 // Force element to be visible and positioned
                 taskElement.style.position = 'relative';
                 taskElement.style.zIndex = '1000';
                 taskElement.style.visibility = 'visible';
                 taskElement.style.display = 'block';
-                
+
                 // Apply direct visual effect first
                 taskElement.style.backgroundColor = '#4CAF50 !important';
                 taskElement.style.transform = 'scale(1.2)';
                 taskElement.style.transition = 'all 0.5s ease';
                 taskElement.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-                
+
                 // Then apply animation effects
                 window.taskAnimationEffects.animateTaskCompletion(taskElement);
-                
+
                 // Special handling for Smash List - delay replenishment until after effects
                 if (currentList.id === 'smash-list' || currentList.name === '💥 Smash List') {
                     // Wait for the visual effects to complete before removing the task
@@ -3119,7 +3147,7 @@ class PixDoneApp {
                 } else {
                     // 連続完了のために次のタスクのチェックボックスにフォーカス移動
                     this.focusNextTaskCheckbox(taskId);
-                    
+
                     // Save and re-render after effect starts
                     setTimeout(() => {
                         this.saveTasks();
@@ -3131,7 +3159,7 @@ class PixDoneApp {
                 }
             } else {
                 console.warn('No taskAnimationEffects or taskElement available, taskElement:', taskElement);
-                
+
                 // Special handling for Smash List - delay replenishment for fallback too
                 if (currentList.id === 'smash-list' || currentList.name === '💥 Smash List') {
                     // Apply basic scaling effect even without animation library
@@ -3141,7 +3169,7 @@ class PixDoneApp {
                         taskElement.style.transition = 'all 0.3s ease';
                         taskElement.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
                     }
-                    
+
                     // Wait for effects to complete before removing task
                     setTimeout(() => {
                         // Remove completed task from Smash List after effects
@@ -3160,7 +3188,7 @@ class PixDoneApp {
                         taskElement.style.transition = 'all 0.3s ease';
                         taskElement.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
                     }
-                    
+
                     setTimeout(() => {
                         // Remove completed tutorial task from list
                         currentList.tasks = currentList.tasks.filter(t => t.id !== taskId);
@@ -3181,26 +3209,26 @@ class PixDoneApp {
             }
         }
     }
-    
+
     focusNextTaskCheckbox(completedTaskId) {
         // 未完了のタスクを取得
         const incompleteTasks = this.tasks.filter(task => !task.completed);
-        
+
         if (incompleteTasks.length > 0) {
             // 次のタスクのチェックボックスを見つける
             const nextTaskId = incompleteTasks[0].id;
-            
+
             // 少し遅らせて次のチェックボックスにフォーカス
             setTimeout(() => {
                 const nextCheckbox = document.querySelector(`[data-task-id="${nextTaskId}"] .task-checkbox`);
                 if (nextCheckbox) {
                     nextCheckbox.focus();
-                    
+
                     // 視覚的なフォーカス効果を追加
                     nextCheckbox.style.boxShadow = '0 0 8px rgba(66, 133, 244, 0.6)';
                     nextCheckbox.style.borderColor = '#4285f4';
                     nextCheckbox.style.transition = 'all 0.2s ease';
-                    
+
                     // フォーカス効果を一定時間後に削除
                     setTimeout(() => {
                         nextCheckbox.style.boxShadow = '';
@@ -3210,72 +3238,72 @@ class PixDoneApp {
             }, 300); // エフェクトの開始後に少し遅らせる
         }
     }
-    
+
     editTask(taskId) {
         console.log('editTask called with taskId:', taskId);
-        
+
         // Check if this is a Smash List task and prevent editing
         const currentList = this.getCurrentList();
         if (currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List')) {
             console.log('Preventing edit of Smash List task');
             return;
         }
-        
+
         // Find task in current list
         if (!currentList || !currentList.tasks) {
             console.log('No current list or tasks found');
             return;
         }
-        
+
         const task = currentList.tasks.find(t => String(t.id) === String(taskId));
         if (!task) {
             console.log('Task not found:', taskId);
             return;
         }
-        
+
         console.log('Found task for editing:', task);
         this.currentTask = { ...task }; // Create a copy to avoid reference issues
         this.selectedDate = task.dueDate;
         this.selectedRepeat = task.repeat || 'none';
-        
+
         // Use mobile modal for mobile devices
         if (window.innerWidth <= 768) {
             this.showMobileModal();
-            
+
             // Wait for modal to be created, then fill with task data
             setTimeout(() => {
                 const titleField = document.getElementById('newTaskTitle');
                 const detailsField = document.getElementById('newTaskDetails');
-                
+
                 if (titleField) {
                     titleField.innerHTML = this.processLinksForDisplay(task.title);
                     this.setupRichTextEditor(titleField);
                 }
-                
+
                 if (detailsField) {
                     detailsField.innerHTML = this.processLinksForDisplay(task.details || '');
                     this.setupRichTextEditor(detailsField);
                 }
-                
+
                 // Show delete button for editing
                 const deleteBtn = document.getElementById('newDeleteBtn');
                 if (deleteBtn) {
                     deleteBtn.style.display = 'inline-block';
                 }
-                
+
                 // Update mobile modal date buttons
                 this.updateMobileModalDateButtons(task);
                 this.updateMobileModalRepeatButton(task);
-                
+
             }, 50);
         } else {
             // Desktop: Show inline editing
             this.showInlineTaskEdit(taskId);
-            
+
             // Fill form with task data for desktop
             const titleField = document.getElementById('taskTitle');
             const detailsField = document.getElementById('taskDetails');
-            
+
             if (titleField) {
                 if (titleField.tagName === 'INPUT') {
                     titleField.value = task.title;
@@ -3283,49 +3311,49 @@ class PixDoneApp {
                     titleField.innerHTML = this.processLinksForDisplay(task.title);
                 }
             }
-            
+
             if (detailsField) {
                 detailsField.innerHTML = this.processLinksForDisplay(task.details || '');
             }
         }
-        
+
         // Set up rich text editing for desktop only (mobile is handled in setTimeout above)
         if (window.innerWidth > 768) {
             const taskTitleEl = document.getElementById('taskTitle');
             const taskDetailsEl = document.getElementById('taskDetails');
-            
+
             if (taskTitleEl && taskTitleEl.contentEditable === 'true') {
                 this.setupRichTextEditor(taskTitleEl);
-                
+
                 // Setup placeholder behavior
                 if (taskTitleEl.textContent.trim() === '' && taskTitleEl.hasAttribute('placeholder')) {
                     taskTitleEl.classList.add('empty');
                 }
             }
-            
+
             if (taskDetailsEl) {
                 this.setupRichTextEditor(taskDetailsEl);
-                
+
                 // Setup placeholder behavior
                 if (taskDetailsEl.textContent.trim() === '' && taskDetailsEl.hasAttribute('placeholder')) {
                     taskDetailsEl.classList.add('empty');
                 }
             }
         }
-        
+
         // Update date and repeat buttons for desktop only (mobile is handled in setTimeout above)
         if (window.innerWidth > 768) {
             // Update date buttons
             document.querySelectorAll('.date-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
+
             if (task.dueDate) {
                 const today = new Date().toISOString().split('T')[0];
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 const tomorrowStr = tomorrow.toISOString().split('T')[0];
-                
+
                 if (task.dueDate === today) {
                     document.getElementById('todayBtn').classList.add('active');
                 } else if (task.dueDate === tomorrowStr) {
@@ -3337,34 +3365,34 @@ class PixDoneApp {
                     if (customDatePicker) customDatePicker.value = task.dueDate;
                 }
             }
-            
+
             // Update repeat selector
             const repeatSelector = document.getElementById('repeatSelector');
             const repeatInterval = document.getElementById('repeatInterval');
             const repeatBtn = document.getElementById('repeatBtn');
-            
+
             if (task.repeat && task.repeat !== 'none') {
                 if (repeatSelector) repeatSelector.style.display = 'block';
                 if (repeatInterval) repeatInterval.value = task.repeat;
                 if (repeatBtn) repeatBtn.classList.add('active');
             }
-            
+
             // Show delete button in edit mode
             const deleteBtn = document.getElementById('deleteBtn');
             if (deleteBtn) {
                 deleteBtn.style.display = 'block';
             }
         }
-        
+
         // Focus on title input
         document.getElementById('taskTitle').focus();
     }
-    
+
     deleteTask(taskId) {
         this.taskToDelete = taskId;
         this.showDeleteModal();
     }
-    
+
     async confirmDeleteTask() {
         if (this.taskToDelete) {
             if (this.isAuthenticated) {
@@ -3387,25 +3415,25 @@ class PixDoneApp {
             this.hideDeleteModal();
         }
     }
-    
+
     showDeleteModal() {
         document.getElementById('deleteModal').classList.add('active');
         this.comicEffects.playSound('taskAdd');
     }
-    
+
     hideDeleteModal() {
         document.getElementById('deleteModal').classList.remove('active');
         this.taskToDelete = null;
         this.comicEffects.playSound('taskCancel');
     }
-    
+
     toggleCompletedSection() {
         console.log('Toggling completed section');
         this.isCompletedExpanded = !this.isCompletedExpanded;
         const completedTasks = document.getElementById('completedTasks');
         const completedIcon = document.getElementById('completedIcon');
         const completedToggle = document.getElementById('completedToggle');
-        
+
         if (this.isCompletedExpanded) {
             completedTasks.style.display = 'block';
             completedIcon.style.transform = 'rotate(90deg)';
@@ -3415,49 +3443,49 @@ class PixDoneApp {
             completedIcon.style.transform = 'rotate(0deg)';
             completedToggle.classList.remove('expanded');
         }
-        
+
         // Play sound feedback
         if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
             this.comicEffects.playSound('taskAdd');
         }
     }
-    
+
     renderTasks() {
         const taskList = document.getElementById('taskList');
         const completedTasks = document.getElementById('completedTasks');
         const emptyState = document.getElementById('emptyState');
         const gameStartEmpty = document.getElementById('gameStartEmpty');
-        
+
         // Get tasks from current list
         const currentList = this.getCurrentList();
         const currentTasks = currentList ? currentList.tasks : [];
-        
+
         // Update global tasks array for backward compatibility
         this.tasks = currentTasks;
-        
+
         const activeTasks = currentTasks.filter(t => !t.completed);
         const completedTasksList = currentTasks.filter(t => t.completed);
-        
+
         // Check if there are NO tasks at all (including completed)
         const hasNoTasks = currentTasks.length === 0;
-        
+
         // Special handling for Smash List
         if (currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List')) {
             // Hide both empty states for Smash List
             if (emptyState) emptyState.style.display = 'none';
             if (gameStartEmpty) gameStartEmpty.style.display = 'none';
-            
+
             // Hide add task button for Smash List
             const addTaskButton = document.getElementById('addTaskBtn');
             if (addTaskButton) {
                 addTaskButton.style.display = 'none';
                 addTaskButton.style.visibility = 'hidden';
             }
-            
+
             // Ensure Smash List has exactly 3 tasks at all times
             this.maintainSmashListTasks();
             const updatedActiveTasks = currentList.tasks.filter(t => !t.completed);
-            
+
             // Always show Smash List message and tasks
             taskList.innerHTML = `
                 <div class="smash-list-message">
@@ -3466,7 +3494,7 @@ class PixDoneApp {
                 </div>
                 ${updatedActiveTasks.map(task => this.renderSmashTask(task)).join('')}
             `;
-            
+
             // Hide completed tasks section for Smash List
             const completedSection = document.getElementById('completedSection');
             if (completedSection) completedSection.style.display = 'none';
@@ -3478,7 +3506,7 @@ class PixDoneApp {
                 addTaskButton.style.display = 'block';
                 addTaskButton.style.visibility = 'visible';
             }
-            
+
             if (activeTasks.length === 0) {
                 taskList.innerHTML = '';
                 if (hasNoTasks) {
@@ -3495,31 +3523,31 @@ class PixDoneApp {
                 if (gameStartEmpty) gameStartEmpty.style.display = 'none';
                 taskList.innerHTML = activeTasks.map(task => this.renderTask(task)).join('');
             }
-            
+
             // Render completed tasks for regular lists
             completedTasks.innerHTML = completedTasksList.map(task => this.renderTask(task)).join('');
-            
+
             // Show completed tasks section for regular lists
             const completedSection = document.getElementById('completedSection');
             if (completedSection) completedSection.style.display = 'block';
         }
-        
+
         // Setup event listeners for tasks (only once)
         if (!this.taskEventListenersSetup) {
             this.setupTaskEventListeners();
         }
-        
+
         // Setup keyboard shortcuts (only once)
         if (!this.keyboardShortcutsSetup) {
             this.setupKeyboardShortcuts();
         }
-        
+
         // Re-setup drag listeners after render
         if (this.setupTaskDragListeners) {
             this.setupTaskDragListeners();
         }
     }
-    
+
     renderTask(task) {
         const dueStatus = this.getDueStatus(task.dueDate);
         const dateDisplay = this.formatDateDisplay(task.dueDate);
@@ -3544,7 +3572,7 @@ class PixDoneApp {
             </div>
         `;
     }
-    
+
     renderSmashTask(task) {
         // Special rendering for Smash List tasks - no edit/delete buttons
         return `
@@ -3558,23 +3586,23 @@ class PixDoneApp {
             </div>
         `;
     }
-    
+
     setupTaskEventListeners() {
         console.log('Setting up task event listeners');
-        
+
         // Prevent duplicate event listeners
         if (this.taskEventListenersSetup) {
             console.log('Event listeners already set up, skipping');
             return;
         }
         this.taskEventListenersSetup = true;
-        
+
         // Clear any existing event listeners by removing them first
         const existingListeners = document.querySelectorAll('.task-event-listener');
         existingListeners.forEach(listener => {
             listener.remove();
         });
-        
+
         // Single click handler for all task interactions
         document.addEventListener('click', (e) => {
             // Prevent click events immediately after touch events
@@ -3582,7 +3610,7 @@ class PixDoneApp {
                 console.log('Preventing click event after touch');
                 return;
             }
-            
+
             // Checkbox clicks
             if (e.target.closest('.task-checkbox')) {
                 e.stopPropagation();
@@ -3593,7 +3621,7 @@ class PixDoneApp {
                 this.toggleTaskCompletion(taskId, taskItem);
                 return;
             }
-            
+
             // Edit button clicks
             if (e.target.closest('.edit-btn')) {
                 e.stopPropagation();
@@ -3605,7 +3633,7 @@ class PixDoneApp {
                 this.editTask(taskId);
                 return;
             }
-            
+
             // Delete button clicks
             if (e.target.closest('.delete-btn')) {
                 e.stopPropagation();
@@ -3614,10 +3642,10 @@ class PixDoneApp {
                 this.deleteTask(taskId);
                 return;
             }
-            
+
             // Task item clicks (for editing)
-            if (e.target.closest('.task-item') && 
-                !e.target.closest('.task-checkbox') && 
+            if (e.target.closest('.task-item') &&
+                !e.target.closest('.task-checkbox') &&
                 !e.target.closest('.task-actions') &&
                 !e.target.closest('.task-action-btn')) {
                 const taskItem = e.target.closest('.task-item');
@@ -3630,25 +3658,25 @@ class PixDoneApp {
                 return;
             }
         });
-        
+
         // Mobile touch events - simplified approach
         let touchStartData = null;
-        
+
         document.addEventListener('touchstart', (e) => {
             if (e.target.closest('.task-item')) {
                 const touch = e.touches[0];
-                touchStartData = { 
-                    x: touch.clientX, 
-                    y: touch.clientY, 
-                    time: Date.now() 
+                touchStartData = {
+                    x: touch.clientX,
+                    y: touch.clientY,
+                    time: Date.now()
                 };
             }
         });
-        
+
         document.addEventListener('touchend', (e) => {
             // Record touch time to prevent duplicate click events
             this.lastTouchTime = Date.now();
-            
+
             // Handle checkbox touches
             if (e.target.closest('.task-checkbox')) {
                 e.stopPropagation();
@@ -3661,22 +3689,22 @@ class PixDoneApp {
                 this.toggleTaskCompletion(taskId, taskItem);
                 return;
             }
-            
+
             // Handle task item touches for editing
-            if (e.target.closest('.task-item') && 
-                !e.target.closest('.task-checkbox') && 
+            if (e.target.closest('.task-item') &&
+                !e.target.closest('.task-checkbox') &&
                 !e.target.closest('.task-actions') &&
                 !e.target.closest('.task-action-btn')) {
-                
+
                 const taskItem = e.target.closest('.task-item');
                 const taskId = taskItem.dataset.taskId;
-                
+
                 if (touchStartData) {
                     const touch = e.changedTouches[0];
                     const deltaX = Math.abs(touch.clientX - touchStartData.x);
                     const deltaY = Math.abs(touch.clientY - touchStartData.y);
                     const timeDiff = Date.now() - touchStartData.time;
-                    
+
                     // Simple tap detection: under 500ms and minimal movement
                     if (timeDiff < 500 && deltaX < 20 && deltaY < 20) {
                         console.log('Mobile tap edit for task:', taskId);
@@ -3685,50 +3713,50 @@ class PixDoneApp {
                         }
                         this.editTask(taskId);
                     }
-                    
+
                     touchStartData = null;
                 }
             }
         });
-        
+
         // Setup drag and drop
         this.setupDragAndDrop();
     }
 
     setupKeyboardShortcuts() {
         console.log('Setting up keyboard shortcuts');
-        
+
         // Prevent duplicate event listeners
         if (this.keyboardShortcutsSetup) {
             console.log('Keyboard shortcuts already set up, skipping');
             return;
         }
         this.keyboardShortcutsSetup = true;
-        
+
         // Initialize debounce timestamp
         this.lastShiftSmashTime = 0;
-        
+
         // Check if device is desktop (has hover and fine pointer)
         const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-        
+
         if (!isDesktop) {
             console.log('Not a desktop device, skipping keyboard shortcuts');
             return;
         }
-        
+
         // Add keydown listener for Shift key
         document.addEventListener('keydown', (e) => {
             // Only respond to Shift key without modifiers
             if (e.key !== 'Shift' || e.ctrlKey || e.altKey || e.metaKey) {
                 return;
             }
-            
+
             // Check if currently on Smash List
             const currentList = this.getCurrentList();
             if (!currentList || (currentList.id !== 'smash-list' && currentList.name !== '💥 Smash List')) {
                 return;
             }
-            
+
             // Ignore if focus is in editable element
             const activeElement = document.activeElement;
             if (activeElement && (
@@ -3740,30 +3768,30 @@ class PixDoneApp {
             )) {
                 return;
             }
-            
+
             // Debounce: prevent rapid repeat triggers (300ms cooldown)
             const now = Date.now();
             if (now - this.lastShiftSmashTime < 300) {
                 return;
             }
             this.lastShiftSmashTime = now;
-            
+
             // Get first active Smash List task
             const activeTasks = currentList.tasks.filter(t => !t.completed);
             if (activeTasks.length === 0) {
                 return;
             }
-            
+
             const firstTask = activeTasks[0];
             const taskElement = document.querySelector(`.task-item[data-task-id="${firstTask.id}"]`);
-            
+
             if (taskElement) {
                 console.log('Shift key pressed - smashing task:', firstTask.id);
                 // Trigger task completion with existing animation
                 this.toggleTaskCompletion(firstTask.id, taskElement);
             }
         });
-        
+
         console.log('Keyboard shortcuts set up successfully');
     }
 
@@ -3812,10 +3840,10 @@ class PixDoneApp {
         // 必要ならFirestore等にも保存
         // this.saveTasks();
     }
-    
+
     setupDragAndDrop() {
         console.log('Setting up drag and drop functionality');
-        
+
         // Simplified drag and drop variables
         let draggedElement = null;
         let draggedIndex = -1;
@@ -3831,33 +3859,33 @@ class PixDoneApp {
             console.log('Setting up task drag listeners');
             document.querySelectorAll('.task-item:not(.completed)').forEach((taskItem, index) => {
                 console.log('Adding listeners to task:', taskItem.dataset.taskId);
-                
+
                 // マウスイベント（PC用）
                 taskItem.addEventListener('mousedown', (e) => {
                     if (isTouchDevice) return; // タッチデバイスでは無効化
-                    
+
                     // Don't start drag on interactive elements
                     if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn')) {
                         return;
                     }
-                    
+
                     isMouseDown = true;
                     isDraggingNow = false; // 追加: ドラッグ開始前にリセット
                     startY = e.clientY;
                     startX = e.clientX;
                     draggedElement = taskItem;
                     draggedIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
-                    
+
                     e.preventDefault();
                 });
-                
+
                 taskItem.addEventListener('mousemove', (e) => {
                     if (isTouchDevice) return; // タッチデバイスでは無効化
                     if (!isMouseDown || !draggedElement || isDraggingNow) return;
-                    
+
                     const deltaY = Math.abs(e.clientY - startY);
                     const deltaX = Math.abs(e.clientX - startX);
-                    
+
                     if (deltaY > dragThreshold || deltaX > dragThreshold) {
                         // ドラッグ開始
                         isDraggingNow = true;
@@ -3886,7 +3914,7 @@ class PixDoneApp {
                         document.addEventListener('mouseup', handleDocumentMouseUp);
                     }
                 });
-                
+
                 taskItem.addEventListener('mouseup', () => {
                     if (isTouchDevice) return; // タッチデバイスでは無効化
                     if (isMouseDown && draggedElement && !draggedElement.classList.contains('dragging')) {
@@ -3901,12 +3929,12 @@ class PixDoneApp {
                 let longPressTimer = null;
                 let touchStartTime = 0;
                 let touchMoved = false;
-                
+
                 taskItem.addEventListener('touchstart', (e) => {
                     if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn')) {
                         return;
                     }
-                    
+
                     console.log('Touch start on task:', taskItem.dataset.taskId);
                     isTouchDevice = true;
                     const touch = e.touches[0];
@@ -3916,7 +3944,7 @@ class PixDoneApp {
                     startX = touch.clientX;
                     draggedElement = taskItem;
                     draggedIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
-                    
+
                     // Start 300ms timer for long press detection
                     longPressTimer = setTimeout(() => {
                         if (!touchMoved && draggedElement) {
@@ -3924,28 +3952,28 @@ class PixDoneApp {
                             isDraggingNow = true;
                             isMouseDown = true;
                             draggedElement.classList.add('dragging');
-                            
+
                             // Add sound feedback for successful long press
                             if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
                                 this.comicEffects.playSound('taskAdd');
                             }
-                            
+
                             document.addEventListener('touchmove', handleDocumentTouchMove, { passive: false });
                             document.addEventListener('touchend', handleDocumentTouchEnd, { passive: false });
                             console.log('Document touch listeners added for long press drag');
                         }
                     }, 300);
-                    
+
                     // Don't prevent default to allow normal scrolling
                 }, { passive: true });
-                
+
                 taskItem.addEventListener('touchmove', (e) => {
                     if (!isTouchDevice) return;
-                    
+
                     const touch = e.touches[0];
                     const deltaY = Math.abs(touch.clientY - startY);
                     const deltaX = Math.abs(touch.clientX - startX);
-                    
+
                     // Cancel long press if finger moves too much (8px threshold)
                     if ((deltaY > 8 || deltaX > 8) && !isDraggingNow) {
                         touchMoved = true;
@@ -3954,24 +3982,24 @@ class PixDoneApp {
                             longPressTimer = null;
                         }
                     }
-                    
+
                     // Only prevent default if already in drag mode
                     if (isDraggingNow) {
                         e.preventDefault();
                     }
                 }, { passive: false });
-                
+
                 taskItem.addEventListener('touchend', (e) => {
                     if (!isTouchDevice) return;
-                    
+
                     // Clear timer if touch ends before long press completes
                     if (longPressTimer) {
                         clearTimeout(longPressTimer);
                         longPressTimer = null;
                     }
-                    
+
                     console.log('Task touchend called, isDraggingNow:', isDraggingNow);
-                    
+
                     // Don't reset drag state here if we're actively dragging
                     // Let the document handler manage it
                     if (!isDraggingNow) {
@@ -4106,14 +4134,14 @@ class PixDoneApp {
                 console.log('No dragged element or not dragging');
                 return;
             }
-            
+
             e.preventDefault();
             const touch = e.changedTouches[0];
             const taskList = document.getElementById('taskList');
             const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.completed):not(.dragging)'));
             let dropIndex = -1;
             let minDistance = Infinity;
-            
+
             // Find drop position
             tasks.forEach((task, index) => {
                 const rect = task.getBoundingClientRect();
@@ -4124,7 +4152,7 @@ class PixDoneApp {
                     dropIndex = index;
                 }
             });
-            
+
             // Handle drop at end
             if (tasks.length > 0) {
                 const lastTask = tasks[tasks.length - 1];
@@ -4133,37 +4161,37 @@ class PixDoneApp {
                     dropIndex = tasks.length;
                 }
             }
-            
+
             console.log('Touch end - draggedIndex:', draggedIndex, 'dropIndex:', dropIndex);
-            
+
             // Cleanup dragging styles
             draggedElement.classList.remove('dragging');
             draggedElement.style.opacity = '';
             this.removeDropIndicators();
-            
+
             // Remove floating clone if exists
             if (floatingClone && floatingClone.parentNode) {
                 floatingClone.parentNode.removeChild(floatingClone);
             }
             floatingClone = null;
-            
+
             // Reorder tasks if position changed
             if (dropIndex >= 0 && dropIndex !== draggedIndex) {
                 console.log('Reordering tasks from', draggedIndex, 'to', dropIndex);
                 this.reorderTasksWithAnimation(draggedIndex, dropIndex);
-                
+
                 // Sound temporarily disabled for debugging
                 // if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
                 //     this.comicEffects.playSound('taskAdd');
                 // }
             }
-            
+
             // Reset drag state
             isMouseDown = false;
             isDraggingNow = false;
             draggedElement = null;
             draggedIndex = -1;
-            
+
             // Remove document listeners
             document.removeEventListener('touchmove', handleDocumentTouchMove);
             document.removeEventListener('touchend', handleDocumentTouchEnd);
@@ -4172,16 +4200,16 @@ class PixDoneApp {
 
         // Initial setup
         setupTaskDragListeners();
-        
+
         // Store the setup function for later use
         this.setupTaskDragListeners = setupTaskDragListeners;
     }
 
     showSimpleDropIndicator(index, tasks) {
         this.removeDropIndicators();
-        
+
         if (tasks.length === 0) return;
-        
+
         const indicator = document.createElement('div');
         indicator.className = 'drop-indicator';
         indicator.style.position = 'fixed';
@@ -4191,7 +4219,7 @@ class PixDoneApp {
         indicator.style.pointerEvents = 'none';
         indicator.style.zIndex = '99999';
         indicator.style.opacity = '0.8';
-        
+
         if (index === 0) {
             // Insert at the beginning
             const firstTask = tasks[0];
@@ -4214,64 +4242,64 @@ class PixDoneApp {
             indicator.style.left = `${rect.left}px`;
             indicator.style.width = `${rect.width}px`;
         }
-        
+
         document.body.appendChild(indicator);
     }
 
     removeDropIndicators() {
         document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
     }
-    
+
     reorderTasksWithAnimation(fromIndex, toIndex) {
         console.log('reorderTasksWithAnimation called:', fromIndex, '->', toIndex);
         const activeTasks = this.tasks.filter(t => !t.completed);
         console.log('Active tasks before reorder:', activeTasks.length);
-        
+
         if (fromIndex < 0 || fromIndex >= activeTasks.length || toIndex < 0 || toIndex > activeTasks.length) {
             console.log('Invalid indices, returning');
             return;
         }
-        
+
         // 1. すべてのタスクの現在位置を記録
         const taskElements = Array.from(document.querySelectorAll('.task-item:not(.completed)'));
         const prevRects = taskElements.map(el => ({
             id: el.dataset.taskId,
             rect: el.getBoundingClientRect()
         }));
-        
+
         // 2. タスク配列を入れ替えてDOMを再描画
         const taskToMove = activeTasks[fromIndex];
         console.log('Moving task:', taskToMove.title, 'from', fromIndex, 'to', toIndex);
         activeTasks.splice(fromIndex, 1);
         activeTasks.splice(toIndex, 0, taskToMove);
-        
+
         const completedTasks = this.tasks.filter(t => t.completed);
         this.tasks = [...activeTasks, ...completedTasks];
         this.saveTasks();
         this.renderTasks();
         this.renderListTabs();
-        
+
         // 3. 新しい位置を取得し、アニメーションを適用
         setTimeout(() => {
             const newTaskElements = Array.from(document.querySelectorAll('.task-item:not(.completed)'));
-            
+
             newTaskElements.forEach(el => {
                 const prev = prevRects.find(r => r.id === el.dataset.taskId);
                 if (prev) {
                     const currentRect = el.getBoundingClientRect();
                     const deltaY = prev.rect.top - currentRect.top;
-                    
+
                     if (Math.abs(deltaY) > 1) {
                         // アニメーション用のスタイルを適用
                         el.style.transition = 'none';
                         el.style.transform = `translateY(${deltaY}px)`;
                         el.classList.add('reordering');
-                        
+
                         // 次のフレームでアニメーション開始
                         requestAnimationFrame(() => {
                             el.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
                             el.style.transform = '';
-                            
+
                             // アニメーション完了後にクリーンアップ
                             setTimeout(() => {
                                 el.classList.remove('reordering');
@@ -4283,64 +4311,64 @@ class PixDoneApp {
             });
         }, 10);
     }
-    
+
     reorderTasks(fromIndex, toIndex) {
         const activeTasks = this.tasks.filter(t => !t.completed);
-        
-        if (fromIndex < 0 || fromIndex >= activeTasks.length || 
+
+        if (fromIndex < 0 || fromIndex >= activeTasks.length ||
             toIndex < 0 || toIndex > activeTasks.length) {
             return;
         }
-        
+
         // Get the task to move
         const taskToMove = activeTasks[fromIndex];
-        
+
         // Remove from original position
         activeTasks.splice(fromIndex, 1);
-        
+
         // Insert at new position
         activeTasks.splice(toIndex, 0, taskToMove);
-        
+
         // Update the main tasks array with the new order
         const completedTasks = this.tasks.filter(t => t.completed);
         this.tasks = [...activeTasks, ...completedTasks];
-        
+
         // Save the new order
         this.saveTasks();
         this.renderTasks();
         this.renderListTabs();
     }
-    
+
     getDueStatus(dueDate) {
         if (!dueDate) return '';
-        
+
         const today = new Date().toISOString().split('T')[0];
         const taskDate = new Date(dueDate).toISOString().split('T')[0];
-        
+
         if (taskDate < today) return 'overdue';
         if (taskDate === today) return 'today';
         return 'upcoming';
     }
-    
+
     formatDateDisplay(dueDate) {
         if (!dueDate) return '';
-        
+
         const today = new Date().toISOString().split('T')[0];
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowStr = tomorrow.toISOString().split('T')[0];
-        
+
         if (dueDate === today) return 'Today';
         if (dueDate === tomorrowStr) return 'Tomorrow';
-        
+
         // Format as date
         const date = new Date(dueDate);
-        return date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric' 
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
         });
     }
-    
+
     updateCompletedCount() {
         const currentList = this.getCurrentList();
         if (!currentList) return; // null/undefinedガードを追加
@@ -4362,7 +4390,7 @@ class PixDoneApp {
             }
         }
     }
-    
+
     showCelebration(task) {
         // Prevent duplicate celebration for the same task
         if (this.celebratingTaskId === task.id) {
@@ -4370,138 +4398,144 @@ class PixDoneApp {
             return;
         }
         this.celebratingTaskId = task.id;
-        
+
         // Show celebration message (effects are handled by animateTaskCompletion to avoid duplicates)
         const message = getCelebrationMessage(task);
         console.log('Celebration:', message);
-        
+
         // Clear celebration flag after effects complete
         setTimeout(() => {
             this.celebratingTaskId = null;
         }, 2000); // Wait for effects to complete
     }
-    
+
     hideCelebration() {
         // No overlay to hide - comic effects auto-dismiss
     }
-    
+
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
+
     // URL handling functions
     autoLinkUrls(text) {
         // First escape HTML to prevent XSS
         const escapedText = this.escapeHtml(text);
-        
+
         // URL regex pattern that matches http:// and https:// URLs
         const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
-        
+
         // Replace URLs with anchor tags
         return escapedText.replace(urlRegex, (url) => {
             // Clean URL (remove trailing punctuation that shouldn't be part of the link)
             const cleanUrl = url.replace(/[.,;:!?]+$/, '');
             const trailingPunctuation = url.substring(cleanUrl.length);
-            
+
             return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="task-link" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${cleanUrl}</a>${trailingPunctuation}`;
         });
     }
-    
+
     processTaskText(text) {
         if (!text) return '';
         return this.parseMarkdownLinks(text);
     }
-    
+
     // Handle paste events for hyperlink creation
     handleHyperlinkPaste(inputElement) {
         console.log('[PixDone] Setting up hyperlink paste handler for:', inputElement.id);
-        
+
         inputElement.addEventListener('paste', (e) => {
             console.log('[PixDone] Paste event triggered');
             const clipboardText = e.clipboardData.getData('text/plain');
             console.log('[PixDone] Clipboard text:', clipboardText);
-            
+
             // Check if pasted text is a URL
             const urlRegex = /^https?:\/\/[^\s<>"']+$/i;
             if (!urlRegex.test(clipboardText.trim())) {
                 console.log('[PixDone] Not a URL, allowing default paste');
                 return; // Not a URL, let default paste behavior happen
             }
-            
+
             const selectionStart = inputElement.selectionStart;
             const selectionEnd = inputElement.selectionEnd;
             const selectedText = inputElement.value.substring(selectionStart, selectionEnd);
             console.log('[PixDone] Selected text:', selectedText);
-            
+
             // If text is selected and we're pasting a URL, create a hyperlink
             if (selectedText && selectedText.trim() !== '') {
                 console.log('[PixDone] Creating hyperlink');
                 e.preventDefault();
-                
+
                 // Create hyperlink markdown-style format: [text](url)
                 const hyperlinkText = `[${selectedText}](${clipboardText.trim()})`;
                 console.log('[PixDone] Hyperlink text:', hyperlinkText);
-                
+
                 // Replace selected text with hyperlink
                 const beforeSelection = inputElement.value.substring(0, selectionStart);
                 const afterSelection = inputElement.value.substring(selectionEnd);
                 inputElement.value = beforeSelection + hyperlinkText + afterSelection;
-                
+
                 // Position cursor after the inserted hyperlink
                 const newCursorPosition = selectionStart + hyperlinkText.length;
                 inputElement.setSelectionRange(newCursorPosition, newCursorPosition);
-                
+
                 // Trigger input event to update any listeners
                 inputElement.dispatchEvent(new Event('input', { bubbles: true }));
-                
+
                 // Play sound feedback
                 if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
                     this.comicEffects.playSound('taskEdit');
                 }
-                
+
                 console.log('[PixDone] Hyperlink created successfully');
             } else {
                 console.log('[PixDone] No text selected, allowing default paste');
             }
         });
     }
-    
+
     // Parse markdown-style links and convert to HTML
     parseMarkdownLinks(text) {
         if (!text) return '';
-        
+
         // First escape HTML
         let processedText = this.escapeHtml(text);
-        
+
+        // Convert internal action links [text](action:command) to HTML anchor tags
+        const actionLinkRegex = /\[([^\]]+)\]\(action:([^\s)]+)\)/gi;
+        processedText = processedText.replace(actionLinkRegex, (match, linkText, action) => {
+            return `<a href="#" class="task-action-link" data-action="${action}" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${linkText}</a>`;
+        });
+
         // Convert markdown links [text](url) to HTML anchor tags with inline style
         const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi;
         processedText = processedText.replace(markdownLinkRegex, (match, linkText, url) => {
             return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="task-link" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${linkText}</a>`;
         });
-        
+
         // Then auto-link any remaining plain URLs that are not already inside anchor tags with inline style
         const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
         processedText = processedText.replace(urlRegex, (url) => {
             // Don't replace URLs that are already part of an anchor tag
             const beforeUrl = processedText.substring(0, processedText.indexOf(url));
             const isInsideAnchor = beforeUrl.lastIndexOf('<a ') > beforeUrl.lastIndexOf('</a>');
-            
+
             if (isInsideAnchor) {
                 return url; // Keep original URL if inside anchor
             }
-            
+
             // Clean URL (remove trailing punctuation that shouldn't be part of the link)
             const cleanUrl = url.replace(/[.,;:!?]+$/, '');
             const trailingPunctuation = url.substring(cleanUrl.length);
-            
+
             return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="task-link" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${cleanUrl}</a>${trailingPunctuation}`;
         });
-        
+
         return processedText;
     }
-    
+
     // Set up real-time link preview for input fields
     setupInputLinkPreview(inputId) {
         const input = document.getElementById(inputId);
@@ -4509,117 +4543,117 @@ class PixDoneApp {
             console.log(`[PixDone] Input ${inputId} not found or already setup`);
             return;
         }
-        
+
         // Create preview overlay
         const container = input.parentElement;
         if (!container.classList.contains('task-input-field')) {
             container.classList.add('task-input-field');
-            
+
             const preview = document.createElement('div');
             preview.className = 'task-input-preview';
             preview.id = inputId + '-preview';
             container.appendChild(preview);
         }
-        
+
         // Update preview on input
         const updatePreview = () => {
             const preview = document.getElementById(inputId + '-preview');
             if (!preview) return;
-            
+
             const text = input.value;
             const processedText = this.highlightMarkdownLinks(text);
             preview.innerHTML = processedText;
         };
-        
+
         input.addEventListener('input', updatePreview);
         input.addEventListener('focus', updatePreview);
         input.addEventListener('blur', updatePreview);
-        
+
         // Initial preview update
         setTimeout(updatePreview, 100);
-        
+
         input.linkPreviewSetup = true;
     }
-    
+
     // Highlight markdown links in text without converting to HTML links
     highlightMarkdownLinks(text) {
         if (!text) return '';
-        
+
         // Escape HTML first
         let processedText = this.escapeHtml(text);
-        
+
         // Highlight markdown links [text](url) 
         const markdownLinkRegex = /(\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))/gi;
         processedText = processedText.replace(markdownLinkRegex, (match, fullMatch, linkText, url) => {
             return `<span class="markdown-link-preview">${fullMatch}</span>`;
         });
-        
+
         // Highlight plain URLs
         const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
         processedText = processedText.replace(urlRegex, (url) => {
             // Don't highlight URLs that are already inside markdown links
             const beforeUrl = processedText.substring(0, processedText.indexOf(url));
             const isInsideMarkdown = beforeUrl.includes('[') && beforeUrl.lastIndexOf('[') > beforeUrl.lastIndexOf(']');
-            
+
             if (isInsideMarkdown) {
                 return url; // Keep original URL if inside markdown
             }
-            
+
             return `<span class="markdown-link-preview">${url}</span>`;
         });
-        
+
         return processedText;
     }
-    
+
     // Process links for rich text display
     processLinksForDisplay(text) {
         if (!text) return '';
-        
+
         // Escape HTML first
         let processedText = this.escapeHtml(text);
-        
+
         // Convert markdown links [text](url) to HTML links with inline style for mobile
         const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi;
         processedText = processedText.replace(markdownLinkRegex, (match, linkText, url) => {
             return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="task-link" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${linkText}</a>`;
         });
-        
+
         // Convert plain URLs to HTML links with inline style for mobile
         const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
         processedText = processedText.replace(urlRegex, (url) => {
             // Don't convert URLs that are already inside HTML links
             const beforeUrl = processedText.substring(0, processedText.indexOf(url));
             const isInsideLink = beforeUrl.includes('<a href="') && beforeUrl.lastIndexOf('<a href="') > beforeUrl.lastIndexOf('</a>');
-            
+
             if (isInsideLink) {
                 return url; // Keep original URL if inside HTML link
             }
-            
+
             return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="task-link" style="color: #1A73E8 !important; text-decoration: underline !important; font-weight: 500 !important;">${url}</a>`;
         });
-        
+
         return processedText;
     }
-    
+
     // Set up rich text editor with live link conversion
     setupRichTextEditor(element) {
         if (!element || element.richTextSetup) return;
-        
+
         // Handle input to convert links in real-time
         const handleInput = () => {
             const selection = window.getSelection();
             const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
             const offset = range ? range.startOffset : 0;
-            
+
             // Get current text content
             const text = element.textContent || '';
-            
+
             // Process and update HTML
             const newHTML = this.processLinksForDisplay(text);
-            
+
             if (element.innerHTML !== newHTML) {
                 element.innerHTML = newHTML;
-                
+
                 // Restore cursor position
                 if (range && element.firstChild) {
                     try {
@@ -4643,18 +4677,18 @@ class PixDoneApp {
                 }
             }
         };
-        
+
         // Handle paste to convert pasted URLs
         const handlePaste = (e) => {
             e.preventDefault();
-            
+
             const selection = window.getSelection();
             const pastedData = e.clipboardData.getData('text/plain');
-            
+
             if (selection.rangeCount > 0) {
                 const range = selection.getRangeAt(0);
                 const selectedText = selection.toString();
-                
+
                 // If text is selected and pasted data is URL, create markdown link
                 if (selectedText && this.isValidURL(pastedData)) {
                     const markdownLink = `[${selectedText}](${pastedData})`;
@@ -4666,38 +4700,38 @@ class PixDoneApp {
                     range.insertNode(document.createTextNode(pastedData));
                     range.collapse(false);
                 }
-                
+
                 // Trigger link processing
                 setTimeout(handleInput, 10);
             }
         };
-        
+
         element.addEventListener('input', handleInput);
         element.addEventListener('paste', handlePaste);
         element.richTextSetup = true;
-        
+
         // Set placeholder behavior
         if (element.textContent.trim() === '' && element.hasAttribute('placeholder')) {
             element.classList.add('empty');
         }
-        
+
         element.addEventListener('focus', () => {
             if (element.classList.contains('empty')) {
                 element.classList.remove('empty');
             }
         });
-        
+
         element.addEventListener('blur', () => {
             if (element.textContent.trim() === '') {
                 element.classList.add('empty');
             }
         });
     }
-    
+
     // Extract plain text with markdown from rich editor
     extractTextFromRichEditor(element) {
         let text = '';
-        
+
         const processNode = (node) => {
             if (node.nodeType === Node.TEXT_NODE) {
                 text += node.textContent;
@@ -4722,14 +4756,14 @@ class PixDoneApp {
                 }
             }
         };
-        
+
         for (let child of element.childNodes) {
             processNode(child);
         }
-        
+
         return text.trim();
     }
-    
+
     // Select all text in contenteditable element
     selectAllText(element) {
         const range = document.createRange();
@@ -4738,11 +4772,11 @@ class PixDoneApp {
         selection.removeAllRanges();
         selection.addRange(range);
     }
-    
+
     // Find text node at specific offset
     findTextNodeAtOffset(element, targetOffset) {
         let currentOffset = 0;
-        
+
         const walk = (node) => {
             if (node.nodeType === Node.TEXT_NODE) {
                 const length = node.textContent.length;
@@ -4761,14 +4795,14 @@ class PixDoneApp {
             }
             return null;
         };
-        
+
         return walk(element);
     }
-    
+
     // Get last text node in element
     getLastTextNode(element) {
         let lastTextNode = null;
-        
+
         const walk = (node) => {
             if (node.nodeType === Node.TEXT_NODE) {
                 lastTextNode = node;
@@ -4778,7 +4812,7 @@ class PixDoneApp {
                 }
             }
         };
-        
+
         walk(element);
         return lastTextNode;
     }
@@ -4797,7 +4831,7 @@ class PixDoneApp {
             alert(message);
         }
     }
-    
+
     // List management methods
     renderListTabs() {
         // --- 追加: My Tasksを先頭に ---
@@ -4817,7 +4851,7 @@ class PixDoneApp {
                 ${(list.id === 'smash-list' || list.name === '💥 Smash List') ? '' : `<span class="list-count">${list.tasks.filter(t => !t.completed).length}</span>`}
             </button>
         `).join('');
-        
+
         // Add event listeners to list tabs
         container.querySelectorAll('.list-tab').forEach(tab => {
             // Left click to switch
@@ -4825,34 +4859,34 @@ class PixDoneApp {
                 e.stopPropagation();
                 this.switchToList(tab.dataset.listId);
             });
-            
+
             // Right click for context menu
             tab.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 this.showListContextMenu(e, tab.dataset.listId);
             });
         });
-        
+
         // Scroll to active tab
         this.scrollToActiveTab();
     }
-    
+
     scrollToActiveTab() {
         const container = document.getElementById('listTabs');
         const activeTab = container.querySelector('.list-tab.active');
-        
+
         if (activeTab && container.scrollWidth > container.clientWidth) {
             const containerRect = container.getBoundingClientRect();
             const activeTabRect = activeTab.getBoundingClientRect();
             const scrollLeft = activeTabRect.left - containerRect.left + container.scrollLeft - (containerRect.width / 2) + (activeTabRect.width / 2);
-            
+
             container.scrollTo({
                 left: scrollLeft,
                 behavior: 'smooth'
             });
         }
     }
-    
+
     switchToPreviousList() {
         const currentIndex = this.lists.findIndex(list => list.id === this.currentListId);
         if (currentIndex > 0) {
@@ -4862,7 +4896,7 @@ class PixDoneApp {
             this.switchToList(this.lists[this.lists.length - 1].id, 'right');
         }
     }
-    
+
     switchToNextList() {
         const currentIndex = this.lists.findIndex(list => list.id === this.currentListId);
         if (currentIndex < this.lists.length - 1) {
@@ -4872,39 +4906,39 @@ class PixDoneApp {
             this.switchToList(this.lists[0].id, 'left');
         }
     }
-    
+
     animateListSwitch(direction, callback) {
         const tasksContainer = document.querySelector('.task-list-container');
         if (!tasksContainer) {
             callback();
             return;
         }
-        
+
         const translateX = direction === 'left' ? -30 : 30;
-        
+
         // Start animation - slide out current content
         tasksContainer.style.transition = 'all 0.15s ease';
         tasksContainer.style.transform = `translateX(${translateX}px)`;
         tasksContainer.style.opacity = '0.5';
-        
+
         setTimeout(() => {
             // Switch content
             callback();
-            
+
             // Slide in new content from opposite direction
             tasksContainer.style.transform = `translateX(${-translateX}px)`;
-            
+
             setTimeout(() => {
                 tasksContainer.style.transform = 'translateX(0)';
                 tasksContainer.style.opacity = '1';
-                
+
                 setTimeout(() => {
                     tasksContainer.style.transition = '';
                 }, 150);
             }, 10);
         }, 150);
     }
-    
+
     switchToList(listId, direction = 'none') {
         if (direction !== 'none') {
             this.animateListSwitch(direction, () => {
@@ -4924,11 +4958,11 @@ class PixDoneApp {
             this.comicEffects.playSound('taskAdd');
         }
     }
-    
+
     getCurrentList() {
         return this.lists.find(list => list.id === this.currentListId) || this.lists[0];
     }
-    
+
     get tasks() {
         const currentList = this.getCurrentList();
         if (!currentList) return [];
@@ -4939,7 +4973,7 @@ class PixDoneApp {
             return cleanTask;
         });
     }
-    
+
     set tasks(newTasks) {
         const currentList = this.getCurrentList();
         if (currentList) {
@@ -4951,7 +4985,7 @@ class PixDoneApp {
             });
         }
     }
-    
+
     showCreateListModal() {
         const modal = document.getElementById('createListModal');
         const input = document.getElementById('listNameInput');
@@ -4963,7 +4997,7 @@ class PixDoneApp {
             input.focus();
         }, 100);
     }
-    
+
     hideCreateListModal() {
         const modal = document.getElementById('createListModal');
         const input = document.getElementById('listNameInput');
@@ -4973,7 +5007,7 @@ class PixDoneApp {
             this.comicEffects.playSound('taskCancel');
         }
     }
-    
+
     async handleCreateList() {
         const input = document.getElementById('listNameInput');
         const listName = input.value.trim();
@@ -4982,7 +5016,7 @@ class PixDoneApp {
             this.hideCreateListModal();
         }
     }
-    
+
     async createNewList(name) {
         if (this.isAuthenticated) {
             try {
@@ -5014,28 +5048,28 @@ class PixDoneApp {
             this.comicEffects.playSound('taskAdd');
         }
     }
-    
+
     // Context menu methods
     showListContextMenu(event, listId) {
         // Don't show context menu for default list
         if (listId === 'default') {
             return;
         }
-        
+
         this.contextMenuListId = listId;
         const contextMenu = document.getElementById('contextMenu');
-        
+
         // Position context menu
         const x = event.clientX;
         const y = event.clientY;
-        
+
         contextMenu.style.left = x + 'px';
         contextMenu.style.top = y + 'px';
         contextMenu.classList.add('active');
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskEdit');
         }
-        
+
         // Adjust position if menu goes off screen
         setTimeout(() => {
             const rect = contextMenu.getBoundingClientRect();
@@ -5047,7 +5081,7 @@ class PixDoneApp {
             }
         }, 10);
     }
-    
+
     hideContextMenu() {
         const contextMenu = document.getElementById('contextMenu');
         if (contextMenu && contextMenu.classList.contains('active')) {
@@ -5065,26 +5099,26 @@ class PixDoneApp {
         if (listId === 'default') {
             return;
         }
-        
+
         const list = this.lists.find(l => l.id == listId);
         if (!list) return;
-        
+
         this.editingListId = listId;
         const modal = document.getElementById('editListModal');
         const input = document.getElementById('editListNameInput');
-        
+
         input.value = list.name;
         modal.classList.add('active');
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskAdd');
         }
-        
+
         setTimeout(() => {
             input.focus();
             input.select();
         }, 100);
     }
-    
+
     hideEditListModal() {
         const modal = document.getElementById('editListModal');
         const input = document.getElementById('editListNameInput');
@@ -5095,7 +5129,7 @@ class PixDoneApp {
             this.comicEffects.playSound('taskCancel');
         }
     }
-    
+
     async handleEditList() {
         const input = document.getElementById('editListNameInput');
         const newName = input.value.trim();
@@ -5128,27 +5162,27 @@ class PixDoneApp {
         }
         this.hideEditListModal();
     }
-    
+
     showDeleteListModal(listId) {
         // Don't allow deleting default list
         if (listId === 'default') {
             return;
         }
-        
+
         const list = this.lists.find(l => l.id == listId);
         if (!list) return;
-        
+
         this.deletingListId = listId;
         const modal = document.getElementById('deleteListModal');
         const message = document.getElementById('deleteListMessage');
-        
+
         message.textContent = `Are you sure you want to delete "${list.name}" and all its tasks?`;
         modal.classList.add('active');
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskAdd');
         }
     }
-    
+
     hideDeleteListModal() {
         const modal = document.getElementById('deleteListModal');
         modal.classList.remove('active');
@@ -5157,7 +5191,7 @@ class PixDoneApp {
             this.comicEffects.playSound('taskCancel');
         }
     }
-    
+
     async handleDeleteList() {
         if (!this.deletingListId) return;
         if (this.isAuthenticated) {
@@ -5199,7 +5233,7 @@ class PixDoneApp {
     getCurrentList() {
         return this.lists.find(l => l.id === this.currentListId);
     }
-    
+
     ensureDefaultList() {
         // デフォルトリストが存在しない場合は作成
         if (!this.lists.some(l => l.name === 'My Tasks')) {
@@ -5212,14 +5246,14 @@ class PixDoneApp {
             this.currentListId = 'default';
             this.saveLists();
         }
-        
+
         // currentListIdが未設定の場合はデフォルトリストを選択
         if (!this.currentListId || !this.lists.some(l => l.id === this.currentListId)) {
             const defaultList = this.lists.find(l => l.name === 'My Tasks');
             this.currentListId = defaultList ? defaultList.id : this.lists[0]?.id;
         }
     }
-    
+
     // List title methods
     updateListTitle() {
         const titleElement = document.getElementById('listTitle');
@@ -5228,13 +5262,13 @@ class PixDoneApp {
         if (titleElement && currentList) {
             titleElement.textContent = currentList.name;
         }
-        
+
         // Hide menu button for default list and Smash List
         if (menuButton) {
             const currentList = this.getCurrentList();
             const isDefaultList = (this.currentListId === 'default') || (currentList && currentList.name === 'My Tasks');
             const isSmashList = (this.currentListId === 'smash-list') || (currentList && currentList.name === '💥 Smash List');
-            
+
             if (isDefaultList || isSmashList) {
                 menuButton.style.display = 'none';
                 menuButton.classList.add('hidden');
@@ -5245,31 +5279,31 @@ class PixDoneApp {
                 menuButton.classList.remove('hidden');
                 menuButton.style.visibility = 'visible';
                 menuButton.style.opacity = '1';
-                
+
                 // Re-add event listener for non-default lists
                 this.setupListMenuButton();
             }
         }
     }
-    
+
     // Setup list menu button event listener
     setupListMenuButton() {
         const menuButton = document.getElementById('listMenuBtn');
         if (menuButton) {
             // Remove existing event listener
             menuButton.removeEventListener('click', this.listMenuClickHandler);
-            
+
             // Create new handler
             this.listMenuClickHandler = (e) => {
                 e.stopPropagation();
-                
+
                 // Play sound feedback
                 this.comicEffects.playSound('taskEdit');
-                
+
                 // Show context menu
                 this.showListContextMenu(e, this.currentListId);
             };
-            
+
             // Add event listener
             menuButton.addEventListener('click', this.listMenuClickHandler);
         }
@@ -5324,7 +5358,7 @@ class PixDoneApp {
             console.error('Error saving to Firestore:', error);
         }
     }
-    
+
     loadLists() {
         try {
             const data = localStorage.getItem('google_tasks_lists');
@@ -5335,19 +5369,19 @@ class PixDoneApp {
                 this.listIdCounter = parsed.listIdCounter || 1;
                 this.taskIdCounter = parsed.taskIdCounter || 1;
             }
-            
+
             // Create default list if no lists exist
             if (this.lists.length === 0) {
                 const defaultTasks = [];
-                
+
                 // Add tutorial tasks for unauthenticated users
                 if (!this.isAuthenticated) {
                     defaultTasks.push(...this.tutorialTasks.map(task => ({ ...task })));
                 }
-                
+
                 this.lists.push({
                     id: 'default',
-                    name: 'My Tasks',
+                    name: this.isAuthenticated ? 'My Tasks' : 'Tutorial',
                     tasks: defaultTasks,
                     createdAt: new Date().toISOString()
                 });
@@ -5359,7 +5393,7 @@ class PixDoneApp {
                     if (defaultList) {
                         // Check if tutorial tasks already exist (avoid duplicates)
                         const existingTutorialIds = defaultList.tasks.map(t => t.id);
-                        
+
                         this.tutorialTasks.forEach(tutorialTask => {
                             if (!existingTutorialIds.includes(tutorialTask.id)) {
                                 const taskCopy = { ...tutorialTask };
@@ -5370,14 +5404,17 @@ class PixDoneApp {
                     }
                 }
             }
-            
-            // Ensure default list has English name
+
+            // Ensure default list has correct name based on auth status
             const defaultList = this.lists.find(list => list.id === 'default');
-            if (defaultList && defaultList.name === 'マイタスク') {
-                defaultList.name = 'My Tasks';
-                this.saveLists();
+            if (defaultList) {
+                const targetName = this.isAuthenticated ? 'My Tasks' : 'Tutorial';
+                if (defaultList.name !== targetName && (defaultList.name === 'My Tasks' || defaultList.name === 'Tutorial' || defaultList.name === 'マイタスク')) {
+                    defaultList.name = targetName;
+                    this.saveLists();
+                }
             }
-            
+
             // Ensure Smash List exists (only for unauthenticated users)
             // Authenticated users will get Smash List from Firebase
             if (!this.isAuthenticated && !this.lists.some(l => l.name === '💥 Smash List')) {
@@ -5390,21 +5427,21 @@ class PixDoneApp {
                 this.lists.push(smashList);
                 this.saveLists();
             }
-            
+
             // Ensure current list ID is valid
             const currentListExists = this.lists.some(list => list.id === this.currentListId);
             if (!currentListExists && this.lists.length > 0) {
                 this.currentListId = this.lists[0].id;
                 this.saveLists();
             }
-            
+
             // Migrate old tasks data if exists
             this.migrateOldTasksData();
         } catch (error) {
             console.error('Error loading lists:', error);
         }
     }
-    
+
     migrateOldTasksData() {
         try {
             const oldData = localStorage.getItem('google_tasks_data');
@@ -5420,7 +5457,7 @@ class PixDoneApp {
                     }
                 }
             }
-            
+
             // Migrate Japanese list names to English and update Smash List name
             let hasChanges = false;
             this.lists.forEach(list => {
@@ -5433,11 +5470,11 @@ class PixDoneApp {
                     hasChanges = true;
                 }
             });
-            
+
             if (hasChanges) {
                 this.saveLists();
             }
-            
+
             // Ensure current list ID is still valid after migration
             const currentListExists = this.lists.some(list => list.id === this.currentListId);
             if (!currentListExists && this.lists.length > 0) {
@@ -5448,12 +5485,12 @@ class PixDoneApp {
             console.error('Error migrating old tasks data:', error);
         }
     }
-    
+
     // Update save method to use new structure
     saveTasks() {
         this.saveLists();
     }
-    
+
     // Email Authentication Methods
     showEmailAuthModal() {
         document.getElementById('emailAuthModal').classList.add('active');
@@ -5461,26 +5498,26 @@ class PixDoneApp {
         this.updateEmailAuthModal();
         this.comicEffects.playSound('taskAdd');
     }
-    
+
     hideEmailAuthModal() {
         document.getElementById('emailAuthModal').classList.remove('active');
         this.resetEmailAuthForm();
         this.comicEffects.playSound('taskCancel');
     }
-    
+
     toggleEmailAuthMode() {
         this.isEmailAuthRegistering = !this.isEmailAuthRegistering;
         this.updateEmailAuthModal();
         this.comicEffects.playSound('taskEdit');
     }
-    
+
     updateEmailAuthModal() {
         const title = document.getElementById('emailAuthTitle');
         const submitBtn = document.getElementById('emailAuthSubmit');
         const toggleBtn = document.getElementById('toggleAuthMode');
         const authFooter = document.querySelector('.auth-footer span');
         const forgotPasswordSection = document.getElementById('forgotPasswordSection');
-        
+
         if (this.isEmailAuthRegistering) {
             title.textContent = 'Sign up';
             submitBtn.textContent = 'Sign up';
@@ -5495,11 +5532,11 @@ class PixDoneApp {
             forgotPasswordSection.style.display = 'block';
         }
     }
-    
+
     togglePasswordVisibility(inputId = 'passwordInput', toggleId = 'passwordToggle') {
         const passwordInput = document.getElementById(inputId);
         const toggleBtn = document.getElementById(toggleId);
-        
+
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
             toggleBtn.textContent = '🙈';
@@ -5509,7 +5546,7 @@ class PixDoneApp {
         }
         this.comicEffects.playSound('taskEdit');
     }
-    
+
     resetEmailAuthForm() {
         document.getElementById('emailInput').value = '';
         document.getElementById('passwordInput').value = '';
@@ -5530,7 +5567,7 @@ class PixDoneApp {
 
     async handlePasswordReset() {
         const email = document.getElementById('resetEmailInput').value.trim();
-        
+
         if (!email) {
             alert('Please enter your email address');
             return;
@@ -5538,7 +5575,7 @@ class PixDoneApp {
 
         try {
             const result = await window.firebaseAuth.resetPassword(email);
-            
+
             if (result.success) {
                 this.comicEffects.playSound('taskComplete');
                 alert(result.message);
@@ -5554,53 +5591,53 @@ class PixDoneApp {
             alert('Failed to send reset email. Please try again.');
         }
     }
-    
+
     // Password setup methods
     showPasswordSetupModal(token) {
         document.getElementById('passwordSetupModal').style.display = 'flex';
         this.verificationToken = token;
     }
-    
+
     hidePasswordSetupModal() {
         document.getElementById('passwordSetupModal').style.display = 'none';
         document.getElementById('newPasswordInput').value = '';
         document.getElementById('confirmPasswordInput').value = '';
         this.verificationToken = null;
     }
-    
+
     async handlePasswordSetup() {
         const password = document.getElementById('newPasswordInput').value;
         const confirmPassword = document.getElementById('confirmPasswordInput').value;
-        
+
         if (!password || !confirmPassword) {
             alert('Please enter both passwords');
             return;
         }
-        
+
         if (password !== confirmPassword) {
             alert('Passwords do not match');
             return;
         }
-        
+
         if (password.length < 6) {
             alert('Password must be at least 6 characters long');
             return;
         }
-        
+
         try {
             const response = await fetch('/api/auth/set-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     token: this.verificationToken,
                     password: password
                 }),
             });
-            
+
             const result = await response.json();
-            
+
             if (response.ok) {
                 alert('Password setup completed! Please log in.');
                 this.hidePasswordSetupModal();
@@ -5615,23 +5652,23 @@ class PixDoneApp {
             alert('Error occurred during password setup');
         }
     }
-    
+
     toggleUserDropdown() {
         const userDropdown = document.getElementById('userDropdown');
         const isVisible = userDropdown.style.display === 'block';
         userDropdown.style.display = isVisible ? 'none' : 'block';
     }
-    
+
     showDeleteAccountModal() {
         const modal = document.getElementById('deleteAccountModal');
         modal.style.display = 'flex';
     }
-    
+
     hideDeleteAccountModal() {
         const modal = document.getElementById('deleteAccountModal');
         modal.style.display = 'none';
     }
-    
+
     async deleteAccount() {
         try {
             const result = await window.firebaseAuth.deleteAccount();
@@ -5647,7 +5684,7 @@ class PixDoneApp {
             alert('Error deleting account');
         }
     }
-    
+
     async logout() {
         try {
             // まずサーバーセッションを終了
@@ -5656,8 +5693,9 @@ class PixDoneApp {
                 credentials: 'include'
             });
             if (!res.ok) {
+                console.error('Server logout failed with status:', res.status);
                 this.comicEffects.playSound('taskCancel');
-                alert('Server logout failed');
+                alert(`Server logout failed (Status: ${res.status}). 開発環境では Port 5000 を使用してください（Live Server の 5500 ではなく）。`);
                 return;
             }
             // 次にFirebaseサインアウト
@@ -5677,20 +5715,20 @@ class PixDoneApp {
             alert('Logout failed');
         }
     }
-    
+
     async handleEmailAuth() {
         const email = document.getElementById('emailInput').value;
         const password = document.getElementById('passwordInput').value;
-        
+
         if (!email || !password) {
             this.comicEffects.playSound('taskCancel');
             alert('Please enter email and password');
             return;
         }
-        
+
         try {
             let result;
-            
+
             if (this.isEmailAuthRegistering) {
                 // Use Firebase for registration
                 result = await window.firebaseAuth.register(email, password);
@@ -5698,7 +5736,7 @@ class PixDoneApp {
                 // Use Firebase for login
                 result = await window.firebaseAuth.login(email, password);
             }
-            
+
             if (result.success) {
                 this.comicEffects.playSound('taskComplete');
                 if (this.isEmailAuthRegistering && result.needsVerification) {
@@ -5761,7 +5799,7 @@ class PixDoneApp {
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.pixDoneApp = new PixDoneApp();
-    
+
     // Initialize task animation effects
     if (typeof TaskAnimationEffects !== 'undefined') {
         window.taskAnimationEffects = new TaskAnimationEffects();
@@ -5770,52 +5808,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // サーバーにIDトークンを送ってセッション確立
 async function establishSession(user) {
-  const idToken = await user.getIdToken();
-  const res = await fetch('/api/auth/session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ idToken })
-  });
-  if (!res.ok) throw new Error('サーバーセッション確立失敗');
+    const idToken = await user.getIdToken();
+    const res = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ idToken })
+    });
+    if (!res.ok) throw new Error('サーバーセッション確立失敗');
 }
 
 // PixDoneのログイン/新規登録UIイベントで↓を呼ぶようにする
 async function handleLogin(email, password) {
-  const userCred = await auth.signInWithEmailAndPassword(email, password);
-  await establishSession(userCred.user);
-  // 以降はPixDoneのUI更新ロジックを呼ぶ
+    const userCred = await auth.signInWithEmailAndPassword(email, password);
+    await establishSession(userCred.user);
+    // 以降はPixDoneのUI更新ロジックを呼ぶ
 }
 async function handleRegister(email, password) {
-  const userCred = await auth.createUserWithEmailAndPassword(email, password);
-  await establishSession(userCred.user);
-  // 以降はPixDoneのUI更新ロジックを呼ぶ
+    const userCred = await auth.createUserWithEmailAndPassword(email, password);
+    await establishSession(userCred.user);
+    // 以降はPixDoneのUI更新ロジックを呼ぶ
 }
 
 // タスク取得・追加・削除などはfetch＋credentials: 'include'でAPIを叩く
 // 例: タスク取得
 async function fetchTasks() {
-  const res = await fetch('/api/tasks', { credentials: 'include' });
-  if (!res.ok) throw new Error('タスク取得失敗');
-  return await res.json();
+    const res = await fetch('/api/tasks', { credentials: 'include' });
+    if (!res.ok) throw new Error('タスク取得失敗');
+    return await res.json();
 }
 // 例: タスク追加
 async function addTask(title) {
-  const res = await fetch('/api/tasks', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ title })
-  });
-  if (!res.ok) throw new Error('タスク追加失敗');
-  return await res.json();
+    const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ title })
+    });
+    if (!res.ok) throw new Error('タスク追加失敗');
+    return await res.json();
 }
 
 // ログアウト時はサーバー→Firebase signOut
 async function handleLogout() {
-  await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-  await auth.signOut();
-  // 以降はPixDoneのUI更新ロジックを呼ぶ
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    await auth.signOut();
+    // 以降はPixDoneのUI更新ロジックを呼ぶ
 }
 
 // PixDoneのUIイベントハンドラで上記関数を使うように修正
@@ -5827,117 +5865,117 @@ async function handleLogout() {
 // 4. 認証はFirebase Authのまま
 // 5. 例: タスク取得
 async function loadTasksFromFirestore() {
-  const user = firebase.auth().currentUser;
-  if (!user) return [];
-  const snap = await db.collection('tasks').where('uid', '==', user.uid).orderBy('createdAt', 'desc').get();
-  return snap.docs
-    .map(doc => ({ id: doc.id, ...doc.data() }))
-    .filter(task => typeof task.id !== 'undefined');
+    const user = firebase.auth().currentUser;
+    if (!user) return [];
+    const snap = await db.collection('tasks').where('uid', '==', user.uid).orderBy('createdAt', 'desc').get();
+    return snap.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(task => typeof task.id !== 'undefined');
 }
 // 例: タスク追加
 async function addTaskToFirestore(title, details = '', dueDate = null, repeat = 'none', listId) {
-  const user = firebase.auth().currentUser;
-  if (!user || !listId) return;
-  await db.collection('tasks').add({
-    uid: user.uid,
-    listId, // ← 追加
-    title,
-    details,
-    dueDate,
-    repeat,
-    completed: false,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
+    const user = firebase.auth().currentUser;
+    if (!user || !listId) return;
+    await db.collection('tasks').add({
+        uid: user.uid,
+        listId, // ← 追加
+        title,
+        details,
+        dueDate,
+        repeat,
+        completed: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
 }
 // 例: タスク削除
 async function deleteTaskFromFirestore(taskId) {
-  await db.collection('tasks').doc(taskId).delete();
+    await db.collection('tasks').doc(taskId).delete();
 }
 // 例: タスク完了トグル
 async function toggleTaskCompletionFirestore(taskId, completed) {
-  const docRef = db.collection('tasks').doc(taskId);
-  const doc = await docRef.get();
-  if (doc.exists) {
-    await docRef.update({ completed: !completed });
-  } else {
-    // ドキュメントがなければ何もしない（またはエラー処理）
-    console.warn('No such task to update:', taskId);
-  }
+    const docRef = db.collection('tasks').doc(taskId);
+    const doc = await docRef.get();
+    if (doc.exists) {
+        await docRef.update({ completed: !completed });
+    } else {
+        // ドキュメントがなければ何もしない（またはエラー処理）
+        console.warn('No such task to update:', taskId);
+    }
 }
 // 以降、UIイベントでこれらのFirestore関数を使うように修正
 // ... 既存のUI/UX・描画ロジックはそのまま ...
 
 // 1. Firestoreリスト管理用関数を追加
 async function loadListsFromFirestore() {
-  const user = firebase.auth().currentUser;
-  if (!user) return [];
-  const snap = await db.collection('lists').where('uid', '==', user.uid).orderBy('createdAt', 'asc').get();
-  return snap.docs
-    .map(doc => ({ id: doc.id, ...doc.data(), tasks: [] }))
-    .filter(list => typeof list.id !== 'undefined');
+    const user = firebase.auth().currentUser;
+    if (!user) return [];
+    const snap = await db.collection('lists').where('uid', '==', user.uid).orderBy('createdAt', 'asc').get();
+    return snap.docs
+        .map(doc => ({ id: doc.id, ...doc.data(), tasks: [] }))
+        .filter(list => typeof list.id !== 'undefined');
 }
 async function addListToFirestore(name) {
-  const user = firebase.auth().currentUser;
-  if (!user) return;
-  const docRef = await db.collection('lists').add({
-    uid: user.uid,
-    name,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    tasks: []
-  });
-  
-  // Smash Listの場合は初期タスクを追加
-  if (name === '💥 Smash List') {
-    const smashTasks = [
-      { title: 'Check notifications', completed: false },
-      { title: 'Organize desk', completed: false },
-      { title: 'Review emails', completed: false },
-      { title: 'Take deep breaths', completed: false },
-      { title: 'Stretch muscles', completed: false },
-      { title: 'Clear browser tabs', completed: false },
-      { title: 'Clean keyboard', completed: false },
-      { title: 'Water plants', completed: false },
-      { title: 'Tidy up files', completed: false },
-      { title: 'Quick workout', completed: false }
-    ];
-    
-    const batch = db.batch();
-    smashTasks.forEach(task => {
-      const taskRef = db.collection('tasks').doc();
-      batch.set(taskRef, {
-        ...task,
-        listId: docRef.id,
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+    const docRef = await db.collection('lists').add({
         uid: user.uid,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+        name,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        tasks: []
     });
-    await batch.commit();
-  }
-  
-  return docRef.id;
+
+    // Smash Listの場合は初期タスクを追加
+    if (name === '💥 Smash List') {
+        const smashTasks = [
+            { title: 'Check notifications', completed: false },
+            { title: 'Organize desk', completed: false },
+            { title: 'Review emails', completed: false },
+            { title: 'Take deep breaths', completed: false },
+            { title: 'Stretch muscles', completed: false },
+            { title: 'Clear browser tabs', completed: false },
+            { title: 'Clean keyboard', completed: false },
+            { title: 'Water plants', completed: false },
+            { title: 'Tidy up files', completed: false },
+            { title: 'Quick workout', completed: false }
+        ];
+
+        const batch = db.batch();
+        smashTasks.forEach(task => {
+            const taskRef = db.collection('tasks').doc();
+            batch.set(taskRef, {
+                ...task,
+                listId: docRef.id,
+                uid: user.uid,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+        await batch.commit();
+    }
+
+    return docRef.id;
 }
 async function editListInFirestore(listId, name) {
-  const docRef = db.collection('lists').doc(listId);
-  const doc = await docRef.get();
-  if (doc.exists) {
-    await docRef.update({ name });
-  } else {
-    await docRef.set({ name }); // 必要なら他のフィールドもセット
-  }
+    const docRef = db.collection('lists').doc(listId);
+    const doc = await docRef.get();
+    if (doc.exists) {
+        await docRef.update({ name });
+    } else {
+        await docRef.set({ name }); // 必要なら他のフィールドもセット
+    }
 }
 async function deleteListFromFirestore(listId) {
-  await db.collection('lists').doc(listId).delete();
-  // そのリストのtasksも削除（listIdが厳密一致するものだけ）
-  const snap = await db.collection('tasks').where('listId', '==', String(listId)).get();
-  const batch = db.batch();
-  snap.forEach(doc => {
-    const data = doc.data();
-    // listIdがundefined/nullのタスクは絶対に消さない
-    if (data.listId === String(listId)) {
-      batch.delete(doc.ref);
-    }
-  });
-  await batch.commit();
+    await db.collection('lists').doc(listId).delete();
+    // そのリストのtasksも削除（listIdが厳密一致するものだけ）
+    const snap = await db.collection('tasks').where('listId', '==', String(listId)).get();
+    const batch = db.batch();
+    snap.forEach(doc => {
+        const data = doc.data();
+        // listIdがundefined/nullのタスクは絶対に消さない
+        if (data.listId === String(listId)) {
+            batch.delete(doc.ref);
+        }
+    });
+    await batch.commit();
 }
 
 /**
@@ -5946,17 +5984,17 @@ async function deleteListFromFirestore(listId) {
  * @param {function} onUpdate - タスク配列を受け取るコールバック
  */
 function listenTasksFromFirestore(listId, onUpdate) {
-  const user = firebase.auth().currentUser;
-  if (!user || !listId) return () => {};
-  return db.collection('tasks')
-    .where('uid', '==', user.uid)
-    .where('listId', '==', listId)
-    .orderBy('createdAt', 'desc')
-    .limit(50)
-    .onSnapshot(snap => {
-      const tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      onUpdate(tasks);
-    });
+    const user = firebase.auth().currentUser;
+    if (!user || !listId) return () => { };
+    return db.collection('tasks')
+        .where('uid', '==', user.uid)
+        .where('listId', '==', listId)
+        .orderBy('createdAt', 'desc')
+        .limit(50)
+        .onSnapshot(snap => {
+            const tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            onUpdate(tasks);
+        });
 }
 
 /**
@@ -5964,30 +6002,30 @@ function listenTasksFromFirestore(listId, onUpdate) {
  * @param {function} onUpdate - リスト配列を受け取るコールバック
  */
 function listenListsFromFirestore(onUpdate) {
-  const user = firebase.auth().currentUser;
-  if (!user) return () => {};
-  // リスト一覧のonSnapshot
-  return db.collection('lists')
-    .where('uid', '==', user.uid)
-    .orderBy('createdAt', 'asc')
-    .limit(20)
-    .onSnapshot(async snap => {
-      const lists = snap.docs.map(doc => ({ id: doc.id, ...doc.data(), tasks: [] }));
-      // 各リストのtasks数を即時反映
-      const tasksSnap = await db.collection('tasks').where('uid', '==', user.uid).get();
-      const allTasks = tasksSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      lists.forEach(list => {
-        list.tasks = allTasks.filter(t => t.listId === list.id);
-      });
-      onUpdate(lists);
-    });
+    const user = firebase.auth().currentUser;
+    if (!user) return () => { };
+    // リスト一覧のonSnapshot
+    return db.collection('lists')
+        .where('uid', '==', user.uid)
+        .orderBy('createdAt', 'asc')
+        .limit(20)
+        .onSnapshot(async snap => {
+            const lists = snap.docs.map(doc => ({ id: doc.id, ...doc.data(), tasks: [] }));
+            // 各リストのtasks数を即時反映
+            const tasksSnap = await db.collection('tasks').where('uid', '==', user.uid).get();
+            const allTasks = tasksSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            lists.forEach(list => {
+                list.tasks = allTasks.filter(t => t.listId === list.id);
+            });
+            onUpdate(lists);
+        });
 }
 
 // Add Task Button
 const addTaskBtn = document.getElementById('addTaskBtn');
 if (addTaskBtn) {
-  addTaskBtn.addEventListener('click', () => {
-    this.currentTask = null;
-    this.showMobileModal();
-  });
+    addTaskBtn.addEventListener('click', () => {
+        this.currentTask = null;
+        this.showMobileModal();
+    });
 }
