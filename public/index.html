@@ -394,8 +394,33 @@
                 navigator.serviceWorker.register('/service-worker.js')
                     .then(function (registration) {
                         console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                        // 既存のサービスワーカーを強制更新（本番環境で新しいコードを確実に配信）
-                        registration.update();
+                        
+                        // 新しいサービスワーカーが利用可能な場合、更新を検出
+                        registration.addEventListener('updatefound', function() {
+                            const newWorker = registration.installing;
+                            if (newWorker) {
+                                newWorker.addEventListener('statechange', function() {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        // 新しいバージョンがインストールされたが、まだ古いページが開いている
+                                        // 自動リロードして新しいバージョンを適用
+                                        console.log('New service worker available. Reloading...');
+                                        window.location.reload();
+                                    }
+                                });
+                            }
+                        });
+                        
+                        // 定期的に更新をチェック（1時間ごと）
+                        setInterval(function() {
+                            registration.update();
+                        }, 60 * 60 * 1000);
+                        
+                        // ページフォーカス時に更新をチェック
+                        document.addEventListener('visibilitychange', function() {
+                            if (!document.hidden) {
+                                registration.update();
+                            }
+                        });
                     })
                     .catch(function (error) {
                         console.log('ServiceWorker registration failed: ', error);

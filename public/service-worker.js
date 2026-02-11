@@ -48,8 +48,23 @@ self.addEventListener('fetch', event => {
     if (shouldSkipCache(event.request)) {
         return;
     }
+    // Stale-while-revalidate: キャッシュを即座に返しつつ、バックグラウンドで最新版を取得して更新
     event.respondWith(
-        caches.match(event.request)
-            .then(response => response || fetch(event.request))
+        caches.open(CACHE_NAME).then(cache => {
+            return cache.match(event.request).then(cachedResponse => {
+                const fetchPromise = fetch(event.request).then(networkResponse => {
+                    // ネットワークから取得できた場合、キャッシュを更新
+                    if (networkResponse.status === 200) {
+                        cache.put(event.request, networkResponse.clone());
+                    }
+                    return networkResponse;
+                }).catch(() => {
+                    // ネットワークエラー時はキャッシュを返す
+                    return cachedResponse;
+                });
+                // キャッシュがあれば即座に返し、なければネットワークを待つ
+                return cachedResponse || fetchPromise;
+            });
+        })
     );
 });
