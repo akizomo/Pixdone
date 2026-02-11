@@ -95,6 +95,16 @@ body {
     image-rendering: pixelated;
 }
 
+.sync-indicator {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-left: 8px;
+    white-space: nowrap;
+}
+.sync-indicator.sync-offline {
+    color: var(--warning-color);
+}
+
 .user-section {
     display: flex;
     align-items: center;

@@ -20,6 +20,17 @@ if (firebaseConfig && !firebase.apps.length) {
 window.db = firebase.firestore();
 const auth = firebase.auth();
 
+// Enable offline persistence so data is cached and writes sync when back online (cross-device sync)
+if (window.db && typeof window.db.enablePersistence === 'function') {
+  window.db.enablePersistence({ synchronizeTabs: true }).catch(function (err) {
+    if (err.code === 'failed-precondition' || err.code === 'unimplemented') {
+      console.warn('[PixDone] Firestore persistence unavailable (e.g. multiple tabs or private browsing). App will still work.');
+    } else {
+      console.warn('[PixDone] Firestore persistence error:', err);
+    }
+  });
+}
+
 // Firebase Authentication Handler
 class FirebaseAuthHandler {
     constructor() {

@@ -168,6 +168,9 @@ class PixDoneApp {
             this.validateUIComponents();
         }, 1000);
 
+        // Sync status indicator (Synced / Offline) when signed in
+        this.setupSyncIndicator();
+
         // 認証前でもデフォルトリストを初期化
         this.ensureDefaultList();
         this.loadTasks();
@@ -176,6 +179,32 @@ class PixDoneApp {
         this.renderTasks();
         this.updateCompletedCount();
         this.updateListTitle();
+    }
+
+    /**
+     * Setup sync/offline indicator. Sync across devices is done via Firestore when signed in.
+     */
+    setupSyncIndicator() {
+        const el = document.getElementById('syncIndicator');
+        if (!el) return;
+        const updateStatus = () => {
+            const online = typeof navigator !== 'undefined' && navigator.onLine;
+            el.textContent = online ? 'Synced' : 'Offline – changes will sync when back online';
+            el.classList.toggle('sync-offline', !online);
+        };
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+        this.updateSyncIndicatorVisibility();
+        updateStatus();
+    }
+
+    updateSyncIndicatorVisibility() {
+        const el = document.getElementById('syncIndicator');
+        if (!el) return;
+        el.style.display = this.isAuthenticated ? '' : 'none';
+        const online = typeof navigator !== 'undefined' && navigator.onLine;
+        el.textContent = online ? 'Synced' : 'Offline – changes will sync when back online';
+        el.classList.toggle('sync-offline', !online);
     }
 
     /**
@@ -1188,6 +1217,7 @@ class PixDoneApp {
         firebase.auth().onAuthStateChanged(async (user) => {
             this.user = user;
             this.isAuthenticated = !!user;
+            this.updateSyncIndicatorVisibility();
             if (user) {
                 this.showUserInfo();
                 // ログイン時：ローカルデータをクリアしてFirebaseのみ使用

@@ -1,8 +1,9 @@
-const CACHE_NAME = 'pixtask-v1';
+const CACHE_NAME = 'pixtask-v2';
 const urlsToCache = [
     '/',
     '/index.html',
     '/style.css',
+    '/modal-override.css',
     '/script.js',
     '/animations.js',
     '/messages.js',
@@ -12,20 +13,20 @@ const urlsToCache = [
     '/manifest.json'
 ];
 
+// Do not cache API or Firestore traffic (Firebase SDK handles its own caching)
+function shouldSkipCache(request) {
+    const url = new URL(request.url);
+    if (request.method !== 'GET') return true;
+    if (url.pathname.startsWith('/api/')) return true;
+    if (url.hostname.includes('googleapis.com') || url.hostname.includes('firebase') || url.hostname.includes('firestore')) return true;
+    return false;
+}
+
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => cache.addAll(urlsToCache))
-    );
-});
-
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // Return cached version or fetch from network
-                return response || fetch(event.request);
-            })
+            .then(() => self.skipWaiting())
     );
 });
 
@@ -39,6 +40,16 @@ self.addEventListener('activate', event => {
                     }
                 })
             );
-        })
+        }).then(() => self.clients.claim())
+    );
+});
+
+self.addEventListener('fetch', event => {
+    if (shouldSkipCache(event.request)) {
+        return;
+    }
+    event.respondWith(
+        caches.match(event.request)
+            .then(response => response || fetch(event.request))
     );
 });
