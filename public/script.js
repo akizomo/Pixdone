@@ -3169,6 +3169,50 @@ class PixDoneApp {
                     console.error('Error updating task completion in Firestore:', error);
                 }
             }
+
+            // Layout debug before celebration/effects
+            const debugFabEl = document.getElementById('mobileFab');
+            const debugAppContainer = document.querySelector('.app-container');
+            const debugFabRect = debugFabEl ? debugFabEl.getBoundingClientRect() : null;
+            const debugAppRect = debugAppContainer ? debugAppContainer.getBoundingClientRect() : null;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: 'log_' + Date.now(),
+                    runId: 'pre-fix',
+                    hypothesisId: 'H_fab_layout',
+                    location: 'script.js:3168',
+                    message: 'Task completion before celebration',
+                    data: {
+                        phase: 'before_celebration',
+                        taskId,
+                        isMobileFabPresent: !!debugFabEl,
+                        innerHeight: window.innerHeight,
+                        scrollY: window.scrollY,
+                        fabRect: debugFabRect ? {
+                            top: debugFabRect.top,
+                            left: debugFabRect.left,
+                            bottom: debugFabRect.bottom,
+                            right: debugFabRect.right,
+                            width: debugFabRect.width,
+                            height: debugFabRect.height
+                        } : null,
+                        appRect: debugAppRect ? {
+                            top: debugAppRect.top,
+                            left: debugAppRect.left,
+                            bottom: debugAppRect.bottom,
+                            right: debugAppRect.right,
+                            width: debugAppRect.width,
+                            height: debugAppRect.height
+                        } : null
+                    },
+                    timestamp: Date.now()
+                })
+            }).catch(() => { });
+            // #endregion
+
             // Show celebration effects once for all cases
             this.showCelebration(task);
 
@@ -3203,6 +3247,48 @@ class PixDoneApp {
                 // Then apply animation effects
                 window.taskAnimationEffects.animateTaskCompletion(taskElement);
 
+                const debugFabEl2 = document.getElementById('mobileFab');
+                const debugAppContainer2 = document.querySelector('.app-container');
+                const debugFabRect2 = debugFabEl2 ? debugFabEl2.getBoundingClientRect() : null;
+                const debugAppRect2 = debugAppContainer2 ? debugAppContainer2.getBoundingClientRect() : null;
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: 'log_' + Date.now(),
+                        runId: 'pre-fix',
+                        hypothesisId: 'H_fab_layout',
+                        location: 'script.js:3204',
+                        message: 'Task completion after animation start',
+                        data: {
+                            phase: 'after_animation_start',
+                            taskId,
+                            isMobileFabPresent: !!debugFabEl2,
+                            innerHeight: window.innerHeight,
+                            scrollY: window.scrollY,
+                            fabRect: debugFabRect2 ? {
+                                top: debugFabRect2.top,
+                                left: debugFabRect2.left,
+                                bottom: debugFabRect2.bottom,
+                                right: debugFabRect2.right,
+                                width: debugFabRect2.width,
+                                height: debugFabRect2.height
+                            } : null,
+                            appRect: debugAppRect2 ? {
+                                top: debugAppRect2.top,
+                                left: debugAppRect2.left,
+                                bottom: debugAppRect2.bottom,
+                                right: debugAppRect2.right,
+                                width: debugAppRect2.width,
+                                height: debugAppRect2.height
+                            } : null
+                        },
+                        timestamp: Date.now()
+                    })
+                }).catch(() => { });
+                // #endregion
+
                 // Special handling for Smash List - delay replenishment until after effects
                 if (currentList.id === 'smash-list' || currentList.name === '💥 Smash List') {
                     // Wait for the visual effects to complete before removing the task
@@ -3236,6 +3322,49 @@ class PixDoneApp {
                         this.renderTasks();
                         this.updateCompletedCount();
                         this.renderListTabs(); // Update tab counts
+
+                        const debugFabEl3 = document.getElementById('mobileFab');
+                        const debugAppContainer3 = document.querySelector('.app-container');
+                        const debugFabRect3 = debugFabEl3 ? debugFabEl3.getBoundingClientRect() : null;
+                        const debugAppRect3 = debugAppContainer3 ? debugAppContainer3.getBoundingClientRect() : null;
+                        // #region agent log
+                        fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                id: 'log_' + Date.now(),
+                                runId: 'pre-fix',
+                                hypothesisId: 'H_fab_layout',
+                                location: 'script.js:3235',
+                                message: 'Task completion after re-render',
+                                data: {
+                                    phase: 'after_rerender',
+                                    taskId,
+                                    isMobileFabPresent: !!debugFabEl3,
+                                    innerHeight: window.innerHeight,
+                                    scrollY: window.scrollY,
+                                    fabRect: debugFabRect3 ? {
+                                        top: debugFabRect3.top,
+                                        left: debugFabRect3.left,
+                                        bottom: debugFabRect3.bottom,
+                                        right: debugFabRect3.right,
+                                        width: debugFabRect3.width,
+                                        height: debugFabRect3.height
+                                    } : null,
+                                    appRect: debugAppRect3 ? {
+                                        top: debugAppRect3.top,
+                                        left: debugAppRect3.left,
+                                        bottom: debugAppRect3.bottom,
+                                        right: debugAppRect3.right,
+                                        width: debugAppRect3.width,
+                                        height: debugAppRect3.height
+                                    } : null
+                                },
+                                timestamp: Date.now()
+                            })
+                        }).catch(() => { });
+                        // #endregion
+
                         this.processingTaskId = null;
                     }, 500);
                 }
@@ -3747,6 +3876,35 @@ class PixDoneApp {
                 !e.target.closest('a.task-action-link')) {
                 const taskItem = e.target.closest('.task-item');
                 const taskId = taskItem.dataset.taskId;
+
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: 'log_' + Date.now(),
+                        runId: 'pre-fix',
+                        hypothesisId: 'H_link_tap',
+                        location: 'script.js:3748',
+                        message: 'Task item click edit triggered',
+                        data: {
+                            eventType: e.type,
+                            taskId,
+                            targetTag: e.target && e.target.tagName,
+                            targetClasses: e.target && e.target.className,
+                            isTaskItem: !!e.target.closest('.task-item'),
+                            isTaskCheckbox: !!e.target.closest('.task-checkbox'),
+                            isTaskActions: !!e.target.closest('.task-actions'),
+                            isTaskActionBtn: !!e.target.closest('.task-action-btn'),
+                            isAnyLink: !!e.target.closest('a'),
+                            isTaskLink: !!e.target.closest('a.task-link'),
+                            isTaskActionLink: !!e.target.closest('a.task-action-link')
+                        },
+                        timestamp: Date.now()
+                    })
+                }).catch(() => { });
+                // #endregion
+
                 console.log('Task item clicked for editing:', taskId);
                 if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
                     this.comicEffects.playSound('taskEdit');
@@ -3797,6 +3955,34 @@ class PixDoneApp {
 
                 const taskItem = e.target.closest('.task-item');
                 const taskId = taskItem.dataset.taskId;
+
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/b664e9e2-880c-42ae-a5b0-70db45902353', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: 'log_' + Date.now(),
+                        runId: 'pre-fix',
+                        hypothesisId: 'H_link_tap',
+                        location: 'script.js:3798',
+                        message: 'Task item touch edit triggered',
+                        data: {
+                            eventType: e.type,
+                            taskId,
+                            targetTag: e.target && e.target.tagName,
+                            targetClasses: e.target && e.target.className,
+                            isTaskItem: !!e.target.closest('.task-item'),
+                            isTaskCheckbox: !!e.target.closest('.task-checkbox'),
+                            isTaskActions: !!e.target.closest('.task-actions'),
+                            isTaskActionBtn: !!e.target.closest('.task-action-btn'),
+                            isAnyLink: !!e.target.closest('a'),
+                            isTaskLink: !!e.target.closest('a.task-link'),
+                            isTaskActionLink: !!e.target.closest('a.task-action-link')
+                        },
+                        timestamp: Date.now()
+                    })
+                }).catch(() => { });
+                // #endregion
 
                 if (touchStartData) {
                     const touch = e.changedTouches[0];
