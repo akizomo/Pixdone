@@ -3556,6 +3556,15 @@ class PixDoneApp {
         if (this.setupTaskDragListeners) {
             this.setupTaskDragListeners();
         }
+
+        // Setup mobile FAB (only once)
+        if (!this.mobileFabListenerSetup) {
+            this.setupMobileFabListener();
+            this.mobileFabListenerSetup = true;
+        }
+
+        // Render mobile FAB state
+        this.renderMobileFab();
     }
 
     renderTask(task) {
@@ -5773,6 +5782,100 @@ class PixDoneApp {
             console.error('Auth error:', error);
             this.comicEffects.playSound('taskCancel');
             alert('Authentication error occurred');
+        }
+    }
+
+    // Mobile FAB methods
+    setupMobileFabListener() {
+        const fab = document.getElementById('mobileFab');
+        if (!fab) return;
+
+        // Clone to replace existing listeners to ensure fresh state
+        const newFab = fab.cloneNode(true);
+        fab.parentNode.replaceChild(newFab, fab);
+
+        newFab.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            const currentList = this.getCurrentList();
+            const isSmashList = currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List');
+
+            if (isSmashList) {
+                // Smash mode: complete the first incomplete task
+                if (currentList && currentList.tasks) {
+                    const firstIncomplete = currentList.tasks.find(t => !t.completed);
+                    if (firstIncomplete) {
+                        this.toggleTaskCompletion(firstIncomplete.id);
+                        // Optional: Add specific smash effect/sound here if needed
+                    } else {
+                        // If no tasks, maybe shake or show "No tasks" 
+                        this.comicEffects.playSound('taskCancel');
+                    }
+                }
+            } else {
+                // Add task mode
+                this.showTaskInput();
+                this.comicEffects.playSound('taskAdd');
+            }
+        });
+    }
+
+    renderMobileFab() {
+        const fab = document.getElementById('mobileFab');
+        if (!fab) return;
+
+        const currentList = this.getCurrentList();
+        const isSmashList = currentList && (currentList.id === 'smash-list' || (currentList.name && currentList.name.includes('Smash List')));
+
+        // Remove inline display none if present (initial state)
+        if (fab.style.display === 'none') {
+            fab.style.display = 'flex';
+        }
+
+        // Reset content
+        fab.innerHTML = '';
+        fab.classList.remove('smash-mode');
+
+        if (isSmashList) {
+            fab.classList.add('smash-mode');
+            // Use emoji matching the list title
+            fab.innerHTML = '<span class="emoji-icon">💥</span>';
+            fab.setAttribute('title', 'Smash Task');
+            fab.style.display = 'flex';
+        } else {
+            // Use icon for regular Add Task
+            fab.innerHTML = '<i class="fas fa-plus"></i>';
+            fab.setAttribute('title', 'Add Task');
+            fab.style.display = 'flex';
+        }
+    }
+
+    renderMobileFab_OLD() {
+        const fab = document.getElementById('mobileFab');
+        if (!fab) return;
+
+        const currentList = this.getCurrentList();
+        const isSmashList = currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List');
+
+        // Remove inline display none if present (initial state)
+        if (fab.style.display === 'none') {
+            fab.style.display = 'flex';
+        }
+
+        const icon = fab.querySelector('i');
+
+        // Reset classes
+        fab.classList.remove('smash-mode');
+
+        if (isSmashList) {
+            fab.classList.add('smash-mode');
+            if (icon) icon.className = 'fas fa-gavel'; // Hammer icon for Smash
+            fab.setAttribute('title', 'Smash Task');
+            fab.style.display = 'flex';
+        } else {
+            if (icon) icon.className = 'fas fa-plus';
+            fab.setAttribute('title', 'Add Task');
+            fab.style.display = 'flex';
         }
     }
 

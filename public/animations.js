@@ -504,8 +504,8 @@ class ComicEffectsManager {
             comboCount >= 10
                 ? "#ff4444"
                 : comboCount >= 5
-                  ? "#ff6b6b"
-                  : "#ff6b6b";
+                    ? "#ff6b6b"
+                    : "#ff6b6b";
         comboText.style.textShadow = "3px 3px 0px #000, -3px -3px 0px #fff";
         comboText.style.fontFamily = "VT323, monospace";
         comboText.style.zIndex = "99999";
@@ -529,17 +529,23 @@ class ComicEffectsManager {
         if (comboCount >= 10) {
             // 10コンボ以上：メガエフェクト
             this.createMegaComboEffect();
-            document.body.style.animation = "screenFlash 0.3s ease-out";
-            setTimeout(() => {
-                document.body.style.animation = "";
-            }, 300);
+            const appContainer = document.querySelector('.app-container');
+            if (appContainer) {
+                appContainer.style.animation = "screenFlash 0.3s ease-out";
+                setTimeout(() => {
+                    appContainer.style.animation = "";
+                }, 300);
+            }
         } else if (comboCount >= 5) {
             // 5コンボ以上：スーパーエフェクト
             this.createSuperComboEffect();
-            document.body.style.animation = "screenFlash 0.3s ease-out";
-            setTimeout(() => {
-                document.body.style.animation = "";
-            }, 300);
+            const appContainer = document.querySelector('.app-container');
+            if (appContainer) {
+                appContainer.style.animation = "screenFlash 0.3s ease-out";
+                setTimeout(() => {
+                    appContainer.style.animation = "";
+                }, 300);
+            }
         }
 
         setTimeout(() => {
