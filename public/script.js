@@ -184,6 +184,28 @@ class PixDoneApp {
         if (!this.keyboardShortcutsSetup) {
             this.setupKeyboardShortcuts();
         }
+
+        // 初回読み込み時、未ログインの場合は Tutorial を確実に選択（Firebase Auth 状態確定前でも動作するように）
+        // 少し遅延させて、Firebase Auth の状態が確定した後にも再確認
+        setTimeout(() => {
+            if (!this.isAuthenticated && !firebase.auth().currentUser) {
+                const defaultList = this.lists.find(l => l.id === 'default');
+                if (defaultList && defaultList.name !== 'Tutorial') {
+                    defaultList.name = 'Tutorial';
+                }
+                const defaultIdx = this.lists.findIndex(l => l.id === 'default');
+                if (defaultIdx > 0) {
+                    const [def] = this.lists.splice(defaultIdx, 1);
+                    this.lists.unshift(def);
+                }
+                if (this.currentListId !== 'default') {
+                    this.currentListId = 'default';
+                }
+                this.renderListTabs();
+                this.renderTasks();
+                this.updateListTitle();
+            }
+        }, 100);
     }
 
     /**
@@ -1239,6 +1261,19 @@ class PixDoneApp {
                 this.loadTasks();
                 this.loadLists();
                 this.ensureDefaultList();
+                // 未ログイン時は必ず Tutorial（id: default）を選択
+                const defaultList = this.lists.find(l => l.id === 'default');
+                if (defaultList) {
+                    if (defaultList.name !== 'Tutorial') {
+                        defaultList.name = 'Tutorial';
+                    }
+                    const defaultIdx = this.lists.findIndex(l => l.id === 'default');
+                    if (defaultIdx > 0) {
+                        const [def] = this.lists.splice(defaultIdx, 1);
+                        this.lists.unshift(def);
+                    }
+                    this.currentListId = 'default';
+                }
                 this.renderListTabs();
                 this.renderTasks();
                 this.updateCompletedCount();
@@ -5511,7 +5546,9 @@ class PixDoneApp {
             // Ensure current list ID is valid
             const currentListExists = this.lists.some(list => list.id === this.currentListId);
             if (!currentListExists && this.lists.length > 0) {
-                this.currentListId = this.lists[0].id;
+                // 未ログイン時は必ず default を優先、それ以外は先頭を選択
+                const defaultList = this.lists.find(l => l.id === 'default');
+                this.currentListId = defaultList ? defaultList.id : this.lists[0].id;
                 this.saveLists();
             }
 
