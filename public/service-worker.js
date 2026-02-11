@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pixtask-v2';
+const CACHE_NAME = 'pixtask-v3';
 const urlsToCache = [
     '/',
     '/index.html',

@@ -387,6 +387,8 @@
                 navigator.serviceWorker.register('/service-worker.js')
                     .then(function (registration) {
                         console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        // 既存のサービスワーカーを強制更新（本番環境で新しいコードを確実に配信）
+                        registration.update();
                     })
                     .catch(function (error) {
                         console.log('ServiceWorker registration failed: ', error);
