@@ -1,0 +1,224 @@
+/**
+ * Idle Rare Effect Styles
+ * 8-bit penguin animation with pixel-art feel
+ */
+
+/* Overlay container - full screen, non-interactive */
+.idle-rare-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9998;
+    /* Ensure it's above most content but below modals */
+}
+
+/* Hidden state */
+.idle-rare-overlay.idle-hidden {
+    display: none;
+}
+
+/* Penguin element */
+.idle-rare-penguin {
+    position: fixed;
+    bottom: calc(24px + env(safe-area-inset-bottom)); /* Match FAB bottom position */
+    left: -80px; /* Start off-screen left */
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    object-position: center;
+    opacity: 0;
+    transform: translateZ(0);
+    /* Will be animated to slide in */
+    /* SVG files work better without pixelated rendering */
+}
+
+/* Penguin slide-in animation */
+.idle-rare-penguin.idle-penguin-in {
+    animation: penguinSlideIn 0.8s steps(8, end) forwards;
+    /* 8 steps for 8-bit feel */
+}
+
+@keyframes penguinSlideIn {
+    0% {
+        left: -80px;
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        left: 24px;
+        opacity: 1;
+    }
+}
+
+/* Penguin slide-out animation (reverse direction, flipped) */
+.idle-rare-penguin.idle-penguin-out {
+    animation: penguinSlideOut 0.8s steps(8, end) forwards;
+    /* 8 steps for 8-bit feel */
+    transform: scaleX(-1); /* Flip penguin to face left */
+}
+
+@keyframes penguinSlideOut {
+    0% {
+        left: 24px;
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        left: -80px;
+        opacity: 0;
+    }
+}
+
+/* Speech bubble element */
+.idle-rare-bubble {
+    position: fixed;
+    /* Position above penguin (penguin is 64px tall, add 16px gap) */
+    bottom: calc(24px + env(safe-area-inset-bottom) + 64px + 16px);
+    left: 20px;
+    min-width: 140px;
+    max-width: 200px;
+    padding: 8px 12px;
+    background-color: white;
+    border: 3px solid #000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+    font-family: 'VT323', 'Courier New', monospace;
+    font-size: 18px;
+    color: #000;
+    text-align: center;
+    opacity: 0;
+    transform: translateZ(0);
+    image-rendering: pixelated;
+    /* 8-bit style */
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+/* Speech bubble tail/pointer */
+.idle-rare-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 12px solid #000;
+    image-rendering: pixelated;
+}
+
+.idle-rare-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -9px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 12px solid white;
+    image-rendering: pixelated;
+}
+
+/* Bubble fade-in animation */
+.idle-rare-bubble.idle-bubble-in {
+    animation: bubbleFadeIn 0.4s steps(4, end) forwards;
+    /* 4 steps for 8-bit feel */
+}
+
+@keyframes bubbleFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Fade-out animation for speech bubble only */
+.idle-rare-bubble.idle-bubble-out {
+    animation: bubbleFadeOut 0.3s steps(3, end) forwards;
+    /* 3 steps for 8-bit feel */
+}
+
+@keyframes bubbleFadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .idle-rare-penguin {
+        width: 56px;
+        height: 56px;
+        /* Match FAB bottom position exactly */
+        bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+    
+    .idle-rare-penguin.idle-penguin-in {
+        animation: penguinSlideInMobile 0.8s steps(8, end) forwards;
+    }
+    
+    @keyframes penguinSlideInMobile {
+        0% {
+            left: -70px;
+            opacity: 0;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            left: 16px;
+            opacity: 1;
+        }
+    }
+    
+    /* Penguin slide-out animation for mobile */
+    .idle-rare-penguin.idle-penguin-out {
+        animation: penguinSlideOutMobile 0.8s steps(8, end) forwards;
+        transform: scaleX(-1); /* Flip penguin to face left */
+    }
+    
+    @keyframes penguinSlideOutMobile {
+        0% {
+            left: 16px;
+            opacity: 1;
+        }
+        50% {
+            opacity: 1;
+        }
+        100% {
+            left: -70px;
+            opacity: 0;
+        }
+    }
+    
+    .idle-rare-bubble {
+        /* Position above penguin (penguin is 56px tall on mobile, add 16px gap) */
+        bottom: calc(24px + env(safe-area-inset-bottom) + 56px + 16px);
+        left: 12px;
+        min-width: 120px;
+        max-width: 180px;
+        font-size: 16px;
+        padding: 6px 10px;
+    }
+    
+    .idle-rare-bubble::after,
+    .idle-rare-bubble::before {
+        left: 16px;
+    }
+}

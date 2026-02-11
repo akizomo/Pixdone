@@ -6153,6 +6153,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof TaskAnimationEffects !== 'undefined') {
         window.taskAnimationEffects = new TaskAnimationEffects();
     }
+    
+    // Idle rare effect is initialized in idleRareEffect.js
 });
 
 // サーバーにIDトークンを送ってセッション確立
