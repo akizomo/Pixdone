@@ -2071,6 +2071,10 @@ class PixDoneApp {
             this.comicEffects.playSound('taskAdd');
             this.showEmailAuthModal();
         });
+        document.getElementById('tutorialSignUpBtn')?.addEventListener('click', () => {
+            this.comicEffects.playSound('taskAdd');
+            this.showEmailAuthModal();
+        });
 
         // User menu and account management
         document.getElementById('userAvatarBtn')?.addEventListener('click', (e) => {
@@ -3530,6 +3534,7 @@ class PixDoneApp {
         const completedTasks = document.getElementById('completedTasks');
         const emptyState = document.getElementById('emptyState');
         const gameStartEmpty = document.getElementById('gameStartEmpty');
+        const tutorialCompleteCta = document.getElementById('tutorialCompleteCta');
 
         // Get tasks from current list
         const currentList = this.getCurrentList();
@@ -3546,9 +3551,10 @@ class PixDoneApp {
 
         // Special handling for Smash List
         if (currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List')) {
-            // Hide both empty states for Smash List
+            // Hide both empty states and CTA for Smash List
             if (emptyState) emptyState.style.display = 'none';
             if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+            if (tutorialCompleteCta) tutorialCompleteCta.style.display = 'none';
 
             // Hide add task button for Smash List
             const addTaskButton = document.getElementById('addTaskBtn');
@@ -3584,18 +3590,25 @@ class PixDoneApp {
 
             if (activeTasks.length === 0) {
                 taskList.innerHTML = '';
-                if (hasNoTasks) {
-                    // Show game start empty state when no tasks exist at all
+                const isTutorialList = currentList && currentList.id === 'default' && currentList.name === 'Tutorial';
+                const allTutorialCompleted = !this.isAuthenticated && isTutorialList && completedTasksList.length > 0;
+                if (allTutorialCompleted) {
+                    if (emptyState) emptyState.style.display = 'none';
+                    if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+                    if (tutorialCompleteCta) tutorialCompleteCta.style.display = 'block';
+                } else if (hasNoTasks) {
                     if (emptyState) emptyState.style.display = 'none';
                     if (gameStartEmpty) gameStartEmpty.style.display = 'block';
+                    if (tutorialCompleteCta) tutorialCompleteCta.style.display = 'none';
                 } else {
-                    // Show regular empty state when only active tasks are empty
                     if (emptyState) emptyState.style.display = 'block';
                     if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+                    if (tutorialCompleteCta) tutorialCompleteCta.style.display = 'none';
                 }
             } else {
                 if (emptyState) emptyState.style.display = 'none';
                 if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+                if (tutorialCompleteCta) tutorialCompleteCta.style.display = 'none';
                 taskList.innerHTML = activeTasks.map(task => this.renderTask(task)).join('');
             }
 
@@ -3725,11 +3738,13 @@ class PixDoneApp {
                 return;
             }
 
-            // Task item clicks (for editing)
+            // Task item clicks (for editing) — 添付リンク押下時は編集モーダルを開かない
             if (e.target.closest('.task-item') &&
                 !e.target.closest('.task-checkbox') &&
                 !e.target.closest('.task-actions') &&
-                !e.target.closest('.task-action-btn')) {
+                !e.target.closest('.task-action-btn') &&
+                !e.target.closest('a.task-link') &&
+                !e.target.closest('a.task-action-link')) {
                 const taskItem = e.target.closest('.task-item');
                 const taskId = taskItem.dataset.taskId;
                 console.log('Task item clicked for editing:', taskId);
@@ -3772,11 +3787,13 @@ class PixDoneApp {
                 return;
             }
 
-            // Handle task item touches for editing
+            // Handle task item touches for editing — 添付リンク押下時は編集モーダルを開かない
             if (e.target.closest('.task-item') &&
                 !e.target.closest('.task-checkbox') &&
                 !e.target.closest('.task-actions') &&
-                !e.target.closest('.task-action-btn')) {
+                !e.target.closest('.task-action-btn') &&
+                !e.target.closest('a.task-link') &&
+                !e.target.closest('a.task-action-link')) {
 
                 const taskItem = e.target.closest('.task-item');
                 const taskId = taskItem.dataset.taskId;
