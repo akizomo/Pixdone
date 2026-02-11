@@ -179,6 +179,11 @@ class PixDoneApp {
         this.renderTasks();
         this.updateCompletedCount();
         this.updateListTitle();
+
+        // Shift+smash を確実に有効にするため、キーボードショートカットをここでも登録
+        if (!this.keyboardShortcutsSetup) {
+            this.setupKeyboardShortcuts();
+        }
     }
 
     /**
@@ -3173,17 +3178,15 @@ class PixDoneApp {
                         this.processingTaskId = null;
                     }, 1000); // Wait longer for effects to be visible
                 } else if (taskId.startsWith('tutorial-')) {
-                    // Special handling for tutorial tasks - remove them after completion
+                    // Tutorial: 完了タスクはリストに残し Completed に表示する
+                    this.focusNextTaskCheckbox(taskId);
                     setTimeout(() => {
-                        // Remove completed tutorial task from list
-                        currentList.tasks = currentList.tasks.filter(t => t.id !== taskId);
-                        // Force re-render to show remaining tasks
+                        this.saveTasks();
                         this.renderTasks();
                         this.updateCompletedCount();
                         this.renderListTabs();
                         this.processingTaskId = null;
-                        console.log('Tutorial task removed after completion:', taskId);
-                    }, 1000); // Wait for effects to be visible
+                    }, 500);
                 } else {
                     // 連続完了のために次のタスクのチェックボックスにフォーカス移動
                     this.focusNextTaskCheckbox(taskId);
@@ -3221,22 +3224,19 @@ class PixDoneApp {
                         this.processingTaskId = null;
                     }, 800); // Wait for basic effects to be visible
                 } else if (taskId.startsWith('tutorial-')) {
-                    // Special handling for tutorial tasks - remove them after completion (fallback)
+                    // Tutorial: 完了タスクはリストに残し Completed に表示する (fallback)
                     if (taskElement) {
                         taskElement.style.transform = 'scale(1.2)';
                         taskElement.style.backgroundColor = '#4CAF50';
                         taskElement.style.transition = 'all 0.3s ease';
                         taskElement.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
                     }
-
                     setTimeout(() => {
-                        // Remove completed tutorial task from list
-                        currentList.tasks = currentList.tasks.filter(t => t.id !== taskId);
+                        this.saveTasks();
                         this.renderTasks();
                         this.updateCompletedCount();
                         this.renderListTabs();
                         this.processingTaskId = null;
-                        console.log('Tutorial task removed after completion (fallback):', taskId);
                     }, 800);
                 } else {
                     // Don't save Smash List tasks - they're temporary
@@ -3530,7 +3530,7 @@ class PixDoneApp {
             taskList.innerHTML = `
                 <div class="smash-list-message">
                     <p class="smash-list-subtitle">This list exists only to let you tap and smash tasks for pure satisfaction.<br>No saving, no planning—just smashing.</p>
-                    <p class="desktop-only smash-list-hint">Press Shift to smash a task</p>
+                    <p class="desktop-only smash-list-hint">Press Space to smash a task</p>
                 </div>
                 ${updatedActiveTasks.map(task => this.renderSmashTask(task)).join('')}
             `;
@@ -3779,32 +3779,13 @@ class PixDoneApp {
             return;
         }
         this.keyboardShortcutsSetup = true;
+        this.lastShiftSmashTime = this.lastShiftSmashTime ?? 0;
 
-        // Initialize debounce timestamp
-        this.lastShiftSmashTime = 0;
-
-        // Check if device is desktop (has hover and fine pointer)
-        const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-        if (!isDesktop) {
-            console.log('Not a desktop device, skipping keyboard shortcuts');
-            return;
-        }
-
-        // Add keydown listener for Shift key
-        document.addEventListener('keydown', (e) => {
-            // Only respond to Shift key without modifiers
-            if (e.key !== 'Shift' || e.ctrlKey || e.altKey || e.metaKey) {
-                return;
-            }
-
-            // Check if currently on Smash List
+        const trySmashFirstTask = (e) => {
             const currentList = this.getCurrentList();
             if (!currentList || (currentList.id !== 'smash-list' && currentList.name !== '💥 Smash List')) {
                 return;
             }
-
-            // Ignore if focus is in editable element
             const activeElement = document.activeElement;
             if (activeElement && (
                 activeElement.tagName === 'INPUT' ||
@@ -3815,30 +3796,38 @@ class PixDoneApp {
             )) {
                 return;
             }
-
-            // Debounce: prevent rapid repeat triggers (300ms cooldown)
             const now = Date.now();
-            if (now - this.lastShiftSmashTime < 300) {
+            if (now - (this.lastShiftSmashTime ?? 0) < 300) {
                 return;
             }
             this.lastShiftSmashTime = now;
-
-            // Get first active Smash List task
             const activeTasks = currentList.tasks.filter(t => !t.completed);
             if (activeTasks.length === 0) {
                 return;
             }
-
             const firstTask = activeTasks[0];
-            const taskElement = document.querySelector(`.task-item[data-task-id="${firstTask.id}"]`);
-
-            if (taskElement) {
-                console.log('Shift key pressed - smashing task:', firstTask.id);
-                // Trigger task completion with existing animation
+            let taskElement = document.querySelector(`.task-item[data-task-id="${firstTask.id}"]`);
+            if (!taskElement) {
+                const taskListEl = document.getElementById('taskList');
+                if (taskListEl) {
+                    taskElement = taskListEl.querySelector('.task-item:not(.completed)');
+                }
+            }
+            if (taskElement && firstTask) {
+                e.preventDefault();
+                e.stopPropagation();
                 this.toggleTaskCompletion(firstTask.id, taskElement);
             }
-        });
+        };
 
+        // Space: Smash List で先頭タスクを smash
+        const handleKey = (e) => {
+            const isSpace = (e.key === ' ' || e.code === 'Space' || e.keyCode === 32) && !e.ctrlKey && !e.altKey && !e.metaKey;
+            if (isSpace) {
+                trySmashFirstTask(e);
+            }
+        };
+        window.addEventListener('keydown', handleKey, true);
         console.log('Keyboard shortcuts set up successfully');
     }
 
@@ -5282,21 +5271,34 @@ class PixDoneApp {
     }
 
     ensureDefaultList() {
-        // デフォルトリストが存在しない場合は作成
-        if (!this.lists.some(l => l.name === 'My Tasks')) {
-            const defaultList = {
+        // デフォルトリストは id: 'default' で1つだけ。未ログイン時は「Tutorial」、ログイン時は「My Tasks」
+        const hasDefaultById = this.lists.some(l => l.id === 'default');
+        if (!hasDefaultById) {
+            const name = this.isAuthenticated ? 'My Tasks' : 'Tutorial';
+            const tasks = !this.isAuthenticated ? this.tutorialTasks.map(t => ({ ...t, listId: 'default' })) : [];
+            this.lists.unshift({
                 id: 'default',
-                name: 'My Tasks',
-                tasks: []
-            };
-            this.lists.unshift(defaultList);
+                name,
+                tasks,
+                createdAt: new Date().toISOString()
+            });
             this.currentListId = 'default';
             this.saveLists();
+        } else {
+            // 既に default がある場合は名前だけ認証状態に合わせる（二重に My Tasks を追加しない）
+            const defaultList = this.lists.find(l => l.id === 'default');
+            if (defaultList) {
+                const targetName = this.isAuthenticated ? 'My Tasks' : 'Tutorial';
+                if (defaultList.name !== targetName) {
+                    defaultList.name = targetName;
+                    this.saveLists();
+                }
+            }
         }
 
-        // currentListIdが未設定の場合はデフォルトリストを選択
+        // currentListIdが未設定または無効な場合はデフォルトリストを選択
         if (!this.currentListId || !this.lists.some(l => l.id === this.currentListId)) {
-            const defaultList = this.lists.find(l => l.name === 'My Tasks');
+            const defaultList = this.lists.find(l => l.id === 'default');
             this.currentListId = defaultList ? defaultList.id : this.lists[0]?.id;
         }
     }
@@ -5450,6 +5452,24 @@ class PixDoneApp {
                         });
                     }
                 }
+            }
+
+            // Ensure only one default list (id: 'default'); 重複を解消
+            const defaultLists = this.lists.filter(list => list.id === 'default');
+            if (defaultLists.length > 1) {
+                const tutorialOne = defaultLists.find(l => l.name === 'Tutorial') || defaultLists[0];
+                const mergedTasks = defaultLists.reduce((acc, l) => acc.concat(l.tasks || []), []);
+                const seen = new Set();
+                tutorialOne.tasks = mergedTasks.filter(t => {
+                    const key = t.id;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+                this.lists = this.lists.filter(list => list.id !== 'default');
+                this.lists.unshift(tutorialOne);
+                this.currentListId = 'default';
+                this.saveLists();
             }
 
             // Ensure default list has correct name based on auth status
