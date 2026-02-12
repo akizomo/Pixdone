@@ -22,7 +22,7 @@ const SHOW_MS = 5000; // 5 seconds
 const PROBABILITY = 1.0; // 1.0 = always show (for testing), change to 0.2 for 20% chance
 // Use relative path to work with both dev (public/) and production (/) environments
 const PENGUIN_ASSET_PATH = 'assets/penguin.svg'; // SVG format penguin asset (relative path)
-const SPEECH_TEXT = 'Are you frozen?'; // Change this text to customize the message
+const SPEECH_TEXT = () => (typeof window !== 'undefined' && typeof window.t === 'function' ? window.t('areYouFrozen') : 'Are you frozen?');
 
 class IdleRareEffect {
     constructor() {
@@ -31,6 +31,7 @@ class IdleRareEffect {
         this.isShowing = false;
         this.isPaused = false;
         this.lastTriggerTime = 0;
+        this.lastActivityTime = 0; // track last user activity for idle logic
         this.overlay = null;
         this.penguin = null;
         this.bubble = null;
@@ -62,6 +63,8 @@ class IdleRareEffect {
         // Setup visibility change handler
         document.addEventListener('visibilitychange', this.handleVisibilityChange);
         
+        // Treat init as "last activity" so effect only shows after IDLE_MS of no interaction
+        this.lastActivityTime = Date.now();
         // Start idle timer
         this.startIdleTimer();
         
@@ -171,7 +174,7 @@ class IdleRareEffect {
         this.bubble = document.createElement('div');
         this.bubble.id = 'idle-rare-bubble';
         this.bubble.className = 'idle-rare-bubble';
-        this.bubble.textContent = SPEECH_TEXT;
+        this.bubble.textContent = typeof SPEECH_TEXT === 'function' ? SPEECH_TEXT() : SPEECH_TEXT;
         
         // Append elements
         this.overlay.appendChild(this.penguin);
@@ -208,12 +211,13 @@ class IdleRareEffect {
 
     /**
      * Setup event listeners for idle detection
+     * Use capture phase so activity is detected even if other code calls stopPropagation
      */
     setupIdleDetection() {
-        const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+        const events = ['mousemove', 'mousedown', 'mouseup', 'keydown', 'keyup', 'touchstart', 'touchmove', 'touchend', 'scroll', 'click', 'input'];
         
         events.forEach(eventType => {
-            document.addEventListener(eventType, this.resetIdleTimer, { passive: true });
+            document.addEventListener(eventType, this.resetIdleTimer, { passive: true, capture: true });
         });
         
         console.log('[IdleRareEffect] Idle detection listeners setup');
@@ -223,10 +227,14 @@ class IdleRareEffect {
      * Reset the idle timer when user interacts
      */
     resetIdleTimer() {
-        if (this.isPaused || this.isShowing) {
+        this.lastActivityTime = Date.now();
+        if (this.isPaused) {
             return;
         }
-        
+        if (this.isShowing) {
+            this.clearIdleTimer();
+            return;
+        }
         this.clearIdleTimer();
         this.startIdleTimer();
     }
@@ -260,6 +268,7 @@ class IdleRareEffect {
 
     /**
      * Check if effect should be shown and trigger it
+     * Only show when user has been idle for at least IDLE_MS since last activity
      */
     checkAndShowEffect() {
         // Don't show if already showing
@@ -267,25 +276,33 @@ class IdleRareEffect {
             return;
         }
         
+        const now = Date.now();
+        const idleDuration = now - this.lastActivityTime;
+        if (idleDuration < IDLE_MS) {
+            const remaining = IDLE_MS - idleDuration;
+            this.idleTimer = setTimeout(() => this.checkAndShowEffect(), remaining);
+            return;
+        }
+        
         // Check cooldown
-        const timeSinceLastTrigger = Date.now() - this.lastTriggerTime;
+        const timeSinceLastTrigger = now - this.lastTriggerTime;
         if (timeSinceLastTrigger < COOLDOWN_MS) {
             console.log(`[IdleRareEffect] Cooldown active (${COOLDOWN_MS - timeSinceLastTrigger}ms remaining)`);
-            this.startIdleTimer(); // Restart timer
+            this.startIdleTimer();
             return;
         }
         
         // Check probability gate
         if (Math.random() > PROBABILITY) {
             console.log('[IdleRareEffect] Probability gate blocked effect');
-            this.startIdleTimer(); // Restart timer
+            this.startIdleTimer();
             return;
         }
         
         // Check if tab is visible
         if (document.hidden) {
             console.log('[IdleRareEffect] Tab hidden, skipping effect');
-            this.startIdleTimer(); // Restart timer
+            this.startIdleTimer();
             return;
         }
         
@@ -444,9 +461,10 @@ class IdleRareEffect {
                 this.hideEffect();
             }
         } else {
-            // Tab visible - resume
+            // Tab visible - resume; treat as fresh so idle is measured from now
             console.log('[IdleRareEffect] Tab visible, resuming');
             this.isPaused = false;
+            this.lastActivityTime = Date.now();
             this.startIdleTimer();
         }
     }

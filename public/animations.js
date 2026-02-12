@@ -27,8 +27,25 @@ class ComicEffectsManager {
         this.rainbowSmashChance = 0.03; // 3% chance
         this.audioContext = null;
         this.audioContextReady = false;
+        try {
+            const stored = localStorage.getItem("pixdone-sound-enabled");
+            this.soundEnabled = stored === null ? true : stored === "true";
+        } catch (e) {
+            this.soundEnabled = true;
+        }
         this.initAudioContext();
         this.setupStyles();
+    }
+
+    setSoundEnabled(enabled) {
+        this.soundEnabled = !!enabled;
+        try {
+            localStorage.setItem("pixdone-sound-enabled", String(this.soundEnabled));
+        } catch (e) {}
+    }
+
+    getSoundEnabled() {
+        return this.soundEnabled;
     }
 
     initAudioContext() {
@@ -1779,6 +1796,7 @@ class ComicEffectsManager {
     }
 
     playSound(type) {
+        if (this.soundEnabled === false) return;
         // Create simple sound effects using Web Audio API
         try {
             if (!this.audioContextReady || !this.audioContext) {
@@ -1988,6 +2006,26 @@ class ComicEffectsManager {
 
                     oscillator.start(audioContext.currentTime);
                     oscillator.stop(audioContext.currentTime + 0.3);
+                    return;
+                case "buttonClick":
+                    // Short click for buttons (Today, Tomorrow, Repeat, etc.)
+                    oscillator.frequency.setValueAtTime(
+                        600,
+                        audioContext.currentTime,
+                    );
+                    oscillator.type = "square";
+
+                    gainNode.gain.setValueAtTime(
+                        0.05,
+                        audioContext.currentTime,
+                    );
+                    gainNode.gain.exponentialRampToValueAtTime(
+                        0.01,
+                        audioContext.currentTime + 0.08,
+                    );
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.08);
                     return;
                 default:
                     return;

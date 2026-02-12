@@ -76,7 +76,7 @@
     }
 }
 
-/* Speech bubble element */
+/* Speech bubble element (VT323 for EN; PixelMplus10 for JA is below) */
 .idle-rare-bubble {
     position: fixed;
     /* Position above penguin (penguin is 64px tall, add 16px gap) */
@@ -99,6 +99,11 @@
     /* 8-bit style */
     line-height: 1.4;
     word-wrap: break-word;
+}
+
+/* 日本語時: ピクセルフォント（PixelMplus10）を style.css のリストタイトルと統一 */
+[lang="ja"] .idle-rare-bubble {
+    font-family: 'PixelMplus10', 'VT323', 'Courier New', monospace;
 }
 
 /* Speech bubble tail/pointer */

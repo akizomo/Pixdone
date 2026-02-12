@@ -1,0 +1,13 @@
+---
+description: Pixdone - すべての操作に選択音・フィードバック音を割り振る
+globs: public/**/*.js
+alwaysApply: true
+---
+
+# 操作音ルール (Pixdone)
+
+- **方針**: 他のデザインと同様、**すべての操作**に選択音・フィードバック音を割り振ること。
+- タスク追加・編集・削除・完了・キャンセル・ボタンクリック・ドラッグ並び替えなど、ユーザーが行う操作には `comicEffects.playSound(...)` または適切な効果音を付ける。
+- 新規UIや新規操作を追加する際も、このルールに従って音を付けること。
+- 音の種類: `taskAdd`, `taskEdit`, `taskDelete`, `taskCancel`, `taskComplete`, `buttonClick` など（ComicEffectsManager の定義に準拠）。サブタスク完了時は picoSound のビープも使用可。
+- **UI追加時の必須チェック**: 新しいボタン/チップ/トグル/メニュー項目を追加したら、必ず「押下時に鳴る音」を実装してから完了とする（例: 言語切り替えチップ → `buttonClick`）。

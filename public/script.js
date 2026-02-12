@@ -29,38 +29,11 @@ class PixDoneApp {
         this.isCreatingMyTasksList = false;
         this.isCreatingSmashList = false;
 
-        // Tutorial tasks for unauthenticated users
+        // Tutorial tasks for unauthenticated users (title resolved via i18n: tutorialTask1, tutorialTask2, tutorialTask3)
         this.tutorialTasks = [
-            {
-                id: 'tutorial-1',
-                title: 'Try completing this task!',
-                completed: false,
-                dueDate: null,
-                priority: 'normal',
-                category: 'general',
-                description: '',
-                listId: 'default'
-            },
-            {
-                id: 'tutorial-2',
-                title: 'Each time you complete a task, a different effect appears. How many can you find?',
-                completed: false,
-                dueDate: null,
-                priority: 'normal',
-                category: 'general',
-                description: '',
-                listId: 'default'
-            },
-            {
-                id: 'tutorial-3',
-                title: 'Try the [Smash List](action:smash-list) for even more fun!',
-                completed: false,
-                dueDate: null,
-                priority: 'normal',
-                category: 'general',
-                description: '',
-                listId: 'default'
-            }
+            { id: 'tutorial-1', titleKey: 'tutorialTask1', completed: false, dueDate: null, priority: 'normal', category: 'general', description: '', listId: 'default' },
+            { id: 'tutorial-2', titleKey: 'tutorialTask2', completed: false, dueDate: null, priority: 'normal', category: 'general', description: '', listId: 'default' },
+            { id: 'tutorial-3', titleKey: 'tutorialTask3', completed: false, dueDate: null, priority: 'normal', category: 'general', description: '', listId: 'default' }
         ];
 
         // Smash List dummy tasks
@@ -114,11 +87,110 @@ class PixDoneApp {
             "Drink a glass of water",
             "Take a deep breath",
             "High-five yourself",
-            "Say something nice"
+            "Say something nice",
+            // 旧 Firestore 初期タスク（初期表示の3つが英語になる対策）
+            "Check notifications",
+            "Organize desk",
+            "Review emails",
+            "Take deep breaths",
+            "Stretch muscles",
+            "Clear browser tabs",
+            "Clean keyboard",
+            "Water plants",
+            "Tidy up files",
+            "Quick workout"
+        ];
+
+        // Smash list dummy tasks (Japanese) — same order as smashListTasks
+        this.smashListTasksJa = [
+            "コーヒーメーカーを直す",
+            "牛乳とパンを買う",
+            "母に電話する",
+            "ガレージを掃除する",
+            "メールの受信箱を整理する",
+            "蛇口の漏水を直す",
+            "週末の旅行を計画する",
+            "本を30ページ読む",
+            "30分散歩する",
+            "パソコンのバックアップ",
+            "車を洗う",
+            "植物に水をやる",
+            "ゴミを出す",
+            "電気代を払う",
+            "リビングを掃除機がけする",
+            "古い服を整理する",
+            "20分運動する",
+            "残高を確認する",
+            "連絡先を更新する",
+            "デバイスを充電する",
+            "洗濯を終わらせる",
+            "買い物リストを作る",
+            "月の予算を見直す",
+            "歯医者に電話する",
+            "壊れた引き出しを直す",
+            "新しい単語を覚える",
+            "10分ストレッチする",
+            "日記を書く",
+            "メッセージに返信する",
+            "家具のホコリを払う",
+            "机の引き出しを整理する",
+            "車のオイルを確認する",
+            "趣味の練習をする",
+            "お礼のメッセージを送る",
+            "古い写真を削除する",
+            "窓を拭く",
+            "ソフトを更新する",
+            "お弁当を用意する",
+            "昔の友達に電話する",
+            "腕立て10回する",
+            "本棚を整理する",
+            "天気予報を確認する",
+            "爪を切る",
+            "メルマガを解除する",
+            "5分休憩する",
+            "自分に微笑む",
+            "水を一杯飲む",
+            "深呼吸する",
+            "自分とハイタッチする",
+            "自分を褒める",
+            // 旧 Firestore 初期タスク（同上・同じ順）
+            "通知を確認する",
+            "机を整理する",
+            "メールを確認する",
+            "深呼吸する",
+            "ストレッチする",
+            "ブラウザのタブを閉じる",
+            "キーボードを掃除する",
+            "植物に水をやる",
+            "ファイルを整理する",
+            "軽い運動する"
         ];
 
         this.initializeApp();
         this.setupGlobalAccess();
+    }
+
+    getTaskDisplayTitle(task) {
+        if (!task) return '';
+        if (task.title) return task.title; // user-edited or saved title
+        if (task.titleKey && typeof window.t === 'function') return window.t(task.titleKey);
+        return '';
+    }
+
+    getSmashListTasks() {
+        const lang = (typeof window.getLang === 'function' && window.getLang()) || 'en';
+        return lang === 'ja' ? this.smashListTasksJa : this.smashListTasks;
+    }
+
+    /** Smash list タスクの表示用タイトル（現在の言語に合わせる） */
+    getSmashTaskDisplayTitle(task) {
+        if (!task || !task.title) return '';
+        const lang = typeof window.getLang === 'function' ? window.getLang() : 'en';
+        const enIdx = this.smashListTasks.indexOf(task.title);
+        if (enIdx !== -1) return lang === 'ja' ? this.smashListTasksJa[enIdx] : this.smashListTasks[enIdx];
+        const jaIdx = this.smashListTasksJa.indexOf(task.title);
+        if (jaIdx !== -1) return lang === 'en' ? this.smashListTasks[jaIdx] : this.smashListTasksJa[jaIdx];
+        return task.title;
     }
 
     initializeApp() {
@@ -137,6 +209,10 @@ class PixDoneApp {
     }
 
     setupAfterDOMLoaded() {
+        // i18n: apply translations and sync lang buttons
+        if (typeof window.applyI18n === 'function') window.applyI18n();
+        this.refreshLangUI();
+
         // 新しいコンポーネント管理システムの初期化
         this.initializeComponentSystem();
 
@@ -262,7 +338,6 @@ class PixDoneApp {
         // Show modal function
         this.showMobileModal = () => {
             console.log('[PixDone] Creating bottom sheet');
-
             // Remove existing modal
             const existing = document.getElementById('newMobileModal');
             if (existing) {
@@ -274,11 +349,12 @@ class PixDoneApp {
             sheet.id = 'newMobileModal';
             sheet.className = 'task-bottom-sheet';
 
+            const sheetTitle = (typeof window.t === 'function' ? window.t : (k) => k)(this.currentTask ? 'editTask' : 'newTask');
             // Build HTML structure
             sheet.innerHTML = `
                 <!-- Fixed Header -->
                 <div class="task-sheet-header">
-                    <h3 id="taskSheetTitle">${this.currentTask ? 'Edit Task' : 'New Task'}</h3>
+                    <h3 id="taskSheetTitle">${sheetTitle}</h3>
                     <button class="task-sheet-close-btn" id="taskSheetCloseBtn" aria-label="Close">×</button>
                 </div>
 
@@ -287,7 +363,7 @@ class PixDoneApp {
                     <!-- Section 1: Title -->
                     <div class="task-sheet-section" id="titleSection">
                         <div class="task-sheet-section-content">
-                            <div id="newTaskTitle" class="task-sheet-title-input" contenteditable="true" placeholder="Enter task title"></div>
+                            <div id="newTaskTitle" class="task-sheet-title-input" contenteditable="true" placeholder="${(typeof window !== 'undefined' && window.t ? window.t('title') : 'Title')}"></div>
                         </div>
                     </div>
 
@@ -295,11 +371,11 @@ class PixDoneApp {
                     <div class="task-sheet-section" id="detailsSection">
                         <!-- Empty state row (shown when details is empty) -->
                         <div class="task-sheet-empty-state" id="detailsEmptyState" style="display: none;">
-                            <span class="task-sheet-empty-state-text">Add details…</span>
+                            <span class="task-sheet-empty-state-text">${(typeof window !== 'undefined' && window.t ? window.t('addDetails') : 'Add details…')}</span>
                         </div>
                         <!-- Details input (shown when details has content or when focused) -->
                         <div class="task-sheet-section-content" id="detailsContent" style="display: none;">
-                            <div id="newTaskDetails" class="task-sheet-details-input" contenteditable="true" placeholder="Details (optional)"></div>
+                            <div id="newTaskDetails" class="task-sheet-details-input" contenteditable="true" placeholder="${(typeof window !== 'undefined' && window.t ? window.t('detailsOptional') : 'Details (optional)')}"></div>
                         </div>
                     </div>
 
@@ -307,10 +383,10 @@ class PixDoneApp {
                     <div class="task-sheet-section" id="dateSection">
                         <div class="task-sheet-section-content">
                             <div class="task-sheet-date-buttons">
-                                <button id="newTodayBtn" class="task-sheet-date-btn">Today</button>
-                                <button id="newTomorrowBtn" class="task-sheet-date-btn">Tomorrow</button>
-                                <button id="newCalendarBtn" class="task-sheet-date-btn"><i class="fa fa-calendar"></i> Pick</button>
-                                <button id="newRepeatBtn" class="task-sheet-date-btn"><i class="fa fa-repeat"></i> Repeat</button>
+                                <button id="newTodayBtn" class="task-sheet-date-btn">${(typeof window !== 'undefined' && window.t ? window.t('today') : 'Today')}</button>
+                                <button id="newTomorrowBtn" class="task-sheet-date-btn">${(typeof window !== 'undefined' && window.t ? window.t('tomorrow') : 'Tomorrow')}</button>
+                                <button id="newCalendarBtn" class="task-sheet-date-btn"><i class="fa fa-calendar"></i> ${(typeof window !== 'undefined' && window.t ? window.t('pick') : 'Pick')}</button>
+                                <span id="repeatRow"><button id="newRepeatBtn" class="task-sheet-date-btn"><i class="fa fa-repeat"></i> ${(typeof window !== 'undefined' && window.t ? window.t('repeat') : 'Repeat')}</button></span>
                             </div>
                             <input type="date" id="newNativeDatePicker" style="display: none;" />
                             <input type="hidden" id="newRepeatInterval" value="none" />
@@ -321,16 +397,16 @@ class PixDoneApp {
                     <div class="task-sheet-section" id="subtasksSection">
                         <!-- Empty state row (shown when subtasks is empty) -->
                         <div class="task-sheet-empty-state" id="subtasksEmptyState" style="display: none;">
-                            <span class="task-sheet-empty-state-text">Add subtasks…</span>
+                            <span class="task-sheet-empty-state-text">${(typeof window !== 'undefined' && window.t ? window.t('addSubtasks') : 'Add subtasks…')}</span>
                         </div>
                         <!-- Subtasks content (shown when subtasks has content or when input is focused) -->
                         <div class="task-sheet-section-content" id="subtasksContent" style="display: none;">
                             <div class="task-sheet-subtasks-header">
-                                <span class="task-sheet-section-title">Subtasks (<span id="subtasksCount">0</span>)</span>
+                                <span class="task-sheet-section-title">${(typeof window !== 'undefined' && window.t ? window.t('subtasks') : 'Subtasks')} (<span id="subtasksCount">0</span>)</span>
                             </div>
                             <ul class="task-sheet-subtasks-list" id="subtasksList"></ul>
                             <div class="task-sheet-subtask-add">
-                                <input type="text" id="subtaskInput" class="task-sheet-subtask-input" placeholder="Add subtask (press Enter)..." />
+                                <input type="text" id="subtaskInput" class="task-sheet-subtask-input" placeholder="${(typeof window !== 'undefined' && window.t ? window.t('addSubtasks') : 'Add subtasks…')}" />
                                 <button id="subtaskAddBtn" class="task-sheet-subtask-add-btn" style="display: none;" aria-label="Add subtask">+ Add</button>
                             </div>
                         </div>
@@ -340,20 +416,20 @@ class PixDoneApp {
                 <!-- Fixed Footer -->
                 <div class="task-sheet-footer" id="taskSheetFooter">
                     <div class="task-sheet-footer-left">
-                        <button id="newCancelBtn" class="task-sheet-btn task-sheet-btn-cancel">Cancel</button>
+                        <button id="newCancelBtn" class="task-sheet-btn task-sheet-btn-cancel">${(typeof window !== 'undefined' && window.t ? window.t('cancel') : 'Cancel')}</button>
                     </div>
                     <div class="task-sheet-footer-right">
-                        <button id="newDeleteBtn" class="task-sheet-btn task-sheet-btn-delete" style="display: none;">Delete</button>
-                        <button id="newSaveBtn" class="task-sheet-btn task-sheet-btn-save">Save</button>
+                        <button id="newDeleteBtn" class="task-sheet-btn task-sheet-btn-delete" style="display: none;">${(typeof window !== 'undefined' && window.t ? window.t('delete') : 'Delete')}</button>
+                        <button id="newSaveBtn" class="task-sheet-btn task-sheet-btn-save">${(typeof window !== 'undefined' && window.t ? window.t('save') : 'Save')}</button>
                     </div>
                 </div>
             `;
 
             document.body.appendChild(sheet);
 
-            // Initialize subtasks from current task
+            // Initialize subtasks from current task (normalized: no repeat on subtasks)
             if (this.currentTask && this.currentTask.subtasks) {
-                this.currentSubtasks = [...this.currentTask.subtasks];
+                this.currentSubtasks = this.currentTask.subtasks.map(st => this.normalizeSubtask(st)).filter(Boolean);
             } else {
                 this.currentSubtasks = [];
             }
@@ -389,6 +465,7 @@ class PixDoneApp {
         this.setupBottomSheetEvents = (sheet) => {
             // Close button
             sheet.querySelector('#taskSheetCloseBtn').addEventListener('click', () => {
+                if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('taskCancel');
                 this.hideMobileModal();
             });
 
@@ -416,32 +493,34 @@ class PixDoneApp {
                 }
             });
 
-            // Delete button
+            // Delete button (task only)
             const deleteBtn = sheet.querySelector('#newDeleteBtn');
             deleteBtn.addEventListener('click', () => {
                 if (this.currentTask && this.currentTask.id) {
                     this.deleteTask(this.currentTask.id);
                     this.hideMobileModal();
-                    if (this.comicEffects && this.comicEffects.playSound) {
-                        this.comicEffects.playSound('taskDelete');
-                    }
+                    if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('taskDelete');
                 }
             });
 
             // Date buttons
             sheet.querySelector('#newTodayBtn').addEventListener('click', () => {
+                if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
                 this.selectBottomSheetDate(sheet, 'today');
             });
 
             sheet.querySelector('#newTomorrowBtn').addEventListener('click', () => {
+                if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
                 this.selectBottomSheetDate(sheet, 'tomorrow');
             });
 
             sheet.querySelector('#newCalendarBtn').addEventListener('click', () => {
+                if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
                 this.showNativeDatePicker(sheet);
             });
 
             sheet.querySelector('#newRepeatBtn').addEventListener('click', () => {
+                if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
                 this.showBottomSheetRepeat(sheet);
             });
 
@@ -450,6 +529,7 @@ class PixDoneApp {
             if (nativeDatePicker) {
                 nativeDatePicker.addEventListener('change', (e) => {
                     if (e.target.value) {
+                        if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
                         this.selectBottomSheetDate(sheet, 'custom', e.target.value);
                     }
                 });
@@ -476,6 +556,7 @@ class PixDoneApp {
             // Details empty state click handler
             if (detailsEmptyState) {
                 detailsEmptyState.addEventListener('click', () => {
+                    if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
                     detailsEmptyState.style.display = 'none';
                     detailsContent.style.display = 'block';
                     setTimeout(() => {
@@ -488,6 +569,7 @@ class PixDoneApp {
             // Subtasks empty state click handler
             if (subtasksEmptyState) {
                 subtasksEmptyState.addEventListener('click', () => {
+                    if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
                     subtasksEmptyState.style.display = 'none';
                     subtasksContent.style.display = 'block';
                     setTimeout(() => {
@@ -547,6 +629,7 @@ class PixDoneApp {
 
             // Add subtask on button click
             subtaskAddBtn.addEventListener('click', () => {
+                if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
                 this.addSubtask(sheet);
             });
 
@@ -599,7 +682,13 @@ class PixDoneApp {
         this.toggleSubtask = (sheet, subtaskId) => {
             const subtask = this.currentSubtasks.find(st => st.id === subtaskId);
             if (subtask) {
+                const wasDone = subtask.done;
                 subtask.done = !subtask.done;
+                if (subtask.done && !wasDone && window.picoSound && typeof window.picoSound.playSubtaskCompleteSound === 'function') {
+                    const total = this.currentSubtasks.length;
+                    const completed = this.currentSubtasks.filter(st => st.done).length;
+                    window.picoSound.playSubtaskCompleteSound({ total, completed });
+                }
                 this.renderSubtasks(sheet);
             }
         };
@@ -627,6 +716,7 @@ class PixDoneApp {
                 // Delete button event
                 const deleteBtn = li.querySelector('.task-sheet-subtask-delete');
                 deleteBtn.addEventListener('click', () => {
+                    if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
                     this.deleteSubtask(sheet, subtask.id);
                 });
 
@@ -754,6 +844,7 @@ class PixDoneApp {
             
             inputs.forEach(input => {
                 input.addEventListener('focus', () => {
+                    if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
                     // Set scroll-padding-bottom to account for footer
                     const body = sheet.querySelector('.task-sheet-body');
                     if (body) {
@@ -771,74 +862,48 @@ class PixDoneApp {
             });
         };
 
-        // Populate bottom sheet data
+        // Populate bottom sheet data (task only; no subtask-only mode)
         this.populateBottomSheetData = (sheet) => {
+            const deleteBtn = sheet.querySelector('#newDeleteBtn');
+            if (deleteBtn) deleteBtn.textContent = (typeof window.t === 'function' ? window.t('delete') : 'Delete');
             if (this.currentTask) {
-                // Title
-                const titleEl = sheet.querySelector('#newTaskTitle');
-                titleEl.textContent = this.currentTask.title || '';
-                this.setupRichTextEditor(titleEl);
-
-                // Details
-                const detailsEl = sheet.querySelector('#newTaskDetails');
-                detailsEl.innerHTML = this.processLinksForDisplay(this.currentTask.details || '');
-                this.setupRichTextEditor(detailsEl);
-                // Trigger auto-grow after setting content
-                setTimeout(() => {
-                    const autoGrowDetails = () => {
-                        detailsEl.style.height = 'auto';
-                        const scrollHeight = detailsEl.scrollHeight;
-                        const lineHeight = parseFloat(getComputedStyle(detailsEl).lineHeight);
-                        const maxHeight = lineHeight * 4 + 12;
-                        if (scrollHeight <= maxHeight) {
-                            detailsEl.style.height = scrollHeight + 'px';
-                            detailsEl.style.overflowY = 'hidden';
-                        } else {
-                            detailsEl.style.height = maxHeight + 'px';
-                            detailsEl.style.overflowY = 'auto';
-                        }
-                    };
-                    autoGrowDetails();
-                }, 50);
-
-                // Show delete button
-                sheet.querySelector('#newDeleteBtn').style.display = 'inline-block';
-
-                // Subtasks - already loaded in showMobileModal via this.currentSubtasks
-                // Render them
-                this.renderSubtasks(sheet);
-                this.updateSubtasksCount(sheet);
-
-                // Date selection
-                if (this.currentTask.dueDate) {
-                    const dueDate = new Date(this.currentTask.dueDate);
-                    const today = new Date();
-                    const tomorrow = new Date(today);
-                    tomorrow.setDate(today.getDate() + 1);
-
-                    if (dueDate.toDateString() === today.toDateString()) {
-                        this.selectBottomSheetDate(sheet, 'today');
-                    } else if (dueDate.toDateString() === tomorrow.toDateString()) {
-                        this.selectBottomSheetDate(sheet, 'tomorrow');
-                    } else {
-                        this.selectedDate = dueDate;
-                        sheet.querySelector('#newCalendarBtn').classList.add('active');
-                    }
-                }
-
-                // Repeat
-                if (this.currentTask.repeat && this.currentTask.repeat !== 'none') {
-                    this.selectedRepeat = this.currentTask.repeat;
+                    const titleEl = sheet.querySelector('#newTaskTitle');
+                    titleEl.textContent = this.getTaskDisplayTitle(this.currentTask);
+                    this.setupRichTextEditor(titleEl);
+                    const detailsEl = sheet.querySelector('#newTaskDetails');
+                    detailsEl.innerHTML = this.processLinksForDisplay(this.currentTask.details || '');
+                    this.setupRichTextEditor(detailsEl);
                     setTimeout(() => {
-                        this.updateRepeatButtonState(sheet);
-                    }, 100);
-                }
-
+                        detailsEl.style.height = 'auto';
+                        const sh = detailsEl.scrollHeight;
+                        const lh = parseFloat(getComputedStyle(detailsEl).lineHeight);
+                        const maxH = lh * 4 + 12;
+                        detailsEl.style.height = (sh <= maxH ? sh : maxH) + 'px';
+                        detailsEl.style.overflowY = sh <= maxH ? 'hidden' : 'auto';
+                    }, 50);
+                    deleteBtn.style.display = 'inline-block';
+                    this.renderSubtasks(sheet);
+                    this.updateSubtasksCount(sheet);
+                    if (this.currentTask.dueDate) {
+                        const dueDate = new Date(this.currentTask.dueDate);
+                        const today = new Date();
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(today.getDate() + 1);
+                        if (dueDate.toDateString() === today.toDateString()) this.selectBottomSheetDate(sheet, 'today');
+                        else if (dueDate.toDateString() === tomorrow.toDateString()) this.selectBottomSheetDate(sheet, 'tomorrow');
+                        else {
+                            this.selectedDate = dueDate;
+                            sheet.querySelector('#newCalendarBtn').classList.add('active');
+                        }
+                    }
+                    if (this.currentTask.repeat && this.currentTask.repeat !== 'none') {
+                        this.selectedRepeat = this.currentTask.repeat;
+                        setTimeout(() => this.updateRepeatButtonState(sheet), 100);
+                    }
             } else {
-                // Clear for new task
                 sheet.querySelector('#newTaskTitle').textContent = '';
                 sheet.querySelector('#newTaskDetails').innerHTML = '';
-                sheet.querySelector('#newDeleteBtn').style.display = 'none';
+                deleteBtn.style.display = 'none';
                 this.selectedDate = null;
                 this.selectedRepeat = 'none';
                 this.currentSubtasks = [];
@@ -846,17 +911,18 @@ class PixDoneApp {
                 this.updateSubtasksCount(sheet);
             }
 
-            // Update section visibility after populating
+            setTimeout(() => this.updateSectionVisibility(sheet), 50);
             setTimeout(() => {
-                this.updateSectionVisibility(sheet);
-            }, 50);
-
-            // Focus title input
-            setTimeout(() => {
-                const titleInput = sheet.querySelector('#newTaskTitle');
-                if (titleInput) {
-                    titleInput.focus();
-                    this.setupRichTextEditor(titleInput);
+                if (this.focusSubtasksWhenSheetOpen) {
+                    this.focusSubtasksWhenSheetOpen = false;
+                    const section = sheet.querySelector('#subtasksSection');
+                    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    const titleInput = sheet.querySelector('#newTaskTitle');
+                    if (titleInput) {
+                        titleInput.focus();
+                        this.setupRichTextEditor(titleInput);
+                    }
                 }
                 this.updateSaveButtonState(sheet);
             }, 100);
@@ -884,14 +950,11 @@ class PixDoneApp {
             }
 
             if (this.currentTask) {
-                // Update existing task
                 this.currentTask.title = title;
                 this.currentTask.details = details;
                 this.currentTask.dueDate = this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null;
                 this.currentTask.repeat = this.selectedRepeat || 'none';
-                this.currentTask.subtasks = [...this.currentSubtasks];
-
-                // Update task in current list
+                this.currentTask.subtasks = this.currentSubtasks.map(st => this.normalizeSubtask(st)).filter(Boolean);
                 const currentList = this.getCurrentList();
                 if (currentList && currentList.tasks) {
                     const taskIndex = currentList.tasks.findIndex(t => t.id === this.currentTask.id);
@@ -900,7 +963,6 @@ class PixDoneApp {
                     }
                 }
             } else {
-                // Create new task
                 const currentList = this.getCurrentList();
                 const newTask = {
                     id: Date.now().toString(),
@@ -912,7 +974,6 @@ class PixDoneApp {
                     listId: this.currentListId || 'default',
                     subtasks: [...this.currentSubtasks]
                 };
-
                 if (currentList && currentList.tasks) {
                     currentList.tasks.unshift(newTask);
                 }
@@ -921,8 +982,6 @@ class PixDoneApp {
             this.saveTasks();
             this.renderTasks();
             this.hideMobileModal();
-
-            // Reset form state
             this.currentTask = null;
             this.selectedDate = null;
             this.selectedRepeat = 'none';
@@ -1082,9 +1141,9 @@ class PixDoneApp {
             const todayBtn = document.getElementById('newTodayBtn');
             const tomorrowBtn = document.getElementById('newTomorrowBtn');
             const calendarBtn = document.getElementById('newCalendarBtn');
-            if (todayBtn) todayBtn.innerHTML = 'Today';
-            if (tomorrowBtn) tomorrowBtn.innerHTML = 'Tomorrow';
-            if (calendarBtn) calendarBtn.innerHTML = '<i class="fa fa-calendar"></i> Pick';
+            if (todayBtn) todayBtn.innerHTML = (typeof window.t === 'function' ? window.t('today') : 'Today');
+            if (tomorrowBtn) tomorrowBtn.innerHTML = (typeof window.t === 'function' ? window.t('tomorrow') : 'Tomorrow');
+            if (calendarBtn) calendarBtn.innerHTML = '<i class="fa fa-calendar"></i> ' + (typeof window.t === 'function' ? window.t('pick') : 'Pick');
         };
 
         this.showNativeDatePicker = () => {
@@ -1132,21 +1191,22 @@ class PixDoneApp {
                 box-sizing: border-box !important;
             `;
 
+            const rt = (typeof window.t === 'function' ? window.t : (k) => k);
             repeatModal.innerHTML = `
                 <div id="repeatModalContent" style="width: 300px !important; max-width: 90% !important; background: var(--bg-primary) !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; box-shadow: 4px 4px 0px var(--shadow-color) !important; padding: 16px !important; box-sizing: border-box !important;">
                     <div style="display: flex !important; flex-direction: column !important; gap: 12px !important;">
                         <div style="text-align: center !important; margin-bottom: 8px !important;">
-                            <h3 style="font-size: 16px !important; color: var(--text-primary) !important; font-weight: 600 !important; font-family: Inter, sans-serif !important; margin: 0 !important;">Repeat Frequency</h3>
+                            <h3 class="pixel-title" style="font-size: 16px !important; color: var(--text-primary) !important; font-weight: 600 !important; font-family: 'VT323', 'Courier New', monospace !important; margin: 0 !important;">${rt('repeatFrequency')}</h3>
                         </div>
                         <div style="display: flex !important; flex-direction: column !important; gap: 8px !important;">
-                            <button class="repeat-option" data-value="none" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">No repeat</button>
-                            <button class="repeat-option" data-value="daily" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">Daily</button>
-                            <button class="repeat-option" data-value="weekly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">Weekly</button>
-                            <button class="repeat-option" data-value="monthly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">Monthly</button>
-                            <button class="repeat-option" data-value="yearly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">Yearly</button>
+                            <button class="repeat-option" data-value="none" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('noRepeat')}</button>
+                            <button class="repeat-option" data-value="daily" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('daily')}</button>
+                            <button class="repeat-option" data-value="weekly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('weekly')}</button>
+                            <button class="repeat-option" data-value="monthly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('monthly')}</button>
+                            <button class="repeat-option" data-value="yearly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('yearly')}</button>
                         </div>
                         <div style="display: flex !important; gap: 8px !important; margin-top: 8px !important;">
-                            <button id="newCancelRepeatBtn" style="flex: 1 !important; padding: 8px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; font-weight: 600 !important;">Cancel</button>
+                            <button id="newCancelRepeatBtn" style="flex: 1 !important; padding: 8px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; font-weight: 600 !important;">${rt('cancel')}</button>
                         </div>
                     </div>
                 </div>
@@ -1189,26 +1249,21 @@ class PixDoneApp {
 
         this.updateRepeatButtonState = () => {
             const btn = document.getElementById('newRepeatBtn');
+            if (!btn) return;
+            const t = typeof window.t === 'function' ? window.t : (k) => k;
+            const repeatLabels = { daily: t('daily'), weekly: t('weekly'), monthly: t('monthly'), yearly: t('yearly') };
             if (this.selectedRepeat === 'none') {
                 btn.classList.remove('active');
-                btn.style.background = 'var(--bg-primary)';
-                btn.style.color = 'var(--text-secondary)';
-                btn.style.borderColor = 'var(--border-color)';
-                btn.innerHTML = '🔄 Repeat';
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+                btn.innerHTML = '<i class="fa fa-repeat" aria-hidden="true"></i> ' + t('repeat');
             } else {
                 btn.classList.add('active');
-                btn.style.background = 'var(--accent-color)';
-                btn.style.color = 'white';
-                btn.style.borderColor = 'var(--accent-color)';
-
-                // Show selected repeat frequency
-                const repeatLabels = {
-                    'daily': 'Daily',
-                    'weekly': 'Weekly',
-                    'monthly': 'Monthly',
-                    'yearly': 'Yearly'
-                };
-                btn.innerHTML = `🔄 ${repeatLabels[this.selectedRepeat] || 'Repeat'}`;
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.borderColor = '';
+                btn.innerHTML = `<i class="fa fa-repeat" aria-hidden="true"></i> ${repeatLabels[this.selectedRepeat] || t('repeat')}`;
             }
         };
 
@@ -1276,35 +1331,27 @@ class PixDoneApp {
             const repeatBtn = document.getElementById('newRepeatBtn');
             const repeatInterval = document.getElementById('newRepeatInterval');
 
+            const t = typeof window.t === 'function' ? window.t : (k) => k;
+            const repeatLabels = { daily: t('daily'), weekly: t('weekly'), monthly: t('monthly'), yearly: t('yearly') };
             if (task.repeat && task.repeat !== 'none') {
                 this.selectedRepeat = task.repeat;
                 if (repeatInterval) repeatInterval.value = task.repeat;
-
                 if (repeatBtn) {
                     repeatBtn.classList.add('active');
-                    repeatBtn.style.background = 'var(--accent-color)';
-                    repeatBtn.style.color = 'white';
-                    repeatBtn.style.borderColor = 'var(--accent-color)';
-
-                    // Show selected repeat frequency
-                    const repeatLabels = {
-                        'daily': 'Daily',
-                        'weekly': 'Weekly',
-                        'monthly': 'Monthly',
-                        'yearly': 'Yearly'
-                    };
-                    repeatBtn.innerHTML = `<i class="fa fa-repeat"></i> ${repeatLabels[task.repeat] || 'Repeat'}`;
+                    repeatBtn.style.background = '';
+                    repeatBtn.style.color = '';
+                    repeatBtn.style.borderColor = '';
+                    repeatBtn.innerHTML = `<i class="fa fa-repeat" aria-hidden="true"></i> ${repeatLabels[task.repeat] || t('repeat')}`;
                 }
             } else {
                 this.selectedRepeat = 'none';
                 if (repeatInterval) repeatInterval.value = 'none';
-
                 if (repeatBtn) {
                     repeatBtn.classList.remove('active');
-                    repeatBtn.style.background = 'var(--bg-primary)';
-                    repeatBtn.style.color = 'var(--text-secondary)';
-                    repeatBtn.style.borderColor = 'var(--border-color)';
-                    repeatBtn.innerHTML = '<i class="fa fa-repeat"></i> Repeat';
+                    repeatBtn.style.background = '';
+                    repeatBtn.style.color = '';
+                    repeatBtn.style.borderColor = '';
+                    repeatBtn.innerHTML = '<i class="fa fa-repeat" aria-hidden="true"></i> Repeat';
                 }
             }
         };
@@ -1337,7 +1384,7 @@ class PixDoneApp {
                 this.currentTask.details = details;
                 this.currentTask.dueDate = this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null;
                 this.currentTask.repeat = this.selectedRepeat || 'none';
-                this.currentTask.subtasks = this.currentSubtasks || [];
+                this.currentTask.subtasks = (this.currentSubtasks || []).map(st => this.normalizeSubtask(st)).filter(Boolean);
 
                 // Update task in current list
                 if (currentList && currentList.tasks) {
@@ -1448,7 +1495,7 @@ class PixDoneApp {
                     todayBtn.style.background = 'var(--accent-color)';
                     todayBtn.style.color = 'white';
                     todayBtn.style.borderColor = 'var(--accent-color)';
-                    todayBtn.innerHTML = 'Today';
+                    todayBtn.innerHTML = (typeof window.t === 'function' ? window.t('today') : 'Today');
                 }
             } else if (type === 'tomorrow') {
                 this.selectedDate = tomorrowStr;
@@ -1457,7 +1504,7 @@ class PixDoneApp {
                     tomorrowBtn.style.background = 'var(--accent-color)';
                     tomorrowBtn.style.color = 'white';
                     tomorrowBtn.style.borderColor = 'var(--accent-color)';
-                    tomorrowBtn.innerHTML = 'Tomorrow';
+                    tomorrowBtn.innerHTML = (typeof window.t === 'function' ? window.t('tomorrow') : 'Tomorrow');
                 }
             } else if (type === 'custom' && customDate) {
                 this.selectedDate = customDate;
@@ -1499,18 +1546,10 @@ class PixDoneApp {
 
         this.toggleNewModalRepeat = () => {
             const selector = document.getElementById('newRepeatSelector');
-            if (selector.style.display === 'none') {
+            if (selector && selector.style.display === 'none') {
                 selector.style.display = 'block';
-                const repeatBtn = document.getElementById('newRepeatBtn');
-                repeatBtn.style.background = 'var(--accent-color)';
-                repeatBtn.style.color = 'white';
-                repeatBtn.style.borderColor = 'var(--accent-color)';
-            } else {
+            } else if (selector) {
                 selector.style.display = 'none';
-                const repeatBtn = document.getElementById('newRepeatBtn');
-                repeatBtn.style.background = 'var(--bg-primary)';
-                repeatBtn.style.color = 'var(--text-primary)';
-                repeatBtn.style.borderColor = 'var(--border-color)';
             }
             // Play sound if available
             if (this.comicEffects && this.comicEffects.playSound) {
@@ -1715,9 +1754,9 @@ class PixDoneApp {
         if (this.tasksUnsubscribe) this.tasksUnsubscribe();
         // リスト監視
         this.listsUnsubscribe = listenListsFromFirestore(async (lists) => {
-            // --- 追加: My Tasksを先頭に ---
+            // --- 追加: My Tasksを先頭に（マイタスクとMy Tasksは同一リスト） ---
             if (lists && lists.length > 1) {
-                const myTasksIdx = lists.findIndex(l => l.name === 'My Tasks');
+                const myTasksIdx = lists.findIndex(l => this.isMyTasksList(l));
                 if (myTasksIdx > 0) {
                     const [myTasksList] = lists.splice(myTasksIdx, 1);
                     lists.unshift(myTasksList);
@@ -1736,8 +1775,8 @@ class PixDoneApp {
             // --- ここまで追加 ---
             this.lists = lists;
 
-            // 必要なリストを確保
-            const hasMyTasks = lists.some(l => l.name === 'My Tasks');
+            // 必要なリストを確保（マイタスク＝My Tasks、中身は同じ）
+            const hasMyTasks = lists.some(l => this.isMyTasksList(l));
             const hasSmashList = lists.some(l => l.name === '💥 Smash List');
 
             // My Tasksリストがなければ作成
@@ -1757,7 +1796,7 @@ class PixDoneApp {
             }
             // currentListIdが未設定ならMy Tasksを選択
             if (!this.currentListId || !lists.some(l => l.id === this.currentListId)) {
-                const myTasks = lists.find(l => l.name === 'My Tasks');
+                const myTasks = lists.find(l => this.isMyTasksList(l));
                 this.currentListId = myTasks ? myTasks.id : lists[0].id;
             }
             this.renderListTabs();
@@ -1835,7 +1874,8 @@ class PixDoneApp {
     generateSmashTasks() {
         const tasks = [];
         for (let i = 0; i < 3; i++) {
-            const randomTask = this.smashListTasks[Math.floor(Math.random() * this.smashListTasks.length)];
+            const pool = this.getSmashListTasks();
+            const randomTask = pool[Math.floor(Math.random() * pool.length)];
             tasks.push({
                 id: `smash-${Date.now()}-${i}`,
                 title: randomTask,
@@ -1856,8 +1896,9 @@ class PixDoneApp {
             const incompleteTasks = smashList.tasks.filter(t => !t.completed);
             if (incompleteTasks.length < 3) {
                 const tasksToAdd = 3 - incompleteTasks.length;
+                const pool = this.getSmashListTasks();
                 for (let i = 0; i < tasksToAdd; i++) {
-                    const randomTask = this.smashListTasks[Math.floor(Math.random() * this.smashListTasks.length)];
+                    const randomTask = pool[Math.floor(Math.random() * pool.length)];
                     const newTask = {
                         id: `smash-${Date.now()}-${Math.random()}`,
                         title: randomTask,
@@ -1882,8 +1923,9 @@ class PixDoneApp {
             currentList.tasks = currentList.tasks.filter(t => !t.completed);
 
             // Ensure exactly 3 tasks
+            const pool = this.getSmashListTasks();
             while (currentList.tasks.length < 3) {
-                const randomTask = this.smashListTasks[Math.floor(Math.random() * this.smashListTasks.length)];
+                const randomTask = pool[Math.floor(Math.random() * pool.length)];
                 const newTask = {
                     id: `smash-${Date.now()}-${Math.random()}`,
                     title: randomTask,
@@ -2431,7 +2473,7 @@ class PixDoneApp {
 
                 // Don't show menu for default list
                 const currentList = this.getCurrentList();
-                const isDefaultList = (this.currentListId === 'default') || (currentList && currentList.name === 'My Tasks');
+                const isDefaultList = currentList && this.isMyTasksList(currentList);
 
                 console.log('Current list:', currentList);
                 console.log('Is default list:', isDefaultList);
@@ -2552,6 +2594,51 @@ class PixDoneApp {
             this.showDeleteAccountModal();
         });
 
+        const soundToggleBtn = document.getElementById('soundToggleBtn');
+        if (soundToggleBtn && this.comicEffects) {
+            soundToggleBtn.setAttribute('aria-checked', this.comicEffects.getSoundEnabled());
+            soundToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const enabled = !this.comicEffects.getSoundEnabled();
+                this.comicEffects.setSoundEnabled(enabled);
+                soundToggleBtn.setAttribute('aria-checked', enabled);
+                if (enabled) this.comicEffects.playSound('buttonClick');
+            });
+        }
+
+        const langEnBtn = document.getElementById('langEnBtn');
+        const langJaBtn = document.getElementById('langJaBtn');
+        if (langEnBtn && typeof window.setLang === 'function') {
+            langEnBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (this.comicEffects?.playSound) this.comicEffects.playSound('buttonClick');
+                window.setLang('en');
+                this.refreshLangUI();
+                this.updateListTitle();
+                this.renderTasks();
+                this.renderListTabs();
+            });
+        }
+        if (langJaBtn && typeof window.setLang === 'function') {
+            langJaBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (this.comicEffects?.playSound) this.comicEffects.playSound('buttonClick');
+                window.setLang('ja');
+                this.refreshLangUI();
+                this.updateListTitle();
+                this.renderTasks();
+                this.renderListTabs();
+            });
+        }
+
+        // 画面に戻ったときにリスト・タブの表示を現在の言語で再描画（英語に戻るのを防ぐ）
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) return;
+            if (typeof window.applyI18n === 'function') window.applyI18n();
+            this.updateListTitle();
+            this.renderListTabs();
+        });
+
         document.getElementById('confirmDeleteAccount')?.addEventListener('click', () => {
             this.comicEffects.playSound('taskDelete');
             this.deleteAccount();
@@ -2566,8 +2653,9 @@ class PixDoneApp {
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.user-menu')) {
                 const userDropdown = document.getElementById('userDropdown');
-                if (userDropdown) {
+                if (userDropdown && userDropdown.style.display === 'block') {
                     userDropdown.style.display = 'none';
+                    if (this.comicEffects?.playSound) this.comicEffects.playSound('taskCancel');
                 }
             }
         });
@@ -2736,7 +2824,8 @@ class PixDoneApp {
         // Set modal title
         const modalTitle = document.getElementById('mobileModalTitle');
         if (modalTitle) {
-            modalTitle.textContent = this.currentTask ? 'Edit Task' : 'Add Task';
+            const t = typeof window.t === 'function' ? window.t : (k) => k;
+            modalTitle.textContent = this.currentTask ? t('editTask') : t('newTask');
         }
 
         // Show modal with explicit styles
@@ -3102,23 +3191,24 @@ class PixDoneApp {
         }
 
         // Create inline edit form
+        const it = typeof window.t === 'function' ? window.t : (k) => k;
         const editForm = document.createElement('div');
         editForm.className = 'inline-edit-form';
         editForm.setAttribute('data-editing-task', taskId);
         editForm.innerHTML = `
             <div class="inline-edit-container">
                 <div class="inline-edit-field">
-                    <div id="inline-title-${taskId}" class="inline-edit-title-rich" contenteditable="true" placeholder="Task title">${this.processLinksForDisplay(task.title)}</div>
+                    <div id="inline-title-${taskId}" class="inline-edit-title-rich" contenteditable="true" placeholder="${it('title')}">${this.processLinksForDisplay(this.getTaskDisplayTitle(task))}</div>
                 </div>
                 <div class="inline-edit-field">
-                    <div id="inline-details-${taskId}" class="inline-edit-details-rich" contenteditable="true" placeholder="Details">${this.processLinksForDisplay(task.details || '')}</div>
+                    <div id="inline-details-${taskId}" class="inline-edit-details-rich" contenteditable="true" placeholder="${it('details')}">${this.processLinksForDisplay(task.details || '')}</div>
                 </div>
                 <div class="inline-edit-date-section">
                     <div class="inline-date-buttons">
-                        <button type="button" class="inline-date-btn" id="inline-today-${taskId}" onclick="window.pixDoneApp.selectInlineDate('${taskId}', 'today')">Today</button>
-                        <button type="button" class="inline-date-btn" id="inline-tomorrow-${taskId}" onclick="window.pixDoneApp.selectInlineDate('${taskId}', 'tomorrow')">Tomorrow</button>
+                        <button type="button" class="inline-date-btn" id="inline-today-${taskId}" onclick="window.pixDoneApp.selectInlineDate('${taskId}', 'today')">${it('today')}</button>
+                        <button type="button" class="inline-date-btn" id="inline-tomorrow-${taskId}" onclick="window.pixDoneApp.selectInlineDate('${taskId}', 'tomorrow')">${it('tomorrow')}</button>
                         <button type="button" class="inline-date-btn inline-calendar-btn" id="inline-calendar-${taskId}" onclick="window.pixDoneApp.showInlineDatePicker('${taskId}')">
-                            <i class="fa fa-calendar"></i> Pick
+                            <i class="fa fa-calendar"></i> ${it('pick')}
                         </button>
                         <button type="button" class="inline-repeat-btn" id="inline-repeat-${taskId}" onclick="window.pixDoneApp.toggleInlineRepeat('${taskId}')">
                             <i class="fas fa-redo"></i>
@@ -3126,33 +3216,33 @@ class PixDoneApp {
                         <input type="date" id="inline-date-picker-${taskId}" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;">
                     </div>
                     <div class="inline-repeat-selector" id="inline-repeat-selector-${taskId}" style="display: none;">
-                        <label for="inline-repeat-interval-${taskId}">Repeat:</label>
+                        <label for="inline-repeat-interval-${taskId}">${it('repeat')}:</label>
                         <select id="inline-repeat-interval-${taskId}" onchange="window.pixDoneApp.updateInlineRepeat('${taskId}')">
-                            <option value="none">No repeat</option>
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
+                            <option value="none">${it('noRepeat')}</option>
+                            <option value="daily">${it('daily')}</option>
+                            <option value="weekly">${it('weekly')}</option>
+                            <option value="monthly">${it('monthly')}</option>
+                            <option value="yearly">${it('yearly')}</option>
                         </select>
                     </div>
                 </div>
                 <div class="inline-edit-subtasks-section">
                     <div class="inline-subtasks-header">
-                        <span class="inline-subtasks-title">Subtasks (<span id="inline-subtasks-count-${taskId}">0</span>)</span>
+                        <span class="inline-subtasks-title">${it('subtasks')} (<span id="inline-subtasks-count-${taskId}">0</span>)</span>
                     </div>
                     <ul class="inline-subtasks-list" id="inline-subtasks-list-${taskId}"></ul>
                     <div class="inline-subtask-add">
-                        <input type="text" id="inline-subtask-input-${taskId}" class="inline-subtask-input" placeholder="Add subtask (press Enter)..." />
+                        <input type="text" id="inline-subtask-input-${taskId}" class="inline-subtask-input" placeholder="${it('addSubtasks')}" />
                         <button id="inline-subtask-add-btn-${taskId}" class="inline-subtask-add-btn" style="display: none;" aria-label="Add subtask">+ Add</button>
                     </div>
                 </div>
                 <div class="inline-edit-actions">
                     <div class="inline-edit-actions-left">
-                        <button type="button" class="inline-delete-btn" onclick="window.pixDoneApp.deleteInlineTask('${taskId}')">Delete</button>
-                    </div>
-                    <div class="inline-edit-actions-right">
-                        <button type="button" class="inline-cancel-btn" onclick="window.pixDoneApp.cancelInlineEdit('${taskId}')">Cancel</button>
-                        <button type="button" class="inline-save-btn" onclick="window.pixDoneApp.saveInlineEdit('${taskId}')">Save</button>
+<button type="button" class="inline-delete-btn" onclick="window.pixDoneApp.deleteInlineTask('${taskId}')">${it('delete')}</button>
+                        </div>
+                        <div class="inline-edit-actions-right">
+                        <button type="button" class="inline-cancel-btn" onclick="window.pixDoneApp.cancelInlineEdit('${taskId}')">${it('cancel')}</button>
+                        <button type="button" class="inline-save-btn" onclick="window.pixDoneApp.saveInlineEdit('${taskId}')">${it('save')}</button>
                     </div>
                 </div>
             </div>
@@ -3197,7 +3287,7 @@ class PixDoneApp {
         
         // Initialize subtasks from current task
         if (task.subtasks && Array.isArray(task.subtasks)) {
-            this.currentSubtasks = [...task.subtasks];
+            this.currentSubtasks = (task.subtasks || []).map(st => this.normalizeSubtask(st)).filter(Boolean);
         } else {
             this.currentSubtasks = [];
         }
@@ -3236,7 +3326,7 @@ class PixDoneApp {
         currentList.tasks[taskIndex].details = details;
         currentList.tasks[taskIndex].dueDate = this.selectedDate;
         currentList.tasks[taskIndex].repeat = this.selectedRepeat;
-        currentList.tasks[taskIndex].subtasks = this.currentSubtasks || [];
+        currentList.tasks[taskIndex].subtasks = (this.currentSubtasks || []).map(st => this.normalizeSubtask(st)).filter(Boolean);
 
         // Update in Firebase if authenticated
         if (this.isAuthenticated) {
@@ -3374,7 +3464,13 @@ class PixDoneApp {
         if (!this.currentSubtasks) return;
         const subtask = this.currentSubtasks.find(st => st.id === subtaskId);
         if (subtask) {
+            const wasDone = subtask.done;
             subtask.done = !subtask.done;
+            if (subtask.done && !wasDone && window.picoSound && typeof window.picoSound.playSubtaskCompleteSound === 'function') {
+                const total = this.currentSubtasks.length;
+                const completed = this.currentSubtasks.filter(st => st.done).length;
+                window.picoSound.playSubtaskCompleteSound({ total, completed });
+            }
             this.renderInlineSubtasks(taskId);
         }
     }
@@ -3500,15 +3596,16 @@ class PixDoneApp {
             btn.classList.remove('active');
         });
 
+        const t = typeof window.t === 'function' ? window.t : (k) => k;
         if (dateType === 'today') {
             const btn = document.getElementById(`inline-today-${taskId}`);
             btn.classList.add('active');
-            btn.textContent = 'Today';
+            btn.textContent = t('today');
             this.selectedDate = new Date().toISOString().split('T')[0];
         } else if (dateType === 'tomorrow') {
             const btn = document.getElementById(`inline-tomorrow-${taskId}`);
             btn.classList.add('active');
-            btn.textContent = 'Tomorrow';
+            btn.textContent = t('tomorrow');
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             this.selectedDate = tomorrow.toISOString().split('T')[0];
@@ -3917,8 +4014,8 @@ class PixDoneApp {
     }
 
     focusNextTaskCheckbox(completedTaskId) {
-        // 未完了のタスクを取得
-        const incompleteTasks = this.tasks.filter(task => !task.completed);
+        // 未完了のタスクを取得（親タスクのみ）
+        const incompleteTasks = this.tasks.filter(task => this.isTopLevelTask(task) && !task.completed);
 
         if (incompleteTasks.length > 0) {
             // 次のタスクのチェックボックスを見つける
@@ -3945,10 +4042,29 @@ class PixDoneApp {
         }
     }
 
-    editTask(taskId) {
+    /**
+     * Toggle a subtask's done state from the main list. Updates task, saves, re-renders. Plays pico sound when completing.
+     */
+    toggleSubtaskInList(taskId, subtaskId) {
+        const currentList = this.getCurrentList();
+        if (!currentList || !currentList.tasks) return;
+        const task = currentList.tasks.find(t => String(t.id) === String(taskId));
+        if (!task || !Array.isArray(task.subtasks)) return;
+        const subtask = task.subtasks.find(s => String(s.id) === String(subtaskId));
+        if (!subtask) return;
+        const wasDone = subtask.done;
+        subtask.done = !subtask.done;
+        if (subtask.done && !wasDone && window.picoSound && typeof window.picoSound.playSubtaskCompleteSound === 'function') {
+            const completed = task.subtasks.filter(s => s.done).length;
+            window.picoSound.playSubtaskCompleteSound({ total: task.subtasks.length, completed });
+        }
+        this.saveTasks();
+        this.renderTasks();
+    }
+
+    editTask(taskId, options = {}) {
         console.log('editTask called with taskId:', taskId);
 
-        // Check if this is a Smash List task and prevent editing
         const currentList = this.getCurrentList();
         if (currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List')) {
             console.log('Preventing edit of Smash List task');
@@ -3968,17 +4084,16 @@ class PixDoneApp {
         }
 
         console.log('Found task for editing:', task);
-        this.currentTask = { ...task }; // Create a copy to avoid reference issues
+        this.currentTask = { ...task };
         this.selectedDate = task.dueDate;
         this.selectedRepeat = task.repeat || 'none';
-        // Initialize subtasks if they exist
         if (task.subtasks && Array.isArray(task.subtasks)) {
-            this.currentSubtasks = [...task.subtasks];
+            this.currentSubtasks = (task.subtasks || []).map(st => this.normalizeSubtask(st)).filter(Boolean);
         } else {
             this.currentSubtasks = [];
         }
+        this.focusSubtasksWhenSheetOpen = !!(options && options.focusSubtasks);
 
-        // Use mobile bottom sheet for mobile devices
         if (window.innerWidth <= 768) {
             this.showMobileModal();
             // Bottom sheet will populate data via populateBottomSheetData()
@@ -3986,15 +4101,25 @@ class PixDoneApp {
             // Desktop: Show inline editing
             this.showInlineTaskEdit(taskId);
 
+            if (this.focusSubtasksWhenSheetOpen) {
+                this.focusSubtasksWhenSheetOpen = false;
+                setTimeout(() => {
+                    const form = document.querySelector(`.inline-edit-form[data-editing-task="${taskId}"]`);
+                    const section = form && form.querySelector('.inline-edit-subtasks-section');
+                    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 300);
+            }
+
             // Fill form with task data for desktop
             const titleField = document.getElementById('taskTitle');
             const detailsField = document.getElementById('taskDetails');
 
             if (titleField) {
+                const displayTitle = this.getTaskDisplayTitle(task);
                 if (titleField.tagName === 'INPUT') {
-                    titleField.value = task.title;
+                    titleField.value = displayTitle;
                 } else {
-                    titleField.innerHTML = this.processLinksForDisplay(task.title);
+                    titleField.innerHTML = this.processLinksForDisplay(displayTitle);
                 }
             }
 
@@ -4143,18 +4268,19 @@ class PixDoneApp {
         const gameStartEmpty = document.getElementById('gameStartEmpty');
         const tutorialCompleteCta = document.getElementById('tutorialCompleteCta');
 
-        // Get tasks from current list
+        // Get tasks from current list (count/display only top-level tasks; exclude subtasks stored as separate docs)
         const currentList = this.getCurrentList();
         const currentTasks = currentList ? currentList.tasks : [];
+        const topLevelTasks = currentTasks.filter(t => this.isTopLevelTask(t));
 
         // Update global tasks array for backward compatibility
         this.tasks = currentTasks;
 
-        const activeTasks = currentTasks.filter(t => !t.completed);
-        const completedTasksList = currentTasks.filter(t => t.completed);
+        const activeTasks = topLevelTasks.filter(t => !t.completed);
+        const completedTasksList = topLevelTasks.filter(t => t.completed);
 
         // Check if there are NO tasks at all (including completed)
-        const hasNoTasks = currentTasks.length === 0;
+        const hasNoTasks = topLevelTasks.length === 0;
 
         // Special handling for Smash List
         if (currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List')) {
@@ -4172,13 +4298,16 @@ class PixDoneApp {
 
             // Ensure Smash List has exactly 3 tasks at all times
             this.maintainSmashListTasks();
-            const updatedActiveTasks = currentList.tasks.filter(t => !t.completed);
+            const updatedActiveTasks = currentList.tasks.filter(t => this.isTopLevelTask(t) && !t.completed);
 
             // Always show Smash List message and tasks
+            let smashSub = (typeof window.t === 'function' ? window.t('smashListSubtitle') : 'This list exists only to let you tap and smash tasks for pure satisfaction. No saving, no planning—just smashing.');
+            smashSub = smashSub.replace(/\. /g, '.<br>').replace(/。/g, '。<br>');
+            const smashHint = typeof window.t === 'function' ? window.t('smashListHint') : 'Press Space to smash a task';
             taskList.innerHTML = `
                 <div class="smash-list-message">
-                    <p class="smash-list-subtitle">This list exists only to let you tap and smash tasks for pure satisfaction.<br>No saving, no planning—just smashing.</p>
-                    <p class="desktop-only smash-list-hint">Press <span class="command-key">Space</span> to smash a task</p>
+                    <p class="smash-list-subtitle">${smashSub}</p>
+                    <p class="desktop-only smash-list-hint">${smashHint}</p>
                 </div>
                 ${updatedActiveTasks.map(task => this.renderSmashTask(task)).join('')}
             `;
@@ -4219,7 +4348,7 @@ class PixDoneApp {
                 taskList.innerHTML = activeTasks.map(task => this.renderTask(task)).join('');
             }
 
-            // Render completed tasks for regular lists
+            // Render completed tasks for regular lists (top-level only)
             completedTasks.innerHTML = completedTasksList.map(task => this.renderTask(task)).join('');
 
             // Show completed tasks section for regular lists
@@ -4254,36 +4383,63 @@ class PixDoneApp {
 
     renderTask(task) {
         const dueStatus = this.getDueStatus(task.dueDate);
-        const dateDisplay = this.formatDateDisplay(task.dueDate);
+        const dueShort = this.formatDueShortEN(task.dueDate);
+        const repeatShort = this.formatRepeatShortEN(task.repeat);
+        const metaParts = [dueShort, repeatShort].filter(Boolean);
+        const parentMetaText = metaParts.length > 0 ? metaParts.map(s => this.escapeHtml(s)).join(' · ') : '';
+        const parentMetaHtml = parentMetaText ? `<div class="task-meta-text ${dueStatus}">${parentMetaText}</div>` : '';
+        const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+        const SUBTASK_PREVIEW_MAX = 2;
+        const previewSubtasks = subtasks.slice(0, SUBTASK_PREVIEW_MAX);
+        const remainingCount = subtasks.length - SUBTASK_PREVIEW_MAX;
+        const subtaskRowsHtml = subtasks.length > 0
+            ? previewSubtasks.map(st => {
+                const stDue = this.formatDueShortEN(st.dueDate);
+                const stMeta = stDue ? `<span class="subtask-meta-text">${this.escapeHtml(stDue)}</span>` : '';
+                return `
+                <div class="subtask-row ${st.done ? 'done' : ''}" data-type="subtask" data-parent-id="${this.escapeHtml(task.id)}" data-sub-id="${this.escapeHtml(st.id)}">
+                    <div class="subtask-row1">
+                        <input type="checkbox" class="subtask-preview-checkbox" ${st.done ? 'checked' : ''} data-task-id="${this.escapeHtml(task.id)}" data-subtask-id="${this.escapeHtml(st.id)}" aria-label="Toggle subtask" />
+                        <span class="subtask-preview-text">${this.escapeHtml(st.text)}</span>
+                        ${stMeta}
+                    </div>
+                </div>`;
+            }).join('') + (remainingCount > 0 ? `<div class="subtask-more" data-task-id="${this.escapeHtml(task.id)}">+${remainingCount}</div>` : '')
+            : '';
+        const subtasksBlockHtml = subtasks.length > 0 ? `<div class="subtasks" data-task-id="${this.escapeHtml(task.id)}">${subtaskRowsHtml}</div>` : '';
         return `
-            <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" draggable="${!task.completed}">
-                <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}">
+            <div class="task-card task-item ${task.completed ? 'completed' : ''}" data-task-id="${this.escapeHtml(task.id)}" draggable="${!task.completed}">
+                <div class="task-main">
+                    <div class="task-row" data-type="task" data-id="${this.escapeHtml(task.id)}">
+                        <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}"></div>
+                        <div class="task-content">
+                            <div class="task-title">${this.parseMarkdownLinks(this.getTaskDisplayTitle(task))}</div>
+                            ${task.details ? `<div class="task-details-text">${this.parseMarkdownLinks(task.details)}</div>` : ''}
+                            ${parentMetaHtml}
+                        </div>
+                        <div class="task-actions">
+                            <button class="task-action-btn edit-btn" data-task-id="${this.escapeHtml(task.id)}" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="task-action-btn delete-btn" data-task-id="${this.escapeHtml(task.id)}" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
                 </div>
-                <div class="task-content">
-                    <div class="task-title">${this.parseMarkdownLinks(task.title)}</div>
-                    ${task.details ? `<div class="task-details-text">${this.parseMarkdownLinks(task.details)}</div>` : ''}
-                    ${dateDisplay ? `<div class="task-date ${dueStatus}">${dateDisplay}</div>` : ''}
-                </div>
-                <div class="task-actions">
-                    <button class="task-action-btn edit-btn" data-task-id="${task.id}" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="task-action-btn delete-btn" data-task-id="${task.id}" title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
+                ${subtasksBlockHtml}
             </div>
         `;
     }
 
     renderSmashTask(task) {
-        // Special rendering for Smash List tasks - no edit/delete buttons
+        // Same card structure as renderTask so width/layout match; no edit/delete actions
+        const displayTitle = this.getSmashTaskDisplayTitle(task);
         return `
-            <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}" draggable="false">
-                <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}">
-                </div>
-                <div class="task-content">
-                    <div class="task-title">${this.parseMarkdownLinks(task.title)}</div>
+            <div class="task-card task-item ${task.completed ? 'completed' : ''}" data-task-id="${this.escapeHtml(task.id)}" draggable="false">
+                <div class="task-main">
+                    <div class="task-row" data-type="task" data-id="${this.escapeHtml(task.id)}">
+                        <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}"></div>
+                        <div class="task-content">
+                            <div class="task-title">${this.parseMarkdownLinks(displayTitle)}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -4313,52 +4469,77 @@ class PixDoneApp {
                 return;
             }
 
-            // Checkbox clicks
+            // Subtask checkbox: toggle only (do NOT open sheet)
+            if (e.target.closest('.subtask-preview-checkbox')) {
+                e.stopPropagation();
+                e.preventDefault();
+                const cb = e.target.closest('.subtask-preview-checkbox');
+                const taskId = cb.dataset.taskId;
+                const subtaskId = cb.dataset.subtaskId;
+                if (taskId && subtaskId) this.toggleSubtaskInList(taskId, subtaskId);
+                return;
+            }
+            // Subtask row click -> open parent task edit with focus on subtasks
+            if (e.target.closest('.subtask-row')) {
+                e.stopPropagation();
+                const row = e.target.closest('.subtask-row');
+                const parentId = row.dataset.parentId;
+                if (parentId != null) {
+                    if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
+                    this.editTask(parentId, { focusSubtasks: true });
+                }
+                return;
+            }
+            // "+N" click -> open parent task edit focused on subtasks
+            if (e.target.closest('.subtask-more')) {
+                e.stopPropagation();
+                const more = e.target.closest('.subtask-more');
+                const taskId = more.dataset.taskId;
+                if (taskId) {
+                    if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
+                    this.editTask(taskId, { focusSubtasks: true });
+                }
+                return;
+            }
+            // Parent task checkbox: toggle completion only
             if (e.target.closest('.task-checkbox')) {
                 e.stopPropagation();
                 e.preventDefault();
-                const taskItem = e.target.closest('.task-item');
-                const taskId = taskItem.dataset.taskId;
-                console.log('Checkbox clicked via delegation for task:', taskId);
-                this.toggleTaskCompletion(taskId, taskItem);
+                const taskCard = e.target.closest('.task-card');
+                const taskId = taskCard && taskCard.dataset.taskId;
+                if (taskId) this.toggleTaskCompletion(taskId, taskCard);
                 return;
             }
 
-            // Edit button clicks
             if (e.target.closest('.edit-btn')) {
                 e.stopPropagation();
                 const taskId = e.target.closest('.task-action-btn').dataset.taskId;
-                console.log('Edit button clicked for task:', taskId);
-                if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
-                    this.comicEffects.playSound('taskEdit');
+                if (taskId) {
+                    if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
+                    this.editTask(taskId);
                 }
-                this.editTask(taskId);
                 return;
             }
 
-            // Delete button clicks
             if (e.target.closest('.delete-btn')) {
                 e.stopPropagation();
                 const taskId = e.target.closest('.task-action-btn').dataset.taskId;
-                console.log('Delete button clicked for task:', taskId);
-                this.deleteTask(taskId);
+                if (taskId) this.deleteTask(taskId);
                 return;
             }
 
-            // Task item clicks (for editing) — 添付リンク押下時は編集モーダルを開かない
-            if (e.target.closest('.task-item') &&
+            // Parent task row click -> open task edit (not checkbox, not actions, not links)
+            if (e.target.closest('.task-row') &&
                 !e.target.closest('.task-checkbox') &&
                 !e.target.closest('.task-actions') &&
-                !e.target.closest('.task-action-btn') &&
                 !e.target.closest('a.task-link') &&
                 !e.target.closest('a.task-action-link')) {
-                const taskItem = e.target.closest('.task-item');
-                const taskId = taskItem.dataset.taskId;
-                console.log('Task item clicked for editing:', taskId);
-                if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
-                    this.comicEffects.playSound('taskEdit');
+                const row = e.target.closest('.task-row');
+                const taskId = row.dataset.id;
+                if (taskId) {
+                    if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
+                    this.editTask(taskId);
                 }
-                this.editTask(taskId);
                 return;
             }
         });
@@ -4381,6 +4562,52 @@ class PixDoneApp {
             // Record touch time to prevent duplicate click events
             this.lastTouchTime = Date.now();
 
+            // Subtask preview checkbox
+            if (e.target.closest('.subtask-preview-checkbox')) {
+                e.stopPropagation();
+                e.preventDefault();
+                const cb = e.target.closest('.subtask-preview-checkbox');
+                const taskId = cb && cb.dataset.taskId;
+                const subtaskId = cb && cb.dataset.subtaskId;
+                if (taskId && subtaskId) this.toggleSubtaskInList(taskId, subtaskId);
+                return;
+            }
+            // Subtask row touch -> open parent task edit with focus on subtasks
+            if (e.target.closest('.subtask-row')) {
+                e.stopPropagation();
+                const row = e.target.closest('.subtask-row');
+                const parentId = row && row.dataset.parentId;
+                if (parentId != null && touchStartData) {
+                    const touch = e.changedTouches[0];
+                    const deltaX = Math.abs(touch.clientX - touchStartData.x);
+                    const deltaY = Math.abs(touch.clientY - touchStartData.y);
+                    const timeDiff = Date.now() - touchStartData.time;
+                    if (timeDiff < 500 && deltaX < 20 && deltaY < 20) {
+                        if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
+                        this.editTask(parentId, { focusSubtasks: true });
+                    }
+                }
+                touchStartData = null;
+                return;
+            }
+            // +N touch -> open parent task edit focused on subtasks
+            if (e.target.closest('.subtask-more')) {
+                e.stopPropagation();
+                const more = e.target.closest('.subtask-more');
+                const taskId = more && more.dataset.taskId;
+                if (taskId && touchStartData) {
+                    const touch = e.changedTouches[0];
+                    const deltaX = Math.abs(touch.clientX - touchStartData.x);
+                    const deltaY = Math.abs(touch.clientY - touchStartData.y);
+                    const timeDiff = Date.now() - touchStartData.time;
+                    if (timeDiff < 500 && deltaX < 20 && deltaY < 20) {
+                        if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
+                        this.editTask(taskId, { focusSubtasks: true });
+                    }
+                }
+                touchStartData = null;
+                return;
+            }
             // Handle checkbox touches
             if (e.target.closest('.task-checkbox')) {
                 e.stopPropagation();
@@ -4460,7 +4687,7 @@ class PixDoneApp {
                 return;
             }
             this.lastShiftSmashTime = now;
-            const activeTasks = currentList.tasks.filter(t => !t.completed);
+            const activeTasks = currentList.tasks.filter(t => this.isTopLevelTask(t) && !t.completed);
             if (activeTasks.length === 0) {
                 return;
             }
@@ -4875,10 +5102,9 @@ class PixDoneApp {
                 console.log('Reordering tasks from', draggedIndex, 'to', dropIndex);
                 this.reorderTasksWithAnimation(draggedIndex, dropIndex);
 
-                // Sound temporarily disabled for debugging
-                // if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
-                //     this.comicEffects.playSound('taskAdd');
-                // }
+                if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                    this.comicEffects.playSound('taskAdd');
+                }
             }
 
             // Reset drag state
@@ -4947,7 +5173,7 @@ class PixDoneApp {
 
     reorderTasksWithAnimation(fromIndex, toIndex) {
         console.log('reorderTasksWithAnimation called:', fromIndex, '->', toIndex);
-        const activeTasks = this.tasks.filter(t => !t.completed);
+        const activeTasks = this.tasks.filter(t => this.isTopLevelTask(t) && !t.completed);
         console.log('Active tasks before reorder:', activeTasks.length);
 
         if (fromIndex < 0 || fromIndex >= activeTasks.length || toIndex < 0 || toIndex > activeTasks.length) {
@@ -4968,7 +5194,7 @@ class PixDoneApp {
         activeTasks.splice(fromIndex, 1);
         activeTasks.splice(toIndex, 0, taskToMove);
 
-        const completedTasks = this.tasks.filter(t => t.completed);
+        const completedTasks = this.tasks.filter(t => this.isTopLevelTask(t) && t.completed);
         this.tasks = [...activeTasks, ...completedTasks];
         this.saveTasks();
         this.renderTasks();
@@ -5008,7 +5234,7 @@ class PixDoneApp {
     }
 
     reorderTasks(fromIndex, toIndex) {
-        const activeTasks = this.tasks.filter(t => !t.completed);
+        const activeTasks = this.tasks.filter(t => this.isTopLevelTask(t) && !t.completed);
 
         if (fromIndex < 0 || fromIndex >= activeTasks.length ||
             toIndex < 0 || toIndex > activeTasks.length) {
@@ -5024,8 +5250,8 @@ class PixDoneApp {
         // Insert at new position
         activeTasks.splice(toIndex, 0, taskToMove);
 
-        // Update the main tasks array with the new order
-        const completedTasks = this.tasks.filter(t => t.completed);
+        // Update the main tasks array with the new order (top-level only)
+        const completedTasks = this.tasks.filter(t => this.isTopLevelTask(t) && t.completed);
         this.tasks = [...activeTasks, ...completedTasks];
 
         // Save the new order
@@ -5045,30 +5271,91 @@ class PixDoneApp {
         return 'upcoming';
     }
 
-    formatDateDisplay(dueDate) {
+    /**
+     * Short due label for list: localized Today/今日, Tomorrow/明日, or M/D, YY/M/D.
+     */
+    formatDueShortEN(dueDate) {
+        if (typeof window.formatDueShort === 'function') {
+            return window.formatDueShort(dueDate, typeof window.getLang === 'function' ? window.getLang() : 'en');
+        }
         if (!dueDate) return '';
-
         const today = new Date().toISOString().split('T')[0];
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
         if (dueDate === today) return 'Today';
         if (dueDate === tomorrowStr) return 'Tomorrow';
+        const d = new Date(dueDate);
+        const y = d.getFullYear();
+        const thisYear = new Date().getFullYear();
+        const m = d.getMonth() + 1;
+        const day = d.getDate();
+        if (y !== thisYear) return `${String(y).slice(-2)}/${m}/${day}`;
+        return `${m}/${day}`;
+    }
 
-        // Format as date
+    /**
+     * Short repeat label for list (parent only): localized Daily/毎日, etc.
+     */
+    formatRepeatShortEN(rule) {
+        if (!rule || rule === 'none') return '';
+        const t = typeof window.t === 'function' ? window.t : (k) => k;
+        const map = { daily: t('daily'), weekly: t('weekly'), monthly: t('monthly'), yearly: t('yearly') };
+        return map[rule] || '';
+    }
+
+    /** Normalize subtask to allowed fields only (no repeat). */
+    normalizeSubtask(st) {
+        if (!st || typeof st.id === 'undefined') return null;
+        return {
+            id: String(st.id),
+            text: typeof st.text === 'string' ? st.text : '',
+            done: !!st.done,
+            ...(st.dueDate ? { dueDate: st.dueDate } : {}),
+            ...(st.details !== undefined && st.details !== null && st.details !== '' ? { details: String(st.details) } : {})
+        };
+    }
+
+    formatDateDisplay(dueDate) {
+        if (!dueDate) return '';
+        if (typeof window.formatDueShort === 'function') {
+            const short = window.formatDueShort(dueDate, typeof window.getLang === 'function' ? window.getLang() : 'en');
+            if (short) return short;
+        }
+        const today = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        const t = typeof window.t === 'function' ? window.t : (k) => k;
+        if (dueDate === today) return t('dueToday');
+        if (dueDate === tomorrowStr) return t('dueTomorrow');
         const date = new Date(dueDate);
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-        });
+        const lang = typeof window.getLang === 'function' ? window.getLang() : 'en';
+        return date.toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'en-US', { month: 'short', day: 'numeric' });
+    }
+
+    /** 親タスクのみカウント（サブタスクが別ドキュメントの場合は除外） */
+    isTopLevelTask(task) {
+        return task && !task.parentId && !task.parentTaskId;
+    }
+
+    refreshLangUI() {
+        const cur = typeof window.getLang === 'function' ? window.getLang() : 'en';
+        const langEnBtn = document.getElementById('langEnBtn');
+        const langJaBtn = document.getElementById('langJaBtn');
+        if (langEnBtn) {
+            langEnBtn.classList.toggle('active', cur === 'en');
+        }
+        if (langJaBtn) {
+            langJaBtn.classList.toggle('active', cur === 'ja');
+        }
     }
 
     updateCompletedCount() {
         const currentList = this.getCurrentList();
         if (!currentList) return; // null/undefinedガードを追加
         const currentListId = currentList.id;
-        const allCompletedTasks = this.tasks.filter(t => t.completed);
+        const allCompletedTasks = this.tasks.filter(t => this.isTopLevelTask(t) && t.completed);
         const currentListCompletedTasks = allCompletedTasks.filter(t => t.listId === currentListId);
         const completedCount = currentListCompletedTasks.length;
         const completedCountElement = document.getElementById('completedCount');
@@ -5565,23 +5852,26 @@ class PixDoneApp {
 
     // List management methods
     renderListTabs() {
-        // --- 追加: My Tasksを先頭に ---
+        // --- 追加: My Tasksを先頭に（マイタスク＝My Tasksは同一） ---
         if (this.lists && this.lists.length > 1) {
-            const myTasksIdx = this.lists.findIndex(l => l.name === 'My Tasks');
+            const myTasksIdx = this.lists.findIndex(l => this.isMyTasksList(l));
             if (myTasksIdx > 0) {
                 const [myTasksList] = this.lists.splice(myTasksIdx, 1);
                 this.lists.unshift(myTasksList);
             }
         }
         // --- ここまで追加 ---
+        const t = typeof window.t === 'function' ? window.t : (k) => k;
         const container = document.getElementById('listTabs');
-        container.innerHTML = this.lists.map(list => `
+        container.innerHTML = this.lists.map(list => {
+            const displayName = this.isMyTasksList(list) ? t('myTasks') : list.name;
+            return `
             <button class="list-tab ${list.id === this.currentListId ? 'active' : ''}" 
                     data-list-id="${list.id}">
-                <span class="list-name">${this.escapeHtml(list.name)}</span>
-                ${(list.id === 'smash-list' || list.name === '💥 Smash List') ? '' : `<span class="list-count">${list.tasks.filter(t => !t.completed).length}</span>`}
+                <span class="list-name">${this.escapeHtml(displayName)}</span>
+                ${(list.id === 'smash-list' || list.name === '💥 Smash List') ? '' : `<span class="list-count">${list.tasks.filter(task => this.isTopLevelTask(task) && !task.completed).length}</span>`}
             </button>
-        `).join('');
+        `}).join('');
 
         // Add event listeners to list tabs
         container.querySelectorAll('.list-tab').forEach(tab => {
@@ -5789,10 +6079,8 @@ class PixDoneApp {
 
     // Context menu methods
     showListContextMenu(event, listId) {
-        // Don't show context menu for default list
-        if (listId === 'default') {
-            return;
-        }
+        const list = this.lists.find(l => l.id === listId);
+        if (list && this.isMyTasksList(list)) return;
 
         this.contextMenuListId = listId;
         const contextMenu = document.getElementById('contextMenu');
@@ -5833,12 +6121,9 @@ class PixDoneApp {
 
     // List management methods
     showEditListModal(listId) {
-        // Don't allow editing default list
-        if (listId === 'default') {
-            return;
-        }
-
         const list = this.lists.find(l => l.id == listId);
+        if (list && this.isMyTasksList(list)) return;
+
         if (!list) return;
 
         this.editingListId = listId;
@@ -5909,19 +6194,17 @@ class PixDoneApp {
     }
 
     showDeleteListModal(listId) {
-        // Don't allow deleting default list
-        if (listId === 'default') {
-            return;
-        }
-
         const list = this.lists.find(l => l.id == listId);
+        if (list && this.isMyTasksList(list)) return;
+
         if (!list) return;
 
         this.deletingListId = listId;
         const modal = document.getElementById('deleteListModal');
         const message = document.getElementById('deleteListMessage');
 
-        message.textContent = `Are you sure you want to delete "${list.name}" and all its tasks?`;
+        const msg = typeof window.t === 'function' ? window.t('deleteListConfirm') : 'Are you sure you want to delete this list and all its tasks?';
+        message.textContent = msg;
         modal.classList.add('active');
         // Hide FAB when modal opens
         const fab = document.getElementById('mobileFab');
@@ -5986,6 +6269,12 @@ class PixDoneApp {
         return this.lists.find(l => l.id === this.currentListId);
     }
 
+    /** マイタスク／My Tasks は言語で表示が変わるだけで同一リスト。保存名は常に 'My Tasks' */
+    isMyTasksList(list) {
+        if (!list) return false;
+        return list.id === 'default' || list.name === 'My Tasks' || list.name === 'マイタスク';
+    }
+
     ensureDefaultList() {
         // デフォルトリストは id: 'default' で1つだけ。未ログイン時は「Tutorial」、ログイン時は「My Tasks」
         const hasDefaultById = this.lists.some(l => l.id === 'default');
@@ -6025,13 +6314,14 @@ class PixDoneApp {
         const menuButton = document.getElementById('listMenuBtn');
         const currentList = this.getCurrentList();
         if (titleElement && currentList) {
-            titleElement.textContent = currentList.name;
+            const t = typeof window.t === 'function' ? window.t : (k) => k;
+            titleElement.textContent = this.isMyTasksList(currentList) ? t('myTasks') : currentList.name;
         }
 
         // Hide menu button for default list and Smash List
         if (menuButton) {
             const currentList = this.getCurrentList();
-            const isDefaultList = (this.currentListId === 'default') || (currentList && currentList.name === 'My Tasks');
+            const isDefaultList = currentList && this.isMyTasksList(currentList);
             const isSmashList = (this.currentListId === 'smash-list') || (currentList && currentList.name === '💥 Smash List');
 
             if (isDefaultList || isSmashList) {
@@ -6113,9 +6403,11 @@ class PixDoneApp {
                 for (const task of list.tasks) {
                     if (!task.id) {
                         // 新規タスク
-                        await addTaskToFirestore(task.title, task.details, task.dueDate, task.repeat, list.id, task.subtasks || []);
+                        const title = this.getTaskDisplayTitle(task);
+                        await addTaskToFirestore(title, task.details, task.dueDate, task.repeat, list.id, task.subtasks || []);
                     } else if (typeof task.id === 'string') {
-                        await db.collection('tasks').doc(task.id).set({ ...task, uid: firebase.auth().currentUser.uid, listId: list.id }, { merge: true });
+                        const title = this.getTaskDisplayTitle(task);
+                        await db.collection('tasks').doc(task.id).set({ ...task, title, uid: firebase.auth().currentUser.uid, listId: list.id }, { merge: true });
                     }
                 }
             }
@@ -6192,7 +6484,7 @@ class PixDoneApp {
             const defaultList = this.lists.find(list => list.id === 'default');
             if (defaultList) {
                 const targetName = this.isAuthenticated ? 'My Tasks' : 'Tutorial';
-                if (defaultList.name !== targetName && (defaultList.name === 'My Tasks' || defaultList.name === 'Tutorial' || defaultList.name === 'マイタスク')) {
+                if (defaultList.name !== targetName && (this.isMyTasksList(defaultList) || defaultList.name === 'Tutorial')) {
                     defaultList.name = targetName;
                     this.saveLists();
                 }
@@ -6322,18 +6614,19 @@ class PixDoneApp {
         const toggleBtn = document.getElementById('toggleAuthMode');
         const authFooter = document.querySelector('.auth-footer span');
         const forgotPasswordSection = document.getElementById('forgotPasswordSection');
+        const t = typeof window.t === 'function' ? window.t : (k) => k;
 
         if (this.isEmailAuthRegistering) {
-            title.textContent = 'Sign up';
-            submitBtn.textContent = 'Sign up';
-            toggleBtn.textContent = 'Log in';
-            authFooter.textContent = 'Already have an account? ';
+            title.textContent = t('signUp');
+            submitBtn.textContent = t('signUp');
+            toggleBtn.textContent = t('logIn');
+            authFooter.textContent = t('alreadyHaveAccount');
             forgotPasswordSection.style.display = 'none';
         } else {
-            title.textContent = 'Log in';
-            submitBtn.textContent = 'Log in';
-            toggleBtn.textContent = 'Sign up';
-            authFooter.textContent = "Don't have an account? ";
+            title.textContent = t('logIn');
+            submitBtn.textContent = t('logIn');
+            toggleBtn.textContent = t('signUp');
+            authFooter.textContent = t('noAccount');
             forgotPasswordSection.style.display = 'block';
         }
     }
@@ -6469,6 +6762,7 @@ class PixDoneApp {
         const userDropdown = document.getElementById('userDropdown');
         const isVisible = userDropdown.style.display === 'block';
         userDropdown.style.display = isVisible ? 'none' : 'block';
+        if (isVisible && this.comicEffects?.playSound) this.comicEffects.playSound('taskCancel');
     }
 
     showDeleteAccountModal() {
@@ -6864,20 +7158,16 @@ async function addListToFirestore(name) {
         tasks: []
     });
 
-    // Smash Listの場合は初期タスクを追加
+    // Smash Listの場合は初期タスクを追加（現在の言語のダミータスクからランダムに10件）
     if (name === '💥 Smash List') {
-        const smashTasks = [
-            { title: 'Check notifications', completed: false },
-            { title: 'Organize desk', completed: false },
-            { title: 'Review emails', completed: false },
-            { title: 'Take deep breaths', completed: false },
-            { title: 'Stretch muscles', completed: false },
-            { title: 'Clear browser tabs', completed: false },
-            { title: 'Clean keyboard', completed: false },
-            { title: 'Water plants', completed: false },
-            { title: 'Tidy up files', completed: false },
-            { title: 'Quick workout', completed: false }
-        ];
+        const pool = (typeof window.pixDoneApp !== 'undefined' && window.pixDoneApp.getSmashListTasks)
+            ? window.pixDoneApp.getSmashListTasks()
+            : ['Fix the coffee machine', 'Buy milk and bread', 'Call mom', 'Clean the garage', 'Organize email inbox', 'Fix the leaky faucet', 'Plan weekend trip', 'Read 30 pages of a book', 'Go for a 30-minute walk', 'Backup computer files'];
+        const titles = [];
+        for (let i = 0; i < 10; i++) {
+            titles.push(pool[Math.floor(Math.random() * pool.length)]);
+        }
+        const smashTasks = titles.map(title => ({ title, completed: false }));
 
         const batch = db.batch();
         smashTasks.forEach(task => {
