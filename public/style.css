@@ -1564,7 +1564,7 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
-    min-height: 100px;
+    min-height: 24px;
     padding: 8px 0;
     position: relative;
     width: 100%;
@@ -2942,8 +2942,8 @@ div[id="newTaskDetails"] a:hover {
 /* Tutorial complete: Sign up CTA */
 .tutorial-complete-cta {
     text-align: center;
-    padding: 32px 20px;
-    margin: 24px 0;
+    padding: 24px 20px;
+    margin: 8px 0 24px 0;
     image-rendering: pixelated;
 }
 .tutorial-complete-cta-text {
@@ -2958,7 +2958,7 @@ div[id="newTaskDetails"] a:hover {
 }
 .tutorial-complete-cta-sub {
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 1.3rem;
+    font-size: 1rem;
     color: var(--text-secondary);
     margin-bottom: 24px;
     line-height: 1.4;
