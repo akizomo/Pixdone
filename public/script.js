@@ -6269,9 +6269,10 @@ class PixDoneApp {
         return this.lists.find(l => l.id === this.currentListId);
     }
 
-    /** マイタスク／My Tasks は言語で表示が変わるだけで同一リスト。保存名は常に 'My Tasks' */
+    /** マイタスク／My Tasks は言語で表示が変わるだけで同一リスト。未ログイン時の default は Tutorial なので除外 */
     isMyTasksList(list) {
         if (!list) return false;
+        if (list.name === 'Tutorial') return false;
         return list.id === 'default' || list.name === 'My Tasks' || list.name === 'マイタスク';
     }
 

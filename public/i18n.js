@@ -206,9 +206,9 @@
             smashListHint: 'Space でスマッシュ',
 
             // Tutorial task titles
-            tutorialTask1: 'このタスクを完了してみよう！',
-            tutorialTask2: 'タスクを完了するたびに、ちがうエフェクトが出るよ。いくつ見つかる？',
-            tutorialTask3: '[スマッシュリスト](action:smash-list)でもっと楽しもう！',
+            tutorialTask1: 'まずはひとつ、終わらせてみよう。',
+            tutorialTask2: '終わらせるたびに、違うエフェクト。いくつ見つけられる？',
+            tutorialTask3: '[スマッシュリスト](action:smash-list)、試してみる？管理はしない。ただ潰す。',
 
             // Due (for formatDueShort - kana for pixel areas)
             dueToday: '今日',
