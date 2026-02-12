@@ -6793,18 +6793,19 @@ class PixDoneApp {
 
     async logout() {
         try {
-            // まずサーバーセッションを終了
-            const res = await fetch('/api/auth/logout', {
-                method: 'POST',
-                credentials: 'include'
-            });
-            if (!res.ok) {
-                console.error('Server logout failed with status:', res.status);
-                this.comicEffects.playSound('taskCancel');
-                alert(`Server logout failed (Status: ${res.status}). 開発環境では Port 5000 を使用してください（Live Server の 5500 ではなく）。`);
-                return;
+            // サーバーセッションがあれば終了（本番の静的ホストでは /api がないのでスキップされる）
+            try {
+                const res = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                if (!res.ok) {
+                    console.warn('Server logout not available or failed (status:', res.status, '). Proceeding with Firebase signOut.');
+                }
+            } catch (e) {
+                console.warn('Server logout request failed (e.g. no backend). Proceeding with Firebase signOut.');
             }
-            // 次にFirebaseサインアウト
+            // 常にFirebaseサインアウトを実行（本番でもログアウトできるようにする）
             const result = await window.firebaseAuth.logout();
             if (result.success) {
                 this.comicEffects.playSound('taskComplete');
