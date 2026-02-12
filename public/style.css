@@ -359,6 +359,28 @@ body {
     margin: 4px 0;
 }
 
+.settings-footer {
+    padding: 8px 16px 12px;
+    width: 100%;
+}
+
+.settings-link {
+    display: inline-block;
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.settings-link:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.settings-link:active {
+    opacity: 0.85;
+}
+
 .dropdown-item {
     display: flex;
     align-items: center;

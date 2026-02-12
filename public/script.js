@@ -2594,6 +2594,10 @@ class PixDoneApp {
             this.showDeleteAccountModal();
         });
 
+        document.querySelector('.settings-link')?.addEventListener('click', () => {
+            if (this.comicEffects?.playSound) this.comicEffects.playSound('buttonClick');
+        });
+
         const soundToggleBtn = document.getElementById('soundToggleBtn');
         if (soundToggleBtn && this.comicEffects) {
             soundToggleBtn.setAttribute('aria-checked', this.comicEffects.getSoundEnabled());
