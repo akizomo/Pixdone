@@ -152,7 +152,7 @@
             ready: 'Ready?',
             pressPlusToStart: '+ で最初のタスクをはじめよう。',
             noTasksRest: 'タスクなし — やすもう！',
-            tutorialComplete: 'チュートリアルおつかれさま！',
+            tutorialComplete: "You've completed the tutorial!",
             tutorialCompleteSub: 'サインアップしてタスクを保存し、端末間で同期できます。',
 
             // Completed

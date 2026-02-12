@@ -6080,7 +6080,7 @@ class PixDoneApp {
     // Context menu methods
     showListContextMenu(event, listId) {
         const list = this.lists.find(l => l.id === listId);
-        if (list && this.isMyTasksList(list)) return;
+        if (list && (this.isMyTasksList(list) || list.name === 'Tutorial')) return;
 
         this.contextMenuListId = listId;
         const contextMenu = document.getElementById('contextMenu');
@@ -6122,7 +6122,7 @@ class PixDoneApp {
     // List management methods
     showEditListModal(listId) {
         const list = this.lists.find(l => l.id == listId);
-        if (list && this.isMyTasksList(list)) return;
+        if (list && (this.isMyTasksList(list) || list.name === 'Tutorial')) return;
 
         if (!list) return;
 
@@ -6195,7 +6195,7 @@ class PixDoneApp {
 
     showDeleteListModal(listId) {
         const list = this.lists.find(l => l.id == listId);
-        if (list && this.isMyTasksList(list)) return;
+        if (list && (this.isMyTasksList(list) || list.name === 'Tutorial')) return;
 
         if (!list) return;
 
@@ -6319,13 +6319,13 @@ class PixDoneApp {
             titleElement.textContent = this.isMyTasksList(currentList) ? t('myTasks') : currentList.name;
         }
 
-        // Hide menu button for default list and Smash List
+        // Hide menu button for Tutorial・マイタスク・Smash List（名前変更・削除メニューを出さない）
         if (menuButton) {
             const currentList = this.getCurrentList();
-            const isDefaultList = currentList && this.isMyTasksList(currentList);
+            const isTutorialOrMyTasks = currentList && (this.isMyTasksList(currentList) || currentList.name === 'Tutorial');
             const isSmashList = (this.currentListId === 'smash-list') || (currentList && currentList.name === '💥 Smash List');
 
-            if (isDefaultList || isSmashList) {
+            if (isTutorialOrMyTasks || isSmashList) {
                 menuButton.style.display = 'none';
                 menuButton.classList.add('hidden');
                 menuButton.style.visibility = 'hidden';
