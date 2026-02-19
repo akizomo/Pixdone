@@ -732,51 +732,129 @@ class PixDoneApp {
             }
         };
 
-        // Setup keyboard avoidance using visualViewport API
+        // Setup keyboard avoidance using visualViewport API - positions footer above keyboard
         this.setupKeyboardAvoidance = (sheet) => {
             // Only apply on mobile devices (not desktop)
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             const isDesktop = window.matchMedia('(min-width: 769px)').matches;
             
-            if (!isMobile || isDesktop || !window.visualViewport) {
+            if (!isMobile || isDesktop) {
                 return;
             }
 
             const footer = sheet.querySelector('.task-sheet-footer');
-            const body = sheet.querySelector('.task-sheet-body');
-            if (!footer || !body) return;
+            if (!footer) return;
 
             let resizeHandler = null;
             let scrollHandler = null;
+            let focusInHandler = null;
+            let focusOutHandler = null;
+            let rafId = null;
 
-            const updateSheetPosition = () => {
-                const viewport = window.visualViewport;
-                const windowHeight = window.innerHeight;
-                const viewportHeight = viewport.height;
-                const viewportTop = viewport.offsetTop;
-                const keyboardHeight = windowHeight - viewportHeight - viewportTop;
+            // Calculate keyboard height and update footer position
+            const updateFooterPosition = () => {
+                // Cancel any pending animation frame
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                }
 
-                if (keyboardHeight > 50) {
-                    // Keyboard is visible, adjust sheet bottom position
-                    sheet.style.bottom = `${keyboardHeight}px`;
-                } else {
-                    // Keyboard is hidden, reset sheet position
-                    sheet.style.bottom = '0px';
+                rafId = requestAnimationFrame(() => {
+                    let keyboardHeight = 0;
+                    let isKeyboardVisible = false;
+
+                    if (window.visualViewport) {
+                        // Use visualViewport API (preferred method)
+                        const viewport = window.visualViewport;
+                        const windowHeight = window.innerHeight;
+                        const viewportHeight = viewport.height;
+                        const viewportTop = viewport.offsetTop;
+                        keyboardHeight = Math.max(0, windowHeight - (viewportHeight + viewportTop));
+                        isKeyboardVisible = keyboardHeight > 50;
+                    } else {
+                        // Fallback: monitor viewport height changes
+                        const currentHeight = window.innerHeight;
+                        const initialHeight = sheet._initialViewportHeight || currentHeight;
+                        if (!sheet._initialViewportHeight) {
+                            sheet._initialViewportHeight = currentHeight;
+                        }
+                        const heightDiff = initialHeight - currentHeight;
+                        keyboardHeight = Math.max(0, heightDiff);
+                        isKeyboardVisible = keyboardHeight > 50;
+                    }
+
+                    // Update footer bottom position
+                    // CSS base is calc(0px + env(safe-area-inset-bottom)), we add keyboard height
+                    if (keyboardHeight > 0) {
+                        footer.style.bottom = `calc(${keyboardHeight}px + env(safe-area-inset-bottom))`;
+                    } else {
+                        footer.style.bottom = 'calc(0px + env(safe-area-inset-bottom))';
+                    }
+
+                    // Add/remove keyboard-open class on html element
+                    if (isKeyboardVisible) {
+                        document.documentElement.classList.add('keyboard-open');
+                    } else {
+                        document.documentElement.classList.remove('keyboard-open');
+                    }
+                });
+            };
+
+            // Throttle resize handler to prevent layout thrashing
+            let resizeTimeout = null;
+            resizeHandler = () => {
+                if (resizeTimeout) {
+                    clearTimeout(resizeTimeout);
+                }
+                resizeTimeout = setTimeout(updateFooterPosition, 16); // ~60fps
+            };
+
+            scrollHandler = updateFooterPosition;
+
+            // Focus handlers for additional stability
+            focusInHandler = (e) => {
+                // Check if focus is on an input within the sheet
+                if (sheet.contains(e.target)) {
+                    // Small delay to allow keyboard to appear
+                    setTimeout(updateFooterPosition, 100);
                 }
             };
 
-            resizeHandler = updateSheetPosition;
-            scrollHandler = updateSheetPosition;
+            focusOutHandler = (e) => {
+                // Check if focus is leaving the sheet
+                if (sheet.contains(e.target)) {
+                    // Delay to check if keyboard actually closed
+                    setTimeout(() => {
+                        // Only update if no input in sheet is focused
+                        const activeElement = document.activeElement;
+                        if (!sheet.contains(activeElement) || activeElement === document.body) {
+                            updateFooterPosition();
+                        }
+                    }, 150);
+                }
+            };
 
             // Initial check
-            updateSheetPosition();
+            updateFooterPosition();
 
-            // Listen for viewport resize (keyboard show/hide)
-            window.visualViewport.addEventListener('resize', resizeHandler);
-            window.visualViewport.addEventListener('scroll', scrollHandler);
+            // Listen for viewport resize/scroll (keyboard show/hide)
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', resizeHandler);
+                window.visualViewport.addEventListener('scroll', scrollHandler);
+            } else {
+                // Fallback: monitor window resize
+                window.addEventListener('resize', resizeHandler);
+            }
+
+            // Listen for focus events
+            document.addEventListener('focusin', focusInHandler);
+            document.addEventListener('focusout', focusOutHandler);
 
             // Store cleanup function on sheet element
             sheet._keyboardAvoidanceCleanup = () => {
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
                 if (window.visualViewport) {
                     if (resizeHandler) {
                         window.visualViewport.removeEventListener('resize', resizeHandler);
@@ -784,8 +862,24 @@ class PixDoneApp {
                     if (scrollHandler) {
                         window.visualViewport.removeEventListener('scroll', scrollHandler);
                     }
+                } else {
+                    if (resizeHandler) {
+                        window.removeEventListener('resize', resizeHandler);
+                    }
                 }
-                sheet.style.bottom = '';
+                if (focusInHandler) {
+                    document.removeEventListener('focusin', focusInHandler);
+                }
+                if (focusOutHandler) {
+                    document.removeEventListener('focusout', focusOutHandler);
+                }
+                if (resizeTimeout) {
+                    clearTimeout(resizeTimeout);
+                }
+                // Reset footer to CSS default (includes safe-area-inset-bottom)
+                footer.style.bottom = '';
+                document.documentElement.classList.remove('keyboard-open');
+                delete sheet._initialViewportHeight;
             };
         };
 

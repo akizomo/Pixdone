@@ -3921,6 +3921,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     overflow-y: auto;
     overflow-x: hidden;
     padding: 16px 20px;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom)); /* Footer height + safe area to prevent content hiding */
     -webkit-overflow-scrolling: touch;
     scroll-padding-bottom: 88px; /* Footer height + padding for keyboard avoidance */
 }
@@ -4262,10 +4263,12 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     pointer-events: none;
 }
 
-/* Sticky Footer - Stays at bottom of sheet */
+/* Fixed Footer - Stays above keyboard on mobile */
 .task-sheet-footer {
-    position: sticky;
-    bottom: 0;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(0px + env(safe-area-inset-bottom));
     flex-shrink: 0;
     padding: 16px 20px;
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
@@ -4278,6 +4281,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     gap: 12px;
     min-height: 72px;
     z-index: 10;
+    transition: bottom 160ms ease;
 }
 
 .task-sheet-footer-left {
@@ -4364,13 +4368,18 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
         transform: translate(-50%, -50%) translateY(0);
     }
 
-    /* Desktop: Footer doesn't need sticky positioning */
+    /* Desktop: Footer uses relative positioning (not fixed) */
     .task-sheet-footer {
         position: relative;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        transition: none;
     }
 
-    /* Desktop: Reset scroll padding */
+    /* Desktop: Reset scroll padding and padding-bottom */
     .task-sheet-body {
         scroll-padding-bottom: 0;
+        padding-bottom: 16px;
     }
 }
