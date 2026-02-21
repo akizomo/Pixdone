@@ -2681,6 +2681,16 @@ class PixDoneApp {
 
         // Mobile modal event listeners now handled by new system
 
+        // Logo CRT world shutdown effect (checkmark only)
+        const appLogo = document.querySelector('.app-logo');
+        if (appLogo && this.comicEffects?.playWorldShutdownCrtHardCut) {
+            appLogo.addEventListener('pointerup', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                this.comicEffects.playWorldShutdownCrtHardCut();
+            });
+        }
+
         // List management events
         document.getElementById('addListBtn').addEventListener('click', () => {
             this.comicEffects.playSound('taskAdd');
@@ -3938,7 +3948,7 @@ class PixDoneApp {
         }
     }
 
-    async toggleTaskCompletion(taskId, taskElement = null) {
+    async toggleTaskCompletion(taskId, taskElement = null, options = {}) {
         console.log('toggleTaskCompletion called with taskId:', taskId);
 
         // Prevent duplicate completion calls
@@ -3974,6 +3984,7 @@ class PixDoneApp {
             // Uncomplete task
             task.completed = false;
             task.completedAt = null;
+            delete task.perfectTimingResult;
             if (this.isAuthenticated) {
                 try {
                     await toggleTaskCompletionFirestore(taskId, false);
@@ -3990,6 +4001,9 @@ class PixDoneApp {
             // Complete task without processing flag
             task.completed = true;
             task.completedAt = new Date().toISOString();
+            if (options.fromPerfectTiming && options.perfectTimingResult) {
+                task.perfectTimingResult = options.perfectTimingResult;
+            }
             if (this.isAuthenticated) {
                 try {
                     await toggleTaskCompletionFirestore(taskId, true);
@@ -4011,8 +4025,8 @@ class PixDoneApp {
                 }
             }
 
-            // Show comic effects immediately with the current task element
-            if (window.taskAnimationEffects && taskElement && taskElement.nodeType === 1) {
+            // Show comic effects immediately with the current task element (skip when from PerfectTiming - effects handled there)
+            if (!options.fromPerfectTiming && window.taskAnimationEffects && taskElement && taskElement.nodeType === 1) {
                 console.log('Showing effects for element (type check):', taskElement.nodeType, taskElement.tagName);
                 console.log('Element rect before effect:', taskElement.getBoundingClientRect());
                 console.log('Element computed style:', window.getComputedStyle(taskElement));
@@ -4531,8 +4545,9 @@ class PixDoneApp {
             }).join('') + (remainingCount > 0 ? `<div class="subtask-more" data-task-id="${this.escapeHtml(task.id)}">+${remainingCount}</div>` : '')
             : '';
         const subtasksBlockHtml = subtasks.length > 0 ? `<div class="subtasks" data-task-id="${this.escapeHtml(task.id)}">${subtaskRowsHtml}</div>` : '';
+        const ptResult = task.perfectTimingResult ? ` data-perfect-timing-result="${this.escapeHtml(task.perfectTimingResult)}"` : '';
         return `
-            <div class="task-card task-item ${task.completed ? 'completed' : ''}" data-task-id="${this.escapeHtml(task.id)}" draggable="${!task.completed}">
+            <div class="task-card task-item ${task.completed ? 'completed' : ''}" data-task-id="${this.escapeHtml(task.id)}"${ptResult} draggable="${!task.completed}">
                 <div class="task-main">
                     <div class="task-row" data-type="task" data-id="${this.escapeHtml(task.id)}">
                         <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}"></div>
@@ -4555,8 +4570,9 @@ class PixDoneApp {
     renderSmashTask(task) {
         // Same card structure as renderTask so width/layout match; no edit/delete actions
         const displayTitle = this.getSmashTaskDisplayTitle(task);
+        const ptResult = task.perfectTimingResult ? ` data-perfect-timing-result="${this.escapeHtml(task.perfectTimingResult)}"` : '';
         return `
-            <div class="task-card task-item ${task.completed ? 'completed' : ''}" data-task-id="${this.escapeHtml(task.id)}" draggable="false">
+            <div class="task-card task-item ${task.completed ? 'completed' : ''}" data-task-id="${this.escapeHtml(task.id)}"${ptResult} draggable="false">
                 <div class="task-main">
                     <div class="task-row" data-type="task" data-id="${this.escapeHtml(task.id)}">
                         <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}"></div>
@@ -4625,15 +4641,8 @@ class PixDoneApp {
                 }
                 return;
             }
-            // Parent task checkbox: toggle completion only
-            if (e.target.closest('.task-checkbox')) {
-                e.stopPropagation();
-                e.preventDefault();
-                const taskCard = e.target.closest('.task-card');
-                const taskId = taskCard && taskCard.dataset.taskId;
-                if (taskId) this.toggleTaskCompletion(taskId, taskCard);
-                return;
-            }
+            // Parent task checkbox: handled by PerfectTiming (pointer events)
+            // (no click handler here - PerfectTimingManager handles via pointerdown/pointerup)
 
             if (e.target.closest('.edit-btn')) {
                 e.stopPropagation();
@@ -4732,18 +4741,8 @@ class PixDoneApp {
                 touchStartData = null;
                 return;
             }
-            // Handle checkbox touches
-            if (e.target.closest('.task-checkbox')) {
-                e.stopPropagation();
-                e.preventDefault();
-                const taskItem = e.target.closest('.task-item');
-                const taskId = taskItem.dataset.taskId;
-                console.log('Mobile checkbox touched - task:', taskId);
-                console.log('Task element found:', taskItem);
-                console.log('About to trigger effects for mobile completion');
-                this.toggleTaskCompletion(taskId, taskItem);
-                return;
-            }
+            // Handle checkbox touches: delegated to PerfectTiming (pointer events)
+            // (no touchend handler here - PerfectTimingManager handles via pointerdown/pointerup)
 
             // Handle task item touches for editing — 添付リンク押下時は編集モーダルを開かない
             if (e.target.closest('.task-item') &&
@@ -4776,8 +4775,24 @@ class PixDoneApp {
             }
         });
 
+        // Perfect Timing minigame (long-press to enter timing bar)
+        this.setupPerfectTiming();
+
         // Setup drag and drop
         this.setupDragAndDrop();
+    }
+
+    setupPerfectTiming() {
+        if (typeof window.PerfectTimingManager === 'undefined') return;
+        window.comicEffects = this.comicEffects;
+        const getTaskInfo = (taskId) => {
+            const task = this.getCurrentList()?.tasks?.find(t => String(t.id) === String(taskId));
+            return task?.completed ? { disabled: true } : null;
+        };
+        const completeTask = (taskId, taskElement, fromPerfectTiming, perfectTimingResult) => {
+            if (taskId) this.toggleTaskCompletion(taskId, taskElement, { fromPerfectTiming, perfectTimingResult });
+        };
+        window.PerfectTimingManager.setup(getTaskInfo, completeTask);
     }
 
     setupKeyboardShortcuts() {
@@ -6083,6 +6098,9 @@ class PixDoneApp {
     }
 
     switchToList(listId, direction = 'none') {
+        if (typeof window.PerfectTimingManager?.closeOverlay === 'function') {
+            window.PerfectTimingManager.closeOverlay();
+        }
         if (direction !== 'none') {
             this.animateListSwitch(direction, () => {
                 this.currentListId = listId;

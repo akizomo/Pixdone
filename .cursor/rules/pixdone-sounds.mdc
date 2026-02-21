@@ -9,5 +9,13 @@ alwaysApply: true
 - **方針**: 他のデザインと同様、**すべての操作**に選択音・フィードバック音を割り振ること。
 - タスク追加・編集・削除・完了・キャンセル・ボタンクリック・ドラッグ並び替えなど、ユーザーが行う操作には `comicEffects.playSound(...)` または適切な効果音を付ける。
 - 新規UIや新規操作を追加する際も、このルールに従って音を付けること。
-- 音の種類: `taskAdd`, `taskEdit`, `taskDelete`, `taskCancel`, `taskComplete`, `buttonClick` など（ComicEffectsManager の定義に準拠）。サブタスク完了時は picoSound のビープも使用可。
+- **重要度別サウンド割り当て**:
+  - **taskAdd**: データ追加（タスク/リスト/サブタスク追加、確定）
+  - **taskDelete**: データ削除（タスク/リスト削除）
+  - **taskComplete**: 成功・完了（ログイン/ログアウト成功、パスワードリセット成功）
+  - **taskEdit**: 編集・モード開始（タスク編集を開く、サブタスク編集）
+  - **taskCancel**: キャンセル・閉じる（モーダルを閉じる、キャンセル）
+  - **buttonClick**: 選択・トグル（タブ切替、言語チップ、サウンドトグル）
+  - **perfectTimingMiss/Good/Great/Perfect**, **perfectTimingGaugeTick**: ミニゲーム用
+  - **picoSound.playSubtaskCompleteSound**: サブタスク完了・コンボビープ
 - **UI追加時の必須チェック**: 新しいボタン/チップ/トグル/メニュー項目を追加したら、必ず「押下時に鳴る音」を実装してから完了とする（例: 言語切り替えチップ → `buttonClick`）。

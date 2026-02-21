@@ -129,6 +129,7 @@ body {
     height: 32px;
     object-fit: contain;
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .app-title {
@@ -1733,6 +1734,21 @@ body {
 
 .task-item.completed {
     cursor: default;
+}
+
+/* PerfectTiming result-specific completed colors */
+.task-item.completed[data-perfect-timing-result="miss"] {
+    background-color: #5f6368 !important;
+}
+.task-item.completed[data-perfect-timing-result="good"] {
+    background-color: #8bc34a !important;
+}
+.task-item.completed[data-perfect-timing-result="great"] {
+    background-color: #4caf50 !important;
+}
+.task-item.completed[data-perfect-timing-result="perfect"] {
+    background-color: #388e3c !important;
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.4), 2px 2px 0px var(--shadow-color, rgba(0,0,0,0.3));
 }
 
 .task-item.move-animation {
@@ -4415,4 +4431,114 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
         scroll-padding-bottom: 0;
         padding-bottom: 16px;
     }
+}
+
+/* Perfect Timing minigame overlay */
+.perfect-timing-overlay {
+    position: fixed;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.perfect-timing-bar {
+    position: relative;
+    width: 200px;
+    height: 24px;
+    background: var(--bg-secondary, #28292d);
+    border: 2px solid var(--border-color, #3c4043);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 2px 2px 0 var(--shadow-color, rgba(0,0,0,0.3));
+}
+
+.perfect-timing-indicator {
+    position: absolute;
+    top: 2px;
+    width: 16px;
+    height: 18px;
+    background: var(--accent-color, #1a73e8);
+    border-radius: 2px;
+    transition: none;
+}
+
+.perfect-timing-zone {
+    position: absolute;
+    top: 2px;
+    height: 18px;
+    pointer-events: none;
+    opacity: 0.25;
+}
+
+.perfect-timing-zone-good {
+    background: #fbbc04;
+}
+
+.perfect-timing-zone-great {
+    background: #34a853;
+}
+
+.perfect-timing-zone-perfect {
+    background: #1a73e8;
+}
+
+.perfect-timing-ring {
+    transform-origin: 50% 50%;
+    will-change: transform;
+}
+
+.perfect-timing-result-text {
+    position: fixed;
+    font-family: 'VT323', monospace;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff6b6b;
+    text-shadow: 2px 2px 0 #000, -2px -2px 0 #fff;
+    z-index: 10001;
+    pointer-events: none;
+}
+
+@keyframes perfectTimingFlash {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Result-specific text (inline styles override; these are fallbacks) */
+.perfect-timing-result-miss { color: #9aa0a6; font-size: 18px; }
+.perfect-timing-result-good { color: #fbbc04; font-size: 22px; }
+.perfect-timing-result-great { color: #34a853; font-size: 28px; }
+.perfect-timing-result-perfect { color: #ffd700; font-size: 36px; }
+
+/* Task card color transition keyframes for PerfectTiming */
+.perfect-timing-card-miss {
+    animation: perfectTimingCardMiss 200ms ease-out;
+}
+.perfect-timing-card-good {
+    animation: perfectTimingCardGood 250ms ease-out;
+}
+.perfect-timing-card-great {
+    animation: perfectTimingCardGreat 300ms ease-out;
+}
+.perfect-timing-card-perfect {
+    animation: perfectTimingCardPerfect 400ms ease-out;
+}
+@keyframes perfectTimingCardMiss {
+    0% { background: rgba(0,0,0,0.25); }
+    50% { background: rgba(0,0,0,0.15); }
+    100% { background: var(--completed-color, #34a853); }
+}
+@keyframes perfectTimingCardGood {
+    0% { background: rgba(251,188,4,0.4); }
+    100% { background: var(--completed-color, #34a853); }
+}
+@keyframes perfectTimingCardGreat {
+    0% { background: rgba(76,175,80,0.6); }
+    100% { background: var(--completed-color, #34a853); }
+}
+@keyframes perfectTimingCardPerfect {
+    0% { background: rgba(255,215,0,0.5); }
+    100% { background: var(--completed-color, #34a853); }
 }

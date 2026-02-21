@@ -3,6 +3,42 @@
  * Short, fun animations anchored to completed tasks
  */
 
+const WORLD_SHUTDOWN_CRT_CONFIG = {
+    // (A) Logo check removal 0–320ms
+    logoRemovalTransformMs: 260,
+    logoRemovalOpacityMs: 220,
+    logoScaleEnd: 0.70,
+    logoTranslateY: 10,
+    logoRotate: -8,
+    phaseAEnd: 320,
+    // (B) Collapse 320–780ms (2-phase)
+    preCollapseDurationMs: 220,
+    preCollapseScaleY: 0.35,
+    collapseDurationMs: 240,
+    scaleYMin: 0.02,
+    containerOpacityCollapse: 0.9,
+    // (C) LINE STAGE 780–1040ms
+    lineHoldMs: 260,
+    // (D) HARD BLACK CUT IN @1040ms
+    // (E) BLACKOUT HOLD 1040–2240ms
+    blackoutDurationMs: 1200,
+    textLine1DelayMs: 60,
+    textLine1FadeMs: 140,
+    textLine2DelayMs: 240,
+    textLine2FadeMs: 140,
+    noiseOpacity: 0.06,
+    // (F) HARD BLACK CUT OUT @2240ms
+    // (G) Reboot 2240–2680ms
+    rebootDurationMs: 380,
+    scanlineDurationMs: 160,
+    scanlineGapMs: 80,
+    // (F) Logo restore (reboot + 80ms)
+    logoReturnDelayMs: 80,
+    logoReturnMs: 220,
+    logoReturnScaleStart: 0.86,
+    lockInputMs: 2760,
+};
+
 class ComicEffectsManager {
     constructor() {
         this.effects = [
@@ -35,6 +71,11 @@ class ComicEffectsManager {
         }
         this.initAudioContext();
         this.setupStyles();
+        this.isWorldShutdownPlaying = false;
+        this._worldShutdownOverlay = null;
+        this._worldShutdownScanline = null;
+        this._worldShutdownText = null;
+        this._worldShutdownNoise = null;
     }
 
     setSoundEnabled(enabled) {
@@ -430,6 +471,89 @@ class ComicEffectsManager {
                 0% { background-position: 0% 50%; }
                 50% { background-position: 100% 50%; }
                 100% { background-position: 0% 50%; }
+            }
+            
+            #world-shutdown-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: #000;
+                opacity: 0;
+                pointer-events: none;
+                z-index: 9998;
+                transition: opacity 0.14s ease;
+            }
+            
+            #world-shutdown-scanline {
+                position: fixed;
+                left: 0;
+                width: 100%;
+                height: 4px;
+                pointer-events: none;
+                z-index: 9999;
+                opacity: 0;
+                background: linear-gradient(
+                    to bottom,
+                    transparent 0%,
+                    rgba(255,255,255,0.4) 20%,
+                    rgba(255,255,255,0.6) 50%,
+                    rgba(255,255,255,0.4) 80%,
+                    transparent 100%
+                );
+                box-shadow: 0 0 12px rgba(255,255,255,0.5);
+                transform: translateY(-50%);
+                will-change: top, opacity;
+            }
+            
+            #world-shutdown-scanline.scanline-animate {
+                animation: worldShutdownScanline 0.14s ease-out forwards;
+            }
+            
+            @keyframes worldShutdownScanline {
+                0% { top: 20%; opacity: 0; }
+                15% { opacity: 1; }
+                85% { opacity: 1; }
+                100% { top: 80%; opacity: 0; }
+            }
+            
+            #world-shutdown-text {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+                color: rgba(255,255,255,0.9);
+                font-family: 'VT323', 'Courier New', monospace;
+                font-size: 1.5rem;
+                letter-spacing: 0.12em;
+                line-height: 1.8;
+                pointer-events: none;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.25rem;
+            }
+            
+            #world-shutdown-text .line1,
+            #world-shutdown-text .line2 {
+                opacity: 0;
+            }
+            
+            #world-shutdown-noise {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 9998;
+                opacity: 0;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' fill='%23fff' fill-opacity='0.15'/%3E%3C/svg%3E");
+                background-repeat: repeat;
+                background-size: 200px 200px;
             }
         `;
         document.head.appendChild(style);
@@ -1921,11 +2045,11 @@ class ComicEffectsManager {
                     oscillator2.type = "square";
 
                     gainNode.gain.setValueAtTime(
-                        0.08,
+                        0.05,
                         audioContext.currentTime,
                     );
                     gainNode2.gain.setValueAtTime(
-                        0.08,
+                        0.05,
                         audioContext.currentTime,
                     );
                     gainNode.gain.exponentialRampToValueAtTime(
@@ -1955,11 +2079,11 @@ class ComicEffectsManager {
                     oscillator.type = "square";
 
                     gainNode.gain.setValueAtTime(
-                        0.04,
+                        0.025,
                         audioContext.currentTime,
                     );
                     gainNode.gain.exponentialRampToValueAtTime(
-                        0.01,
+                        0.008,
                         audioContext.currentTime + 0.15,
                     );
 
@@ -2007,6 +2131,16 @@ class ComicEffectsManager {
                     oscillator.start(audioContext.currentTime);
                     oscillator.stop(audioContext.currentTime + 0.3);
                     return;
+                case "taskComplete":
+                    // 単一音の短い上昇トーン（成功・完了）
+                    oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.15);
+                    oscillator.type = "square";
+                    gainNode.gain.setValueAtTime(0.06, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.15);
+                    return;
                 case "buttonClick":
                     // Short click for buttons (Today, Tomorrow, Repeat, etc.)
                     oscillator.frequency.setValueAtTime(
@@ -2024,6 +2158,139 @@ class ComicEffectsManager {
                         audioContext.currentTime + 0.08,
                     );
 
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.08);
+                    return;
+                case "perfectTimingGaugeTick":
+                    oscillator.frequency.setValueAtTime(
+                        900,
+                        audioContext.currentTime,
+                    );
+                    oscillator.type = "square";
+                    gainNode.gain.setValueAtTime(
+                        0.03,
+                        audioContext.currentTime,
+                    );
+                    gainNode.gain.exponentialRampToValueAtTime(
+                        0.005,
+                        audioContext.currentTime + 0.06,
+                    );
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.06);
+                    return;
+                case "perfectTimingMiss":
+                    oscillator.frequency.setValueAtTime(
+                        350,
+                        audioContext.currentTime,
+                    );
+                    oscillator.frequency.exponentialRampToValueAtTime(
+                        150,
+                        audioContext.currentTime + 0.12,
+                    );
+                    oscillator.type = "square";
+                    gainNode.gain.setValueAtTime(
+                        0.05,
+                        audioContext.currentTime,
+                    );
+                    gainNode.gain.exponentialRampToValueAtTime(
+                        0.01,
+                        audioContext.currentTime + 0.12,
+                    );
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.12);
+                    return;
+                case "perfectTimingGood":
+                    oscillator.frequency.setValueAtTime(
+                        523,
+                        audioContext.currentTime,
+                    );
+                    gainNode.gain.setValueAtTime(
+                        0.06,
+                        audioContext.currentTime,
+                    );
+                    gainNode.gain.exponentialRampToValueAtTime(
+                        0.01,
+                        audioContext.currentTime + 0.12,
+                    );
+                    oscillator.type = "square";
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.12);
+                    return;
+                case "perfectTimingGreat":
+                    oscillator.frequency.setValueAtTime(
+                        659,
+                        audioContext.currentTime,
+                    );
+                    gainNode.gain.setValueAtTime(
+                        0.07,
+                        audioContext.currentTime,
+                    );
+                    gainNode.gain.exponentialRampToValueAtTime(
+                        0.01,
+                        audioContext.currentTime + 0.14,
+                    );
+                    oscillator.type = "square";
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.14);
+                    return;
+                case "perfectTimingPerfect":
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    osc2.onended = () => {
+                        try {
+                            osc2.disconnect();
+                            gain2.disconnect();
+                        } catch (e) {}
+                    };
+                    oscillator.frequency.setValueAtTime(
+                        880,
+                        audioContext.currentTime,
+                    );
+                    oscillator.frequency.exponentialRampToValueAtTime(
+                        1320,
+                        audioContext.currentTime + 0.2,
+                    );
+                    osc2.frequency.setValueAtTime(
+                        1108,
+                        audioContext.currentTime,
+                    );
+                    osc2.frequency.exponentialRampToValueAtTime(
+                        1660,
+                        audioContext.currentTime + 0.2,
+                    );
+                    oscillator.type = "square";
+                    osc2.type = "square";
+                    gainNode.gain.setValueAtTime(0.07, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(
+                        0.01,
+                        audioContext.currentTime + 0.2,
+                    );
+                    gain2.gain.setValueAtTime(0.05, audioContext.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(
+                        0.005,
+                        audioContext.currentTime + 0.2,
+                    );
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                    osc2.start(audioContext.currentTime);
+                    osc2.stop(audioContext.currentTime + 0.2);
+                    return;
+                case "crtPowerOff":
+                    oscillator.frequency.setValueAtTime(120, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(40, audioContext.currentTime + 0.1);
+                    oscillator.type = "square";
+                    gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                    return;
+                case "crtReboot":
+                    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                    oscillator.type = "square";
+                    gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
                     oscillator.start(audioContext.currentTime);
                     oscillator.stop(audioContext.currentTime + 0.08);
                     return;
@@ -2902,6 +3169,224 @@ class ComicEffectsManager {
             });
         } catch (error) {
             console.log("Rainbow Smash audio not supported:", error);
+        }
+    }
+
+    playWorldShutdownCrtHardCut() {
+        const cfg = WORLD_SHUTDOWN_CRT_CONFIG;
+        if (this.isWorldShutdownPlaying) return;
+        this.isWorldShutdownPlaying = true;
+
+        const container = document.querySelector(".app-container");
+        const logo = document.querySelector(".app-logo");
+        if (!container || !logo) {
+            this.isWorldShutdownPlaying = false;
+            return;
+        }
+
+        let overlay = this._worldShutdownOverlay;
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.id = "world-shutdown-overlay";
+            overlay.setAttribute("aria-hidden", "true");
+            overlay.style.background = "rgba(0,0,0,1)";
+            document.body.appendChild(overlay);
+            this._worldShutdownOverlay = overlay;
+        }
+
+        let noise = this._worldShutdownNoise;
+        if (!noise) {
+            noise = document.createElement("div");
+            noise.id = "world-shutdown-noise";
+            noise.setAttribute("aria-hidden", "true");
+            document.body.appendChild(noise);
+            this._worldShutdownNoise = noise;
+        }
+
+        let scanline = this._worldShutdownScanline;
+        if (!scanline) {
+            scanline = document.createElement("div");
+            scanline.id = "world-shutdown-scanline";
+            scanline.setAttribute("aria-hidden", "true");
+            document.body.appendChild(scanline);
+            this._worldShutdownScanline = scanline;
+        }
+
+        let textEl = this._worldShutdownText;
+        if (!textEl) {
+            textEl = document.createElement("div");
+            textEl.id = "world-shutdown-text";
+            textEl.setAttribute("aria-hidden", "true");
+            const line1 = document.createElement("span");
+            line1.className = "line1";
+            line1.textContent = "CHECK: NULL";
+            const line2 = document.createElement("span");
+            line2.className = "line2";
+            line2.textContent = "REBOOTING...";
+            textEl.appendChild(line1);
+            textEl.appendChild(line2);
+            document.body.appendChild(textEl);
+            this._worldShutdownText = textEl;
+        }
+
+        const line1El = textEl.querySelector(".line1");
+        const line2El = textEl.querySelector(".line2");
+
+        const unlock = () => {
+            try {
+                container.style.pointerEvents = "";
+                container.style.transform = "";
+                container.style.opacity = "";
+                container.style.transition = "";
+                container.style.transformOrigin = "";
+                container.style.filter = "";
+                overlay.style.opacity = "";
+                overlay.style.transition = "";
+                noise.style.opacity = "";
+                noise.style.transition = "";
+                scanline.classList.remove("scanline-animate");
+                scanline.style.animation = "";
+                scanline.style.opacity = "";
+                scanline.style.top = "";
+                if (line1El) { line1El.style.opacity = ""; line1El.style.transition = ""; }
+                if (line2El) { line2El.style.opacity = ""; line2El.style.transition = ""; }
+                logo.style.transform = "";
+                logo.style.opacity = "";
+                logo.style.transition = "";
+                logo.style.transformOrigin = "";
+            } catch (e) {}
+            this.isWorldShutdownPlaying = false;
+        };
+
+        const visibilityCleanup = () => {
+            if (document.hidden) unlock();
+        };
+        document.addEventListener("visibilitychange", visibilityCleanup);
+
+        const phaseAEnd = cfg.phaseAEnd;
+        const preCollapseEnd = phaseAEnd + cfg.preCollapseDurationMs;
+        const collapseEnd = preCollapseEnd + cfg.collapseDurationMs;
+        const lineHoldEnd = collapseEnd + cfg.lineHoldMs;
+        const blackoutStart = lineHoldEnd;
+        const blackoutEnd = blackoutStart + cfg.blackoutDurationMs;
+        const rebootStart = blackoutEnd;
+
+        const runScanline = () => {
+            scanline.style.animation = `worldShutdownScanline ${cfg.scanlineDurationMs}ms ease-out forwards`;
+            scanline.classList.add("scanline-animate");
+            setTimeout(() => {
+                scanline.classList.remove("scanline-animate");
+            }, cfg.scanlineDurationMs);
+        };
+
+        try {
+            container.style.transformOrigin = "center center";
+            container.style.pointerEvents = "none";
+            overlay.style.pointerEvents = "none";
+            noise.style.pointerEvents = "none";
+            scanline.style.pointerEvents = "none";
+            textEl.style.pointerEvents = "none";
+
+            // (A) Logo check removal 0–320ms
+            logo.style.transformOrigin = "center center";
+            logo.style.transition = `transform ${cfg.logoRemovalTransformMs}ms ease, opacity ${cfg.logoRemovalOpacityMs}ms ease`;
+            logo.style.transform = `scale(${cfg.logoScaleEnd}) translateY(${cfg.logoTranslateY}px) rotate(${cfg.logoRotate}deg)`;
+            logo.style.opacity = "0";
+
+            // (B) Collapse 320–780ms (2-phase)
+            setTimeout(() => {
+                container.style.transition = `transform ${cfg.preCollapseDurationMs}ms ease-in, opacity ${cfg.preCollapseDurationMs}ms ease-in`;
+                container.style.transform = `scaleY(${cfg.preCollapseScaleY})`;
+                container.style.opacity = String(cfg.containerOpacityCollapse);
+            }, phaseAEnd);
+
+            setTimeout(() => {
+                container.style.transition = `transform ${cfg.collapseDurationMs}ms ease-in, opacity ${cfg.collapseDurationMs}ms ease-in`;
+                container.style.transform = `scaleY(${cfg.scaleYMin})`;
+            }, preCollapseEnd);
+
+            // (C) LINE STAGE 780–1040ms
+            setTimeout(() => {
+                container.style.filter = "brightness(1.15)";
+                container.style.transition = "transform 0.06s ease";
+                requestAnimationFrame(() => {
+                    container.style.transform = `scaleY(${cfg.scaleYMin}) translateX(2px)`;
+                    setTimeout(() => {
+                        container.style.transform = `scaleY(${cfg.scaleYMin}) translateX(-1px)`;
+                        setTimeout(() => {
+                            container.style.transform = `scaleY(${cfg.scaleYMin})`;
+                        }, 60);
+                    }, 60);
+                });
+            }, collapseEnd);
+
+            // (D) HARD BLACK CUT IN @1040ms (0ms instant)
+            // (E) BLACKOUT HOLD — text + noise (no fade out; cut at black out)
+            setTimeout(() => {
+                container.style.filter = "";
+                overlay.style.transition = "none";
+                overlay.style.opacity = "1";
+                noise.style.transition = "none";
+                noise.style.opacity = String(cfg.noiseOpacity);
+                if (line1El) { line1El.style.opacity = "0"; line1El.style.transition = ""; }
+                if (line2El) { line2El.style.opacity = "0"; line2El.style.transition = ""; }
+
+                if (this.soundEnabled) this.playSound("crtPowerOff");
+
+                setTimeout(() => {
+                    if (line1El) {
+                        line1El.style.transition = `opacity ${cfg.textLine1FadeMs}ms ease`;
+                        line1El.style.opacity = "1";
+                    }
+                }, cfg.textLine1DelayMs);
+
+                setTimeout(() => {
+                    if (line2El) {
+                        line2El.style.transition = `opacity ${cfg.textLine2FadeMs}ms ease`;
+                        line2El.style.opacity = "1";
+                    }
+                }, cfg.textLine2DelayMs);
+            }, blackoutStart);
+
+            // (F) HARD BLACK CUT OUT @2240ms + (G) Reboot
+            setTimeout(() => {
+                overlay.style.transition = "none";
+                overlay.style.opacity = "0";
+                noise.style.transition = "none";
+                noise.style.opacity = "0";
+                if (line1El) { line1El.style.opacity = "0"; line1El.style.transition = ""; }
+                if (line2El) { line2El.style.opacity = "0"; line2El.style.transition = ""; }
+
+                if (this.soundEnabled) this.playSound("crtReboot");
+
+                container.style.transition = `transform ${cfg.rebootDurationMs}ms ease-out, opacity ${cfg.rebootDurationMs}ms ease-out`;
+                container.style.transform = "scaleY(1)";
+                container.style.opacity = "1";
+
+                runScanline();
+                setTimeout(() => {
+                    runScanline();
+                }, cfg.scanlineDurationMs + cfg.scanlineGapMs);
+
+                // (F) Logo restore (reboot + 80ms)
+                setTimeout(() => {
+                    logo.style.transform = `scale(${cfg.logoReturnScaleStart})`;
+                    logo.style.opacity = "0";
+                    logo.style.transition = `transform ${cfg.logoReturnMs}ms ease-out, opacity ${cfg.logoReturnMs}ms ease`;
+                    requestAnimationFrame(() => {
+                        logo.style.transform = "scale(1)";
+                        logo.style.opacity = "1";
+                    });
+                }, cfg.logoReturnDelayMs);
+            }, rebootStart);
+
+            setTimeout(() => {
+                document.removeEventListener("visibilitychange", visibilityCleanup);
+                unlock();
+            }, cfg.lockInputMs);
+        } catch (e) {
+            document.removeEventListener("visibilitychange", visibilityCleanup);
+            unlock();
         }
     }
 }
