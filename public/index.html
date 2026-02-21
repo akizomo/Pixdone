@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="modal-override.css">
     <link rel="stylesheet" href="idleRareEffect.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Caveat:wght@400;500;600&family=VT323&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=VT323&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="PixDone.png" sizes="32x32">
@@ -49,7 +49,7 @@
                     <img src="Pixdone-white.svg" alt="" class="app-logo" width="32" height="32">
                     <h1 class="app-title" data-i18n="appTitle">PixDone</h1>
                 </div>
-                <div class="user-section" id="userSection">
+                <div class="user-section" id="userSection" data-auth-pending>
                     <div class="user-info" id="userInfo" style="display: none;">
                         <div class="user-menu">
                             <button class="user-avatar-btn" id="userAvatarBtn">
@@ -91,7 +91,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="auth-buttons" id="authButtons">
+                    <div class="auth-buttons" id="authButtons" style="display: none;">
+                        <div class="auth-lang-chips">
+                            <button type="button" class="lang-chip" id="authLangEnBtn" data-lang="en">En</button>
+                            <button type="button" class="lang-chip" id="authLangJaBtn" data-lang="ja">Ja</button>
+                        </div>
                         <button class="signup-btn" id="signupBtn">
                             <i class="fas fa-user-plus"></i>
                             <span data-i18n="signUp">Sign up</span>

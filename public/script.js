@@ -1290,17 +1290,17 @@ class PixDoneApp {
                 <div id="repeatModalContent" style="width: 300px !important; max-width: 90% !important; background: var(--bg-primary) !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; box-shadow: 4px 4px 0px var(--shadow-color) !important; padding: 16px !important; box-sizing: border-box !important;">
                     <div style="display: flex !important; flex-direction: column !important; gap: 12px !important;">
                         <div style="text-align: center !important; margin-bottom: 8px !important;">
-                            <h3 class="pixel-title" style="font-size: 16px !important; color: var(--text-primary) !important; font-weight: 600 !important; font-family: 'VT323', 'Courier New', monospace !important; margin: 0 !important;">${rt('repeatFrequency')}</h3>
+                            <h3 class="pixel-title" style="font-size: var(--md-title-medium) !important; color: var(--text-primary) !important; font-weight: 600 !important; font-family: 'VT323', 'Courier New', monospace !important; margin: 0 !important;">${rt('repeatFrequency')}</h3>
                         </div>
                         <div style="display: flex !important; flex-direction: column !important; gap: 8px !important;">
-                            <button class="repeat-option" data-value="none" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('noRepeat')}</button>
-                            <button class="repeat-option" data-value="daily" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('daily')}</button>
-                            <button class="repeat-option" data-value="weekly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('weekly')}</button>
-                            <button class="repeat-option" data-value="monthly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('monthly')}</button>
-                            <button class="repeat-option" data-value="yearly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: 14px !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('yearly')}</button>
+                            <button class="repeat-option" data-value="none" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: var(--md-label-large) !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('noRepeat')}</button>
+                            <button class="repeat-option" data-value="daily" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: var(--md-label-large) !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('daily')}</button>
+                            <button class="repeat-option" data-value="weekly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: var(--md-label-large) !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('weekly')}</button>
+                            <button class="repeat-option" data-value="monthly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: var(--md-label-large) !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('monthly')}</button>
+                            <button class="repeat-option" data-value="yearly" style="width: 100% !important; padding: 12px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; background: var(--bg-primary) !important; color: var(--text-primary) !important; font-size: var(--md-label-large) !important; cursor: pointer !important; font-family: Inter, sans-serif !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; image-rendering: pixelated !important; text-align: left !important; transition: all 0.2s ease !important; font-weight: 500 !important;">${rt('yearly')}</button>
                         </div>
                         <div style="display: flex !important; gap: 8px !important; margin-top: 8px !important;">
-                            <button id="newCancelRepeatBtn" style="flex: 1 !important; padding: 8px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: 14px !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; font-weight: 600 !important;">${rt('cancel')}</button>
+                            <button id="newCancelRepeatBtn" style="flex: 1 !important; padding: 8px !important; border: 2px solid var(--border-color) !important; border-radius: 0px !important; cursor: pointer !important; font-size: var(--md-label-large) !important; background: var(--bg-primary) !important; color: var(--text-secondary) !important; box-shadow: 2px 2px 0px var(--shadow-color) !important; font-family: Inter, sans-serif !important; image-rendering: pixelated !important; font-weight: 600 !important;">${rt('cancel')}</button>
                         </div>
                     </div>
                 </div>
@@ -1721,6 +1721,21 @@ class PixDoneApp {
     }
 
     setupFirebaseAuthListener() {
+        const currentUser = firebase.auth().currentUser;
+        const authHint = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('pixdone-auth-hint') : null;
+
+        if (currentUser) {
+            this.user = currentUser;
+            this.isAuthenticated = true;
+            this.showUserInfo();
+        } else if (authHint === 'logged_in') {
+            this.user = null;
+            this.isAuthenticated = false;
+            this.showUserInfo();
+        } else {
+            this.showLoginButton();
+        }
+
         firebase.auth().onAuthStateChanged(async (user) => {
             this.user = user;
             this.isAuthenticated = !!user;
@@ -1922,21 +1937,34 @@ class PixDoneApp {
         const userInfo = document.getElementById('userInfo');
         const authButtons = document.getElementById('authButtons');
         const userEmail = document.getElementById('userEmail');
+        const userSection = document.getElementById('userSection');
 
-        if (this.user) {
+        try {
+            sessionStorage.setItem('pixdone-auth-hint', 'logged_in');
+        } catch (e) {}
+
+        if (userInfo) userInfo.style.display = 'flex';
+        if (authButtons) authButtons.style.display = 'none';
+        if (userSection) userSection.removeAttribute('data-auth-pending');
+        if (this.user && userEmail) {
             userEmail.textContent = this.user.email || 'User';
-
-            userInfo.style.display = 'flex';
-            authButtons.style.display = 'none';
+        } else if (userEmail) {
+            userEmail.textContent = '…';
         }
     }
 
     showLoginButton() {
         const userInfo = document.getElementById('userInfo');
         const authButtons = document.getElementById('authButtons');
+        const userSection = document.getElementById('userSection');
+
+        try {
+            sessionStorage.setItem('pixdone-auth-hint', 'logged_out');
+        } catch (e) {}
 
         if (userInfo) userInfo.style.display = 'none';
         if (authButtons) authButtons.style.display = 'flex';
+        if (userSection) userSection.removeAttribute('data-auth-pending');
     }
 
     loadTasks() {
@@ -2706,28 +2734,25 @@ class PixDoneApp {
 
         const langEnBtn = document.getElementById('langEnBtn');
         const langJaBtn = document.getElementById('langJaBtn');
-        if (langEnBtn && typeof window.setLang === 'function') {
-            langEnBtn.addEventListener('click', (e) => {
+        const authLangEnBtn = document.getElementById('authLangEnBtn');
+        const authLangJaBtn = document.getElementById('authLangJaBtn');
+
+        const bindLangChip = (btn, lang) => {
+            if (!btn || typeof window.setLang !== 'function') return;
+            btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (this.comicEffects?.playSound) this.comicEffects.playSound('buttonClick');
-                window.setLang('en');
+                window.setLang(lang);
                 this.refreshLangUI();
                 this.updateListTitle();
                 this.renderTasks();
                 this.renderListTabs();
             });
-        }
-        if (langJaBtn && typeof window.setLang === 'function') {
-            langJaBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (this.comicEffects?.playSound) this.comicEffects.playSound('buttonClick');
-                window.setLang('ja');
-                this.refreshLangUI();
-                this.updateListTitle();
-                this.renderTasks();
-                this.renderListTabs();
-            });
-        }
+        };
+        bindLangChip(langEnBtn, 'en');
+        bindLangChip(langJaBtn, 'ja');
+        bindLangChip(authLangEnBtn, 'en');
+        bindLangChip(authLangJaBtn, 'ja');
 
         // 画面に戻ったときにリスト・タブの表示を現在の言語で再描画（英語に戻るのを防ぐ）
         document.addEventListener('visibilitychange', () => {
@@ -4401,7 +4426,8 @@ class PixDoneApp {
             // Always show Smash List message and tasks
             let smashSub = (typeof window.t === 'function' ? window.t('smashListSubtitle') : 'This list exists only to let you tap and smash tasks for pure satisfaction. No saving, no planning—just smashing.');
             smashSub = smashSub.replace(/\. /g, '.<br>').replace(/。/g, '。<br>');
-            const smashHint = typeof window.t === 'function' ? window.t('smashListHint') : 'Press Space to smash a task';
+            let smashHint = typeof window.t === 'function' ? window.t('smashListHint') : 'Press Space to smash a task';
+            smashHint = smashHint.replace(/\bSpace\b/g, '<span class="command-key">Space</span>');
             taskList.innerHTML = `
                 <div class="smash-list-message">
                     <p class="smash-list-subtitle">${smashSub}</p>
@@ -5439,14 +5465,12 @@ class PixDoneApp {
 
     refreshLangUI() {
         const cur = typeof window.getLang === 'function' ? window.getLang() : 'en';
-        const langEnBtn = document.getElementById('langEnBtn');
-        const langJaBtn = document.getElementById('langJaBtn');
-        if (langEnBtn) {
-            langEnBtn.classList.toggle('active', cur === 'en');
-        }
-        if (langJaBtn) {
-            langJaBtn.classList.toggle('active', cur === 'ja');
-        }
+        const chips = ['langEnBtn', 'langJaBtn', 'authLangEnBtn', 'authLangJaBtn'];
+        const expected = { langEnBtn: 'en', langJaBtn: 'ja', authLangEnBtn: 'en', authLangJaBtn: 'ja' };
+        chips.forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('active', cur === expected[id]);
+        });
     }
 
     updateCompletedCount() {

@@ -2,6 +2,23 @@
 
 /* Subtle 8-bit Style with Good Usability */
 :root {
+    /* Material Design 3 Type Scale (16px base) */
+    --md-display-large: 3.5625rem;
+    --md-display-medium: 2.8125rem;
+    --md-display-small: 2.25rem;
+    --md-headline-large: 2rem;
+    --md-headline-medium: 1.75rem;
+    --md-headline-small: 1.5rem;
+    --md-title-large: 1.375rem;
+    --md-title-medium: 1rem;
+    --md-title-small: 0.875rem;
+    --md-body-large: 1rem;
+    --md-body-medium: 0.875rem;
+    --md-body-small: 0.75rem;
+    --md-label-large: 0.875rem;
+    --md-label-medium: 0.75rem;
+    --md-label-small: 0.6875rem;
+
     /* Subtle dark theme with 8-bit touches */
     --bg-primary: #202124;
     --bg-secondary: #28292d;
@@ -115,7 +132,7 @@ body {
 }
 
 .app-title {
-    font-size: 28px;
+    font-size: var(--md-headline-medium);
     font-weight: 700;
     color: var(--text-primary);
     font-family: 'VT323', 'Courier New', monospace;
@@ -126,7 +143,7 @@ body {
 }
 
 .sync-indicator {
-    font-size: 0.7rem;
+    font-size: var(--md-label-small);
     color: var(--text-muted);
     margin-left: 8px;
     white-space: nowrap;
@@ -139,6 +156,10 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+.user-section[data-auth-pending] {
+    min-height: 36px;
 }
 
 .user-info {
@@ -164,7 +185,7 @@ body {
     cursor: pointer;
     border-radius: 0px;
     transition: all 0.2s ease;
-    font-size: 16px;
+    font-size: var(--md-body-large);
 }
 
 .user-avatar-btn:hover {
@@ -174,7 +195,7 @@ body {
 }
 
 .user-email {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-primary);
     word-break: break-word;
 }
@@ -203,7 +224,7 @@ body {
 
 .dropdown-header i {
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: var(--md-body-medium);
 }
 
 .dropdown-sound-row {
@@ -220,14 +241,14 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
 }
 
 .dropdown-sound-label i {
     color: var(--text-secondary);
-    font-size: 12px;
+    font-size: var(--md-label-medium);
 }
 
 .dropdown-lang-row {
@@ -244,13 +265,13 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-primary);
 }
 
 .dropdown-lang-label i {
     color: var(--text-secondary);
-    font-size: 12px;
+    font-size: var(--md-label-medium);
 }
 
 /* Language En/Ja chips (small pixel-style buttons) */
@@ -261,7 +282,7 @@ body {
 
 .lang-chip {
     padding: 2px 8px;
-    font-size: 11px;
+    font-size: var(--md-label-large);
     font-weight: 600;
     border: 2px solid var(--border-color);
     border-radius: 0;
@@ -277,12 +298,11 @@ body {
 }
 
 .lang-chip:hover {
-    border-color: var(--accent-color);
     background: var(--bg-hover);
 }
 
 .lang-chip.active {
-    border-color: var(--accent-color);
+    border-color: var(--border-color);
     background: rgba(26, 115, 232, 0.15);
     color: var(--accent-color);
     box-shadow: 2px 2px 0 var(--shadow-color);
@@ -366,7 +386,7 @@ body {
 
 .settings-link {
     display: inline-block;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-secondary);
     text-decoration: none;
     transition: color 0.2s ease, opacity 0.2s ease;
@@ -391,7 +411,7 @@ body {
     border: none;
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     transition: background-color 0.2s ease;
 }
 
@@ -409,8 +429,14 @@ body {
 
 .auth-buttons {
     display: flex;
+    align-items: center;
     gap: 8px;
     flex-wrap: wrap;
+}
+
+.auth-lang-chips {
+    display: flex;
+    gap: 4px;
 }
 
 .login-btn,
@@ -427,7 +453,7 @@ body {
     border: none;
     border-radius: 0px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-weight: 600;
     font-family: 'VT323', 'Courier New', monospace;
     transition: all 0.2s ease;
@@ -486,7 +512,7 @@ body {
     color: var(--accent-color);
     text-decoration: underline;
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-family: 'VT323', 'Courier New', monospace;
 }
 
@@ -519,7 +545,7 @@ body {
 
 .auth-header h2 {
     margin: 0;
-    font-size: 18px;
+    font-size: var(--md-title-medium);
     font-family: 'VT323', 'Courier New', monospace;
     color: var(--text-primary);
     font-weight: normal;
@@ -538,7 +564,7 @@ body {
 .auth-field label {
     display: block;
     margin-bottom: 8px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-family: 'Inter', system-ui, sans-serif;
     color: var(--text-primary);
     font-weight: 500;
@@ -549,7 +575,7 @@ body {
     padding: 12px 16px;
     border: 2px solid var(--border-color);
     border-radius: 0px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-family: 'Inter', system-ui, sans-serif;
     background: var(--bg-secondary);
     color: var(--text-primary);
@@ -576,7 +602,7 @@ body {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-secondary);
     padding: 4px;
     transition: color 0.2s ease;
@@ -593,7 +619,7 @@ body {
     color: white;
     border: none;
     border-radius: 0px;
-    font-size: 16px;
+    font-size: var(--md-body-large);
     font-family: 'Inter', system-ui, sans-serif;
     font-weight: 500;
     cursor: pointer;
@@ -633,7 +659,7 @@ body {
 .auth-divider span {
     background: var(--bg-primary);
     padding: 0 12px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-family: 'VT323', 'Courier New', monospace;
     color: var(--text-secondary);
 }
@@ -654,7 +680,7 @@ body {
     background: var(--bg-secondary);
     border: 2px solid var(--border-color);
     border-radius: 0px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-family: 'VT323', 'Courier New', monospace;
     color: var(--text-primary);
     cursor: pointer;
@@ -683,13 +709,13 @@ body {
     border-radius: 0px;
     background: var(--accent-color);
     color: white;
-    font-size: 10px;
+    font-size: var(--md-label-small);
     box-shadow: 1px 1px 0px var(--shadow-color);
 }
 
 .auth-footer {
     text-align: center;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-family: 'Inter', system-ui, sans-serif;
     color: var(--text-secondary);
 }
@@ -700,7 +726,7 @@ body {
     color: var(--accent-color);
     text-decoration: none;
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-family: 'Inter', system-ui, sans-serif;
     font-weight: 500;
     transition: color 0.2s ease;
@@ -769,7 +795,7 @@ body {
     border: none;
     border-radius: 0px;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     cursor: pointer;
     padding: 6px 8px;
     transition: all 0.2s ease;
@@ -816,7 +842,7 @@ body {
     gap: 8px;
     padding: 10px 12px;
     color: var(--text-primary);
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     cursor: pointer;
     transition: all 0.1s ease;
     border: none;
@@ -841,7 +867,7 @@ body {
 
 .context-menu-item i {
     width: 12px;
-    font-size: 12px;
+    font-size: var(--md-label-medium);
     image-rendering: pixelated;
 }
 
@@ -884,7 +910,7 @@ body {
     color: var(--text-secondary);
     padding: 1px 4px;
     border-radius: 0px;
-    font-size: 11px;
+    font-size: var(--md-label-small);
     font-weight: 500;
     border: 1px solid var(--border-color);
     image-rendering: pixelated;
@@ -908,7 +934,7 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 0px;
     color: var(--text-secondary);
-    font-size: 12px;
+    font-size: var(--md-label-medium);
     cursor: pointer;
     transition: all 0.2s ease;
     image-rendering: pixelated;
@@ -920,7 +946,7 @@ body {
 }
 
 .add-list-tab-btn i {
-    font-size: 10px;
+    font-size: var(--md-label-small);
 }
 
 /* Pixel Modal */
@@ -940,7 +966,7 @@ body {
 
 .pixel-modal h3 {
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 18px;
+    font-size: var(--md-title-medium);
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 16px;
@@ -963,7 +989,7 @@ body {
     padding: 8px 16px;
     border: 2px solid var(--border-color);
     border-radius: 0px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1010,7 +1036,7 @@ body {
 }
 
 .list-title {
-    font-size: 20px;
+    font-size: var(--md-title-large);
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
@@ -1056,7 +1082,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: var(--md-label-medium);
     image-rendering: pixelated;
     font-family: 'Inter', sans-serif;
 }
@@ -1083,7 +1109,7 @@ body {
     border: 2px solid var(--border-color);
     border-radius: 0px;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     cursor: pointer;
     padding: 12px 16px;
     transition: all 0.2s ease;
@@ -1103,7 +1129,7 @@ body {
 }
 
 .add-task-button i {
-    font-size: 16px;
+    font-size: var(--md-body-large);
 }
 
 /* Task Input Form - 8-bit Style */
@@ -1140,7 +1166,7 @@ body {
     background: var(--bg-primary);
     border: 2px solid var(--border-color);
     border-radius: 0px;
-    font-size: 16px;
+    font-size: var(--md-body-large);
     font-weight: 400;
     color: var(--text-primary);
     padding: 8px 12px;
@@ -1164,7 +1190,7 @@ body {
     background: var(--bg-primary);
     border: 2px solid var(--border-color);
     border-radius: 0px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-primary);
     padding: 8px 12px;
     outline: none;
@@ -1226,7 +1252,7 @@ body {
     border: 2px solid var(--border-color);
     border-radius: 0px;
     padding: 6px 12px;
-    font-size: 12px;
+    font-size: var(--md-label-medium);
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1282,7 +1308,7 @@ body {
 }
 
 .repeat-selector label {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-primary);
     margin: 0;
     font-weight: 500;
@@ -1293,7 +1319,7 @@ body {
     background: var(--bg-primary);
     border: 2px solid var(--border-color);
     border-radius: 2px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1325,7 +1351,7 @@ body {
     border-radius: 2px;
     background: var(--bg-primary);
     color: var(--text-primary);
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     padding: 4px 8px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -1352,7 +1378,7 @@ body {
 
 /* Calendar button with date display */
 .calendar-btn span {
-    font-size: 12px;
+    font-size: var(--md-label-medium);
     font-weight: bold;
     color: var(--accent-color);
 }
@@ -1367,7 +1393,7 @@ body {
     /* Larger tap targets for mobile */
     .add-task-button {
         padding: 16px 20px;
-        font-size: 16px;
+        font-size: var(--md-body-large);
     }
 
     /* Preserve new modal button layout on mobile */
@@ -1387,20 +1413,20 @@ body {
 
     .task-input {
         padding: 12px 16px;
-        font-size: 16px;
+        font-size: var(--md-body-large);
         /* Prevents iOS zoom on input focus */
     }
 
     .task-details {
         padding: 12px 16px;
-        font-size: 16px;
+        font-size: var(--md-body-large);
         min-height: 80px;
     }
 
     .date-btn,
     .repeat-btn {
         padding: 10px 16px;
-        font-size: 14px;
+        font-size: var(--md-body-medium);
         min-height: 44px;
         /* Apple's recommended minimum touch target */
     }
@@ -1409,7 +1435,7 @@ body {
     .btn-cancel,
     .btn-delete {
         padding: 12px 24px;
-        font-size: 16px;
+        font-size: var(--md-body-large);
         min-height: 44px;
     }
 
@@ -1495,7 +1521,7 @@ body {
     border: 2px solid var(--border-color);
     border-radius: 0px;
     padding: 8px 16px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 2px 2px 0px var(--shadow-color);
@@ -1556,7 +1582,7 @@ body {
     box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
     z-index: 10000;
     font-family: 'Inter', sans-serif;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     max-width: 300px;
     animation: slideIn 0.3s ease-out;
 }
@@ -1815,7 +1841,7 @@ body {
 .task-title {
     min-width: 0;
     font-weight: 500;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-primary);
     word-wrap: break-word;
     margin-bottom: 2px;
@@ -1850,7 +1876,7 @@ body {
 
 /* Meta as plain text (due · repeat) – inside .task-content so left edge matches title/details */
 .task-meta-text {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-secondary);
     margin-top: 4px;
     font-weight: 400;
@@ -1865,7 +1891,7 @@ body {
 }
 
 .subtask-meta-text {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-secondary);
     margin-left: 8px;
     font-weight: 400;
@@ -1879,7 +1905,7 @@ body {
     min-height: 24px;
     height: 24px;
     padding: 0 8px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     line-height: 1;
     border-radius: 4px;
     background: rgba(26, 115, 232, 0.14);
@@ -1888,7 +1914,7 @@ body {
 }
 
 .chip i {
-    font-size: 12px;
+    font-size: var(--md-label-medium);
     opacity: 0.9;
 }
 
@@ -1908,7 +1934,7 @@ body {
 }
 
 .task-details-text {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-secondary);
     margin-bottom: 4px;
     word-wrap: break-word;
@@ -1929,7 +1955,7 @@ body {
     padding: 4px 0;
     margin-left: 24px;
     opacity: 0.88;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     cursor: pointer;
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
@@ -1987,7 +2013,7 @@ body {
 .subtask-more {
     margin-left: 24px;
     opacity: 0.7;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     padding: 2px 0;
     cursor: pointer;
     color: var(--text-secondary);
@@ -2118,7 +2144,7 @@ body {
 .inline-edit-title {
     width: 100%;
     padding: 8px 12px;
-    font-size: 16px;
+    font-size: var(--md-body-large);
     font-weight: 500;
     border: 2px solid var(--border-color);
     border-radius: 0px;
@@ -2138,7 +2164,7 @@ body {
     width: 100%;
     min-height: 60px;
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     border: 2px solid var(--border-color);
     border-radius: 0px;
     background: var(--bg-primary);
@@ -2183,7 +2209,7 @@ body {
 .inline-cancel-btn,
 .inline-delete-btn {
     padding: 12px 16px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     border: 2px solid var(--border-color);
@@ -2260,13 +2286,13 @@ body {
 }
 
 .inline-edit-title-rich {
-    font-size: 16px;
+    font-size: var(--md-body-large);
     font-weight: 500;
     min-height: 24px;
 }
 
 .inline-edit-details-rich {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     min-height: 60px;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -2330,7 +2356,7 @@ body {
 .inline-date-btn,
 .inline-repeat-btn {
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     border: 2px solid var(--border-color);
@@ -2373,7 +2399,7 @@ body {
 .inline-repeat-selector label {
     display: inline-block;
     margin-right: 8px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-primary);
 }
 
@@ -2383,7 +2409,7 @@ body {
     border-radius: 0px;
     background: var(--bg-primary);
     color: var(--text-primary);
-    font-size: 14px;
+    font-size: var(--md-body-medium);
 }
 
 /* Desktop inline edit subtasks section */
@@ -2404,7 +2430,7 @@ body {
 }
 
 .inline-subtasks-title {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-weight: 500;
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
@@ -2471,7 +2497,7 @@ body {
 
 .inline-subtask-text {
     flex: 1;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     padding: 2px 0;
@@ -2487,7 +2513,7 @@ body {
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--md-body-large);
     padding: 4px 6px;
     line-height: 1;
     transition: color 0.2s ease;
@@ -2512,7 +2538,7 @@ body {
     padding: 6px 10px;
     border: 1px solid var(--border-color);
     border-radius: 0;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     background: var(--bg-primary);
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
@@ -2530,7 +2556,7 @@ body {
     border-radius: 0;
     background: transparent;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-weight: 400;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
@@ -2603,7 +2629,7 @@ div[id="newTaskDetails"] a:hover {
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 12px;
+    font-size: var(--md-label-medium);
 }
 
 .task-action-btn:hover {
@@ -2631,7 +2657,7 @@ div[id="newTaskDetails"] a:hover {
     background: none;
     border: none;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     cursor: pointer;
     padding: 8px 0;
     width: 100%;
@@ -2644,7 +2670,7 @@ div[id="newTaskDetails"] a:hover {
 }
 
 .completed-header i {
-    font-size: 12px;
+    font-size: var(--md-label-medium);
     transition: transform 0.2s ease;
 }
 
@@ -2655,6 +2681,15 @@ div[id="newTaskDetails"] a:hover {
 .completed-tasks {
     margin-top: 8px;
     animation: slideDown 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.completed-tasks .task-card,
+.completed-tasks .task-item {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 /* Game Start Empty State */
@@ -2675,7 +2710,7 @@ div[id="newTaskDetails"] a:hover {
 
 .ready-text {
     font-family: 'Press Start 2P', monospace;
-    font-size: 24px;
+    font-size: var(--md-headline-small);
     color: var(--pixel-cyan);
     text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
     animation: retro-blink 1s infinite;
@@ -2695,7 +2730,7 @@ div[id="newTaskDetails"] a:hover {
     border-radius: 0px;
     box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 1rem;
+    font-size: var(--md-body-large);
     image-rendering: pixelated;
     display: block;
     visibility: visible;
@@ -2707,7 +2742,7 @@ div[id="newTaskDetails"] a:hover {
 .smash-list-title {
     color: #fff;
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 32px;
+    font-size: var(--md-headline-large);
     margin-bottom: 16px;
     text-shadow: 3px 3px 0px #000;
     image-rendering: pixelated;
@@ -2715,7 +2750,7 @@ div[id="newTaskDetails"] a:hover {
 
 .smash-list-subtitle {
     color: #7b24df;
-    font-size: 0.875rem;
+    font-size: var(--md-body-large);
     font-family: 'Inter', system-ui, sans-serif;
     font-weight: 600;
     margin-bottom: 0;
@@ -2730,7 +2765,7 @@ div[id="newTaskDetails"] a:hover {
 
 .smash-list-hint {
     color: #9b4aef;
-    font-size: 0.8125rem;
+    font-size: var(--md-body-large);
     font-weight: 600;
     margin-top: 6px;
     margin-bottom: 0;
@@ -2741,17 +2776,15 @@ div[id="newTaskDetails"] a:hover {
 .command-key {
     display: inline-block;
     padding: 2px 6px;
-    background-color: #3c4043;
-    color: #fff;
-    border: 1px solid #5f6368;
-    border-radius: 0px;
+    background-color: rgba(128, 128, 128, 0.15);
+    color: inherit;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 2px;
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 0.7em;
+    font-size: 0.9em;
     font-weight: 400;
     line-height: 1.2;
     vertical-align: baseline;
-    box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
-    image-rendering: pixelated;
     letter-spacing: 0.5px;
 }
 
@@ -2771,7 +2804,7 @@ div[id="newTaskDetails"] a:hover {
     .smash-list-message {
         padding: 10px 12px;
         margin-bottom: 16px;
-        font-size: 0.9375rem;
+        font-size: var(--md-body-medium);
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
@@ -2780,7 +2813,7 @@ div[id="newTaskDetails"] a:hover {
     }
 
     .smash-list-subtitle {
-        font-size: 0.8125rem;
+        font-size: var(--md-body-medium);
         line-height: 1.35;
         display: block !important;
         visibility: visible !important;
@@ -2789,12 +2822,12 @@ div[id="newTaskDetails"] a:hover {
     }
 
     .smash-list-hint {
-        font-size: 0.75rem;
+        font-size: var(--md-body-large);
     }
 }
 
 .start-instruction {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-muted);
     font-family: 'Inter', system-ui, sans-serif;
 }
@@ -2909,7 +2942,7 @@ div[id="newTaskDetails"] a:hover {
 
 .bubble-text {
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 28px;
+    font-size: var(--md-headline-medium);
     font-weight: normal;
     color: var(--text-primary);
     letter-spacing: 2px;
@@ -2958,7 +2991,7 @@ div[id="newTaskDetails"] a:hover {
 }
 
 .empty-state p {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
 }
 
 /* Tutorial complete: Sign up CTA */
@@ -2970,7 +3003,7 @@ div[id="newTaskDetails"] a:hover {
 }
 .tutorial-complete-cta-text {
     font-family: 'Press Start 2P', monospace;
-    font-size: 18px;
+    font-size: var(--md-title-medium);
     color: var(--pixel-green);
     text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
     margin-bottom: 12px;
@@ -2980,7 +3013,7 @@ div[id="newTaskDetails"] a:hover {
 }
 .tutorial-complete-cta-sub {
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 1rem;
+    font-size: var(--md-body-large);
     color: var(--text-secondary);
     margin-bottom: 24px;
     line-height: 1.4;
@@ -2992,7 +3025,7 @@ div[id="newTaskDetails"] a:hover {
     justify-content: center;
     gap: 6px;
     padding: 14px 28px;
-    font-size: 16px;
+    font-size: var(--md-label-large);
     font-weight: 600;
     font-family: 'Press Start 2P', monospace;
     color: #fff;
@@ -3061,20 +3094,20 @@ div[id="newTaskDetails"] a:hover {
 }
 
 .celebration-icon {
-    font-size: 48px;
+    font-size: var(--md-display-medium);
     color: var(--accent-color);
     margin-bottom: 16px;
 }
 
 .celebration-message {
-    font-size: 24px;
+    font-size: var(--md-headline-small);
     font-weight: 500;
     color: var(--text-primary);
     margin-bottom: 8px;
 }
 
 .celebration-subtitle {
-    font-size: 16px;
+    font-size: var(--md-body-large);
     color: var(--text-secondary);
     margin-bottom: 24px;
 }
@@ -3085,7 +3118,7 @@ div[id="newTaskDetails"] a:hover {
     border: none;
     padding: 12px 24px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -3238,7 +3271,7 @@ div[id="newTaskDetails"] a:hover {
     padding: 12px 16px;
     border: 2px solid var(--border-color);
     border-radius: 0px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -3395,7 +3428,7 @@ div[id="newTaskDetails"] a:hover {
 .modal-content h2,
 .modal-content h3 {
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 18px;
+    font-size: var(--md-title-medium);
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 8px;
@@ -3405,7 +3438,7 @@ div[id="newTaskDetails"] a:hover {
 }
 
 .modal-content p {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-secondary);
     margin-bottom: 24px;
 }
@@ -3419,7 +3452,7 @@ div[id="newTaskDetails"] a:hover {
 .btn {
     padding: 8px 16px;
     border-radius: 0px;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     cursor: pointer;
     transition: background-color 0.2s ease;
     border: none;
@@ -3670,7 +3703,7 @@ div[id="newTaskDetails"] a:hover {
     text-align: center;
     color: white;
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 16px;
+    font-size: var(--md-body-large);
     line-height: 1.4;
     box-shadow: 2px 2px 0px var(--shadow-color);
     image-rendering: pixelated;
@@ -3754,7 +3787,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     /* Controlled by JS and Media Query */
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: var(--md-headline-small);
     cursor: pointer;
     z-index: 1000;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -3774,7 +3807,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 
 .mobile-fab i {
     pointer-events: none;
-    font-size: 18px;
+    font-size: var(--md-title-medium);
 }
 
 /* Smash Mode Style */
@@ -3812,11 +3845,11 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     
     /* Larger icon size for desktop if FAB is shown */
     .mobile-fab i {
-        font-size: 24px;
+        font-size: var(--md-headline-small);
     }
     
     .mobile-fab span.emoji-icon {
-        font-size: 24px;
+        font-size: var(--md-headline-small);
     }
 }
 
@@ -3838,7 +3871,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 
     /* Ensure emoji renders correctly */
     .mobile-fab span.emoji-icon {
-        font-size: 18px;
+        font-size: var(--md-title-medium);
         line-height: 1;
         image-rendering: auto;
         /* Important for emoji clarity */
@@ -3887,7 +3920,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 
 .task-sheet-header h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: var(--md-title-medium);
     font-weight: 600;
     color: var(--text-primary);
     font-family: 'VT323', 'Courier New', monospace;
@@ -3899,7 +3932,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 .task-sheet-close-btn {
     background: none;
     border: none;
-    font-size: 24px;
+    font-size: var(--md-headline-small);
     color: var(--text-secondary);
     cursor: pointer;
     padding: 0;
@@ -3964,7 +3997,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 }
 
 .task-sheet-section-title {
-    font-size: 16px;
+    font-size: var(--md-body-large);
     font-weight: 600;
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
@@ -3981,7 +4014,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     padding: 10px 12px;
     border: 1px solid var(--border-color);
     border-radius: 0;
-    font-size: 16px;
+    font-size: var(--md-body-large);
     box-sizing: border-box;
     background: var(--bg-primary);
     color: var(--text-primary);
@@ -4017,7 +4050,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     border: 1px solid var(--border-color);
     border-radius: 0;
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     background: transparent;
     color: var(--text-secondary);
     box-shadow: 1px 1px 0px var(--shadow-color);
@@ -4126,7 +4159,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 
 .task-sheet-subtask-text {
     flex: 1;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     padding: 2px 0;
@@ -4142,7 +4175,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--md-body-large);
     padding: 4px 6px;
     line-height: 1;
     transition: color 0.2s ease;
@@ -4168,7 +4201,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     padding: 6px 10px;
     border: 1px solid var(--border-color);
     border-radius: 0;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     background: var(--bg-primary);
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
@@ -4188,7 +4221,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     border-radius: 0;
     background: transparent;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-weight: 400;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
@@ -4227,7 +4260,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 }
 
 .task-sheet-empty-state-text {
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     color: var(--text-muted);
     font-family: 'Inter', sans-serif;
 }
@@ -4238,7 +4271,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     padding: 6px 10px;
     border: 1px solid var(--border-color);
     border-radius: 0;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     box-sizing: border-box;
     background: var(--bg-primary);
     color: var(--text-primary);
@@ -4300,7 +4333,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     padding: 10px 16px;
     border: 1px solid var(--border-color);
     border-radius: 0;
-    font-size: 14px;
+    font-size: var(--md-body-medium);
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
