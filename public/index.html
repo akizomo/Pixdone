@@ -233,18 +233,6 @@
         </div>
         <!-- /content-below-tabs -->
 
-        <!-- Completion Celebration -->
-        <div class="celebration-overlay" id="celebrationOverlay">
-            <div class="celebration-content">
-                <div class="celebration-icon">
-                    <i class="fas fa-star"></i>
-                </div>
-                <h2 class="celebration-message" id="celebrationMessage" data-i18n="greatJob">Great job!</h2>
-                <p class="celebration-subtitle" id="celebrationSubtitle" data-i18n="makingProgress">You're making progress!</p>
-            </div>
-            <canvas id="celebrationCanvas"></canvas>
-        </div>
-
         <!-- Delete Confirmation Modal -->
         <div class="modal-overlay" id="deleteModal">
             <div class="modal-content">
@@ -418,6 +406,18 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Completion Celebration (body直下で画面幅いっぱいに表示) -->
+    <div class="celebration-overlay" id="celebrationOverlay">
+        <div class="celebration-content">
+            <div class="celebration-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <h2 class="celebration-message" id="celebrationMessage" data-i18n="greatJob">Great job!</h2>
+            <p class="celebration-subtitle" id="celebrationSubtitle" data-i18n="makingProgress">You're making progress!</p>
+        </div>
+        <canvas id="celebrationCanvas"></canvas>
     </div>
 
     <!-- Firebase config（windowにセット） -->

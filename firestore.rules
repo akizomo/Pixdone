@@ -1,0 +1,26 @@
+rules_version = '2';
+
+// PixDone Firestore Security Rules（推奨案）
+// Phase 1: フラットコレクション tasks, lists を uid でフィルタ
+// デプロイ: firebase deploy --only firestore
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // lists コレクション: 認証ユーザーは自らの uid のドキュメントのみ読み書き可
+    match /lists/{listId} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      allow read, update, delete: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+    }
+
+    // tasks コレクション: 認証ユーザーは自らの uid のドキュメントのみ読み書き可
+    match /tasks/{taskId} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      allow read, update, delete: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+    }
+  }
+}

@@ -2279,17 +2279,15 @@ class PixDoneApp {
         let startX = 0, startY = 0, startTime = 0;
         let activePointerId = null;
         let isLocked = false;
-        const LOCK_DX = 8;
-        const LOCK_DY_RATIO = 1.2;
+        const LOCK_DY_OFFSET_PX = 8;
         const SNAP_MS = 220;
 
         const canSwipe = () => {
             if (!this.lists || this.lists.length <= 1) return false;
-            if (document.getElementById('createListModal')?.classList.contains('active') ||
-                document.getElementById('deleteModal')?.classList.contains('active') ||
-                document.getElementById('taskModal')?.classList.contains('active')) return false;
+            if (this.isAnyModalOpen && this.isAnyModalOpen()) return false;
             if (this.isInputVisible) return false;
-            if (document.activeElement?.tagName?.match(/INPUT|TEXTAREA/)) return false;
+            const ae = document.activeElement;
+            if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return false;
             return true;
         };
 
@@ -2300,31 +2298,43 @@ class PixDoneApp {
             track.style.transform = `translateX(${offsetPx}px)`;
         };
 
+        // Swipe start blocked on: inputs, task interactions, buttons. #contentBelowTabs 全域でスワイプ開始可（上記以外）
+        const shouldBlockSwipeStart = (target) => {
+            if (!target || !target.closest) return true;
+            if (target.closest('#taskInputContainer')) return true;
+            if (target.closest('input, textarea, select')) return true;
+            if (target.closest('[contenteditable="true"]')) return true;
+            if (target.closest('.task-checkbox, .task-actions, .task-action-btn, .task-link, .task-action-link')) return true;
+            if (target.closest('button')) return true;
+            if (target.closest('.list-tab, .add-list-tab-btn')) return true;
+            if (target.closest('.task-item.dragging')) return true;
+            if (target.closest('.task-item.completed')) return true;
+            return false;
+        };
+
         const handlePointerDown = (e) => {
             if (!canSwipe() || activePointerId !== null) return;
-            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea, select, .task-link, .task-action-link, .list-tab, .add-list-tab-btn')) return;
-            if (e.target.closest('.task-item')?.classList.contains('dragging')) return;
-            if (e.target.closest('.task-item.completed')) return;
+            if (shouldBlockSwipeStart(e.target)) return;
 
             activePointerId = e.pointerId;
             startX = e.clientX;
             startY = e.clientY;
             startTime = Date.now();
             isLocked = false;
-            swipeTarget.setPointerCapture(e.pointerId);
+            // Do NOT setPointerCapture here: wait for horizontal intent to avoid blocking vertical scroll
         };
 
         const handlePointerMove = (e) => {
             if (e.pointerId !== activePointerId) return;
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
+            const adx = Math.abs(dx), ady = Math.abs(dy);
 
             if (!isLocked) {
-                // Lock threshold: only lock horizontal if abs(dx) > 8px AND abs(dx) > abs(dy) * 1.2
-                // Before lock: do NOT preventDefault (allows vertical scroll)
-                const adx = Math.abs(dx), ady = Math.abs(dy);
-                if (adx > LOCK_DX && adx > ady * LOCK_DY_RATIO) {
+                // Horizontal intent: abs(dx) > abs(dy) + 8px. Before lock: do NOT preventDefault (preserves body vertical scroll)
+                if (adx > ady + LOCK_DY_OFFSET_PX) {
                     isLocked = true;
+                    try { swipeTarget.setPointerCapture(e.pointerId); } catch (_) {}
                     e.preventDefault();
                 } else {
                     return;
@@ -2339,15 +2349,18 @@ class PixDoneApp {
 
         const handlePointerUp = (e) => {
             if (e.pointerId !== activePointerId) return;
-            swipeTarget.releasePointerCapture(e.pointerId);
+            if (isLocked) {
+                try { swipeTarget.releasePointerCapture(e.pointerId); } catch (_) {}
+            }
+            const wasLocked = isLocked;
             activePointerId = null;
+            isLocked = false;
 
-            if (!isLocked) return;
+            if (!wasLocked) return;
 
             const dx = e.clientX - startX;
             const durationMs = Date.now() - startTime;
             const velocity = durationMs > 0 ? Math.abs(dx) / durationMs : 0;
-
             const viewportWidth = viewport.offsetWidth;
             const switchThreshold = viewportWidth * 0.25;
             const shouldSwitch = Math.abs(dx) > switchThreshold || velocity > 0.5;
@@ -2359,15 +2372,25 @@ class PixDoneApp {
                     this.switchToNextList();
                 }
             }
-
             this.syncPagerPages();
         };
 
         const handlePointerCancel = (e) => {
             if (e.pointerId === activePointerId) {
+                if (isLocked) {
+                    try { swipeTarget.releasePointerCapture(e.pointerId); } catch (_) {}
+                }
                 activePointerId = null;
                 isLocked = false;
                 this.syncPagerPages();
+            }
+        };
+
+        // Fallback: if pointer released outside swipeTarget before lock, ensure cleanup
+        const handleDocumentPointerUp = (e) => {
+            if (e.pointerId === activePointerId && !swipeTarget.contains(e.target)) {
+                activePointerId = null;
+                isLocked = false;
             }
         };
 
@@ -2375,6 +2398,16 @@ class PixDoneApp {
         swipeTarget.addEventListener('pointermove', handlePointerMove, { passive: false });
         swipeTarget.addEventListener('pointerup', handlePointerUp, { passive: true });
         swipeTarget.addEventListener('pointercancel', handlePointerCancel, { passive: true });
+        document.addEventListener('pointerup', handleDocumentPointerUp, { passive: true });
+
+        /*
+         * 動作確認の観点:
+         * - PC/モバイル: #contentBelowTabs 内の空白・ヘッダ・カード外で横スワイプ → リスト切り替え
+         * - 縦スクロール: 縦方向のドラッグは body の自然なスクロールに委譲（引っかかりなし）
+         * - 入力中: #taskInputContainer 内・input/textarea/contenteditable 上ではスワイプ開始しない
+         * - タブ横スクロール: .list-tabs は header 内で、#contentBelowTabs 外 → 影響なし
+         * - モーダル表示中: canSwipe でモーダルオープン時はスワイプ無効
+         */
     }
 
     setupEventListeners() {
@@ -3505,10 +3538,15 @@ class PixDoneApp {
         // Update in Firebase if authenticated
         if (this.isAuthenticated) {
             try {
-                await deleteTaskFromFirestore(taskId);
-                await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId, this.currentSubtasks || []);
+                await updateTaskInFirestore(taskId, {
+                    title,
+                    details: details || '',
+                    dueDate: this.selectedDate,
+                    repeat: this.selectedRepeat,
+                    subtasks: (this.currentSubtasks || []).map(st => this.normalizeSubtask(st)).filter(Boolean)
+                });
             } catch (error) {
-                console.error('Error updating task in Firestore:', error);
+                console.error('[PixDone] Error updating task in Firestore:', error);
             }
         }
 
@@ -3928,12 +3966,17 @@ class PixDoneApp {
             this.currentTask.dueDate = this.selectedDate;
             this.currentTask.repeat = this.selectedRepeat;
             if (this.isAuthenticated) {
-                // Firestoreに更新を送信
+                // Firestoreに更新を送信（既存IDを維持）
                 try {
-                    await deleteTaskFromFirestore(this.currentTask.id);
-                    await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId, this.currentSubtasks || []);
+                    await updateTaskInFirestore(this.currentTask.id, {
+                        title,
+                        details: details || '',
+                        dueDate: this.selectedDate,
+                        repeat: this.selectedRepeat,
+                        subtasks: (this.currentSubtasks || []).map(st => this.normalizeSubtask(st)).filter(Boolean)
+                    });
                 } catch (error) {
-                    console.error('Error updating task in Firestore:', error);
+                    console.error('[PixDone] Error updating task in Firestore:', error);
                 }
             } else {
                 // ローカルのみで更新
@@ -3961,7 +4004,13 @@ class PixDoneApp {
                 completedAt: null
             };
             if (this.isAuthenticated) {
-                await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId, this.currentSubtasks || []);
+                const taskId = await addTaskToFirestore(title, details, this.selectedDate, this.selectedRepeat, this.currentListId, this.currentSubtasks || []);
+                if (taskId) task.id = taskId;
+                const currentList = this.getCurrentList();
+                if (currentList) {
+                    currentList.tasks.unshift(task);
+                    this.tasks = currentList.tasks;
+                }
             } else {
                 // Add to current list for offline users
                 const currentList = this.getCurrentList();
@@ -6165,6 +6214,7 @@ class PixDoneApp {
         if (direction !== 'none') {
             this.animateListSwitch(direction, () => {
                 this.currentListId = listId;
+                this.setupTasksRealtimeListener();
                 this.renderListTabs();
                 this.updateListTitle();
                 this.renderTasks();
@@ -6173,6 +6223,7 @@ class PixDoneApp {
             });
         } else {
             this.currentListId = listId;
+            this.setupTasksRealtimeListener();
             this.renderListTabs();
             this.updateListTitle();
             this.renderTasks();
@@ -6579,11 +6630,9 @@ class PixDoneApp {
                 }));
                 return;
             }
-
-            // 認証されている場合はサーバーに保存
-            this.saveToServer();
+            // 認証時はFirestore直接操作（add/update/delete）＋onSnapshotで同期。saveToServerによる全量書き戻しは行わない（競合防止）
         } catch (error) {
-            console.error('Error saving lists:', error);
+            console.error('[PixDone] Error saving lists:', error);
         }
     }
 
@@ -7356,21 +7405,37 @@ async function loadTasksFromFirestore() {
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(task => typeof task.id !== 'undefined');
 }
-// 例: タスク追加
+// 例: タスク追加（UUID固定IDでsetDoc、IDを返す）
 async function addTaskToFirestore(title, details = '', dueDate = null, repeat = 'none', listId, subtasks = []) {
     const user = firebase.auth().currentUser;
-    if (!user || !listId) return;
-    await db.collection('tasks').add({
+    if (!user || !listId) return null;
+    const taskId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'task-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+    const docRef = db.collection('tasks').doc(taskId);
+    await docRef.set({
         uid: user.uid,
-        listId, // ← 追加
+        listId,
         title,
-        details,
-        dueDate,
-        repeat,
+        details: details || '',
+        dueDate: dueDate || null,
+        repeat: repeat || 'none',
         subtasks: subtasks || [],
         completed: false,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    return taskId;
+}
+
+// タスク編集（updateDocで既存IDを維持）
+async function updateTaskInFirestore(taskId, fields) {
+    const user = firebase.auth().currentUser;
+    if (!user || !taskId) return;
+    const docRef = db.collection('tasks').doc(taskId);
+    const doc = await docRef.get();
+    if (doc.exists) {
+        await docRef.update({ ...fields, uid: user.uid, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    } else {
+        console.warn('[PixDone] No such task to update:', taskId);
+    }
 }
 // 例: タスク削除
 async function deleteTaskFromFirestore(taskId) {
@@ -7471,11 +7536,14 @@ function listenTasksFromFirestore(listId, onUpdate) {
         .where('uid', '==', user.uid)
         .where('listId', '==', listId)
         .orderBy('createdAt', 'desc')
-        .limit(50)
-        .onSnapshot(snap => {
-            const tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            onUpdate(tasks);
-        });
+        .limit(200)
+        .onSnapshot(
+            snap => {
+                const tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                onUpdate(tasks);
+            },
+            err => { console.error('[PixDone] Firestore snapshot error (tasks):', err); }
+        );
 }
 
 /**
@@ -7489,10 +7557,13 @@ function listenListsFromFirestore(onUpdate) {
         .where('uid', '==', user.uid)
         .orderBy('createdAt', 'asc')
         .limit(20)
-        .onSnapshot(snap => {
-            const lists = snap.docs.map(doc => ({ id: doc.id, ...doc.data(), tasks: [] }));
-            onUpdate(lists);
-        });
+        .onSnapshot(
+            snap => {
+                const lists = snap.docs.map(doc => ({ id: doc.id, ...doc.data(), tasks: [] }));
+                onUpdate(lists);
+            },
+            err => { console.error('[PixDone] Firestore snapshot error (lists):', err); }
+        );
 }
 
 // Add Task Button
