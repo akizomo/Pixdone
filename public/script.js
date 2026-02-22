@@ -7083,34 +7083,82 @@ class PixDoneApp {
         const newFab = fab.cloneNode(true);
         fab.parentNode.replaceChild(newFab, fab);
 
+        let smashHoldTimer = null;
+        let smashLongPressTriggered = false;
+        const holdMs = (typeof window.PerfectTimingManager !== 'undefined' && window.PerfectTimingManager.config)
+            ? window.PerfectTimingManager.config.holdThresholdMs : 350;
+
+        const clearSmashHold = () => {
+            if (smashHoldTimer) {
+                clearTimeout(smashHoldTimer);
+                smashHoldTimer = null;
+            }
+        };
+
+        newFab.addEventListener('pointerdown', (e) => {
+            if (this.isAnyModalOpen()) return;
+            const currentList = this.getCurrentList();
+            const isSmashList = currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List');
+            if (!isSmashList) return;
+
+            smashLongPressTriggered = false;
+            clearSmashHold();
+            const firstIncomplete = currentList?.tasks?.find(t => !t.completed);
+            if (!firstIncomplete) return;
+
+            smashHoldTimer = setTimeout(() => {
+                smashHoldTimer = null;
+                smashLongPressTriggered = true;
+                const taskEl = document.querySelector(`.task-item[data-task-id="${firstIncomplete.id}"]`) ||
+                    document.getElementById('taskList')?.querySelector('.task-item:not(.completed)');
+                if (typeof window.PerfectTimingManager?.openForTask === 'function') {
+                    window.PerfectTimingManager.openForTask(firstIncomplete.id, taskEl);
+                    if (this.comicEffects?.playSound) this.comicEffects.playSound('buttonClick');
+                } else {
+                    this.toggleTaskCompletion(firstIncomplete.id);
+                }
+            }, holdMs);
+        }, { passive: true });
+
+        newFab.addEventListener('pointerup', (e) => {
+            if (this.isAnyModalOpen()) return;
+            const currentList = this.getCurrentList();
+            const isSmashList = currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List');
+            if (!isSmashList) return;
+
+            if (smashHoldTimer) {
+                clearSmashHold();
+                if (!smashLongPressTriggered) {
+                    const firstIncomplete = currentList?.tasks?.find(t => !t.completed);
+                    if (firstIncomplete) this.toggleTaskCompletion(firstIncomplete.id);
+                    else this.comicEffects?.playSound?.('taskCancel');
+                }
+            }
+        }, { passive: true });
+
+        newFab.addEventListener('pointerleave', () => {
+            if (smashHoldTimer) clearSmashHold();
+        }, { passive: true });
+
+        newFab.addEventListener('pointercancel', () => {
+            clearSmashHold();
+        }, { passive: true });
+
         newFab.addEventListener('click', (e) => {
             e.stopPropagation();
 
-            // Prevent FAB click when any modal is open
-            if (this.isAnyModalOpen()) {
-                return;
-            }
+            if (this.isAnyModalOpen()) return;
 
             const currentList = this.getCurrentList();
             const isSmashList = currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List');
 
             if (isSmashList) {
-                // Smash mode: complete the first incomplete task
-                if (currentList && currentList.tasks) {
-                    const firstIncomplete = currentList.tasks.find(t => !t.completed);
-                    if (firstIncomplete) {
-                        this.toggleTaskCompletion(firstIncomplete.id);
-                        // Optional: Add specific smash effect/sound here if needed
-                    } else {
-                        // If no tasks, maybe shake or show "No tasks" 
-                        this.comicEffects.playSound('taskCancel');
-                    }
-                }
-            } else {
-                // Add task mode
-                this.showTaskInput();
-                this.comicEffects.playSound('taskAdd');
+                e.preventDefault();
+                return;
             }
+
+            this.showTaskInput();
+            this.comicEffects.playSound('taskAdd');
         });
     }
 

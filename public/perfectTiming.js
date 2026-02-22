@@ -201,7 +201,12 @@
         }
     }
 
+    let _getTaskInfo = null;
+    let _completeTask = null;
+
     function setup(getTaskInfo, completeTask) {
+        _getTaskInfo = getTaskInfo;
+        _completeTask = completeTask;
         document.addEventListener('pointerdown', (e) => {
             if (!e.target.closest('.task-checkbox')) return;
             onPointerDown(e, getTaskInfo, completeTask);
@@ -216,9 +221,37 @@
         }, { passive: false });
     }
 
+    /**
+     * Open the Perfect Timing overlay for a task programmatically (e.g. from FAB long-press).
+     * Release is handled by the global pointerup listener.
+     * @param {string} taskId
+     * @param {HTMLElement} taskElement
+     * @returns {boolean} true if opened, false if task is disabled or PT not ready
+     */
+    function openForTask(taskId, taskElement) {
+        if (!_getTaskInfo || !_completeTask) return false;
+        const info = _getTaskInfo(taskId);
+        if (info && info.disabled) return false;
+        const checkbox = taskElement ? taskElement.querySelector('.task-checkbox') : null;
+        state.taskId = taskId;
+        state.taskElement = taskElement;
+        state.checkbox = checkbox;
+        state.active = true;
+        const overlay = ensureOverlay();
+        const rect = taskElement ? taskElement.getBoundingClientRect() : { left: window.innerWidth / 2 - 24, top: window.innerHeight / 2 - 60, width: 48, height: 48 };
+        positionOverlay(rect);
+        document.body.appendChild(overlay);
+        state.indicatorPos = 0;
+        state.indicatorDir = 1;
+        state.startTime = performance.now();
+        tickIndicator(state.startTime);
+        return true;
+    }
+
     global.PerfectTimingManager = {
         setup,
         closeOverlay,
+        openForTask,
         config,
     };
 })(typeof window !== 'undefined' ? window : this);
