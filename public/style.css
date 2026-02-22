@@ -1621,7 +1621,8 @@ body {
 }
 
 /* Pager – horizontal swipe for list tabs */
-/* 画面幅いっぱいに広げ、左右マージンでアニメーションが切れないように */
+/* モバイル: 画面幅いっぱいに広げ、左右マージンでアニメーションが切れないように */
+/* デスクトップ: app-container幅に合わせる（タスクリストタイトルと同じ横幅） */
 .pager-viewport {
     overflow-x: hidden;
     overflow-y: visible;
@@ -1630,6 +1631,15 @@ body {
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
     position: relative;
+}
+
+@media (min-width: 601px) {
+    .pager-viewport {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
 }
 
 .pager-track {
@@ -2763,6 +2773,10 @@ div[id="newTaskDetails"] a:hover {
 /* Completed Section */
 .completed-section {
     margin-top: 24px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .completed-header {

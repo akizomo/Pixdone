@@ -485,7 +485,7 @@ class PixDoneApp {
             });
 
             // Save button
-            sheet.querySelector('#newSaveBtn').addEventListener('click', () => {
+            sheet.querySelector('#newSaveBtn').addEventListener('click', async () => {
                 const titleEl = sheet.querySelector('#newTaskTitle');
                 const title = titleEl.textContent.trim();
                 if (!title) {
@@ -494,7 +494,7 @@ class PixDoneApp {
                     }
                     return;
                 }
-                this.saveBottomSheetTask(sheet);
+                await this.saveBottomSheetTask(sheet);
                 if (this.comicEffects && this.comicEffects.playSound) {
                     this.comicEffects.playSound('taskAdd');
                 }
@@ -1037,7 +1037,7 @@ class PixDoneApp {
         };
 
         // Save bottom sheet task
-        this.saveBottomSheetTask = (sheet) => {
+        this.saveBottomSheetTask = async (sheet) => {
             const titleEl = sheet.querySelector('#newTaskTitle');
             const title = titleEl.textContent.trim();
             const detailsEl = sheet.querySelector('#newTaskDetails');
@@ -1050,12 +1050,30 @@ class PixDoneApp {
                 return;
             }
 
+            const dueDate = this.selectedDate ? (typeof this.selectedDate === 'string' ? this.selectedDate : this.selectedDate.toISOString().split('T')[0]) : null;
+            const repeat = this.selectedRepeat || 'none';
+            const subtasks = (this.currentSubtasks || []).map(st => this.normalizeSubtask(st)).filter(Boolean);
+            const listId = this.currentListId || 'default';
+
             if (this.currentTask) {
                 this.currentTask.title = title;
                 this.currentTask.details = details;
-                this.currentTask.dueDate = this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null;
-                this.currentTask.repeat = this.selectedRepeat || 'none';
-                this.currentTask.subtasks = this.currentSubtasks.map(st => this.normalizeSubtask(st)).filter(Boolean);
+                this.currentTask.dueDate = dueDate;
+                this.currentTask.repeat = repeat;
+                this.currentTask.subtasks = subtasks;
+                if (this.isAuthenticated) {
+                    try {
+                        await updateTaskInFirestore(this.currentTask.id, {
+                            title,
+                            details: details || '',
+                            dueDate,
+                            repeat,
+                            subtasks
+                        });
+                    } catch (error) {
+                        console.error('[PixDone] Error updating task in Firestore:', error);
+                    }
+                }
                 const currentList = this.getCurrentList();
                 if (currentList && currentList.tasks) {
                     const taskIndex = currentList.tasks.findIndex(t => t.id === this.currentTask.id);
@@ -1069,14 +1087,23 @@ class PixDoneApp {
                     id: Date.now().toString(),
                     title: title,
                     details: details,
-                    dueDate: this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null,
-                    repeat: this.selectedRepeat || 'none',
+                    dueDate: dueDate,
+                    repeat: repeat,
                     completed: false,
-                    listId: this.currentListId || 'default',
-                    subtasks: [...this.currentSubtasks]
+                    listId: listId,
+                    subtasks: subtasks
                 };
+                if (this.isAuthenticated) {
+                    try {
+                        const taskId = await addTaskToFirestore(title, details, dueDate, repeat, listId, subtasks);
+                        if (taskId) newTask.id = taskId;
+                    } catch (error) {
+                        console.error('[PixDone] Error adding task to Firestore:', error);
+                    }
+                }
                 if (currentList && currentList.tasks) {
                     currentList.tasks.unshift(newTask);
+                    this.tasks = currentList.tasks;
                 }
             }
 
@@ -7315,10 +7342,11 @@ class PixDoneApp {
                 createdListId = await addListToFirestore(list.name);
             } catch (e) { continue; }
             if (!createdListId || !list.tasks) continue;
-            // Upload tasks for this list
+            // Upload tasks for this list (preserve completed status)
             for (const task of list.tasks) {
                 try {
-                    await addTaskToFirestore(task.title, task.details, task.dueDate, task.repeat, createdListId, task.subtasks || []);
+                    const title = this.getTaskDisplayTitle ? this.getTaskDisplayTitle(task) : (task.title || '');
+                    await addTaskToFirestore(title, task.details, task.dueDate, task.repeat, createdListId, task.subtasks || [], task.completed);
                 } catch (e) { continue; }
             }
         }
@@ -7406,7 +7434,7 @@ async function loadTasksFromFirestore() {
         .filter(task => typeof task.id !== 'undefined');
 }
 // 例: タスク追加（UUID固定IDでsetDoc、IDを返す）
-async function addTaskToFirestore(title, details = '', dueDate = null, repeat = 'none', listId, subtasks = []) {
+async function addTaskToFirestore(title, details = '', dueDate = null, repeat = 'none', listId, subtasks = [], completed = false) {
     const user = firebase.auth().currentUser;
     if (!user || !listId) return null;
     const taskId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'task-' + Date.now() + '-' + Math.random().toString(36).slice(2);
@@ -7419,7 +7447,7 @@ async function addTaskToFirestore(title, details = '', dueDate = null, repeat = 
         dueDate: dueDate || null,
         repeat: repeat || 'none',
         subtasks: subtasks || [],
-        completed: false,
+        completed: !!completed,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     return taskId;
@@ -7446,7 +7474,7 @@ async function toggleTaskCompletionFirestore(taskId, completed) {
     const docRef = db.collection('tasks').doc(taskId);
     const doc = await docRef.get();
     if (doc.exists) {
-        await docRef.update({ completed: !completed });
+        await docRef.update({ completed });
     } else {
         // ドキュメントがなければ何もしない（またはエラー処理）
         console.warn('No such task to update:', taskId);

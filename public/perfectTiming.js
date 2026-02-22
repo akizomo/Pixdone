@@ -24,6 +24,7 @@
         indicatorPos: 0,
         indicatorDir: 1,
         startTime: 0,
+        completedTap: false,
     };
 
     function ensureOverlay() {
@@ -145,10 +146,18 @@
         const taskCard = cb.closest('.task-card, .task-item');
         const taskId = taskCard?.dataset?.taskId;
         if (!taskId) return;
-        if (cb.classList.contains('completed')) return;
 
         e.preventDefault();
         e.stopPropagation();
+
+        // 完了済みの場合はタップで未完了に戻す（PerfectTimingは不要）
+        if (cb.classList.contains('completed')) {
+            state.taskId = taskId;
+            state.taskElement = taskCard;
+            state.checkbox = cb;
+            state.completedTap = true;
+            return;
+        }
 
         const info = typeof getTaskInfo === 'function' ? getTaskInfo(taskId) : null;
         if (info && info.disabled) return;
@@ -174,6 +183,21 @@
     function onPointerUp(e, completeTask) {
         if (!state.taskId && !state.holdTimer) return;
 
+        if (state.completedTap) {
+            const cb = state.checkbox;
+            const taskCard = state.taskElement;
+            const taskId = state.taskId;
+            const releasedOnCheckbox = cb && (e.target === cb || cb.contains(e.target));
+            state.taskId = null;
+            state.taskElement = null;
+            state.checkbox = null;
+            state.completedTap = false;
+            if (releasedOnCheckbox && taskId && typeof completeTask === 'function') {
+                completeTask(taskId, taskCard, false);
+            }
+            return;
+        }
+
         if (state.holdTimer) {
             clearTimeout(state.holdTimer);
             state.holdTimer = null;
@@ -193,11 +217,12 @@
     }
 
     function onPointerCancel(e) {
-        if (state.holdTimer || state.active) {
+        if (state.holdTimer || state.active || state.completedTap) {
             closeOverlay();
             state.taskId = null;
             state.taskElement = null;
             state.checkbox = null;
+            state.completedTap = false;
         }
     }
 
