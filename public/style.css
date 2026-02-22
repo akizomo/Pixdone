@@ -1603,6 +1603,7 @@ body {
 /* Content area below tabs – full swipe zone */
 .content-below-tabs {
     width: 100%;
+    min-width: 0;
 }
 
 /* Pager – horizontal swipe for list tabs */
@@ -1610,22 +1611,23 @@ body {
     overflow-x: hidden;
     overflow-y: visible;
     width: 100%;
-    min-width: 100%;
+    min-width: 0;
     position: relative;
 }
 
 .pager-track {
     display: flex;
-    width: 100%;
-    min-width: 100%;
+    flex-wrap: nowrap;
     will-change: transform;
 }
 
 .pager-page {
     flex: 0 0 100%;
+    min-width: 0;
     width: 100%;
-    min-width: 100%;
     position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* Task list preview – non-interactive snapshot for adjacent pages during swipe */
@@ -1678,6 +1680,9 @@ body {
     align-items: flex-start;
     gap: 8px;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .task-list {
@@ -1689,6 +1694,9 @@ body {
     padding: 8px 0;
     position: relative;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .task-list.drag-over {
@@ -2781,6 +2789,42 @@ div[id="newTaskDetails"] a:hover {
 }
 
 /* Game Start Empty State */
+.loading-firestore {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 20px;
+}
+
+.loading-firestore-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.loading-firestore p {
+    margin: 0;
+    font-size: var(--md-body-medium);
+    color: var(--text-secondary);
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-color);
+    border-radius: 50%;
+    animation: loading-spin 0.8s linear infinite;
+}
+
+@keyframes loading-spin {
+    to { transform: rotate(360deg); }
+}
+
 .game-start-empty {
     width: 100%;
     text-align: center;

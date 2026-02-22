@@ -28,6 +28,7 @@ class PixDoneApp {
         this.listsUnsubscribe = null;
         this.isCreatingMyTasksList = false;
         this.isCreatingSmashList = false;
+        this.isLoadingFromFirestore = false;
 
         // Tutorial tasks for unauthenticated users (title resolved via i18n: tutorialTask1, tutorialTask2, tutorialTask3)
         this.tutorialTasks = [
@@ -238,6 +239,10 @@ class PixDoneApp {
         this.setupSyncIndicator();
 
         // 認証前でもデフォルトリストを初期化
+        const authHint = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('pixdone-auth-hint') : null;
+        if (authHint === 'logged_in') {
+            this.isLoadingFromFirestore = true;
+        }
         this.ensureDefaultList();
         this.loadTasks();
         this.loadLists();
@@ -252,8 +257,9 @@ class PixDoneApp {
         }
 
         // 初回読み込み時、未ログインの場合は Tutorial を確実に選択（Firebase Auth 状態確定前でも動作するように）
-        // 少し遅延させて、Firebase Auth の状態が確定した後にも再確認
+        // authHint が logged_in の場合はスキップ（ローディング表示のまま）
         setTimeout(() => {
+            if (authHint === 'logged_in') return;
             if (!this.isAuthenticated && !firebase.auth().currentUser) {
                 const defaultList = this.lists.find(l => l.id === 'default');
                 if (defaultList && defaultList.name !== 'Tutorial') {
@@ -1742,6 +1748,7 @@ class PixDoneApp {
             this.isAuthenticated = !!user;
             this.updateSyncIndicatorVisibility();
             if (user) {
+                this.isLoadingFromFirestore = true;
                 this.showUserInfo();
                 // ログイン時：ローカルデータをクリアしてFirebaseのみ使用
                 await this.migrateLocalDataToFirebase();
@@ -1790,6 +1797,22 @@ class PixDoneApp {
                 task.listId === 'default' &&
                 !task.id.startsWith('tutorial-')
             );
+
+            if (localTasks.length === 0) {
+                this.lists = [];
+                this.tasks = [];
+                this.currentListId = null;
+                this.taskIdCounter = 1;
+                this.listIdCounter = 1;
+                localStorage.removeItem('pixTaskLists');
+                localStorage.removeItem('pixTaskTasks');
+                localStorage.removeItem('pixTaskCurrentListId');
+                localStorage.removeItem('pixTaskTaskIdCounter');
+                localStorage.removeItem('pixTaskListIdCounter');
+                localStorage.removeItem('google_tasks_data');
+                localStorage.removeItem('google_tasks_lists');
+                return;
+            }
 
             if (localTasks.length > 0) {
                 console.log('Migrating local tasks to Firebase...');
@@ -1864,7 +1887,6 @@ class PixDoneApp {
         if (this.tasksUnsubscribe) this.tasksUnsubscribe();
         // リスト監視
         this.listsUnsubscribe = listenListsFromFirestore(async (lists) => {
-            // --- 追加: My Tasksを先頭に（マイタスクとMy Tasksは同一リスト） ---
             if (lists && lists.length > 1) {
                 const myTasksIdx = lists.findIndex(l => this.isMyTasksList(l));
                 if (myTasksIdx > 0) {
@@ -1872,18 +1894,9 @@ class PixDoneApp {
                     lists.unshift(myTasksList);
                 }
             }
-            // --- ここまで追加 ---
-            // --- 追加: 各リストのtasksをFirestoreから取得してセット ---
-            const user = firebase.auth().currentUser;
-            if (user) {
-                const tasksSnap = await db.collection('tasks').where('uid', '==', user.uid).get();
-                const allTasks = tasksSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                lists.forEach(list => {
-                    list.tasks = allTasks.filter(t => t.listId === list.id);
-                });
-            }
-            // --- ここまで追加 ---
             this.lists = lists;
+            this.isLoadingFromFirestore = false;
+            this.renderTasks();
 
             // 必要なリストを確保（マイタスク＝My Tasks、中身は同じ）
             const hasMyTasks = lists.some(l => this.isMyTasksList(l));
@@ -2086,6 +2099,7 @@ class PixDoneApp {
                     .where('uid', '==', firebase.auth().currentUser.uid)
                     .where('listId', '==', list.id)
                     .orderBy('createdAt', 'desc')
+                    .limit(200)
                     .get();
                 const tasks = serverTasks.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 this.lists.push({
@@ -4431,6 +4445,20 @@ class PixDoneApp {
         const emptyState = document.getElementById('emptyState');
         const gameStartEmpty = document.getElementById('gameStartEmpty');
         const tutorialCompleteCta = document.getElementById('tutorialCompleteCta');
+        const loadingFirestore = document.getElementById('loadingFirestore');
+
+        if (this.isLoadingFromFirestore && loadingFirestore) {
+            if (taskList) taskList.innerHTML = '';
+            if (emptyState) emptyState.style.display = 'none';
+            if (gameStartEmpty) gameStartEmpty.style.display = 'none';
+            if (tutorialCompleteCta) tutorialCompleteCta.style.display = 'none';
+            loadingFirestore.style.display = 'flex';
+            const completedSection = document.getElementById('completedSection');
+            if (completedSection) completedSection.style.display = 'none';
+            return;
+        }
+
+        if (loadingFirestore) loadingFirestore.style.display = 'none';
 
         // Get tasks from current list (count/display only top-level tasks; exclude subtasks stored as separate docs)
         const currentList = this.getCurrentList();
@@ -6409,7 +6437,7 @@ class PixDoneApp {
                 // --- 追加: 各リストのtasksを再構築 ---
                 const user = firebase.auth().currentUser;
                 if (user) {
-                    const tasksSnap = await db.collection('tasks').where('uid', '==', user.uid).get();
+                    const tasksSnap = await db.collection('tasks').where('uid', '==', user.uid).limit(200).get();
                     const allTasks = tasksSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     this.lists.forEach(list => {
                         list.tasks = allTasks.filter(t => t.listId === list.id);
@@ -6592,6 +6620,7 @@ class PixDoneApp {
 
     loadLists() {
         try {
+            const authHint = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('pixdone-auth-hint') : null;
             const data = localStorage.getItem('google_tasks_lists');
             if (data) {
                 const parsed = JSON.parse(data);
@@ -6604,22 +6633,22 @@ class PixDoneApp {
             // Create default list if no lists exist
             if (this.lists.length === 0) {
                 const defaultTasks = [];
+                const awaitingFirestore = authHint === 'logged_in';
 
-                // Add tutorial tasks for unauthenticated users
-                if (!this.isAuthenticated) {
+                if (!awaitingFirestore && !this.isAuthenticated) {
                     defaultTasks.push(...this.tutorialTasks.map(task => ({ ...task })));
                 }
 
                 this.lists.push({
                     id: 'default',
-                    name: this.isAuthenticated ? 'My Tasks' : 'Tutorial',
+                    name: (awaitingFirestore || this.isAuthenticated) ? 'My Tasks' : 'Tutorial',
                     tasks: defaultTasks,
                     createdAt: new Date().toISOString()
                 });
                 this.currentListId = 'default';
             } else {
-                // If default list exists, add tutorial tasks for unauthenticated users
-                if (!this.isAuthenticated) {
+                const awaitingFirestore = authHint === 'logged_in';
+                if (!awaitingFirestore && !this.isAuthenticated) {
                     const defaultList = this.lists.find(list => list.id === 'default');
                     if (defaultList) {
                         // Check if tutorial tasks already exist (avoid duplicates)
@@ -6657,15 +6686,14 @@ class PixDoneApp {
             // Ensure default list has correct name (未ログインは this.isAuthenticated のみで判定し、キャッシュの currentUser に左右されない)
             const defaultList = this.lists.find(list => list.id === 'default');
             if (defaultList) {
-                const targetName = this.isAuthenticated ? 'My Tasks' : 'Tutorial';
+                const targetName = (authHint === 'logged_in' || this.isAuthenticated) ? 'My Tasks' : 'Tutorial';
                 if (defaultList.name !== targetName && (this.isMyTasksList(defaultList) || defaultList.name === 'Tutorial')) {
                     defaultList.name = targetName;
                     this.saveLists();
                 }
             }
 
-            // 未ログイン時は必ず Tutorial（id: default）を選択し、先頭にしておく
-            if (!this.isAuthenticated) {
+            if (authHint !== 'logged_in' && !this.isAuthenticated) {
                 const defaultIdx = this.lists.findIndex(l => l.id === 'default');
                 if (defaultIdx > 0) {
                     const [def] = this.lists.splice(defaultIdx, 1);
@@ -7275,7 +7303,7 @@ async function handleLogout() {
 async function loadTasksFromFirestore() {
     const user = firebase.auth().currentUser;
     if (!user) return [];
-    const snap = await db.collection('tasks').where('uid', '==', user.uid).orderBy('createdAt', 'desc').get();
+    const snap = await db.collection('tasks').where('uid', '==', user.uid).orderBy('createdAt', 'desc').limit(200).get();
     return snap.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter(task => typeof task.id !== 'undefined');
@@ -7371,7 +7399,7 @@ async function editListInFirestore(listId, name) {
 async function deleteListFromFirestore(listId) {
     await db.collection('lists').doc(listId).delete();
     // そのリストのtasksも削除（listIdが厳密一致するものだけ）
-    const snap = await db.collection('tasks').where('listId', '==', String(listId)).get();
+    const snap = await db.collection('tasks').where('listId', '==', String(listId)).limit(200).get();
     const batch = db.batch();
     snap.forEach(doc => {
         const data = doc.data();
@@ -7409,19 +7437,12 @@ function listenTasksFromFirestore(listId, onUpdate) {
 function listenListsFromFirestore(onUpdate) {
     const user = firebase.auth().currentUser;
     if (!user) return () => { };
-    // リスト一覧のonSnapshot
     return db.collection('lists')
         .where('uid', '==', user.uid)
         .orderBy('createdAt', 'asc')
         .limit(20)
-        .onSnapshot(async snap => {
+        .onSnapshot(snap => {
             const lists = snap.docs.map(doc => ({ id: doc.id, ...doc.data(), tasks: [] }));
-            // 各リストのtasks数を即時反映
-            const tasksSnap = await db.collection('tasks').where('uid', '==', user.uid).get();
-            const allTasks = tasksSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            lists.forEach(list => {
-                list.tasks = allTasks.filter(t => t.listId === list.id);
-            });
             onUpdate(lists);
         });
 }

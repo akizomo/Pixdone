@@ -47,6 +47,7 @@
             create: 'Create',
 
             // Empty & states
+            loadingTasks: 'Loading your tasks...',
             ready: 'Ready?',
             pressPlusToStart: 'Press + to start your first task.',
             noTasksRest: 'No tasks - Time to rest!',
@@ -149,6 +150,7 @@
             create: '作成',
 
             // Empty & states
+            loadingTasks: 'タスクを読み込み中...',
             ready: 'Ready?',
             pressPlusToStart: '+ で最初のタスクをはじめよう。',
             noTasksRest: 'タスクなし — やすもう！',

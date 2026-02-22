@@ -114,6 +114,8 @@
             </div>
         </header>
 
+        <!-- Swipeable content area: list-header through pager (full swipe zone) -->
+        <div class="content-below-tabs" id="contentBelowTabs">
         <!-- List Header -->
         <div class="list-header" id="listHeader">
             <h2 class="list-title" id="listTitle" data-i18n="myTasks">My Tasks</h2>
@@ -186,6 +188,14 @@
                 <div class="game-start-content">
                     <div class="ready-text" data-i18n="ready">Ready?</div>
                     <div class="start-instruction" data-i18n="pressPlusToStart">Press + to start your first task.</div>
+                </div>
+            </div>
+
+            <!-- Loading state (when fetching from Firestore) -->
+            <div class="loading-firestore" id="loadingFirestore" style="display: none;">
+                <div class="loading-firestore-content">
+                    <div class="loading-spinner"></div>
+                    <p data-i18n="loadingTasks">Loading your tasks...</p>
                 </div>
             </div>
 
