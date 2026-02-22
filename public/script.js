@@ -1050,6 +1050,16 @@ class PixDoneApp {
                 return;
             }
 
+            // サブタスク入力欄に未追加のテキストがあれば保存前に追加
+            const subtaskInput = sheet.querySelector('#subtaskInput');
+            if (subtaskInput && subtaskInput.value.trim()) {
+                const text = subtaskInput.value.trim();
+                this.currentSubtasks = this.currentSubtasks || [];
+                this.currentSubtasks.push({ id: Date.now().toString(), text, done: false });
+                subtaskInput.value = '';
+                if (this.updateSubtasksCount) this.updateSubtasksCount(sheet);
+            }
+
             const dueDate = this.selectedDate ? (typeof this.selectedDate === 'string' ? this.selectedDate : this.selectedDate.toISOString().split('T')[0]) : null;
             const repeat = this.selectedRepeat || 'none';
             const subtasks = (this.currentSubtasks || []).map(st => this.normalizeSubtask(st)).filter(Boolean);
@@ -1964,13 +1974,17 @@ class PixDoneApp {
         }
         this.tasksUnsubscribe = listenTasksFromFirestore(this.currentListId, (tasks) => {
             this.tasks = tasks;
-            // --- 追加: lists内の該当リストのtasksも更新 ---
             const idx = this.lists.findIndex(l => l.id === this.currentListId);
             if (idx !== -1) {
                 this.lists[idx].tasks = tasks;
             }
-            // --- ここまで追加 ---
+            // 完了アニメーション中は renderTasks を遅延（DOM置換でアニメが途切れるのを防ぐ）
+            if (this.suppressSnapshotRenderUntil && Date.now() < this.suppressSnapshotRenderUntil) {
+                return;
+            }
             this.renderTasks();
+            this.updateCompletedCount();
+            this.renderListTabs();
         });
     }
 
@@ -3546,6 +3560,17 @@ class PixDoneApp {
             return;
         }
 
+        // サブタスク入力欄に未追加のテキストがあれば保存前に追加
+        const subtaskInput = document.getElementById(`inline-subtask-input-${taskId}`);
+        if (subtaskInput && subtaskInput.value.trim()) {
+            const text = subtaskInput.value.trim();
+            this.currentSubtasks = this.currentSubtasks || [];
+            this.currentSubtasks.push({ id: Date.now().toString(), text, done: false });
+            subtaskInput.value = '';
+            const addBtn = document.getElementById(`inline-subtask-add-btn-${taskId}`);
+            if (addBtn) addBtn.style.display = 'none';
+        }
+
         // Update task
         const currentList = this.getCurrentList();
         const taskIndex = currentList ? currentList.tasks.findIndex(t => String(t.id) === String(taskId)) : -1;
@@ -4131,6 +4156,9 @@ class PixDoneApp {
 
             // Show celebration effects once for all cases
             this.showCelebration(task);
+
+            // onSnapshot による renderTasks を一時抑制（完了アニメが途切れないように）
+            this.suppressSnapshotRenderUntil = Date.now() + 1200;
 
             // Update DOM immediately for visual feedback
             if (taskElement) {
