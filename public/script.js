@@ -332,6 +332,7 @@ class PixDoneApp {
                 }, 300);
             }
             this.isMobileModalOpen = false;
+            this.renderMobileFab();
             console.log('[PixDone] Bottom sheet hidden');
         };
 
@@ -2254,9 +2255,10 @@ class PixDoneApp {
     }
 
     setupPagerSwipe() {
+        const swipeTarget = document.getElementById('contentBelowTabs');
         const viewport = document.querySelector('.pager-viewport');
         const track = document.querySelector('.pager-track');
-        if (!viewport || !track) return;
+        if (!swipeTarget || !viewport || !track) return;
 
         this.syncPagerPages();
 
@@ -2286,15 +2288,16 @@ class PixDoneApp {
 
         const handlePointerDown = (e) => {
             if (!canSwipe() || activePointerId !== null) return;
-            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea, .task-link, .task-action-link')) return;
+            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea, select, .task-link, .task-action-link, .list-tab, .add-list-tab-btn')) return;
             if (e.target.closest('.task-item')?.classList.contains('dragging')) return;
+            if (e.target.closest('.task-item.completed')) return;
 
             activePointerId = e.pointerId;
             startX = e.clientX;
             startY = e.clientY;
             startTime = Date.now();
             isLocked = false;
-            viewport.setPointerCapture(e.pointerId);
+            swipeTarget.setPointerCapture(e.pointerId);
         };
 
         const handlePointerMove = (e) => {
@@ -2322,7 +2325,7 @@ class PixDoneApp {
 
         const handlePointerUp = (e) => {
             if (e.pointerId !== activePointerId) return;
-            viewport.releasePointerCapture(e.pointerId);
+            swipeTarget.releasePointerCapture(e.pointerId);
             activePointerId = null;
 
             if (!isLocked) return;
@@ -2354,10 +2357,10 @@ class PixDoneApp {
             }
         };
 
-        viewport.addEventListener('pointerdown', handlePointerDown, { passive: true });
-        viewport.addEventListener('pointermove', handlePointerMove, { passive: false });
-        viewport.addEventListener('pointerup', handlePointerUp, { passive: true });
-        viewport.addEventListener('pointercancel', handlePointerCancel, { passive: true });
+        swipeTarget.addEventListener('pointerdown', handlePointerDown, { passive: true });
+        swipeTarget.addEventListener('pointermove', handlePointerMove, { passive: false });
+        swipeTarget.addEventListener('pointerup', handlePointerUp, { passive: true });
+        swipeTarget.addEventListener('pointercancel', handlePointerCancel, { passive: true });
     }
 
     setupEventListeners() {
