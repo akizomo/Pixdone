@@ -219,7 +219,7 @@ class PixDoneApp {
         // 従来のシステムも並行して動作
         this.setupFirebaseAuthListener();
         this.setupEventListeners();
-        this.setupTouchGestures();
+        this.setupPagerSwipe();
         // Mobile modal now handled by new system
         try {
             this.comicEffects = new ComicEffectsManager();
@@ -2131,209 +2131,155 @@ class PixDoneApp {
         this.listIdCounter = maxListId + 1;
     }
 
-    setupTouchGestures() {
-        // Skip if only one list exists
-        if (!this.lists || this.lists.length <= 1) {
-            return;
-        }
-
-        // Apply swipe gestures to the task list container for better coverage
+    syncPagerPages() {
+        const viewport = document.querySelector('.pager-viewport');
+        const track = document.querySelector('.pager-track');
         const tasksContainer = document.querySelector('.task-list-container');
-        const appContainer = document.querySelector('.app-container');
-        const mainContainer = tasksContainer || appContainer;
-        
-        if (!mainContainer) {
-            console.warn('[PixDone] Swipe container not found');
-            return;
+        if (!viewport || !track || !tasksContainer) return;
+
+        const count = this.lists?.length || 1;
+        const currentIndex = Math.max(0, this.lists?.findIndex(list => list.id === this.currentListId) ?? 0);
+
+        // Build N pages (virtual pager: only active page holds content)
+        let pages = track.querySelectorAll('.pager-page');
+        const targetCount = Math.max(1, count);
+
+        while (pages.length < targetCount) {
+            const page = document.createElement('div');
+            page.className = 'pager-page';
+            page.dataset.pageIndex = String(pages.length);
+            track.appendChild(page);
+            pages = track.querySelectorAll('.pager-page');
+        }
+        while (pages.length > targetCount) {
+            const last = pages[pages.length - 1];
+            if (last.contains(tasksContainer)) {
+                const active = track.querySelector(`.pager-page[data-page-index="0"]`);
+                if (active) active.appendChild(tasksContainer);
+            }
+            last.remove();
+            pages = track.querySelectorAll('.pager-page');
         }
 
-        let startX = 0;
-        let startY = 0;
-        let isDragging = false;
-        let isSwipeGesture = false;
+        // Put tasksContainer in active page
+        const activePage = track.querySelector(`.pager-page[data-page-index="${currentIndex}"]`);
+        if (activePage && !activePage.contains(tasksContainer)) {
+            activePage.appendChild(tasksContainer);
+        }
 
-        mainContainer.addEventListener('touchstart', (e) => {
-            // Skip if only one list exists
-            if (!this.lists || this.lists.length <= 1) {
-                return;
-            }
-            // Skip if interacting with interactive elements
-            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea, .task-link, .task-action-link')) {
-                return;
-            }
-            // Skip if modal is open
+        track.style.width = `${targetCount * 100}%`;
+        track.querySelectorAll('.pager-page').forEach((p, i) => {
+            p.style.flex = `0 0 ${100 / targetCount}%`;
+        });
+        const viewportWidth = viewport.offsetWidth;
+        track.style.transform = `translateX(${-currentIndex * viewportWidth}px)`;
+    }
+
+    setupPagerSwipe() {
+        const viewport = document.querySelector('.pager-viewport');
+        const track = document.querySelector('.pager-track');
+        if (!viewport || !track) return;
+
+        this.syncPagerPages();
+
+        let startX = 0, startY = 0, startTime = 0;
+        let activePointerId = null;
+        let isLocked = false;
+        const LOCK_DX = 8;
+        const LOCK_DY_RATIO = 1.2;
+        const SNAP_MS = 220;
+
+        const canSwipe = () => {
+            if (!this.lists || this.lists.length <= 1) return false;
             if (document.getElementById('createListModal')?.classList.contains('active') ||
                 document.getElementById('deleteModal')?.classList.contains('active') ||
-                document.getElementById('taskModal')?.classList.contains('active')) {
-                return;
-            }
-            // Skip if input is visible
-            if (this.isInputVisible) {
-                return;
-            }
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-            isDragging = false;
-            isSwipeGesture = false;
-        }, { passive: true });
+                document.getElementById('taskModal')?.classList.contains('active')) return false;
+            if (this.isInputVisible) return false;
+            if (document.activeElement?.tagName?.match(/INPUT|TEXTAREA/)) return false;
+            return true;
+        };
 
-        mainContainer.addEventListener('touchmove', (e) => {
-            // Skip if interacting with interactive elements
-            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea, .task-link, .task-action-link')) {
-                return;
-            }
-            // Skip if modal is open
-            if (document.getElementById('createListModal')?.classList.contains('active') ||
-                document.getElementById('deleteModal')?.classList.contains('active') ||
-                document.getElementById('taskModal')?.classList.contains('active')) {
-                return;
-            }
-            // Skip if input is visible
-            if (this.isInputVisible) {
-                return;
-            }
+        const getCurrentIndex = () => Math.max(0, this.lists?.findIndex(list => list.id === this.currentListId) ?? 0);
 
-            if (!isDragging && startX !== 0) {
-                const currentX = e.touches[0].clientX;
-                const currentY = e.touches[0].clientY;
-                const deltaX = Math.abs(currentX - startX);
-                const deltaY = Math.abs(currentY - startY);
+        const applyTrackTransform = (offsetPx, useTransition = false) => {
+            track.style.transition = useTransition ? `transform ${SNAP_MS}ms ease-out` : 'none';
+            track.style.transform = `translateX(${offsetPx}px)`;
+        };
 
-                // Determine if this is a horizontal swipe (more horizontal than vertical)
-                if (deltaX > 10 && deltaX > deltaY * 1.5) {
-                    isDragging = true;
-                    isSwipeGesture = true;
-                    // Initialize swipe animation
-                    const initialDeltaX = currentX - startX;
-                    this.startSwipeAnimation(initialDeltaX);
-                    // Prevent default scrolling when swiping horizontally
+        const handlePointerDown = (e) => {
+            if (!canSwipe() || activePointerId !== null) return;
+            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea, .task-link, .task-action-link')) return;
+            if (e.target.closest('.task-item')?.classList.contains('dragging')) return;
+
+            activePointerId = e.pointerId;
+            startX = e.clientX;
+            startY = e.clientY;
+            startTime = Date.now();
+            isLocked = false;
+            viewport.setPointerCapture(e.pointerId);
+        };
+
+        const handlePointerMove = (e) => {
+            if (e.pointerId !== activePointerId) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            if (!isLocked) {
+                // Lock threshold: only lock horizontal if abs(dx) > 8px AND abs(dx) > abs(dy) * 1.2
+                // Before lock: do NOT preventDefault (allows vertical scroll)
+                const adx = Math.abs(dx), ady = Math.abs(dy);
+                if (adx > LOCK_DX && adx > ady * LOCK_DY_RATIO) {
+                    isLocked = true;
                     e.preventDefault();
-                } else if (deltaY > 10) {
-                    // Vertical scroll detected, cancel swipe
-                    isDragging = false;
-                    isSwipeGesture = false;
-                    startX = 0;
+                } else {
                     return;
                 }
             }
 
-            if (isDragging && isSwipeGesture) {
-                const currentX = e.touches[0].clientX;
-                const deltaX = currentX - startX;
-                this.updateSwipeAnimation(deltaX);
-                // Prevent default scrolling when actively swiping
-                e.preventDefault();
-            }
-        }, { passive: false });
+            const viewportWidth = viewport.offsetWidth;
+            const baseOffset = -getCurrentIndex() * viewportWidth;
+            applyTrackTransform(baseOffset + dx, false);
+            e.preventDefault();
+        };
 
-        mainContainer.addEventListener('touchend', (e) => {
-            if (!isDragging || !isSwipeGesture) {
-                startX = 0;
-                startY = 0;
-                isDragging = false;
-                isSwipeGesture = false;
-                return;
-            }
+        const handlePointerUp = (e) => {
+            if (e.pointerId !== activePointerId) return;
+            viewport.releasePointerCapture(e.pointerId);
+            activePointerId = null;
 
-            // Skip if interacting with interactive elements
-            if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn, button, input, textarea, .task-link, .task-action-link')) {
-                this.finishSwipeAnimation(0);
-                startX = 0;
-                startY = 0;
-                isDragging = false;
-                isSwipeGesture = false;
-                return;
-            }
+            if (!isLocked) return;
 
-            // Skip if modal is open
-            if (document.getElementById('createListModal')?.classList.contains('active') ||
-                document.getElementById('deleteModal')?.classList.contains('active') ||
-                document.getElementById('taskModal')?.classList.contains('active')) {
-                this.finishSwipeAnimation(0);
-                startX = 0;
-                startY = 0;
-                isDragging = false;
-                isSwipeGesture = false;
-                return;
-            }
+            const dx = e.clientX - startX;
+            const durationMs = Date.now() - startTime;
+            const velocity = durationMs > 0 ? Math.abs(dx) / durationMs : 0;
 
-            const endX = e.changedTouches[0].clientX;
-            const deltaX = endX - startX;
+            const viewportWidth = viewport.offsetWidth;
+            const switchThreshold = viewportWidth * 0.25;
+            const shouldSwitch = Math.abs(dx) > switchThreshold || velocity > 0.5;
 
-            // Use finishSwipeAnimation to handle the swipe completion
-            this.finishSwipeAnimation(deltaX);
-
-            startX = 0;
-            startY = 0;
-            isDragging = false;
-            isSwipeGesture = false;
-        }, { passive: true });
-    }
-
-    startSwipeAnimation(deltaX) {
-        const tasksContainer = document.querySelector('.task-list-container');
-        if (!tasksContainer) return;
-
-        // Disable transition for smooth animation
-        tasksContainer.style.transition = 'none';
-        const clampedDelta = Math.max(-120, Math.min(120, deltaX));
-        tasksContainer.style.transform = `translateX(${clampedDelta * 0.2}px)`;
-        tasksContainer.style.opacity = `${1 - Math.abs(clampedDelta) * 0.001}`;
-    }
-
-    updateSwipeAnimation(deltaX) {
-        const tasksContainer = document.querySelector('.task-list-container');
-        if (!tasksContainer) return;
-
-        // Ensure transition is disabled during animation
-        tasksContainer.style.transition = 'none';
-        const clampedDelta = Math.max(-120, Math.min(120, deltaX));
-        tasksContainer.style.transform = `translateX(${clampedDelta * 0.2}px)`;
-        tasksContainer.style.opacity = `${1 - Math.abs(clampedDelta) * 0.001}`;
-    }
-
-    finishSwipeAnimation(deltaX) {
-        const tasksContainer = document.querySelector('.task-list-container');
-        if (!tasksContainer) return;
-
-        const threshold = 80;
-        const shouldSwitch = Math.abs(deltaX) > threshold;
-
-        if (shouldSwitch) {
-            // Prevent if any modal is open or input is focused
-            const createListModal = document.getElementById('createListModal');
-            const deleteModal = document.getElementById('deleteModal');
-            const taskModal = document.getElementById('taskModal');
-            const isModalOpen = (createListModal && createListModal.classList.contains('active')) ||
-                               (deleteModal && deleteModal.classList.contains('active')) ||
-                               (taskModal && taskModal.classList.contains('active'));
-            const isInputFocused = document.activeElement && document.activeElement.tagName.match(/INPUT|TEXTAREA/);
-            const isInputVisible = this.isInputVisible || false;
-
-            if (!isInputVisible && !isModalOpen && !isInputFocused && this.lists.length > 1) {
-                if (deltaX > 0) {
+            if (shouldSwitch && canSwipe()) {
+                if (dx > 0) {
                     this.switchToPreviousList();
                 } else {
                     this.switchToNextList();
                 }
-            } else {
-                // Reset animation if switch was prevented
-                tasksContainer.style.transition = 'all 0.2s ease';
-                tasksContainer.style.transform = 'translateX(0)';
-                tasksContainer.style.opacity = '1';
             }
-        } else {
-            // Reset animation if threshold not met
-            tasksContainer.style.transition = 'all 0.2s ease';
-            tasksContainer.style.transform = 'translateX(0)';
-            tasksContainer.style.opacity = '1';
-        }
 
-        setTimeout(() => {
-            if (tasksContainer) {
-                tasksContainer.style.transition = '';
+            this.syncPagerPages();
+        };
+
+        const handlePointerCancel = (e) => {
+            if (e.pointerId === activePointerId) {
+                activePointerId = null;
+                isLocked = false;
+                this.syncPagerPages();
             }
-        }, 200);
+        };
+
+        viewport.addEventListener('pointerdown', handlePointerDown, { passive: true });
+        viewport.addEventListener('pointermove', handlePointerMove, { passive: false });
+        viewport.addEventListener('pointerup', handlePointerUp, { passive: true });
+        viewport.addEventListener('pointercancel', handlePointerCancel, { passive: true });
     }
 
     setupEventListeners() {
@@ -6027,6 +5973,9 @@ class PixDoneApp {
 
         // Scroll to active tab
         this.scrollToActiveTab();
+
+        // Keep pager in sync when tabs change
+        if (typeof this.syncPagerPages === 'function') this.syncPagerPages();
     }
 
     scrollToActiveTab() {

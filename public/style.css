@@ -1600,6 +1600,26 @@ body {
     }
 }
 
+/* Pager – horizontal swipe for list tabs */
+.pager-viewport {
+    overflow-x: hidden;
+    overflow-y: visible;
+    width: 100%;
+    position: relative;
+}
+
+.pager-track {
+    display: flex;
+    width: 100%;
+    will-change: transform;
+}
+
+.pager-page {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+}
+
 /* Task List – vertical stack, left-aligned; no grid, no center */
 .task-list-container {
     display: flex;

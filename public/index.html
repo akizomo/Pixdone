@@ -172,8 +172,11 @@
             </form>
         </div>
 
-        <!-- Task List -->
-        <div class="task-list-container">
+        <!-- Task List (wrapped in pager for swipe) -->
+        <div class="pager-viewport">
+            <div class="pager-track">
+                <div class="pager-page" data-page-index="0">
+                    <div class="task-list-container">
             <div class="task-list" id="taskList">
                 <!-- Tasks will be dynamically inserted here -->
             </div>
@@ -212,6 +215,9 @@
                     <span><span data-i18n="completed">Completed</span> (<span id="completedCount">0</span>)</span>
                 </button>
                 <div class="completed-tasks" id="completedTasks" style="display: none;"></div>
+            </div>
+        </div>
+                </div>
             </div>
         </div>
 
