@@ -1618,6 +1618,50 @@ body {
     flex: 0 0 100%;
     width: 100%;
     min-width: 0;
+    position: relative;
+}
+
+/* Task list preview – non-interactive snapshot for adjacent pages during swipe */
+.task-list-preview {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    width: 100%;
+}
+
+.task-list-preview-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-height: 24px;
+    padding: 8px 0;
+    width: 100%;
+}
+
+.task-list-preview .task-item {
+    pointer-events: none;
+}
+
+.task-list-preview-empty .empty-state-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 24px 16px;
+    color: var(--text-secondary);
+}
+
+.task-list-preview-empty .empty-state-preview p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Hide preview on active page (has real content) */
+.pager-page:has(.task-list-container) .task-list-preview {
+    display: none;
 }
 
 /* Task List – vertical stack, left-aligned; no grid, no center */

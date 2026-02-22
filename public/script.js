@@ -2131,6 +2131,58 @@ class PixDoneApp {
         this.listIdCounter = maxListId + 1;
     }
 
+    /**
+     * Renders a non-interactive preview of a list into a page's .task-list-preview container.
+     * Used for prev/next pages so both lists are visible during swipe.
+     */
+    renderListPreviewIntoPage(list, pageEl) {
+        const preview = pageEl.querySelector('.task-list-preview');
+        if (!preview) return;
+
+        if (!list) {
+            preview.innerHTML = '';
+            return;
+        }
+
+        const topLevelTasks = (list.tasks || []).filter(t => this.isTopLevelTask(t));
+        const activeTasks = topLevelTasks.filter(t => !t.completed);
+
+        if (list.id === 'smash-list' || list.name === '💥 Smash List') {
+            const smashTasks = activeTasks.slice(0, 3);
+            let smashSub = (typeof window.t === 'function' ? window.t('smashListSubtitle') : 'This list exists only to let you tap and smash tasks for pure satisfaction. No saving, no planning—just smashing.');
+            smashSub = smashSub.replace(/\. /g, '.<br>').replace(/。/g, '。<br>');
+            preview.innerHTML = `
+                <div class="task-list task-list-preview-inner">
+                    <div class="smash-list-message">
+                        <p class="smash-list-subtitle">${smashSub}</p>
+                    </div>
+                    ${smashTasks.map(task => this.renderSmashTask(task)).join('')}
+                </div>
+            `;
+        } else if (activeTasks.length > 0) {
+            preview.innerHTML = `
+                <div class="task-list task-list-preview-inner">
+                    ${activeTasks.map(task => this.renderTask(task)).join('')}
+                </div>
+            `;
+            preview.querySelectorAll('.task-card').forEach(el => { el.draggable = false; });
+        } else {
+            const emptyLabel = typeof window.t === 'function' ? window.t('noTasksRest') : 'No tasks - Time to rest!';
+            preview.innerHTML = `
+                <div class="task-list task-list-preview-inner task-list-preview-empty">
+                    <div class="empty-state-preview">
+                        <div class="empty-illustration">
+                            <div class="pixel-character">
+                                <div class="sleep-bubble"><div class="bubble-text">zzz...</div></div>
+                            </div>
+                        </div>
+                        <p>${this.escapeHtml(emptyLabel)}</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
     syncPagerPages() {
         const viewport = document.querySelector('.pager-viewport');
         const track = document.querySelector('.pager-track');
@@ -2139,33 +2191,59 @@ class PixDoneApp {
 
         const count = this.lists?.length || 1;
         const currentIndex = Math.max(0, this.lists?.findIndex(list => list.id === this.currentListId) ?? 0);
-
-        // Build N pages (virtual pager: only active page holds content)
-        let pages = track.querySelectorAll('.pager-page');
         const targetCount = Math.max(1, count);
 
+        // Build N pages; each page has a .task-list-preview container
+        let pages = track.querySelectorAll('.pager-page');
         while (pages.length < targetCount) {
             const page = document.createElement('div');
             page.className = 'pager-page';
             page.dataset.pageIndex = String(pages.length);
+            const preview = document.createElement('div');
+            preview.className = 'task-list-preview';
+            page.appendChild(preview);
             track.appendChild(page);
             pages = track.querySelectorAll('.pager-page');
         }
         while (pages.length > targetCount) {
             const last = pages[pages.length - 1];
             if (last.contains(tasksContainer)) {
-                const active = track.querySelector(`.pager-page[data-page-index="0"]`);
+                const active = track.querySelector(`.pager-page[data-page-index="${currentIndex}"]`);
                 if (active) active.appendChild(tasksContainer);
             }
             last.remove();
             pages = track.querySelectorAll('.pager-page');
         }
 
+        // Ensure every page has a .task-list-preview (for pages created from initial HTML)
+        track.querySelectorAll('.pager-page').forEach((p) => {
+            if (!p.querySelector('.task-list-preview')) {
+                const preview = document.createElement('div');
+                preview.className = 'task-list-preview';
+                p.appendChild(preview);
+            }
+        });
+
         // Put tasksContainer in active page
         const activePage = track.querySelector(`.pager-page[data-page-index="${currentIndex}"]`);
         if (activePage && !activePage.contains(tasksContainer)) {
             activePage.appendChild(tasksContainer);
         }
+
+        // Render previews for prev and next pages only (adjacent lists visible during swipe)
+        const prevIndex = targetCount > 1 ? (currentIndex > 0 ? currentIndex - 1 : targetCount - 1) : -1;
+        const nextIndex = targetCount > 1 ? (currentIndex < targetCount - 1 ? currentIndex + 1 : 0) : -1;
+
+        track.querySelectorAll('.pager-page').forEach((page, i) => {
+            const preview = page.querySelector('.task-list-preview');
+            if (!preview) return;
+            if (i === prevIndex || i === nextIndex) {
+                const list = this.lists?.[i];
+                this.renderListPreviewIntoPage(list, page);
+            } else {
+                preview.innerHTML = '';
+            }
+        });
 
         track.style.width = `${targetCount * 100}%`;
         track.querySelectorAll('.pager-page').forEach((p, i) => {
@@ -4454,6 +4532,9 @@ class PixDoneApp {
         if (this.setupTaskDragListeners) {
             this.setupTaskDragListeners();
         }
+
+        // Refresh pager previews when tasks change
+        if (typeof this.syncPagerPages === 'function') this.syncPagerPages();
 
         // Setup mobile FAB (only once)
         if (!this.mobileFabListenerSetup) {
