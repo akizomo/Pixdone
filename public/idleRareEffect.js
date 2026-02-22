@@ -267,6 +267,17 @@ class IdleRareEffect {
     }
 
     /**
+     * Check if any modal/overlay is currently displayed
+     */
+    isModalOpen() {
+        return !!(
+            document.querySelector('.modal-overlay.active') ||
+            document.querySelector('.task-bottom-sheet.open') ||
+            document.querySelector('.celebration-overlay.active')
+        );
+    }
+
+    /**
      * Check if effect should be shown and trigger it
      * Only show when user has been idle for at least IDLE_MS since last activity
      */
@@ -302,6 +313,13 @@ class IdleRareEffect {
         // Check if tab is visible
         if (document.hidden) {
             console.log('[IdleRareEffect] Tab hidden, skipping effect');
+            this.startIdleTimer();
+            return;
+        }
+        
+        // Don't show when a modal is open
+        if (this.isModalOpen()) {
+            console.log('[IdleRareEffect] Modal open, skipping effect');
             this.startIdleTimer();
             return;
         }

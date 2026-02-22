@@ -359,10 +359,10 @@ class PixDoneApp {
             const sheetTitle = (typeof window.t === 'function' ? window.t : (k) => k)(this.currentTask ? 'editTask' : 'newTask');
             // Build HTML structure
             sheet.innerHTML = `
-                <!-- Fixed Header -->
+                <!-- Fixed Header（close 左上） -->
                 <div class="task-sheet-header">
-                    <h3 id="taskSheetTitle">${sheetTitle}</h3>
-                    <button class="task-sheet-close-btn" id="taskSheetCloseBtn" aria-label="Close">×</button>
+                    <button class="task-sheet-close-btn" id="taskSheetCloseBtn" aria-label="Close" title="${(typeof window !== 'undefined' && window.t ? window.t('close') : 'Close')}">×</button>
+                    <h3 class="pixel-title" id="taskSheetTitle">${sheetTitle}</h3>
                 </div>
 
                 <!-- Scrollable Body -->
@@ -2649,6 +2649,11 @@ class PixDoneApp {
             this.hideCreateListModal();
         });
 
+        document.getElementById('createListCloseBtn').addEventListener('click', () => {
+            this.comicEffects.playSound('buttonClick');
+            this.hideCreateListModal();
+        });
+
         // Edit list modal events
         document.getElementById('editListForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -2658,6 +2663,11 @@ class PixDoneApp {
 
         document.getElementById('cancelEditList').addEventListener('click', () => {
             this.comicEffects.playSound('taskCancel');
+            this.hideEditListModal();
+        });
+
+        document.getElementById('editListCloseBtn').addEventListener('click', () => {
+            this.comicEffects.playSound('buttonClick');
             this.hideEditListModal();
         });
 
@@ -2928,6 +2938,11 @@ class PixDoneApp {
             }
         });
 
+        document.getElementById('emailAuthCloseBtn').addEventListener('click', () => {
+            this.comicEffects.playSound('buttonClick');
+            this.hideEmailAuthModal();
+        });
+
         // Removed authBackBtn and authSkipBtn event listeners as buttons were removed from HTML
 
         document.getElementById('toggleAuthMode').addEventListener('click', () => {
@@ -2943,6 +2958,7 @@ class PixDoneApp {
 
         // Password reset events
         document.getElementById('forgotPasswordBtn').addEventListener('click', () => {
+            this.comicEffects.playSound('buttonClick');
             this.showPasswordResetModal();
         });
 
@@ -2963,6 +2979,12 @@ class PixDoneApp {
             }
         });
 
+        document.getElementById('passwordResetCloseBtn').addEventListener('click', () => {
+            this.comicEffects.playSound('buttonClick');
+            this.hidePasswordResetModal();
+            this.showEmailAuthModal();
+        });
+
         // Password visibility toggle
         document.getElementById('passwordToggle').addEventListener('click', () => {
             this.togglePasswordVisibility();
@@ -2972,6 +2994,11 @@ class PixDoneApp {
         document.getElementById('passwordSetupForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handlePasswordSetup();
+        });
+
+        document.getElementById('passwordSetupCloseBtn').addEventListener('click', () => {
+            this.comicEffects.playSound('buttonClick');
+            this.hidePasswordSetupModal();
         });
 
         // Password setup toggles
@@ -6624,6 +6651,8 @@ class PixDoneApp {
         if (titleElement && currentList) {
             const t = typeof window.t === 'function' ? window.t : (k) => k;
             titleElement.textContent = this.isMyTasksList(currentList) ? t('myTasks') : currentList.name;
+            const isFixedEnglish = currentList.name === 'Tutorial' || currentList.id === 'smash-list' || currentList.name === '💥 Smash List';
+            titleElement.toggleAttribute('data-fixed-english', isFixedEnglish);
         }
 
         // Hide menu button for Tutorial・マイタスク・Smash List（名前変更・削除メニューを出さない）
@@ -6922,18 +6951,24 @@ class PixDoneApp {
         const forgotPasswordSection = document.getElementById('forgotPasswordSection');
         const t = typeof window.t === 'function' ? window.t : (k) => k;
 
+        const authModal = document.getElementById('emailAuthModal');
+        const authForm = document.getElementById('emailAuthForm');
         if (this.isEmailAuthRegistering) {
             title.textContent = t('signUp');
             submitBtn.textContent = t('signUp');
             toggleBtn.textContent = t('logIn');
             authFooter.textContent = t('alreadyHaveAccount');
             forgotPasswordSection.style.display = 'none';
+            authModal?.classList.add('signup-mode');
+            authForm?.classList.add('signup-mode');
         } else {
             title.textContent = t('logIn');
             submitBtn.textContent = t('logIn');
             toggleBtn.textContent = t('signUp');
             authFooter.textContent = t('noAccount');
             forgotPasswordSection.style.display = 'block';
+            authModal?.classList.remove('signup-mode');
+            authForm?.classList.remove('signup-mode');
         }
     }
 
@@ -6959,7 +6994,9 @@ class PixDoneApp {
     // Password reset methods
     showPasswordResetModal() {
         document.getElementById('emailAuthModal').classList.remove('active');
-        document.getElementById('passwordResetModal').classList.add('active');
+        const resetModal = document.getElementById('passwordResetModal');
+        resetModal.style.display = 'flex';
+        resetModal.classList.add('active');
         // FAB is already hidden by emailAuthModal, but ensure it stays hidden
         const fab = document.getElementById('mobileFab');
         if (fab) {
@@ -6969,7 +7006,9 @@ class PixDoneApp {
     }
 
     hidePasswordResetModal() {
-        document.getElementById('passwordResetModal').classList.remove('active');
+        const resetModal = document.getElementById('passwordResetModal');
+        resetModal.classList.remove('active');
+        resetModal.style.display = 'none';
         document.getElementById('resetEmailInput').value = '';
         // Show FAB when modal closes (if no other modals are open)
         this.renderMobileFab();

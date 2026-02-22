@@ -74,6 +74,7 @@
             listName: 'List name',
             deleteListConfirm: 'Are you sure you want to delete this list and all its tasks?',
             rename: 'Rename',
+            close: 'Close',
 
             // Auth
             email: 'Email',
@@ -125,7 +126,7 @@
             soundEffectsOnOff: 'サウンドオン/オフ',
             logout: 'ログアウト',
             deleteAccount: 'アカウントを削除',
-            signUp: '新規登録',
+            signUp: 'サインアップ',
             logIn: 'ログイン',
             language: '言語',
             languageEn: 'English',
@@ -177,6 +178,7 @@
             listName: 'リストのなまえ',
             deleteListConfirm: 'このリストとタスクをすべて削除しますか？',
             rename: 'なまえをかえる',
+            close: '閉じる',
 
             // Auth
             email: 'メール',

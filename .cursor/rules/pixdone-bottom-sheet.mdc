@@ -1,0 +1,32 @@
+---
+description: Pixdone - ボトムシートの見た目・挙動の統一ルール
+globs: public/**/*.{js,css,html}
+alwaysApply: true
+---
+
+# ボトムシート統一ルール (Pixdone)
+
+ボトムシートは**基本的に同じ見た目・挙動**であるべき。新規ボトムシートを追加する際はこのルールに従うこと。
+
+## ヘッダー
+
+- **レイアウト**: close ボタン左上、タイトル左寄せ
+- **共通クラス**: `.modal-sheet-header`（HTMLモーダル）または `.task-sheet-header`（JS動的生成）を使用
+- **スタイル**:
+  - `padding: 12px 24px`
+  - `border-bottom: 2px solid var(--border-color)`
+  - `background: var(--bg-secondary)`
+  - `justify-content: flex-start`
+- **タイトル**: `margin-left: 48px`（close ボタン幅分）、`text-align: left`、`flex: 1`
+- **close ボタン**: `position: absolute`、`left: 16px`、`width: 40px`、`height: 40px`
+
+## トランジション
+
+- **開閉**: `transform: translateY(100%)` → `translateY(0)`
+- ** duration**: `transition: transform 0.3s ease`
+- オーバーレイ付きモーダルでは `opacity` / `visibility` も `0.3s ease` で統一
+
+## 参照
+
+- リスト追加/編集: `#createListModal`, `#editListModal`（`.modal-sheet-header`）
+- タスク追加/編集: `.task-bottom-sheet`（`.task-sheet-header`）

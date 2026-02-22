@@ -96,6 +96,17 @@ body {
     overflow-x: hidden; /* フルブリードのpager-viewportで横スクロールを防ぐ */
 }
 
+/* アイコンルール: 世界観に合わせて角丸を避けピクセル風に */
+.fa,
+.fas,
+.far,
+.fab,
+[class^="fa-"],
+[class*=" fa-"] {
+    border-radius: 0;
+    image-rendering: pixelated;
+}
+
 .app-container {
     display: flex;
     flex-direction: column;
@@ -444,6 +455,19 @@ body {
     gap: 4px;
 }
 
+/* リスト追加ボタンと同サイズ（28x28）、枠線なし */
+.auth-lang-chips .lang-chip {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    min-width: 28px;
+    border: none;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .login-btn,
 .logout-btn,
 .google-login-btn,
@@ -468,6 +492,7 @@ body {
 
 .signup-btn {
     background-color: var(--completed-color);
+    font-family: 'VT323', 'Courier New', monospace;
 }
 
 .signup-btn:hover {
@@ -537,10 +562,51 @@ body {
 .auth-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 20px 24px;
+    justify-content: flex-start;
+    position: relative;
+    padding: 12px 24px;
+    padding-left: 56px; /* close ボタン分 */
     border-bottom: 2px solid var(--border-color);
     background: var(--bg-secondary);
+}
+
+.auth-header h2 {
+    text-align: left;
+}
+
+.auth-close-btn {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.auth-close-btn:hover {
+    color: var(--text-primary);
+}
+
+.auth-close-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.auth-close-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+    font-family: 'Inter', system-ui, sans-serif;
+    user-select: none;
 }
 
 .auth-back-btn,
@@ -560,6 +626,7 @@ body {
 
 .auth-form {
     padding: 24px;
+    text-align: left;
 }
 
 .auth-field {
@@ -643,6 +710,16 @@ body {
 .auth-primary-btn:active {
     transform: translate(0px, 0px);
     box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+/* Sign up mode: green button (all signup buttons) */
+#emailAuthModal.signup-mode .auth-primary-btn,
+#emailAuthForm.signup-mode .auth-primary-btn {
+    background: var(--completed-color);
+}
+#emailAuthModal.signup-mode .auth-primary-btn:hover,
+#emailAuthForm.signup-mode .auth-primary-btn:hover {
+    background: #2e7d32;
 }
 
 .auth-divider {
@@ -967,6 +1044,66 @@ body {
     border: 4px solid var(--border-color);
     box-shadow: 6px 6px 0px var(--shadow-color);
     image-rendering: pixelated;
+    text-align: left;
+}
+
+/* ボトムシート内フォームのパディング */
+.modal-overlay.modal-bottom-sheet .pixel-modal form {
+    padding: 0 24px 24px;
+}
+
+/* ボトムシート共通ヘッダー（close 左上・テキスト左寄せ） */
+.modal-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    padding: 12px 24px;
+    border-bottom: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+    margin-bottom: 16px;
+}
+
+.modal-sheet-header .pixel-title {
+    margin: 0;
+    margin-left: 48px; /* close ボタン幅分 */
+    text-align: left;
+    flex: 1;
+}
+
+.modal-sheet-close-btn {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.modal-sheet-close-btn:hover {
+    color: var(--text-primary);
+}
+
+.modal-sheet-close-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.modal-close-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+    font-family: 'Inter', system-ui, sans-serif;
+    user-select: none;
 }
 
 .pixel-modal h3 {
@@ -988,6 +1125,11 @@ body {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
+}
+
+/* ボトムシート: キャンセル左下・保存右下 */
+.modal-overlay.modal-bottom-sheet .pixel-modal .modal-buttons {
+    justify-content: space-between;
 }
 
 .pixel-modal .btn {
@@ -1056,10 +1198,50 @@ body {
 [lang="ja"] .list-title,
 [lang="ja"] .pixel-title,
 [lang="ja"] .task-sheet-header h3,
+[lang="ja"] .modal-sheet-header h3,
 [lang="ja"] .modal-content h2,
-[lang="ja"] .modal-content h3 {
+[lang="ja"] .modal-content h3,
+[lang="ja"] .auth-header h2,
+[lang="ja"] .signup-btn {
     font-family: 'PixelMplus10', 'VT323', 'Courier New', monospace;
 }
+
+/* ホーム右上の日本語サインアップボタン: label-small */
+[lang="ja"] .signup-btn {
+    font-size: var(--md-label-small);
+}
+
+/* 固定英字（Tutorial, Smash List）: .list-title はピクセルフォント要素なので、日本語時は PixelMplus10 → VT323 に切り替え */
+[lang="ja"] .list-title[data-fixed-english="true"] {
+    font-family: 'VT323', 'Courier New', monospace;
+}
+
+/* English pixel font (VT323): typography scale +1 size across the board */
+[lang="en"] .app-title { font-size: var(--md-headline-large); }
+[lang="en"] .list-title { font-size: var(--md-headline-small); }
+[lang="en"] .auth-header h2,
+[lang="en"] .pixel-modal h3,
+[lang="en"] .modal-content h2,
+[lang="en"] .modal-content h3,
+[lang="en"] .task-sheet-header h3,
+[lang="en"] .modal-sheet-header h3,
+[lang="en"] .modal-sheet-header .pixel-title { font-size: var(--md-title-large); }
+[lang="en"] .signup-btn,
+[lang="en"] .email-login-btn,
+[lang="en"] .add-list-btn,
+[lang="en"] .add-task-btn,
+[lang="en"] .btn-link,
+[lang="en"] .auth-divider span,
+[lang="en"] .auth-social-btn { font-size: var(--md-body-large); }
+[lang="en"] .lang-chip { font-size: var(--md-label-medium); }
+[lang="en"] .context-menu-item { font-size: var(--md-body-large); }
+[lang="en"] .bubble-text { font-size: var(--md-headline-large); }
+[lang="en"] .tutorial-complete-cta-sub { font-size: var(--md-title-large); }
+[lang="en"] .smash-list-message { font-size: var(--md-title-large); }
+[lang="en"] .smash-list-title { font-size: var(--md-display-small); }
+[lang="en"] .auth-message { font-size: var(--md-title-large); }
+[lang="en"] .command-key { font-size: 1em; }
+[lang="en"] .perfect-timing-result-text { font-size: 28px; }
 
 /* モーダル・ページタイトル用：リストタイトルと同じピクセルフォント。新規モーダル/ページタイトルにはこのクラスまたは上記セレクタを踏襲すること */
 .pixel-title {
@@ -1104,6 +1286,7 @@ body {
 /* Add Task Button */
 .add-task-section {
     margin-bottom: 24px;
+    padding: 0 20px; /* list-header / pager-page と同幅に揃える */
 }
 
 .add-task-button {
@@ -1619,6 +1802,7 @@ body {
     /* Preserve vertical scroll (body); horizontal swipe is handled by JS */
     touch-action: pan-y;
 }
+
 
 /* Pager – horizontal swipe for list tabs */
 /* モバイル: 画面幅いっぱいに広げ、左右マージンでアニメーションが切れないように */
@@ -2974,7 +3158,10 @@ div[id="newTaskDetails"] a:hover {
         visibility: visible !important;
         opacity: 1 !important;
         width: 100% !important;
+        max-width: 100% !important;
         box-sizing: border-box !important;
+        overflow-wrap: break-word;
+        word-break: break-word;
     }
 
     .smash-list-subtitle {
@@ -2984,10 +3171,20 @@ div[id="newTaskDetails"] a:hover {
         visibility: visible !important;
         white-space: normal !important;
         word-wrap: break-word !important;
+        max-width: 100%;
     }
 
     .smash-list-hint {
         font-size: var(--md-body-large);
+    }
+
+    /* モバイル: コンテンツ幅を制限し、説明ボックス・タスクの幅揃え */
+    .task-list-container,
+    .task-list,
+    .task-list-preview,
+    .task-list-preview-inner {
+        max-width: 100%;
+        min-width: 0;
     }
 }
 
@@ -3311,26 +3508,79 @@ div[id="newTaskDetails"] a:hover {
     transition: all 0.3s ease;
 }
 
-/* Mobile keyboard-aware modal positioning */
+/* ボトムシート: デスクトップでも全幅・下寄せスライドアップ */
+.modal-overlay.modal-bottom-sheet {
+    align-items: flex-end;
+    padding: 0;
+    overflow-y: visible;
+}
+
+.modal-overlay.modal-bottom-sheet .modal-content,
+.modal-overlay.modal-bottom-sheet .pixel-modal {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    max-height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.modal-bottom-sheet.active .modal-content,
+.modal-overlay.modal-bottom-sheet.active .pixel-modal {
+    transform: translateY(0);
+}
+
+/* サインアップ/ログイン: 全画面幅・ボトムシート風（デスクトップでも） */
+.modal-overlay.modal-fullscreen {
+    align-items: flex-end;
+    justify-content: stretch;
+    padding: 0;
+    overflow-y: visible;
+}
+
+.modal-overlay.modal-fullscreen .auth-modal {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.modal-fullscreen.active .auth-modal {
+    transform: translateY(0);
+}
+
+/* Mobile: modal styles by type (confirm / fullscreen / bottom-sheet) */
 @media (max-width: 768px) {
-    .modal-overlay {
-        align-items: flex-start;
-        overflow-y: auto;
+    /* ボトムシート: モバイルサイズで明示的に全幅 */
+    .modal-overlay.modal-bottom-sheet .modal-content,
+    .modal-overlay.modal-bottom-sheet .pixel-modal {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    /* 確認系: 中央配置のダイアログ */
+    .modal-overlay.modal-confirm {
+        align-items: center;
         padding: 20px;
+        overflow-y: auto;
     }
 
-    .modal-overlay .modal-content {
-        margin: 0;
-        margin-top: 20px;
-        max-height: none;
-        overflow-y: visible;
-    }
-
-    .modal-overlay .pixel-modal {
-        margin: 0;
-        margin-top: 20px;
-        max-height: none;
-        overflow-y: visible;
+    .modal-overlay.modal-confirm .modal-content {
+        margin: auto 0;
+        max-height: calc(100dvh - 80px);
+        max-height: calc(100vh - 80px); /* fallback */
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* Mobile keyboard support for programmatic modal */
@@ -3960,6 +4210,10 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     image-rendering: pixelated;
     -webkit-tap-highlight-color: transparent;
+    /* 長押しでテキスト選択・コールアウトが出ないようにする */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
     /* Prevent layout shifts - use transform instead of position changes */
     transform: translateX(-50%) translateZ(0);
     /* Isolate FAB from layout changes in other elements */
@@ -4076,21 +4330,52 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     transform: translateY(0);
 }
 
-/* Fixed Header */
+/* Fixed Header（close 左上・タイトル左寄せ・modal-sheet-header と統一） */
 .task-sheet-header {
     flex-shrink: 0;
-    padding: 16px 20px;
-    border-bottom: 2px solid var(--border-color);
-    background: var(--bg-primary);
-    box-shadow: 0 2px 0px var(--shadow-color);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    min-height: 56px;
+    justify-content: flex-start;
+    position: relative;
+    padding: 12px 24px;
+    border-bottom: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+    margin-bottom: 16px;
 }
 
-.task-sheet-header h3 {
+.task-sheet-close-btn {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: var(--md-headline-small);
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.task-sheet-close-btn:hover {
+    color: var(--text-primary);
+}
+
+.task-sheet-close-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.task-sheet-header h3,
+.task-sheet-header .pixel-title {
     margin: 0;
+    margin-left: 48px; /* close ボタン幅分 */
+    flex: 1;
+    text-align: left;
     font-size: var(--md-title-medium);
     font-weight: 600;
     color: var(--text-primary);
@@ -4098,25 +4383,6 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     letter-spacing: 1px;
     text-transform: uppercase;
     image-rendering: pixelated;
-}
-
-.task-sheet-close-btn {
-    background: none;
-    border: none;
-    font-size: var(--md-headline-small);
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 0;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease;
-}
-
-.task-sheet-close-btn:hover {
-    color: var(--text-primary);
 }
 
 /* Scrollable Body */
@@ -4554,22 +4820,15 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     box-shadow: 3px 3px 0px var(--shadow-color);
 }
 
-/* Desktop: Keep centered modal */
+/* Desktop: 他ボトムシートと同じ全幅・下寄せスライドアップ */
 @media (min-width: 769px) {
     .task-bottom-sheet {
-        /* Desktop can use centered modal if desired */
-        /* For now, keep bottom sheet but make it smaller */
-        max-width: 600px;
-        max-height: 80vh;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%) translateY(100%);
-        border-radius: 0;
-        box-shadow: 4px 4px 0px var(--shadow-color);
+        max-height: 90vh;
+        /* transform は base の translateY(100%) を使用（他ボトムシートと同様） */
     }
     
     .task-bottom-sheet.open {
-        transform: translate(-50%, -50%) translateY(0);
+        transform: translateY(0);
     }
 
     /* Desktop: Footer uses relative positioning (not fixed) */
