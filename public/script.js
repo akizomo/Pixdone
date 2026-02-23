@@ -6335,6 +6335,8 @@ class PixDoneApp {
         const modal = document.getElementById('createListModal');
         const input = document.getElementById('listNameInput');
         modal.classList.add('active');
+        document.body.classList.add('list-dialog-open');
+        this._setupListDialogViewportListener();
         // Hide FAB when modal opens
         const fab = document.getElementById('mobileFab');
         if (fab) {
@@ -6345,6 +6347,7 @@ class PixDoneApp {
         }
         setTimeout(() => {
             input.focus();
+            this._scrollListDialogInputIntoView(input);
         }, 100);
     }
 
@@ -6352,6 +6355,10 @@ class PixDoneApp {
         const modal = document.getElementById('createListModal');
         const input = document.getElementById('listNameInput');
         modal.classList.remove('active');
+        if (!document.getElementById('editListModal').classList.contains('active')) {
+            document.body.classList.remove('list-dialog-open');
+            this._removeListDialogViewportListener();
+        }
         input.value = '';
         // Show FAB when modal closes
         this.renderMobileFab();
@@ -6456,6 +6463,8 @@ class PixDoneApp {
 
         input.value = list.name;
         modal.classList.add('active');
+        document.body.classList.add('list-dialog-open');
+        this._setupListDialogViewportListener();
         // Hide FAB when modal opens
         const fab = document.getElementById('mobileFab');
         if (fab) {
@@ -6468,6 +6477,7 @@ class PixDoneApp {
         setTimeout(() => {
             input.focus();
             input.select();
+            this._scrollListDialogInputIntoView(input);
         }, 100);
     }
 
@@ -6475,12 +6485,59 @@ class PixDoneApp {
         const modal = document.getElementById('editListModal');
         const input = document.getElementById('editListNameInput');
         modal.classList.remove('active');
+        if (!document.getElementById('createListModal').classList.contains('active')) {
+            document.body.classList.remove('list-dialog-open');
+            this._removeListDialogViewportListener();
+        }
         input.value = '';
         // Show FAB when modal closes
         this.renderMobileFab();
         this.editingListId = null;
         if (this.comicEffects && this.comicEffects.playSound) {
             this.comicEffects.playSound('taskCancel');
+        }
+    }
+
+    /**
+     * モバイルでキーボード表示時に入力が隠れないようスクロール（リスト追加/編集ダイアログ用）
+     */
+    _scrollListDialogInputIntoView(input) {
+        if (!input) return;
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        if (!isMobile) return;
+        const scrollIntoView = () => {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+        setTimeout(scrollIntoView, 400);
+    }
+
+    _setupListDialogViewportListener() {
+        if (!window.visualViewport || this._listDialogViewportBound) return;
+        this._listDialogViewportBound = true;
+        const handler = () => {
+            const createActive = document.getElementById('createListModal').classList.contains('active');
+            const editActive = document.getElementById('editListModal').classList.contains('active');
+            if (!createActive && !editActive) return;
+            const input = document.activeElement;
+            if (input && (input.id === 'listNameInput' || input.id === 'editListNameInput')) {
+                requestAnimationFrame(() => {
+                    input.scrollIntoView({ behavior: 'auto', block: 'center' });
+                });
+            }
+        };
+        window.visualViewport.addEventListener('resize', handler);
+        window.visualViewport.addEventListener('scroll', handler);
+        this._listDialogViewportCleanup = () => {
+            window.visualViewport.removeEventListener('resize', handler);
+            window.visualViewport.removeEventListener('scroll', handler);
+            this._listDialogViewportBound = false;
+        };
+    }
+
+    _removeListDialogViewportListener() {
+        if (this._listDialogViewportCleanup) {
+            this._listDialogViewportCleanup();
+            this._listDialogViewportCleanup = null;
         }
     }
 

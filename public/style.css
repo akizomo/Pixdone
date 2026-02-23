@@ -3491,6 +3491,11 @@ div[id="newTaskDetails"] a:hover {
     background-color: var(--accent-hover);
 }
 
+/* リスト追加/編集ダイアログ表示時: 背景スクロール禁止 */
+body.list-dialog-open {
+    overflow: hidden;
+}
+
 /* Modal */
 .modal-overlay {
     position: fixed;
