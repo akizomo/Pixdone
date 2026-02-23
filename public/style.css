@@ -147,8 +147,9 @@ body {
     cursor: pointer;
 }
 
+/* ロゴ: 言語によらず同一サイズ（px で固定。2rem=32px に相当） */
 .app-title {
-    font-size: var(--md-headline-medium);
+    font-size: 32px;
     font-weight: 700;
     color: var(--text-primary);
     font-family: 'VT323', 'Courier New', monospace;
@@ -565,7 +566,6 @@ body {
     justify-content: flex-start;
     position: relative;
     padding: 12px 24px;
-    padding-left: 56px; /* close ボタン分 */
     border-bottom: 2px solid var(--border-color);
     background: var(--bg-secondary);
 }
@@ -576,7 +576,7 @@ body {
 
 .auth-close-btn {
     position: absolute;
-    left: 16px;
+    right: 16px;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
@@ -616,6 +616,8 @@ body {
 
 .auth-header h2 {
     margin: 0;
+    margin-right: 48px; /* close ボタン幅分（右上共通） */
+    flex: 1;
     font-size: var(--md-title-medium);
     font-family: 'VT323', 'Courier New', monospace;
     color: var(--text-primary);
@@ -1052,7 +1054,7 @@ body {
     padding: 0 24px 24px;
 }
 
-/* ボトムシート共通ヘッダー（close 左上・テキスト左寄せ） */
+/* ボトムシート共通ヘッダー（close 右上・テキスト左寄せ） */
 .modal-sheet-header {
     display: flex;
     align-items: center;
@@ -1066,14 +1068,14 @@ body {
 
 .modal-sheet-header .pixel-title {
     margin: 0;
-    margin-left: 48px; /* close ボタン幅分 */
+    margin-right: 48px; /* close ボタン幅分 */
     text-align: left;
     flex: 1;
 }
 
 .modal-sheet-close-btn {
     position: absolute;
-    left: 16px;
+    right: 16px;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
@@ -1195,6 +1197,7 @@ body {
 }
 
 /* Japanese: Pixel Mplus (ピクセルM+) for pixel titles – avoid kanji in these strings */
+/* ロゴ .app-title は言語によらず同一（VT323 + headline-large）のため除外 */
 [lang="ja"] .list-title,
 [lang="ja"] .pixel-title,
 [lang="ja"] .task-sheet-header h3,
@@ -1204,6 +1207,11 @@ body {
 [lang="ja"] .auth-header h2,
 [lang="ja"] .signup-btn {
     font-family: 'PixelMplus10', 'VT323', 'Courier New', monospace;
+}
+
+[lang="ja"] .app-title {
+    font-family: 'VT323', 'Courier New', monospace;
+    font-size: 32px;
 }
 
 /* ホーム右上の日本語サインアップボタン: label-small */
@@ -1217,7 +1225,6 @@ body {
 }
 
 /* English pixel font (VT323): typography scale +1 size across the board */
-[lang="en"] .app-title { font-size: var(--md-headline-large); }
 [lang="en"] .list-title { font-size: var(--md-headline-small); }
 [lang="en"] .auth-header h2,
 [lang="en"] .pixel-modal h3,
@@ -4335,7 +4342,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     transform: translateY(0);
 }
 
-/* Fixed Header（close 左上・タイトル左寄せ・modal-sheet-header と統一） */
+/* Fixed Header（close 右上・タイトル左寄せ・modal-sheet-header と統一） */
 .task-sheet-header {
     flex-shrink: 0;
     display: flex;
@@ -4350,7 +4357,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 
 .task-sheet-close-btn {
     position: absolute;
-    left: 16px;
+    right: 16px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -4378,7 +4385,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 .task-sheet-header h3,
 .task-sheet-header .pixel-title {
     margin: 0;
-    margin-left: 48px; /* close ボタン幅分 */
+    margin-right: 48px; /* close ボタン幅分 */
     flex: 1;
     text-align: left;
     font-size: var(--md-title-medium);

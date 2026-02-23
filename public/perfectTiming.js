@@ -7,7 +7,8 @@
 
     const config = {
         holdThresholdMs: 350,
-        indicatorSpeedPxPerSec: 400,
+        /** ゲージ速度の候補（毎回ランダムに1つ適用して慣れを防ぐ） */
+        indicatorSpeedOptions: [320, 400, 480],
         barWidth: 200,
         zoneWidth: { good: 0.25, great: 0.15, perfect: 0.08 },
     };
@@ -23,6 +24,8 @@
         indicator: null,
         indicatorPos: 0,
         indicatorDir: 1,
+        /** 今回のゲージ速度（indicatorSpeedOptions からランダム選択） */
+        indicatorSpeedPxPerSec: 400,
         startTime: 0,
         completedTap: false,
     };
@@ -79,7 +82,7 @@
     function tickIndicator(t) {
         if (!state.active || !state.indicator) return;
         const prevDir = state.indicatorDir;
-        state.indicatorPos += state.indicatorDir * config.indicatorSpeedPxPerSec * 0.016;
+        state.indicatorPos += state.indicatorDir * state.indicatorSpeedPxPerSec * 0.016;
         if (state.indicatorPos <= 0) {
             state.indicatorPos = 0;
             state.indicatorDir = 1;
@@ -169,6 +172,8 @@
         state.holdTimer = setTimeout(() => {
             state.holdTimer = null;
             state.active = true;
+            const opts = config.indicatorSpeedOptions;
+            state.indicatorSpeedPxPerSec = opts[Math.floor(Math.random() * opts.length)];
             const overlay = ensureOverlay();
             const rect = taskCard.getBoundingClientRect();
             positionOverlay(rect);
@@ -262,6 +267,8 @@
         state.taskElement = taskElement;
         state.checkbox = checkbox;
         state.active = true;
+        const opts = config.indicatorSpeedOptions;
+        state.indicatorSpeedPxPerSec = opts[Math.floor(Math.random() * opts.length)];
         const overlay = ensureOverlay();
         const rect = taskElement ? taskElement.getBoundingClientRect() : { left: window.innerWidth / 2 - 24, top: window.innerHeight / 2 - 60, width: 48, height: 48 };
         positionOverlay(rect);

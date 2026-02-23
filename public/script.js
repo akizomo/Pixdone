@@ -1924,13 +1924,6 @@ class PixDoneApp {
         if (this.tasksUnsubscribe) this.tasksUnsubscribe();
         // リスト監視
         this.listsUnsubscribe = listenListsFromFirestore(async (lists) => {
-            if (lists && lists.length > 1) {
-                const myTasksIdx = lists.findIndex(l => this.isMyTasksList(l));
-                if (myTasksIdx > 0) {
-                    const [myTasksList] = lists.splice(myTasksIdx, 1);
-                    lists.unshift(myTasksList);
-                }
-            }
             this.lists = lists;
             this.isLoadingFromFirestore = false;
             this.renderTasks();
@@ -6168,18 +6161,15 @@ class PixDoneApp {
 
     // List management methods
     renderListTabs() {
-        // --- 追加: My Tasksを先頭に（マイタスク＝My Tasksは同一） ---
-        if (this.lists && this.lists.length > 1) {
-            const myTasksIdx = this.lists.findIndex(l => this.isMyTasksList(l));
-            if (myTasksIdx > 0) {
-                const [myTasksList] = this.lists.splice(myTasksIdx, 1);
-                this.lists.unshift(myTasksList);
-            }
-        }
-        // --- ここまで追加 ---
+        // タブ表示順: Smash list を一番左、次にマイタスク or Tutorial、その他。this.lists は変更しない。
+        const smashList = this.lists && this.lists.find(l => l.id === 'smash-list' || l.name === '💥 Smash List');
+        const primaryList = this.lists && (this.lists.find(l => this.isMyTasksList(l)) || this.lists.find(l => l.id === 'default'));
+        const rest = this.lists ? this.lists.filter(l => l !== smashList && l !== primaryList) : [];
+        const displayOrder = [smashList, primaryList, ...rest].filter(Boolean);
+
         const t = typeof window.t === 'function' ? window.t : (k) => k;
         const container = document.getElementById('listTabs');
-        container.innerHTML = this.lists.map(list => {
+        container.innerHTML = displayOrder.map(list => {
             const displayName = this.isMyTasksList(list) ? t('myTasks') : list.name;
             return `
             <button class="list-tab ${list.id === this.currentListId ? 'active' : ''}" 

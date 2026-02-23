@@ -10,7 +10,7 @@ alwaysApply: true
 
 ## ヘッダー
 
-- **レイアウト**: close ボタン左上、タイトル左寄せ
+- **レイアウト**: close ボタン右上、タイトル左寄せ
 - **共通クラス**: `.modal-sheet-header`（HTMLモーダル）または `.task-sheet-header`（JS動的生成）を使用
 - **スタイル**:
   - `padding: 12px 24px`
@@ -18,7 +18,7 @@ alwaysApply: true
   - `background: var(--bg-secondary)`
   - `justify-content: flex-start`
 - **タイトル**: `margin-left: 48px`（close ボタン幅分）、`text-align: left`、`flex: 1`
-- **close ボタン**: `position: absolute`、`left: 16px`、`width: 40px`、`height: 40px`
+- **close ボタン**: `position: absolute`、`right: 16px`（右上）、`width: 40px`、`height: 40px`
 
 ## トランジション
 
