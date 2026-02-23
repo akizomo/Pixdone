@@ -2649,11 +2649,6 @@ class PixDoneApp {
             this.hideCreateListModal();
         });
 
-        document.getElementById('createListCloseBtn').addEventListener('click', () => {
-            this.comicEffects.playSound('buttonClick');
-            this.hideCreateListModal();
-        });
-
         // Edit list modal events
         document.getElementById('editListForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -2663,11 +2658,6 @@ class PixDoneApp {
 
         document.getElementById('cancelEditList').addEventListener('click', () => {
             this.comicEffects.playSound('taskCancel');
-            this.hideEditListModal();
-        });
-
-        document.getElementById('editListCloseBtn').addEventListener('click', () => {
-            this.comicEffects.playSound('buttonClick');
             this.hideEditListModal();
         });
 

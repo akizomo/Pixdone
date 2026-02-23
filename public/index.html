@@ -246,15 +246,10 @@
 
         <!-- Mobile Modal created dynamically by JavaScript -->
 
-        <!-- Create List Modal -->
-        <div id="createListModal" class="modal-overlay modal-bottom-sheet">
+        <!-- Create List Modal（削除ダイアログなどと同じデザイン） -->
+        <div id="createListModal" class="modal-overlay modal-confirm">
             <div class="modal-content pixel-modal">
-                <div class="modal-sheet-header">
-                    <button type="button" class="modal-sheet-close-btn" id="createListCloseBtn" aria-label="Close" data-i18n-title="close">
-                        <span class="modal-close-icon">×</span>
-                    </button>
-                    <h3 class="pixel-title" data-i18n="createNewList">Create New List</h3>
-                </div>
+                <h3 data-i18n="createNewList">Create New List</h3>
                 <form id="createListForm">
                     <div class="input-group">
                         <input type="text" id="listNameInput" class="task-input" data-i18n-placeholder="listName" required>
@@ -267,15 +262,10 @@
             </div>
         </div>
 
-        <!-- Edit List Modal -->
-        <div id="editListModal" class="modal-overlay modal-bottom-sheet">
+        <!-- Edit List Modal（削除ダイアログなどと同じデザイン） -->
+        <div id="editListModal" class="modal-overlay modal-confirm">
             <div class="modal-content pixel-modal">
-                <div class="modal-sheet-header">
-                    <button type="button" class="modal-sheet-close-btn" id="editListCloseBtn" aria-label="Close" data-i18n-title="close">
-                        <span class="modal-close-icon">×</span>
-                    </button>
-                    <h3 class="pixel-title" data-i18n="editList">Edit List</h3>
-                </div>
+                <h3 data-i18n="editList">Edit List</h3>
                 <form id="editListForm">
                     <div class="input-group">
                         <input type="text" id="editListNameInput" class="task-input" data-i18n-placeholder="listName" required>

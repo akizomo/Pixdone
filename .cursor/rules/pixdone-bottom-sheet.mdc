@@ -28,5 +28,5 @@ alwaysApply: true
 
 ## 参照
 
-- リスト追加/編集: `#createListModal`, `#editListModal`（`.modal-sheet-header`）
-- タスク追加/編集: `.task-bottom-sheet`（`.task-sheet-header`）
+- リスト追加/編集: `#createListModal`, `#editListModal`（`.modal-confirm`＝削除ダイアログと同じデザイン、h3 + 本文 + modal-buttons）
+- タスク追加/編集: `.task-bottom-sheet`（`.task-sheet-header`＝ボトムシート）
