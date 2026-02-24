@@ -59,8 +59,10 @@ class ComicEffectsManager {
             "wobble",
             "fadeOut",
         ];
-        this.superRareEffects = ["rainbowSmash"];
-        this.rainbowSmashChance = 0.03; // 3% chance
+        this.superRareEffects = ["rainbowSmash", "freeze"];
+        this.epicChance = 0.03; // 3% chance (shared by rainbow and freeze)
+        this.rainbowSmashChance = this.epicChance;
+        this.effectLock = false;
         this.audioContext = null;
         this.audioContextReady = false;
         try {
@@ -555,19 +557,65 @@ class ComicEffectsManager {
                 background-repeat: repeat;
                 background-size: 200px 200px;
             }
+            
+            /* Freeze epic: completed task card gets frozen look */
+            .task-item.freeze-task-frozen {
+                position: relative;
+                border-color: #00e8ff !important;
+                box-shadow: 0 0 0 2px rgba(0, 232, 255, 0.5), 2px 2px 0px var(--shadow-color) !important;
+                transition: border-color 0.12s steps(2), box-shadow 0.12s steps(2);
+            }
+            .task-item.freeze-task-frozen::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                border-radius: inherit;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect fill='%2300e8ff' opacity='0.08' width='16' height='16'/%3E%3Crect x='0' y='0' width='4' height='4' fill='%23fff' opacity='0.12'/%3E%3Crect x='8' y='8' width='4' height='4' fill='%23fff' opacity='0.12'/%3E%3C/svg%3E");
+                background-repeat: repeat;
+                image-rendering: pixelated;
+            }
+            
+            /* Freeze: task list area shakes; allow scroll so long lists don't get cut off */
+            .content-below-tabs.freeze-list-shake {
+                animation: freeze-list-shake 0.1s steps(2) infinite;
+            }
+            @keyframes freeze-list-shake {
+                0%, 100% { transform: translate(0, 0); }
+                33% { transform: translate(1px, -1px); }
+                66% { transform: translate(-1px, 1px); }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .content-below-tabs.freeze-list-shake { animation: none; }
+            }
         `;
         document.head.appendChild(style);
     }
 
     // Play random effect on task completion
     playRandomEffect(taskElement) {
-        // Check for super rare effect first (3% chance)
+        if (this.effectLock) return;
         const random = Math.random();
         let selectedEffect;
+        const params = typeof window !== "undefined" && window.location ? new URLSearchParams(window.location.search) : null;
+        const forceFreeze = params && params.get("effect") === "freeze";
+        const forceRainbow = params && params.get("effect") === "rainbow";
 
-        if (random < this.rainbowSmashChance) {
-            console.log("🌈 Super rare Rainbow Smash effect triggered!");
+        if (forceFreeze) {
+            console.log("❄️ Epic Freeze effect (forced by ?effect=freeze)");
+            selectedEffect = "freeze";
+        } else if (forceRainbow) {
+            console.log("🌈 Rainbow Smash (forced by ?effect=rainbow)");
             selectedEffect = "rainbowSmash";
+        } else if (random < this.epicChance) {
+            const epicRoll = Math.random();
+            if (epicRoll < 0.5) {
+                console.log("❄️ Epic Freeze effect triggered!");
+                selectedEffect = "freeze";
+            } else {
+                console.log("🌈 Super rare Rainbow Smash effect triggered!");
+                selectedEffect = "rainbowSmash";
+            }
         } else {
             selectedEffect =
                 this.effects[Math.floor(Math.random() * this.effects.length)];
@@ -917,11 +965,28 @@ class ComicEffectsManager {
                 this.playHapticFeedback("light");
                 break;
             case "rainbowSmash":
+                this.effectLock = true;
                 this.createRainbowSmashEffect(taskElement);
                 this.playRainbowSmashSound();
                 this.playHapticFeedback("strong");
                 break;
+            case "freeze":
+                this.effectLock = true;
+                this.playFreezeSound();
+                this.createFreezeEffect(taskElement);
+                this.playHapticFeedback("strong");
+                break;
         }
+    }
+
+    /** Dev: trigger freeze effect (e.g. console: window.comicEffects.testFreeze() or testFreeze()) */
+    testFreeze() {
+        if (this.effectLock) {
+            console.warn("Freeze test skipped: effect lock active");
+            return;
+        }
+        const el = document.querySelector(".task-item") || document.body;
+        this.playEffect("freeze", el);
     }
 
     createExplodeEffect(taskElement) {
@@ -1785,7 +1850,7 @@ class ComicEffectsManager {
         }, 1100);
     }
 
-    // 4. Pop Pixel (POP!) - 思いっきり飛んでいく
+    // 4. Pop Pixel (POP!) - 思いっきり飛んでいく（呼び出し元で body 直下クローンにしているのでそのまま動かしてよい）
     popAndFlyTask(taskElement) {
         console.log("Popping and flying task");
 
@@ -2907,11 +2972,53 @@ class ComicEffectsManager {
         // Create soft background glow effect
         this.createSoftGlow();
 
-        // Clean up after 3 seconds
+        // Clean up after 3 seconds and release effect lock
         setTimeout(() => {
             taskElement.classList.remove("rainbow-smash-effect");
             rainbowText.remove();
+            this.effectLock = false;
         }, 3000);
+    }
+
+    createFreezeEffect(taskElement) {
+        if (typeof window.FreezeEffect !== "function") {
+            console.warn("FreezeEffect module not loaded");
+            this.effectLock = false;
+            return;
+        }
+        const self = this;
+        const isTaskCard = taskElement && taskElement.classList && taskElement.classList.contains("task-item");
+        const contentBelow = document.getElementById("contentBelowTabs");
+        if (isTaskCard) {
+            taskElement.classList.add("freeze-task-frozen");
+        }
+        if (contentBelow) {
+            contentBelow.classList.add("freeze-list-shake");
+        }
+        document.body.style.overflow = "";
+        document.documentElement.style.overflow = "";
+        const freeze = new window.FreezeEffect({
+            color: "#00e8ff",
+            duration: 800,
+            text: "FREEZE",
+            textStyle: "font",
+            pixelSize: 6,
+            showPenguin: true,
+            penguinImageUrl: "assets/penguin.svg",
+            showCracks: true,
+            particles: 60,
+            zIndex: 9999,
+            onComplete() {
+                if (isTaskCard) {
+                    taskElement.classList.remove("freeze-task-frozen");
+                }
+                if (contentBelow) {
+                    contentBelow.classList.remove("freeze-list-shake");
+                }
+                self.effectLock = false;
+            },
+        });
+        freeze.trigger();
     }
 
     createPixelRainbow(rect) {
@@ -3169,6 +3276,40 @@ class ComicEffectsManager {
             });
         } catch (error) {
             console.log("Rainbow Smash audio not supported:", error);
+        }
+    }
+
+    playFreezeSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || this.audioContext.state === "suspended") {
+                this.initAudioContext();
+                if (this.audioContext?.state === "suspended") this.audioContext.resume();
+            }
+            if (!this.audioContext) return;
+
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+            const freezeChime = [
+                { freq: 2400, time: 0, duration: 0.12 },
+                { freq: 2000, time: 0.06, duration: 0.12 },
+                { freq: 1600, time: 0.12, duration: 0.18 },
+                { freq: 1200, time: 0.2, duration: 0.2 },
+            ];
+            freezeChime.forEach((n) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(n.freq, now + n.time);
+                gain.gain.setValueAtTime(0.12, now + n.time);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + n.time + n.duration);
+                osc.start(now + n.time);
+                osc.stop(now + n.time + n.duration);
+            });
+        } catch (e) {
+            console.log("Freeze sound not supported:", e);
         }
     }
 

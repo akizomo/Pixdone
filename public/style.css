@@ -96,6 +96,14 @@ body {
     overflow-x: hidden; /* フルブリードのpager-viewportで横スクロールを防ぐ */
 }
 
+/* タスク完了エフェクト再生中: 左右の見切れを防ぐため body のみ overflow-x: visible（パーティクル等は body 直下のため見切れない） */
+/* .pager-viewport は hidden のままにして隣のタブのリストを見せない */
+body.task-effect-playing,
+html.task-effect-playing {
+    overflow-x: visible !important;
+    overflow-y: hidden !important;
+}
+
 /* アイコンルール: 世界観に合わせて角丸を避けピクセル風に */
 .fa,
 .fas,
@@ -3569,6 +3577,28 @@ body.list-dialog-open {
 
 .modal-overlay.modal-fullscreen.active .auth-modal {
     transform: translateY(0);
+}
+
+/* デスクトップ: ログイン関連モーダルはフルスクリーンにせず中央ダイアログで表示 */
+@media (min-width: 769px) {
+    .modal-overlay.modal-fullscreen {
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay.modal-fullscreen .auth-modal {
+        width: 90%;
+        max-width: 400px;
+        height: auto;
+        max-height: 90vh;
+        transform: none;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .modal-overlay.modal-fullscreen.active .auth-modal {
+        transform: none;
+    }
 }
 
 /* Mobile: modal styles by type (confirm / fullscreen / bottom-sheet) */

@@ -386,6 +386,19 @@ class PixDoneApp {
                         </div>
                     </div>
 
+                    <!-- Link preview card (shown when title/details contain a URL) -->
+                    <div class="task-sheet-section task-sheet-link-preview-section" id="linkPreviewSection" style="display: none;">
+                        <div class="link-preview-card" id="linkPreviewCard">
+                            <div class="link-preview-text">
+                                <div class="link-preview-title" id="linkPreviewTitle"></div>
+                                <div class="link-preview-url" id="linkPreviewUrl"></div>
+                            </div>
+                            <div class="link-preview-image-wrap">
+                                <img class="link-preview-image" id="linkPreviewImage" alt="" referrerpolicy="no-referrer" />
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Section 3: Date Buttons -->
                     <div class="task-sheet-section" id="dateSection">
                         <div class="task-sheet-section-content">
@@ -3153,6 +3166,10 @@ class PixDoneApp {
     // Make app globally accessible for inline editing
     setupGlobalAccess() {
         window.pixDoneApp = this;
+        window.testFreeze = () => {
+            const mgr = window.taskAnimationEffects?.comicEffects || this.comicEffects;
+            if (mgr && typeof mgr.testFreeze === "function") mgr.testFreeze();
+        };
     }
 
     // Old setupMobileModalEvents removed - now handled by new system
@@ -3207,11 +3224,6 @@ class PixDoneApp {
                 if (!titleInput.hyperlinkPasteSetup) {
                     this.handleHyperlinkPaste(titleInput);
                     titleInput.hyperlinkPasteSetup = true;
-                }
-
-                // Set up real-time link preview for new tasks
-                if (!this.currentTask) {
-                    this.setupInputLinkPreview('taskTitle');
                 }
             }
 
@@ -4182,42 +4194,49 @@ class PixDoneApp {
 
             // Show comic effects immediately with the current task element (skip when from PerfectTiming - effects handled there)
             if (!options.fromPerfectTiming && window.taskAnimationEffects && taskElement && taskElement.nodeType === 1) {
-                console.log('Showing effects for element (type check):', taskElement.nodeType, taskElement.tagName);
-                console.log('Element rect before effect:', taskElement.getBoundingClientRect());
-                console.log('Element computed style:', window.getComputedStyle(taskElement));
-
-                // Prevent scrollbar from appearing during animation
-                const originalBodyOverflow = document.body.style.overflow;
-                const originalHtmlOverflow = document.documentElement.style.overflow;
-                document.body.style.overflow = 'hidden';
-                document.documentElement.style.overflow = 'hidden';
-
-                // Force element to be visible and positioned
-                taskElement.style.position = 'relative';
-                taskElement.style.zIndex = '1000';
-                taskElement.style.visibility = 'visible';
-                taskElement.style.display = 'block';
-
-                // Apply direct visual effect first
-                // Use transform-origin to center the scale animation and minimize layout impact
                 const taskRect = taskElement.getBoundingClientRect();
-                const centerX = taskRect.left + taskRect.width / 2;
-                const centerY = taskRect.top + taskRect.height / 2;
-                taskElement.style.transformOrigin = `${centerX - taskRect.left}px ${centerY - taskRect.top}px`;
-                taskElement.style.backgroundColor = '#4CAF50 !important';
-                taskElement.style.transform = 'scale(1.2)';
-                taskElement.style.transition = 'all 0.5s ease';
-                taskElement.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+                if (taskRect.width === 0 || taskRect.height === 0) {
+                    window.taskAnimationEffects.animateTaskCompletion(taskElement);
+                } else {
+                    // Run effect on a body-level clone so it is never clipped by .pager-viewport (all effects full width)
+                    const effectClone = taskElement.cloneNode(true);
+                    effectClone.style.position = 'fixed';
+                    effectClone.style.left = taskRect.left + 'px';
+                    effectClone.style.top = taskRect.top + 'px';
+                    effectClone.style.width = taskRect.width + 'px';
+                    effectClone.style.height = taskRect.height + 'px';
+                    effectClone.style.margin = '0';
+                    effectClone.style.zIndex = '10000';
+                    effectClone.style.pointerEvents = 'none';
+                    effectClone.style.visibility = 'visible';
+                    effectClone.style.display = 'block';
+                    document.body.appendChild(effectClone);
 
-                // Then apply animation effects
-                window.taskAnimationEffects.animateTaskCompletion(taskElement);
+                    taskElement.style.visibility = 'hidden';
 
-                // Restore overflow after animation completes
-                // Shrink animation takes 1000ms, so we wait slightly longer to ensure FAB position stays fixed
-                setTimeout(() => {
-                    document.body.style.overflow = originalBodyOverflow || '';
-                    document.documentElement.style.overflow = originalHtmlOverflow || '';
-                }, 1100); // Wait for longest animation (shrink: 1000ms) plus buffer
+                    document.body.classList.add('task-effect-playing');
+                    document.documentElement.classList.add('task-effect-playing');
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            const viewport = document.querySelector('.pager-viewport');
+                            const track = document.querySelector('.pager-track');
+                            if (viewport && track) {
+                                const currentIndex = Math.max(0, this.lists?.findIndex(list => list.id === this.currentListId) ?? 0);
+                                track.style.transform = `translateX(${-currentIndex * viewport.offsetWidth}px)`;
+                            }
+                        });
+                    });
+
+                    window.taskAnimationEffects.animateTaskCompletion(effectClone);
+
+                    setTimeout(() => {
+                        effectClone.remove();
+                        if (taskElement.parentNode) taskElement.style.visibility = '';
+                        document.body.classList.remove('task-effect-playing');
+                        document.documentElement.classList.remove('task-effect-playing');
+                        this.syncPagerPages();
+                    }, 1100);
+                }
 
                 // Special handling for Smash List - delay replenishment until after effects
                 if (currentList.id === 'smash-list' || currentList.name === '💥 Smash List') {
@@ -5827,45 +5846,6 @@ class PixDoneApp {
         return processedText;
     }
 
-    // Set up real-time link preview for input fields
-    setupInputLinkPreview(inputId) {
-        const input = document.getElementById(inputId);
-        if (!input || input.linkPreviewSetup) {
-            console.log(`[PixDone] Input ${inputId} not found or already setup`);
-            return;
-        }
-
-        // Create preview overlay
-        const container = input.parentElement;
-        if (!container.classList.contains('task-input-field')) {
-            container.classList.add('task-input-field');
-
-            const preview = document.createElement('div');
-            preview.className = 'task-input-preview';
-            preview.id = inputId + '-preview';
-            container.appendChild(preview);
-        }
-
-        // Update preview on input
-        const updatePreview = () => {
-            const preview = document.getElementById(inputId + '-preview');
-            if (!preview) return;
-
-            const text = input.value;
-            const processedText = this.highlightMarkdownLinks(text);
-            preview.innerHTML = processedText;
-        };
-
-        input.addEventListener('input', updatePreview);
-        input.addEventListener('focus', updatePreview);
-        input.addEventListener('blur', updatePreview);
-
-        // Initial preview update
-        setTimeout(updatePreview, 100);
-
-        input.linkPreviewSetup = true;
-    }
-
     // Highlight markdown links in text without converting to HTML links
     highlightMarkdownLinks(text) {
         if (!text) return '';
@@ -6170,7 +6150,9 @@ class PixDoneApp {
         const t = typeof window.t === 'function' ? window.t : (k) => k;
         const container = document.getElementById('listTabs');
         container.innerHTML = displayOrder.map(list => {
-            const displayName = this.isMyTasksList(list) ? t('myTasks') : list.name;
+            const displayName = (list.id === 'smash-list' || list.name === '💥 Smash List')
+                ? '💥'
+                : (this.isMyTasksList(list) ? t('myTasks') : list.name);
             return `
             <button class="list-tab ${list.id === this.currentListId ? 'active' : ''}" 
                     data-list-id="${list.id}">
