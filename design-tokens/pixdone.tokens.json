@@ -1,0 +1,178 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "pixdone": {
+    "color": {
+      "background": {
+        "default": { "value": "#202124" },
+        "elevated": { "value": "#28292d" },
+        "hover": { "value": "#3c4043" }
+      },
+      "text": {
+        "primary": { "value": "#e8eaed" },
+        "secondary": { "value": "#9aa0a6" },
+        "muted": { "value": "#70757a" }
+      },
+      "border": {
+        "default": { "value": "#3c4043" }
+      },
+      "accent": {
+        "default": { "value": "#1a73e8" },
+        "hover": { "value": "#1557b0" },
+        "subtle": { "value": "rgba(26, 115, 232, 0.15)" }
+      },
+      "focus": {
+        "ring": { "value": "rgba(26, 115, 232, 0.2)" },
+        "insetShadow": { "value": "rgba(0, 0, 0, 0.1)" }
+      },
+      "smash": {
+        "border": { "value": "#a259f7" },
+        "text": { "value": "#7b24df" },
+        "hint": { "value": "#9b4aef" },
+        "gradientStart": { "value": "#f3e6ff" },
+        "gradientEnd": { "value": "#e0d6ff" }
+      },
+      "shadow": {
+        "default": { "value": "rgba(0, 0, 0, 0.3)" }
+      },
+      "semantic": {
+        "success": { "value": "#34a853" },
+        "danger": { "value": "#ea4335" },
+        "warning": { "value": "#fbbc04" }
+      },
+      "overlay": {
+        "backdrop": { "value": "rgba(0, 0, 0, 0.5)" }
+      },
+      "pixel": {
+        "blue": { "value": "#0066ff" },
+        "red": { "value": "#ff3333" },
+        "green": { "value": "#33ff33" },
+        "yellow": { "value": "#ffff33" },
+        "purple": { "value": "#ff33ff" },
+        "cyan": { "value": "#33ffff" },
+        "white": { "value": "#ffffff" },
+        "gray": { "value": "#808080" }
+      }
+    },
+    "colorLight": {
+      "background": {
+        "default": { "value": "#ffffff" },
+        "elevated": { "value": "#f8f9fa" },
+        "hover": { "value": "#f1f3f4" }
+      },
+      "text": {
+        "primary": { "value": "#202124" },
+        "secondary": { "value": "#5f6368" },
+        "muted": { "value": "#70757a" }
+      },
+      "border": {
+        "default": { "value": "#dadce0" }
+      },
+      "accent": {
+        "default": { "value": "#1a73e8" },
+        "hover": { "value": "#1557b0" },
+        "subtle": { "value": "rgba(26, 115, 232, 0.15)" }
+      },
+      "focus": {
+        "ring": { "value": "rgba(26, 115, 232, 0.2)" },
+        "insetShadow": { "value": "rgba(0, 0, 0, 0.1)" }
+      },
+      "smash": {
+        "border": { "value": "#a259f7" },
+        "text": { "value": "#7b24df" },
+        "hint": { "value": "#9b4aef" },
+        "gradientStart": { "value": "#f3e6ff" },
+        "gradientEnd": { "value": "#e0d6ff" }
+      },
+      "shadow": {
+        "default": { "value": "rgba(0, 0, 0, 0.1)" }
+      },
+      "semantic": {
+        "success": { "value": "#34a853" },
+        "danger": { "value": "#ea4335" },
+        "warning": { "value": "#fbbc04" }
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "brand": { "value": "'VT323', 'Courier New', monospace" },
+        "brandJa": { "value": "'PixelMplus10', 'VT323', 'Courier New', monospace" },
+        "body": { "value": "'Inter', system-ui, sans-serif" }
+      },
+      "scale": {
+        "displayXl": { "value": "3.5625rem" },
+        "displayLg": { "value": "2.8125rem" },
+        "displaySm": { "value": "2.25rem" },
+        "headlineLg": { "value": "2rem" },
+        "headlineMd": { "value": "1.75rem" },
+        "headlineSm": { "value": "1.5rem" },
+        "titleLg": { "value": "1.375rem" },
+        "titleMd": { "value": "1rem" },
+        "titleSm": { "value": "0.875rem" },
+        "bodyLg": { "value": "1rem" },
+        "bodyMd": { "value": "0.875rem" },
+        "bodySm": { "value": "0.75rem" },
+        "labelLg": { "value": "0.875rem" },
+        "labelMd": { "value": "0.75rem" },
+        "labelSm": { "value": "0.6875rem" }
+      },
+      "lineHeight": {
+        "tight": { "value": "1.2" },
+        "normal": { "value": "1.4" },
+        "relaxed": { "value": "1.5" }
+      }
+    },
+    "space": {
+      "0": { "value": "0" },
+      "xs": { "value": "4px" },
+      "sm": { "value": "8px" },
+      "md": { "value": "12px" },
+      "lg": { "value": "16px" },
+      "xl": { "value": "20px" },
+      "2xl": { "value": "24px" },
+      "3xl": { "value": "32px" },
+      "4xl": { "value": "40px" },
+      "5xl": { "value": "48px" },
+      "6xl": { "value": "64px" }
+    },
+    "radius": {
+      "none": { "value": "0" },
+      "sm": { "value": "4px" }
+    },
+    "border": {
+      "width1": { "value": "1px" },
+      "width2": { "value": "2px" }
+    },
+    "motion": {
+      "duration": {
+        "fast": { "value": "0.15s" },
+        "medium": { "value": "0.3s" },
+        "slow": { "value": "0.5s" }
+      },
+      "easing": {
+        "linear": { "value": "linear" },
+        "ease": { "value": "ease" },
+        "easeOut": { "value": "ease-out" },
+        "snappy": { "value": "cubic-bezier(0.2, 0.8, 0.2, 1)" }
+      }
+    },
+    "sound": {
+      "taskAdd": { "value": "taskAdd" },
+      "taskEdit": { "value": "taskEdit" },
+      "taskDelete": { "value": "taskDelete" },
+      "taskCancel": { "value": "taskCancel" },
+      "taskComplete": { "value": "taskComplete" },
+      "buttonClick": { "value": "buttonClick" },
+      "subtaskComplete": { "value": "subtaskComplete" }
+    },
+    "zIndex": {
+      "base": { "value": 0 },
+      "dropdown": { "value": 1000 },
+      "modal": { "value": 1000 },
+      "overlay": { "value": 10000 }
+    },
+    "breakpoint": {
+      "mobile": { "value": "768px" },
+      "tablet": { "value": "1024px" }
+    }
+  }
+}

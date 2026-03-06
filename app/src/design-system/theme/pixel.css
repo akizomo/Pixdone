@@ -1,0 +1,82 @@
+/* PixDone pixel-art base – matches public/style.css */
+/* Variable aliases for compatibility */
+:root {
+  --bg-primary: var(--pd-color-background-default);
+  --bg-secondary: var(--pd-color-background-elevated);
+  --bg-hover: var(--pd-color-background-hover);
+  --text-primary: var(--pd-color-text-primary);
+  --text-secondary: var(--pd-color-text-secondary);
+  --text-muted: var(--pd-color-text-muted);
+  --border-color: var(--pd-color-border-default);
+  --accent-color: var(--pd-color-accent-default);
+  --accent-hover: var(--pd-color-accent-hover);
+  --shadow-color: var(--pd-color-shadow-default);
+  --completed-color: var(--pd-color-semantic-success);
+  --danger-color: var(--pd-color-semantic-danger);
+  --warning-color: var(--pd-color-semantic-warning);
+}
+
+/* App layout – matches .app-container in public/style.css */
+.pd-app-container {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--pd-layout-container-maxWidth, 600px);
+  margin: 0 auto;
+  padding: var(--pd-layout-container-padding, 20px);
+  min-height: 100vh;
+}
+
+/* App title – logo text (VT323, 32px, pixel shadow) */
+.pd-app-title {
+  font-size: var(--pd-font-scale-appTitle, 32px);
+  font-weight: 700;
+  color: var(--pd-color-text-primary);
+  font-family: var(--pd-font-brand);
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0px var(--pd-color-shadow-default);
+  margin: 0;
+  image-rendering: pixelated;
+}
+
+/* Pixel shadows (no blur) */
+.pd-shadow-xs {
+  box-shadow: 1px 1px 0 var(--pd-color-shadow-default);
+}
+.pd-shadow-sm {
+  box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
+}
+.pd-shadow-md {
+  box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+}
+.pd-shadow-lg {
+  box-shadow: 4px 4px 0px var(--pd-color-shadow-default);
+}
+
+/* Hover lift + stronger shadow */
+.pd-shadow-hover:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+}
+
+/* Pixel UI base */
+.pd-pixel-ui {
+  border-radius: 0;
+  image-rendering: pixelated;
+}
+
+/* Pixel font (VT323) with text shadow */
+.pd-font-pixel {
+  font-family: var(--pd-font-brand);
+  text-shadow: 1px 1px 0px var(--pd-color-shadow-default);
+  image-rendering: pixelated;
+}
+
+/* List tabs scroll area – hide scrollbar like public/style.css .list-tabs */
+.pd-list-tabs-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.pd-list-tabs-scroll::-webkit-scrollbar {
+  display: none;
+}

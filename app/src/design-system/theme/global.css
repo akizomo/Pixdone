@@ -1,0 +1,32 @@
+/* PixDone global styles – uses --pd-* variables set by ThemeProvider */
+@import './pixel.css';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--pd-font-body, 'Inter', system-ui, sans-serif);
+  background-color: var(--pd-color-background-default);
+  color: var(--pd-color-text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+:focus-visible {
+  outline: 2px solid var(--pd-color-accent-default);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: var(--pd-color-accent-default);
+}

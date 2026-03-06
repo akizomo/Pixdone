@@ -1,0 +1,13 @@
+[11:40:40.558] [INFO] Initializing Storybook
+[11:40:40.813] [DEBUG] Getting package.json info for /Users/akihiro.uezono/Documents/GitHub/Bitdone/package.json...
+[11:40:40.813] [DEBUG] Getting CLI versions from NPM for storybook...
+[11:40:40.813] [DEBUG] Executing command: npm info storybook version
+[11:40:41.557] [INFO] Adding Storybook version 10.2.14 to your project
+[11:40:41.558] [ERROR] Unable to initialize Storybook in this directory.
+
+Storybook couldn't detect a supported framework or configuration for your project. Make sure you're inside a framework project (e.g., React, Vue, Svelte, Angular, Next.js) and that its dependencies are installed.
+
+Tips:
+- Run init in an empty directory or create a new framework app first.
+- If this directory contains unrelated files, try a new directory for Storybook.
+[11:40:41.562] [INFO] Storybook collects completely anonymous usage telemetry. We use it to shape Storybook's roadmap and prioritize features. You can learn more, including how to opt out, at https://storybook.js.org/telemetry
