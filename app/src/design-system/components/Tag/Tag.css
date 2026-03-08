@@ -1,0 +1,36 @@
+/* Tag – dismissible category/label element */
+
+.pxd-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pxd-space-1);
+  padding: 3px 10px;
+  border-radius: var(--pxd-radius-xs);
+  font-family: var(--pxd-font-body);
+  font-size: var(--pxd-font-size-xs);
+  font-weight: var(--pxd-font-weight-semibold);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.pxd-tag--default { background: var(--pxd-color-surface-secondary); color: var(--pxd-color-text-secondary); border-color: var(--pxd-color-border-subtle); }
+.pxd-tag--brand   { background: rgba(123,97,255,0.10); color: var(--pxd-color-text-accent); border-color: rgba(123,97,255,0.25); }
+.pxd-tag--success { background: rgba(53,194,107,0.10); color: var(--pxd-color-text-success); border-color: rgba(53,194,107,0.25); }
+.pxd-tag--warning { background: rgba(245,184,46,0.10); color: var(--pxd-color-text-warning); border-color: rgba(245,184,46,0.25); }
+.pxd-tag--danger  { background: rgba(232,93,93,0.10); color: var(--pxd-color-text-danger); border-color: rgba(232,93,93,0.25); }
+.pxd-tag--info    { background: rgba(76,141,255,0.10); color: var(--pxd-color-feedback-info); border-color: rgba(76,141,255,0.25); }
+
+.pxd-tag__dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.6;
+  display: inline-flex;
+  align-items: center;
+}
+.pxd-tag__dismiss:hover { opacity: 1; }
+.pxd-tag__dismiss:focus-visible { outline: 2px solid var(--pxd-color-focus-ring); border-radius: 2px; }

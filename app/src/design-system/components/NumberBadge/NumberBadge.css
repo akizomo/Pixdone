@@ -1,0 +1,27 @@
+/* NumberBadge – notification count bubble */
+
+.pxd-number-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--pxd-radius-full);
+  font-family: var(--pxd-font-body);
+  font-weight: var(--pxd-font-weight-bold);
+  line-height: 1;
+  white-space: nowrap;
+  border: 2px solid var(--pxd-color-surface-primary);
+}
+
+/* Sizes */
+.pxd-number-badge--sm { min-width: 16px; height: 16px; font-size: 10px; padding: 0 4px; }
+.pxd-number-badge--md { min-width: 20px; height: 20px; font-size: 11px; padding: 0 5px; }
+
+/* Dot mode */
+.pxd-number-badge--dot { width: 8px; height: 8px; min-width: 8px; padding: 0; }
+
+/* Variants */
+.pxd-number-badge--default { background: var(--pxd-color-border-default); color: #fff; }
+.pxd-number-badge--brand   { background: var(--pxd-color-brand-primary); color: #fff; }
+.pxd-number-badge--danger  { background: var(--pxd-color-feedback-danger); color: #fff; }
+.pxd-number-badge--success { background: var(--pxd-color-feedback-success); color: #fff; }
+.pxd-number-badge--warning { background: var(--pxd-color-feedback-warning); color: var(--pxd-color-text-primary); }

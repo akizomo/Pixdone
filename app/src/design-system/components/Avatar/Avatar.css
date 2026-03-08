@@ -1,0 +1,39 @@
+/* Avatar – user representation with image or initials fallback */
+
+.pxd-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--pxd-color-action-primary);
+  color: var(--pxd-color-text-inverse);
+  font-family: var(--pxd-font-body);
+  font-weight: var(--pxd-font-weight-bold);
+  overflow: hidden;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ---- Shapes ---- */
+.pxd-avatar--circle { border-radius: var(--pxd-radius-full); }
+.pxd-avatar--square { border-radius: var(--pxd-radius-md); }
+
+/* ---- Sizes ---- */
+.pxd-avatar--xs { width: 24px; height: 24px; font-size: 10px; }
+.pxd-avatar--sm { width: 32px; height: 32px; font-size: 12px; }
+.pxd-avatar--md { width: 40px; height: 40px; font-size: 14px; }
+.pxd-avatar--lg { width: 56px; height: 56px; font-size: 18px; }
+.pxd-avatar--xl { width: 72px; height: 72px; font-size: 24px; }
+
+/* ---- Pixel border ---- */
+.pxd-avatar--pixel {
+  box-shadow: var(--pxd-shadow-pixel-sm);
+  border: var(--pxd-border-base) solid var(--pxd-color-brand-primary);
+}
+
+/* ---- Image fill ---- */
+.pxd-avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

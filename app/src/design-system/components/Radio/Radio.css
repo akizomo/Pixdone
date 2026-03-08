@@ -1,0 +1,74 @@
+/* Radio – single-select control */
+
+.pxd-radio {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--pxd-space-2);
+  cursor: pointer;
+  user-select: none;
+}
+.pxd-radio--disabled {
+  opacity: var(--pxd-opacity-disabled);
+  cursor: not-allowed;
+}
+
+.pxd-radio__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pxd-radio__circle {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--pxd-radius-full);
+  border: var(--pxd-border-base) solid var(--pxd-color-border-default);
+  background-color: var(--pxd-color-surface-primary);
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition:
+    border-color var(--pxd-motion-fast) var(--pxd-easing-standard),
+    background-color var(--pxd-motion-fast) var(--pxd-easing-standard);
+}
+.pxd-radio__circle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--pxd-radius-full);
+  background-color: #fff;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform var(--pxd-motion-fast) var(--pxd-easing-playful);
+}
+
+.pxd-radio__input:focus-visible + .pxd-radio__circle {
+  outline: 2px solid var(--pxd-color-focus-ring);
+  outline-offset: 2px;
+}
+
+.pxd-radio__circle--checked {
+  background-color: var(--pxd-color-action-primary);
+  border-color: var(--pxd-color-action-primary);
+}
+.pxd-radio__circle--checked::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.pxd-radio__content { display: flex; flex-direction: column; }
+.pxd-radio__label { font-family: var(--pxd-font-body); font-size: var(--pxd-font-size-sm); font-weight: var(--pxd-font-weight-medium); color: var(--pxd-color-text-primary); line-height: 1.35; }
+.pxd-radio__description { font-size: var(--pxd-font-size-xs); color: var(--pxd-color-text-tertiary); margin-top: 2px; line-height: 1.5; }
+
+/* RadioGroup */
+.pxd-radio-group { display: flex; gap: var(--pxd-space-3); }
+.pxd-radio-group--vertical { flex-direction: column; }
+.pxd-radio-group--horizontal { flex-direction: row; flex-wrap: wrap; }
+.pxd-radio-group__legend { font-family: var(--pxd-font-body); font-size: var(--pxd-font-size-sm); font-weight: var(--pxd-font-weight-semibold); color: var(--pxd-color-text-primary); margin-bottom: var(--pxd-space-3); display: block; }

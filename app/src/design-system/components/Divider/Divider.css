@@ -1,0 +1,36 @@
+/* Divider – visual separator */
+
+.pxd-divider {
+  border: none;
+  background-color: var(--pxd-color-border-subtle);
+}
+.pxd-divider--horizontal { display: block; height: 1px; width: 100%; }
+.pxd-divider--vertical   { display: inline-block; width: 1px; height: 1em; align-self: stretch; }
+
+.pxd-divider--spacing-sm { margin: var(--pxd-space-2) 0; }
+.pxd-divider--spacing-md { margin: var(--pxd-space-4) 0; }
+.pxd-divider--spacing-lg { margin: var(--pxd-space-6) 0; }
+
+/* Labeled divider */
+.pxd-divider--labeled {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-3);
+  background: none;
+  height: auto;
+}
+.pxd-divider--labeled::before,
+.pxd-divider--labeled::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: var(--pxd-color-border-subtle);
+}
+.pxd-divider__label {
+  font-size: var(--pxd-font-size-xs);
+  font-weight: var(--pxd-font-weight-semibold);
+  color: var(--pxd-color-text-tertiary);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}

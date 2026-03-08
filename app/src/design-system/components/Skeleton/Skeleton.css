@@ -1,0 +1,30 @@
+/* Skeleton – loading placeholder */
+
+@keyframes pxd-shimmer {
+  from { background-position: -400px 0; }
+  to   { background-position: 400px 0; }
+}
+
+.pxd-skeleton {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    var(--pxd-color-surface-secondary) 25%,
+    var(--pxd-color-border-subtle) 50%,
+    var(--pxd-color-surface-secondary) 75%
+  );
+  background-size: 800px 100%;
+  animation: pxd-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--pxd-radius-xs);
+}
+
+.pxd-skeleton--text { height: 14px; border-radius: 4px; margin-bottom: 8px; }
+.pxd-skeleton--text:last-child { width: 70% !important; }
+.pxd-skeleton--rect { border-radius: var(--pxd-radius-md); }
+.pxd-skeleton--circle { border-radius: var(--pxd-radius-full); }
+
+.pxd-skeleton-group { display: flex; flex-direction: column; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pxd-skeleton { animation: none; }
+}

@@ -1,0 +1,69 @@
+/* Progress bar */
+
+.pxd-progress {
+  width: 100%;
+}
+
+.pxd-progress__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--pxd-space-1);
+}
+.pxd-progress__label {
+  font-size: var(--pxd-font-size-xs);
+  font-weight: var(--pxd-font-weight-semibold);
+  color: var(--pxd-color-text-secondary);
+}
+.pxd-progress__value {
+  font-family: var(--pxd-font-display);
+  font-size: 10px;
+  color: var(--pxd-color-text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.pxd-progress__track {
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--pxd-color-surface-secondary);
+  border: 1px solid var(--pxd-color-border-subtle);
+}
+.pxd-progress__track--sm { height: 6px; border-radius: 3px; }
+.pxd-progress__track--md { height: 10px; border-radius: 5px; }
+.pxd-progress__track--lg { height: 14px; border-radius: 7px; }
+
+.pxd-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width var(--pxd-motion-slow) var(--pxd-easing-decelerate);
+}
+
+/* Variants */
+.pxd-progress__fill--default { background-color: var(--pxd-color-brand-primary); }
+.pxd-progress__fill--success { background-color: var(--pxd-color-feedback-success); }
+.pxd-progress__fill--warning { background-color: var(--pxd-color-feedback-warning); }
+.pxd-progress__fill--danger  { background-color: var(--pxd-color-feedback-danger); }
+.pxd-progress__fill--brand   { background: linear-gradient(90deg, var(--pxd-color-brand-primary), var(--pxd-color-brand-epic)); }
+
+/* Animated striped fill */
+@keyframes pxd-progress-stripes {
+  from { background-position: 20px 0; }
+  to   { background-position: 0 0; }
+}
+.pxd-progress__fill--animated {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 20px 20px;
+  animation: pxd-progress-stripes 0.6s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pxd-progress__fill--animated { animation: none; }
+}

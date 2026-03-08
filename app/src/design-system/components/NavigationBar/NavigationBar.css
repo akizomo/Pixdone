@@ -1,0 +1,61 @@
+/* NavigationBar – top app bar */
+
+.pxd-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pxd-space-2);
+  height: 56px;
+  padding: 0 var(--pxd-space-4);
+  background-color: var(--pxd-color-surface-primary);
+  border-bottom: 1px solid var(--pxd-color-border-subtle);
+  font-family: var(--pxd-font-body);
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.pxd-nav-bar--transparent {
+  background-color: transparent;
+  border-bottom-color: transparent;
+}
+
+.pxd-nav-bar__leading,
+.pxd-nav-bar__trailing {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-1);
+  flex-shrink: 0;
+  min-width: 44px;
+}
+.pxd-nav-bar__trailing { justify-content: flex-end; }
+
+.pxd-nav-bar__title {
+  flex: 1;
+  text-align: center;
+  font-size: var(--pxd-font-size-md);
+  font-weight: var(--pxd-font-weight-semibold);
+  color: var(--pxd-color-text-primary);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pxd-nav-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  border-radius: var(--pxd-radius-md);
+  cursor: pointer;
+  color: var(--pxd-color-text-primary);
+  font-size: 18px;
+  transition: background-color var(--pxd-motion-fast) var(--pxd-easing-standard);
+}
+.pxd-nav-action:hover { background-color: var(--pxd-color-action-ghost-hover); }
+.pxd-nav-action:active { background-color: var(--pxd-color-action-ghost-pressed); }
+.pxd-nav-action:focus-visible { outline: 2px solid var(--pxd-color-focus-ring); outline-offset: 2px; }

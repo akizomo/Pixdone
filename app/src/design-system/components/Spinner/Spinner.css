@@ -1,0 +1,41 @@
+/* Spinner – loading indicator */
+
+@keyframes pxd-spin {
+  to { transform: rotate(360deg); }
+}
+
+.pxd-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pxd-spinner__ring {
+  border-radius: var(--pxd-radius-full);
+  border-style: solid;
+  animation: pxd-spin 0.8s linear infinite;
+}
+
+/* Sizes */
+.pxd-spinner--sm .pxd-spinner__ring { width: 16px; height: 16px; border-width: 2px; }
+.pxd-spinner--md .pxd-spinner__ring { width: 24px; height: 24px; border-width: 3px; }
+.pxd-spinner--lg .pxd-spinner__ring { width: 36px; height: 36px; border-width: 3px; }
+.pxd-spinner--xl .pxd-spinner__ring { width: 48px; height: 48px; border-width: 4px; }
+
+/* Variants */
+.pxd-spinner--default .pxd-spinner__ring {
+  border-color: var(--pxd-color-border-subtle);
+  border-top-color: var(--pxd-color-text-secondary);
+}
+.pxd-spinner--brand .pxd-spinner__ring {
+  border-color: rgba(123, 97, 255, 0.2);
+  border-top-color: var(--pxd-color-brand-primary);
+}
+.pxd-spinner--inverse .pxd-spinner__ring {
+  border-color: rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pxd-spinner__ring { animation-duration: 0ms; }
+}
