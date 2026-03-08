@@ -34,10 +34,10 @@ const preview: Preview = {
         <ThemeProvider>
           <div
             style={{
-              minHeight: '100vh',
-              padding: '1rem',
+              padding: '24px',
               background: 'var(--pd-color-background-default)',
               color: 'var(--pd-color-text-primary)',
+              boxSizing: 'border-box',
             }}
           >
             <Story />
@@ -55,6 +55,10 @@ const preview: Preview = {
     },
     a11y: {
       test: 'todo',
+    },
+    docs: {
+      toc: true,
+      layout: 'fullscreen',
     },
   },
 };

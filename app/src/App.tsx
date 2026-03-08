@@ -122,10 +122,12 @@ function AppContent() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         title="Sign up"
-        actions={[
-          { label: 'Cancel', onClick: () => setModalOpen(false), variant: 'secondary' },
-          { label: 'Sign up', onClick: () => setModalOpen(false), variant: 'signup' },
-        ]}
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button variant="signup" onClick={() => setModalOpen(false)}>Sign up</Button>
+          </>
+        }
       >
         <p className="text-[var(--pd-color-text-secondary)]">Auth form would go here (email + password).</p>
       </ModalDialog>

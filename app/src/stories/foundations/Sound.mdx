@@ -1,0 +1,100 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { sound } from '../../design-system';
+
+<Meta title="Foundations PXD/Sound" />
+
+# Sound
+
+Pixdone では **すべての操作** に選択音・フィードバック音を割り振り、レトロで遊びのある体験にしています。ここではサウンドの原則と、**いつ・どのトークン**を鳴らすかを整理します。
+
+---
+
+## 原則
+
+1. **すべての操作に音を割り当てる**  
+   タスク追加・編集・削除・完了・キャンセル・ボタンクリック・ドラッグ並び替えなど、ユーザーが行う操作には必ず `playSound(token)` またはそれに相当する効果音を付ける。
+
+2. **重要度・意味に応じてトークンを選ぶ**  
+   - データの **追加確定** → `taskAdd`  
+   - **編集開始・保存** → `taskEdit`  
+   - **削除確定** → `taskDelete`  
+   - **キャンセル・閉じる** → `taskCancel`  
+   - **完了・成功** → `taskComplete`  
+   - **選択・トグル・汎用クリック** → `buttonClick`  
+   - **サブタスク完了** → `subtaskComplete`（picoSound ビープなど）
+
+3. **同時再生は避ける**  
+   1 度に 1 つの UI サウンド。連打にはデバウンスする。
+
+4. **ミュートを常に提供する**  
+   ユーザーが音をオフにできるようにする。ヘッダーのドロップダウンなどでミュート切り替えを用意する。
+
+5. **重要な情報を音だけに頼らない**  
+   エラーや成功など、意味のある情報は視覚（テキスト・アイコン・状態）でも伝える。音は補助。
+
+---
+
+## トークン一覧（いつ・何を鳴らすか）
+
+| トークン | 役割 | 鳴らすタイミング | 説明 |
+|----------|------|------------------|------|
+| **taskAdd** | {sound.taskAdd.role} | {sound.taskAdd.when} | {sound.taskAdd.description} |
+| **taskEdit** | {sound.taskEdit.role} | {sound.taskEdit.when} | {sound.taskEdit.description} |
+| **taskDelete** | {sound.taskDelete.role} | {sound.taskDelete.when} | {sound.taskDelete.description} |
+| **taskCancel** | {sound.taskCancel.role} | {sound.taskCancel.when} | {sound.taskCancel.description} |
+| **taskComplete** | {sound.taskComplete.role} | {sound.taskComplete.when} | {sound.taskComplete.description} |
+| **buttonClick** | {sound.buttonClick.role} | {sound.buttonClick.when} | {sound.buttonClick.description} |
+| **subtaskComplete** | {sound.subtaskComplete.role} | {sound.subtaskComplete.when} | {sound.subtaskComplete.description} |
+
+---
+
+## 使用例（コード）
+
+```ts
+import { playSound } from '../services/sound';
+import { sound } from '../design-system';
+
+// タスク追加確定時
+playSound(sound.taskAdd.key);  // 'taskAdd'
+
+// モーダルを閉じた時
+playSound(sound.taskCancel.key);  // 'taskCancel'
+
+// 言語チップ・タブなど
+playSound(sound.buttonClick.key);  // 'buttonClick'
+```
+
+`services/sound.ts` の `playSound(key: SoundKey)` に、上記の `sound.*.key` を渡す。ミュート時は内部で再生しない。
+
+---
+
+## 役割別の対応表（実装チェック用）
+
+| 役割 | トークン | 主な使用箇所 |
+|------|----------|--------------|
+| データ追加 | taskAdd | タスク保存、リスト作成、サブタスク追加確定 |
+| 編集・確定 | taskEdit | 編集シートを開く、タスク/リスト保存、リスト名変更 |
+| データ削除 | taskDelete | 削除確認ダイアログで「削除する」 |
+| キャンセル | taskCancel | シート閉じる、キャンセルボタン、モーダル閉じる |
+| 完了・成功 | taskComplete | タスク完了、ログイン/ログアウト成功 |
+| 選択・トグル | buttonClick | タブ、チップ、トグル、日付ボタン、その他汎用ボタン |
+| サブタスク完了 | subtaskComplete | サブタスクのチェックをオンにしたとき（picoSound） |
+
+---
+
+## ミニゲーム・拡張（任意）
+
+Perfect Timing などのミニゲームでは、次のようなキーを別途実装で扱うことがある。
+
+- `perfectTimingMiss` / `Good` / `Great` / `Perfect`  
+- `perfectTimingGaugeTick`  
+
+これらは必要に応じて `sound.tokens.ts` や実装側で拡張する。
+
+---
+
+## アクセシビリティ
+
+- **ミュート** – 常にオフにできること。設定またはヘッダードロップダウンのサウンドトグルで提供。
+- **音だけに依存しない** – エラー・成功・状態変化は、テキストやアイコンでも伝える。
+- **自動再生** – ユーザー操作に紐づけて鳴らし、意図しない自動再生は避ける。

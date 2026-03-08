@@ -1,0 +1,98 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { typography } from '../../design-system';
+import { TokensTable } from './TokensTable';
+
+<Meta title="Foundations PXD/Typography" />
+
+# Typography Tokens
+
+Pixdone keeps **readable sans-serif for most text** and uses **pixel/display styles only for selective emphasis** (headings, short labels, counters). Do not make the whole UI pixel-font-heavy.
+
+---
+
+## Font family
+
+<TokensTable
+  caption="Font families for body, display, and code."
+  rows={[
+    { token: 'typography.fontFamily.body', value: typography.fontFamily.body, description: 'Body text, labels, UI', preview: 'none' },
+    { token: 'typography.fontFamily.display', value: typography.fontFamily.display, description: 'Pixel-style headings, labels', preview: 'none' },
+    { token: 'typography.fontFamily.mono', value: typography.fontFamily.mono, description: 'Code, monospace', preview: 'none' },
+  ]}
+/>
+
+## Font size
+
+<TokensTable
+  caption="Font sizes (px)."
+  rows={[
+    { token: 'typography.fontSize.xs', value: typography.fontSize.xs, description: '12px', preview: 'none' },
+    { token: 'typography.fontSize.sm', value: typography.fontSize.sm, description: '14px', preview: 'none' },
+    { token: 'typography.fontSize.md', value: typography.fontSize.md, description: '16px – body default', preview: 'none' },
+    { token: 'typography.fontSize.lg', value: typography.fontSize.lg, description: '18px', preview: 'none' },
+    { token: 'typography.fontSize.xl', value: typography.fontSize.xl, description: '20px', preview: 'none' },
+    { token: 'typography.fontSize.2xl', value: typography.fontSize['2xl'], description: '24px', preview: 'none' },
+    { token: 'typography.fontSize.3xl', value: typography.fontSize['3xl'], description: '32px', preview: 'none' },
+  ]}
+/>
+
+## Font weight
+
+<TokensTable
+  caption="Font weights."
+  rows={[
+    { token: 'typography.fontWeight.regular', value: typography.fontWeight.regular, description: '400', preview: 'none' },
+    { token: 'typography.fontWeight.medium', value: typography.fontWeight.medium, description: '500', preview: 'none' },
+    { token: 'typography.fontWeight.semibold', value: typography.fontWeight.semibold, description: '600', preview: 'none' },
+    { token: 'typography.fontWeight.bold', value: typography.fontWeight.bold, description: '700', preview: 'none' },
+  ]}
+/>
+
+## Line height & letter spacing
+
+<TokensTable
+  caption="Line height and letter spacing."
+  rows={[
+    { token: 'typography.lineHeight.tight', value: String(typography.lineHeight.tight), description: '1.2', preview: 'none' },
+    { token: 'typography.lineHeight.snug', value: String(typography.lineHeight.snug), description: '1.35', preview: 'none' },
+    { token: 'typography.lineHeight.normal', value: String(typography.lineHeight.normal), description: '1.5 – body', preview: 'none' },
+    { token: 'typography.lineHeight.relaxed', value: String(typography.lineHeight.relaxed), description: '1.65', preview: 'none' },
+    { token: 'typography.letterSpacing.tight', value: typography.letterSpacing.tight, description: '-0.02em', preview: 'none' },
+    { token: 'typography.letterSpacing.normal', value: typography.letterSpacing.normal, description: '0em', preview: 'none' },
+    { token: 'typography.letterSpacing.wide', value: typography.letterSpacing.wide, description: '0.02em', preview: 'none' },
+    { token: 'typography.letterSpacing.pixel', value: typography.letterSpacing.pixel, description: '0.04em – display', preview: 'none' },
+  ]}
+/>
+
+## Text styles (presets)
+
+<TokensTable
+  caption="Combined text styles for display, heading, body, label."
+  rows={[
+    { token: 'typography.textStyle.displayLg', value: '24px display', description: 'Pixel-style large display', preview: 'none' },
+    { token: 'typography.textStyle.displayMd', value: '20px display', description: 'Pixel-style medium display', preview: 'none' },
+    { token: 'typography.textStyle.headingLg', value: '24px bold', description: 'Section heading', preview: 'none' },
+    { token: 'typography.textStyle.headingMd', value: '20px bold', description: 'Card heading', preview: 'none' },
+    { token: 'typography.textStyle.headingSm', value: '18px semibold', description: 'Subheading', preview: 'none' },
+    { token: 'typography.textStyle.bodyMd', value: '16px regular', description: 'Body default', preview: 'none' },
+    { token: 'typography.textStyle.bodySm', value: '14px regular', description: 'Small body', preview: 'none' },
+    { token: 'typography.textStyle.labelMd', value: '14px semibold', description: 'Labels, buttons', preview: 'none' },
+    { token: 'typography.textStyle.labelSm', value: '12px semibold', description: 'Small labels', preview: 'none' },
+    { token: 'typography.textStyle.pixelLabel', value: '12px display', description: 'Pixel badge/label', preview: 'none' },
+  ]}
+/>
+
+## Preview
+
+<div style={{ fontFamily: typography.fontFamily.body, marginTop: 16 }}>
+  <p style={{ fontSize: typography.fontSize.md + 'px', lineHeight: typography.lineHeight.normal, color: '#191D24' }}>
+    <strong>Body Md</strong> – Readable sans-serif for most UI.
+  </p>
+  <p style={{ fontFamily: typography.fontFamily.display, fontSize: typography.textStyle.pixelLabel.fontSize + 'px', color: '#4C5160', marginTop: 8 }}>
+    Pixel label (display font)
+  </p>
+</div>
+
+## CSS variables
+
+`--pxd-font-body`, `--pxd-font-display`, `--pxd-font-size-xs` … `--pxd-font-size-3xl`, `--pxd-line-height-normal`, `--pxd-font-weight-bold`. See `tokens.css`.

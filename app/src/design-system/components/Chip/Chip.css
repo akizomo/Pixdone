@@ -1,0 +1,116 @@
+/* Chip – compact, clear selected and removable. */
+
+.pxd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pxd-space-2);
+  box-sizing: border-box;
+  padding: var(--pxd-space-1) var(--pxd-space-3);
+  font-family: var(--pxd-font-body);
+  font-weight: var(--pxd-font-weight-medium);
+  line-height: var(--pxd-line-height-snug);
+  border-width: var(--pxd-border-base);
+  border-style: solid;
+  border-radius: var(--pxd-radius-full);
+  transition:
+    background-color var(--pxd-motion-fast) var(--pxd-easing-standard),
+    border-color var(--pxd-motion-fast) var(--pxd-easing-standard),
+    box-shadow var(--pxd-motion-fast) var(--pxd-easing-standard);
+}
+
+.pxd-chip:focus {
+  outline: none;
+}
+
+.pxd-chip:focus-visible {
+  outline: 2px solid var(--pxd-color-focus-ring);
+  outline-offset: 2px;
+}
+
+.pxd-chip--selected {
+  box-shadow: 0 0 0 2px var(--pxd-color-focus-ring-offset), 0 0 0 4px var(--pxd-color-focus-ring);
+}
+
+.pxd-chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--pxd-space-1);
+  padding: var(--pxd-space-1);
+  min-width: 24px;
+  min-height: 24px;
+  border: none;
+  border-radius: var(--pxd-radius-full);
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: background-color var(--pxd-motion-fast), opacity var(--pxd-motion-fast);
+}
+
+.pxd-chip__remove:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.pxd-chip__remove:focus {
+  outline: none;
+}
+
+.pxd-chip__remove:focus-visible {
+  outline: 2px solid var(--pxd-color-focus-ring);
+  outline-offset: 1px;
+}
+
+/* ---- Sizes ---- */
+
+.pxd-chip--sm {
+  padding: 2px var(--pxd-space-2);
+  font-size: var(--pxd-font-size-xs);
+}
+
+.pxd-chip--sm .pxd-chip__remove {
+  min-width: 20px;
+  min-height: 20px;
+  padding: 2px;
+  font-size: 0.875rem;
+}
+
+.pxd-chip--md {
+  padding: var(--pxd-space-1) var(--pxd-space-3);
+  font-size: var(--pxd-font-size-sm);
+}
+
+/* ---- Variants (explicit backgrounds; no reliance on /opacity) ---- */
+
+.pxd-chip--neutral {
+  background-color: var(--pxd-color-surface-secondary);
+  color: var(--pxd-color-text-primary);
+  border-color: var(--pxd-color-border-subtle);
+}
+
+.pxd-chip--accent {
+  background-color: var(--pxd-color-action-secondary);
+  color: var(--pxd-color-text-accent);
+  border-color: var(--pxd-color-text-accent);
+}
+
+.pxd-chip--success {
+  background-color: rgba(53, 194, 107, 0.14);
+  color: var(--pxd-color-text-success);
+  border-color: var(--pxd-color-feedback-success);
+}
+
+.pxd-chip--warning {
+  background-color: rgba(245, 184, 46, 0.18);
+  color: var(--pxd-color-text-warning);
+  border-color: var(--pxd-color-feedback-warning);
+}
+
+.pxd-chip--danger {
+  background-color: rgba(232, 93, 93, 0.14);
+  color: var(--pxd-color-text-danger);
+  border-color: var(--pxd-color-feedback-danger);
+}

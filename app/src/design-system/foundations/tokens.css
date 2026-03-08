@@ -1,0 +1,211 @@
+/**
+ * Pixdone design tokens as CSS custom properties.
+ * Prefix: --pxd-
+ * Import once (e.g. in global.css or app entry).
+ */
+
+:root {
+  /* -------------------------------------------------------------------------
+     Accessibility
+     ------------------------------------------------------------------------- */
+  --pxd-tap-target-min: 44px;
+
+  /* -------------------------------------------------------------------------
+     Color – semantic surface
+     ------------------------------------------------------------------------- */
+  --pxd-color-surface-page: #F7F7F8;
+  --pxd-color-surface-page-alt: #EFEFF1;
+  --pxd-color-surface-primary: #FFFFFF;
+  --pxd-color-surface-secondary: #F7F7F8;
+  --pxd-color-surface-raised: #FFFFFF;
+  --pxd-color-surface-overlay: rgba(17, 17, 17, 0.64);
+  --pxd-color-surface-inverse: #191D24;
+  --pxd-color-surface-disabled: #DDDEE3;
+
+  /* -------------------------------------------------------------------------
+     Color – semantic text
+     ------------------------------------------------------------------------- */
+  --pxd-color-text-primary: #191D24;
+  --pxd-color-text-secondary: #4C5160;
+  --pxd-color-text-tertiary: #666C7A;
+  --pxd-color-text-inverse: #FFFFFF;
+  --pxd-color-text-disabled: #858B99;
+  --pxd-color-text-accent: #5B43D6;
+  --pxd-color-text-success: #1D8F4A;
+  --pxd-color-text-warning: #B78112;
+  --pxd-color-text-danger: #B93D3D;
+
+  /* -------------------------------------------------------------------------
+     Color – semantic border
+     ------------------------------------------------------------------------- */
+  --pxd-color-border-subtle: #DDDEE3;
+  --pxd-color-border-default: #A6AAB6;
+  --pxd-color-border-strong: #2E3440;
+  --pxd-color-border-inverse: #FFFFFF;
+  --pxd-color-border-focus: #4C8DFF;
+  --pxd-color-border-danger: #E85D5D;
+
+  /* -------------------------------------------------------------------------
+     Color – semantic feedback & action
+     ------------------------------------------------------------------------- */
+  --pxd-color-feedback-info: #4C8DFF;
+  --pxd-color-feedback-success: #35C26B;
+  --pxd-color-feedback-warning: #F5B82E;
+  --pxd-color-feedback-danger: #E85D5D;
+
+  --pxd-color-action-primary: #7B61FF;
+  --pxd-color-action-primary-hover: #6B52F0;
+  --pxd-color-action-primary-pressed: #5B43D6;
+  --pxd-color-action-secondary: #FFFFFF;
+  --pxd-color-action-secondary-hover: #F3F1FF;
+  --pxd-color-action-secondary-pressed: #E6E1FF;
+  --pxd-color-action-ghost-hover: #EFEFF1;
+  --pxd-color-action-ghost-pressed: #DDDEE3;
+  --pxd-color-action-disabled: #C7C9D1;
+
+  --pxd-color-focus-ring: #4C8DFF;
+  --pxd-color-focus-ring-offset: #FFFFFF;
+
+  /* -------------------------------------------------------------------------
+     Color – brand
+     ------------------------------------------------------------------------- */
+  --pxd-color-brand-primary: #7B61FF;
+  --pxd-color-brand-secondary: #F5B82E;
+  --pxd-color-brand-reward: #35C26B;
+  --pxd-color-brand-epic: #F45CCB;
+  --pxd-color-brand-freeze: #43CBEA;
+  --pxd-color-brand-smash: #FF9C96;
+  --pxd-color-brand-pixel-ink: #191D24;
+  --pxd-color-brand-pixel-paper: #FFFFFF;
+
+  --pxd-color-rarity-common: #A6AAB6;
+  --pxd-color-rarity-rare: #4C8DFF;
+  --pxd-color-rarity-epic: #F45CCB;
+  --pxd-color-rarity-legendary: #F5B82E;
+
+  --pxd-color-reward-glow-green: rgba(53, 194, 107, 0.28);
+  --pxd-color-reward-glow-purple: rgba(123, 97, 255, 0.28);
+  --pxd-color-reward-glow-pink: rgba(244, 92, 203, 0.28);
+  --pxd-color-reward-glow-cyan: rgba(67, 203, 234, 0.28);
+
+  /* -------------------------------------------------------------------------
+     Spacing (px)
+     ------------------------------------------------------------------------- */
+  --pxd-space-0: 0;
+  --pxd-space-1: 4px;
+  --pxd-space-2: 8px;
+  --pxd-space-3: 12px;
+  --pxd-space-4: 16px;
+  --pxd-space-5: 20px;
+  --pxd-space-6: 24px;
+  --pxd-space-8: 32px;
+  --pxd-space-10: 40px;
+  --pxd-space-12: 48px;
+  --pxd-space-14: 56px;
+  --pxd-space-16: 64px;
+
+  --pxd-layout-xs: 4px;
+  --pxd-layout-sm: 8px;
+  --pxd-layout-md: 12px;
+  --pxd-layout-lg: 16px;
+  --pxd-layout-xl: 24px;
+  --pxd-layout-2xl: 32px;
+  --pxd-layout-3xl: 40px;
+
+  /* -------------------------------------------------------------------------
+     Radius (px)
+     ------------------------------------------------------------------------- */
+  --pxd-radius-none: 0;
+  --pxd-radius-xs: 4px;
+  --pxd-radius-sm: 6px;
+  --pxd-radius-md: 8px;
+  --pxd-radius-lg: 12px;
+  --pxd-radius-xl: 16px;
+  --pxd-radius-full: 9999px;
+
+  /* -------------------------------------------------------------------------
+     Border width (px)
+     ------------------------------------------------------------------------- */
+  --pxd-border-none: 0;
+  --pxd-border-thin: 1px;
+  --pxd-border-base: 2px;
+  --pxd-border-strong: 3px;
+
+  /* -------------------------------------------------------------------------
+     Shadow
+     ------------------------------------------------------------------------- */
+  --pxd-shadow-none: none;
+  --pxd-shadow-soft-xs: 0 1px 2px rgba(17, 17, 17, 0.08);
+  --pxd-shadow-soft-sm: 0 2px 6px rgba(17, 17, 17, 0.10);
+  --pxd-shadow-soft-md: 0 4px 12px rgba(17, 17, 17, 0.12);
+  --pxd-shadow-pixel-sm: 2px 2px 0px rgba(25, 29, 36, 0.92);
+  --pxd-shadow-pixel-md: 3px 3px 0px rgba(25, 29, 36, 0.92);
+  --pxd-shadow-pixel-lg: 4px 4px 0px rgba(25, 29, 36, 0.95);
+  --pxd-shadow-pixel-inset: inset 2px 2px 0px rgba(255, 255, 255, 0.12);
+  --pxd-shadow-reward-glow-green: 0 0 0 4px rgba(53, 194, 107, 0.18);
+  --pxd-shadow-reward-glow-purple: 0 0 0 4px rgba(123, 97, 255, 0.18);
+  --pxd-shadow-reward-glow-pink: 0 0 0 4px rgba(244, 92, 203, 0.18);
+
+  /* -------------------------------------------------------------------------
+     Typography
+     ------------------------------------------------------------------------- */
+  --pxd-font-body: "Inter", "Noto Sans JP", system-ui, sans-serif;
+  --pxd-font-display: "Press Start 2P", "DotGothic16", monospace;
+  --pxd-font-mono: "JetBrains Mono", monospace;
+
+  --pxd-font-size-xs: 12px;
+  --pxd-font-size-sm: 14px;
+  --pxd-font-size-md: 16px;
+  --pxd-font-size-lg: 18px;
+  --pxd-font-size-xl: 20px;
+  --pxd-font-size-2xl: 24px;
+  --pxd-font-size-3xl: 32px;
+
+  --pxd-line-height-tight: 1.2;
+  --pxd-line-height-snug: 1.35;
+  --pxd-line-height-normal: 1.5;
+  --pxd-line-height-relaxed: 1.65;
+
+  --pxd-font-weight-regular: 400;
+  --pxd-font-weight-medium: 500;
+  --pxd-font-weight-semibold: 600;
+  --pxd-font-weight-bold: 700;
+
+  /* -------------------------------------------------------------------------
+     Motion
+     ------------------------------------------------------------------------- */
+  --pxd-motion-instant: 80ms;
+  --pxd-motion-fast: 120ms;
+  --pxd-motion-base: 180ms;
+  --pxd-motion-slow: 240ms;
+  --pxd-motion-slower: 320ms;
+  --pxd-motion-reward: 700ms;
+
+  --pxd-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --pxd-easing-decelerate: cubic-bezier(0, 0, 0, 1);
+  --pxd-easing-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --pxd-easing-playful: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --pxd-easing-press: cubic-bezier(0.2, 0, 0, 1);
+
+  --pxd-scale-press: 0.96;
+  --pxd-scale-hover: 1.01;
+  --pxd-scale-reward-pop: 1.06;
+  --pxd-scale-modal-enter: 0.98;
+
+  --pxd-opacity-disabled: 0.48;
+  --pxd-opacity-muted: 0.72;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --pxd-motion-instant: 0ms;
+    --pxd-motion-fast: 0ms;
+    --pxd-motion-base: 0ms;
+    --pxd-motion-slow: 0ms;
+    --pxd-motion-slower: 0ms;
+    --pxd-motion-reward: 0ms;
+  }
+}

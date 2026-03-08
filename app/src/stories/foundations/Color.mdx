@@ -1,0 +1,94 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { color } from '../../design-system';
+import { TokensTable } from './TokensTable';
+
+<Meta title="Foundations PXD/Color" />
+
+# Color Tokens
+
+Pixdone uses a modern color system designed for readability while allowing playful retro accents. Use semantic tokens in components; reserve brand colors (epic, freeze, smash) for rewards and special moments.
+
+---
+
+## Surface
+
+<TokensTable
+  caption="Semantic surface tokens for page, cards, overlay."
+  rows={[
+    { token: 'color.semantic.surface.page', value: color.semantic.surface.page, description: 'Page background', preview: 'color' },
+    { token: 'color.semantic.surface.pageAlt', value: color.semantic.surface.pageAlt, description: 'Alternate page / stripes', preview: 'color' },
+    { token: 'color.semantic.surface.primary', value: color.semantic.surface.primary, description: 'Primary surface (cards, panels)', preview: 'color' },
+    { token: 'color.semantic.surface.secondary', value: color.semantic.surface.secondary, description: 'Secondary surface', preview: 'color' },
+    { token: 'color.semantic.surface.raised', value: color.semantic.surface.raised, description: 'Raised / dropdown', preview: 'color' },
+    { token: 'color.semantic.surface.overlay', value: color.semantic.surface.overlay, description: 'Modal backdrop', preview: 'color' },
+    { token: 'color.semantic.surface.inverse', value: color.semantic.surface.inverse, description: 'Dark surface (header)', preview: 'color' },
+    { token: 'color.semantic.surface.disabled', value: color.semantic.surface.disabled, description: 'Disabled control surface', preview: 'color' },
+  ]}
+/>
+
+## Text
+
+<TokensTable
+  caption="Text hierarchy and semantic emphasis."
+  rows={[
+    { token: 'color.semantic.text.primary', value: color.semantic.text.primary, description: 'Body and headings', preview: 'color' },
+    { token: 'color.semantic.text.secondary', value: color.semantic.text.secondary, description: 'Secondary text', preview: 'color' },
+    { token: 'color.semantic.text.tertiary', value: color.semantic.text.tertiary, description: 'Tertiary / muted', preview: 'color' },
+    { token: 'color.semantic.text.inverse', value: color.semantic.text.inverse, description: 'On dark backgrounds', preview: 'color' },
+    { token: 'color.semantic.text.disabled', value: color.semantic.text.disabled, description: 'Disabled text', preview: 'color' },
+    { token: 'color.semantic.text.accent', value: color.semantic.text.accent, description: 'Links, accent', preview: 'color' },
+    { token: 'color.semantic.text.success', value: color.semantic.text.success, description: 'Success state', preview: 'color' },
+    { token: 'color.semantic.text.warning', value: color.semantic.text.warning, description: 'Warning state', preview: 'color' },
+    { token: 'color.semantic.text.danger', value: color.semantic.text.danger, description: 'Error / danger', preview: 'color' },
+  ]}
+/>
+
+## Border
+
+<TokensTable
+  caption="Border colors for default, focus, and danger."
+  rows={[
+    { token: 'color.semantic.border.subtle', value: color.semantic.border.subtle, description: 'Subtle border', preview: 'color' },
+    { token: 'color.semantic.border.default', value: color.semantic.border.default, description: 'Default border', preview: 'color' },
+    { token: 'color.semantic.border.strong', value: color.semantic.border.strong, description: 'Strong border', preview: 'color' },
+    { token: 'color.semantic.border.focus', value: color.semantic.border.focus, description: 'Focus ring', preview: 'color' },
+    { token: 'color.semantic.border.danger', value: color.semantic.border.danger, description: 'Error border', preview: 'color' },
+  ]}
+/>
+
+## Feedback & Action
+
+<TokensTable
+  caption="Feedback and action (button) colors."
+  rows={[
+    { token: 'color.semantic.feedback.info', value: color.semantic.feedback.info, description: 'Info state', preview: 'color' },
+    { token: 'color.semantic.feedback.success', value: color.semantic.feedback.success, description: 'Success state', preview: 'color' },
+    { token: 'color.semantic.feedback.warning', value: color.semantic.feedback.warning, description: 'Warning state', preview: 'color' },
+    { token: 'color.semantic.feedback.danger', value: color.semantic.feedback.danger, description: 'Danger state', preview: 'color' },
+    { token: 'color.semantic.action.primary', value: color.semantic.action.primary, description: 'Primary button', preview: 'color' },
+    { token: 'color.semantic.action.primaryHover', value: color.semantic.action.primaryHover, description: 'Primary hover', preview: 'color' },
+    { token: 'color.semantic.action.primaryPressed', value: color.semantic.action.primaryPressed, description: 'Primary pressed', preview: 'color' },
+  ]}
+/>
+
+## Brand (Pixdone)
+
+<TokensTable
+  caption="Brand and rarity colors; use sparingly for rewards."
+  rows={[
+    { token: 'color.brand.pixdone.primary', value: color.brand.pixdone.primary, description: 'Brand primary', preview: 'color' },
+    { token: 'color.brand.pixdone.secondary', value: color.brand.pixdone.secondary, description: 'Brand secondary', preview: 'color' },
+    { token: 'color.brand.pixdone.reward', value: color.brand.pixdone.reward, description: 'Reward', preview: 'color' },
+    { token: 'color.brand.pixdone.epic', value: color.brand.pixdone.epic, description: 'Epic (special)', preview: 'color' },
+    { token: 'color.brand.pixdone.freeze', value: color.brand.pixdone.freeze, description: 'Freeze (special)', preview: 'color' },
+    { token: 'color.brand.pixdone.smash', value: color.brand.pixdone.smash, description: 'Smash feedback', preview: 'color' },
+    { token: 'color.brand.rarity.common', value: color.brand.rarity.common, description: 'Rarity: common', preview: 'color' },
+    { token: 'color.brand.rarity.rare', value: color.brand.rarity.rare, description: 'Rarity: rare', preview: 'color' },
+    { token: 'color.brand.rarity.epic', value: color.brand.rarity.epic, description: 'Rarity: epic', preview: 'color' },
+    { token: 'color.brand.rarity.legendary', value: color.brand.rarity.legendary, description: 'Rarity: legendary', preview: 'color' },
+  ]}
+/>
+
+## CSS variables
+
+Use the `--pxd-` prefix in CSS: e.g. `--pxd-color-surface-page`, `--pxd-color-text-primary`. See `tokens.css`.

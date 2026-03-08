@@ -1,0 +1,85 @@
+/* TextField – readable, trustworthy, clear states. */
+
+.pxd-text-field {
+  display: block;
+}
+
+.pxd-text-field__label {
+  display: block;
+  margin-bottom: var(--pxd-space-2);
+  font-family: var(--pxd-font-body);
+  font-size: var(--pxd-font-size-sm);
+  font-weight: var(--pxd-font-weight-medium);
+  line-height: var(--pxd-line-height-snug);
+  color: var(--pxd-color-text-primary);
+}
+
+.pxd-text-field__label .pxd-text-field__required {
+  color: var(--pxd-color-feedback-danger);
+}
+
+.pxd-text-field__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--pxd-tap-target-min);
+  padding: var(--pxd-space-2) var(--pxd-space-3);
+  font-family: var(--pxd-font-body);
+  font-size: var(--pxd-font-size-sm);
+  line-height: var(--pxd-line-height-normal);
+  color: var(--pxd-color-text-primary);
+  background-color: var(--pxd-color-surface-primary);
+  border-width: var(--pxd-border-base);
+  border-style: solid;
+  border-radius: var(--pxd-radius-sm);
+  border-color: var(--pxd-color-border-default);
+  transition:
+    border-color var(--pxd-motion-fast) var(--pxd-easing-standard),
+    box-shadow var(--pxd-motion-fast) var(--pxd-easing-standard);
+}
+
+.pxd-text-field__input::placeholder {
+  color: var(--pxd-color-text-tertiary);
+}
+
+.pxd-text-field__input:hover:not(:disabled):not(:focus) {
+  border-color: var(--pxd-color-border-strong);
+}
+
+.pxd-text-field__input:focus {
+  outline: none;
+  border-color: var(--pxd-color-border-focus);
+  box-shadow: 0 0 0 3px rgba(76, 141, 255, 0.25);
+}
+
+.pxd-text-field__input:disabled {
+  background-color: var(--pxd-color-surface-disabled);
+  color: var(--pxd-color-text-disabled);
+  cursor: not-allowed;
+  border-color: var(--pxd-color-border-subtle);
+}
+
+.pxd-text-field__input.pxd-text-field__input--error {
+  border-color: var(--pxd-color-border-danger);
+}
+
+.pxd-text-field__input.pxd-text-field__input--error:focus {
+  border-color: var(--pxd-color-feedback-danger);
+  box-shadow: 0 0 0 3px rgba(232, 93, 93, 0.2);
+}
+
+.pxd-text-field__helper {
+  margin-top: var(--pxd-space-2);
+  font-family: var(--pxd-font-body);
+  font-size: var(--pxd-font-size-xs);
+  line-height: var(--pxd-line-height-normal);
+  color: var(--pxd-color-text-secondary);
+}
+
+.pxd-text-field__helper-error {
+  color: var(--pxd-color-text-danger);
+  font-weight: var(--pxd-font-weight-medium);
+}
+
+.pxd-text-field__helper-error[role="alert"] {
+  margin-top: var(--pxd-space-1);
+}

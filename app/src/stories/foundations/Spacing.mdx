@@ -1,0 +1,50 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { spacing, layoutSpacing } from '../../design-system';
+import { TokensTable } from './TokensTable';
+
+<Meta title="Foundations PXD/Spacing" />
+
+# Spacing Tokens
+
+Pixdone uses a consistent spacing scale for padding, margin, and layout gaps. Use **spacing** for component-internal spacing and **layoutSpacing** for page/section rhythm. Pair with `--pxd-tap-target-min: 44px` for minimum tap targets.
+
+---
+
+## Spacing scale
+
+<TokensTable
+  caption="Base spacing scale (px)."
+  rows={[
+    { token: 'spacing.0', value: spacing[0], description: 'No gap', preview: 'spacing' },
+    { token: 'spacing.1', value: spacing[1], description: '4px – minimal gap', preview: 'spacing' },
+    { token: 'spacing.2', value: spacing[2], description: '8px – inline padding', preview: 'spacing' },
+    { token: 'spacing.3', value: spacing[3], description: '12px – small padding', preview: 'spacing' },
+    { token: 'spacing.4', value: spacing[4], description: '16px – card padding', preview: 'spacing' },
+    { token: 'spacing.5', value: spacing[5], description: '20px', preview: 'spacing' },
+    { token: 'spacing.6', value: spacing[6], description: '24px – section spacing', preview: 'spacing' },
+    { token: 'spacing.8', value: spacing[8], description: '32px – large gap', preview: 'spacing' },
+    { token: 'spacing.10', value: spacing[10], description: '40px', preview: 'spacing' },
+    { token: 'spacing.12', value: spacing[12], description: '48px', preview: 'spacing' },
+    { token: 'spacing.14', value: spacing[14], description: '56px', preview: 'spacing' },
+    { token: 'spacing.16', value: spacing[16], description: '64px – page margin', preview: 'spacing' },
+  ]}
+/>
+
+## Layout spacing
+
+<TokensTable
+  caption="Semantic layout spacing aliases."
+  rows={[
+    { token: 'layoutSpacing.xs', value: layoutSpacing.xs, description: '4px', preview: 'spacing' },
+    { token: 'layoutSpacing.sm', value: layoutSpacing.sm, description: '8px', preview: 'spacing' },
+    { token: 'layoutSpacing.md', value: layoutSpacing.md, description: '12px', preview: 'spacing' },
+    { token: 'layoutSpacing.lg', value: layoutSpacing.lg, description: '16px', preview: 'spacing' },
+    { token: 'layoutSpacing.xl', value: layoutSpacing.xl, description: '24px', preview: 'spacing' },
+    { token: 'layoutSpacing.2xl', value: layoutSpacing['2xl'], description: '32px', preview: 'spacing' },
+    { token: 'layoutSpacing.3xl', value: layoutSpacing['3xl'], description: '40px', preview: 'spacing' },
+  ]}
+/>
+
+## CSS variables
+
+`--pxd-space-0` … `--pxd-space-16`, `--pxd-layout-xs` … `--pxd-layout-3xl`, `--pxd-tap-target-min: 44px`. See `tokens.css`.

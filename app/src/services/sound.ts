@@ -1,8 +1,9 @@
 /**
  * Sound service – maps design token sound keys to playback.
  * In the full app this would wrap ComicEffectsManager / picoSound.
+ * Sound keys and when to use them: see design-system foundations (sound.tokens) and Foundations PXD/Sound.
  */
-export type SoundKey = 'taskAdd' | 'taskEdit' | 'taskDelete' | 'taskCancel' | 'taskComplete' | 'buttonClick' | 'subtaskComplete';
+import type { SoundKey } from '../design-system';
 
 let muted = false;
 

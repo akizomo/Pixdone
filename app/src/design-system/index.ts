@@ -1,3 +1,4 @@
+export * from './foundations';
 export * from './components';
 export { ThemeProvider, ThemeContext } from './theme/ThemeProvider';
 export { tokens, getThemeCSSVariables } from './tokens';

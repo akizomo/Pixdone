@@ -1,4 +1,5 @@
-/* PixDone global styles – uses --pd-* variables set by ThemeProvider */
+/* PixDone global styles – uses --pd-* and --pxd-* (foundation) variables */
+@import '../foundations/tokens.css';
 @import './pixel.css';
 
 * {

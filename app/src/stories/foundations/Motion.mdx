@@ -1,0 +1,77 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { motion } from '../../design-system';
+import { TokensTable } from './TokensTable';
+
+<Meta title="Foundations PXD/Motion" />
+
+# Motion Tokens
+
+Motion is **fast and clear by default**, and **expressive only when it supports feedback** (e.g. reward, smash). Standard interactions stay within 120–240ms; reward effects may be longer but should still feel snappy. Respect `prefers-reduced-motion: reduce` via `tokens.css` duration overrides.
+
+---
+
+## Principles
+
+- **Fast feedback** – Use instant/fast/base (80–180ms) for hover, focus, toggles, and button press so the UI feels responsive.
+- **Expressive reward animation** – Use reward (700ms) and playful easing for completion and celebration; keep it snappy, not slow.
+- **Avoid long UI animations** – Do not use long durations for routine open/close or layout; reserve longer motion for reward/special moments.
+
+---
+
+## Duration
+
+<TokensTable
+  caption="Duration tokens (ms). Use CSS variables for reduced-motion support."
+  rows={[
+    { token: 'motion.duration.instant', value: motion.duration.instant, description: '80ms – micro feedback', preview: 'none' },
+    { token: 'motion.duration.fast', value: motion.duration.fast, description: '120ms – buttons, toggles', preview: 'none' },
+    { token: 'motion.duration.base', value: motion.duration.base, description: '180ms – panels, modals', preview: 'none' },
+    { token: 'motion.duration.slow', value: motion.duration.slow, description: '240ms – sheet enter', preview: 'none' },
+    { token: 'motion.duration.slower', value: motion.duration.slower, description: '320ms – layout', preview: 'none' },
+    { token: 'motion.duration.reward', value: motion.duration.reward, description: '700ms – reward animation', preview: 'none' },
+  ]}
+/>
+
+## Easing
+
+<TokensTable
+  caption="Easing curves for transitions."
+  rows={[
+    { token: 'motion.easing.standard', value: motion.easing.standard, description: 'Default UI transitions', preview: 'none' },
+    { token: 'motion.easing.decelerate', value: motion.easing.decelerate, description: 'Decelerate', preview: 'none' },
+    { token: 'motion.easing.accelerate', value: motion.easing.accelerate, description: 'Accelerate', preview: 'none' },
+    { token: 'motion.easing.playful', value: motion.easing.playful, description: 'Reward pop, bounce', preview: 'none' },
+    { token: 'motion.easing.press', value: motion.easing.press, description: 'Press / tap', preview: 'none' },
+  ]}
+/>
+
+## Scale & opacity
+
+<TokensTable
+  caption="Transform scale and opacity for states."
+  rows={[
+    { token: 'motion.scale.press', value: String(motion.scale.press), description: 'Pressed state (0.96)', preview: 'none' },
+    { token: 'motion.scale.hover', value: String(motion.scale.hover), description: 'Hover (1.01)', preview: 'none' },
+    { token: 'motion.scale.rewardPop', value: String(motion.scale.rewardPop), description: 'Reward pop (1.06)', preview: 'none' },
+    { token: 'motion.scale.modalEnter', value: String(motion.scale.modalEnter), description: 'Modal enter (0.98)', preview: 'none' },
+    { token: 'motion.opacity.disabled', value: String(motion.opacity.disabled), description: 'Disabled (0.48)', preview: 'none' },
+    { token: 'motion.opacity.muted', value: String(motion.opacity.muted), description: 'Muted (0.72)', preview: 'none' },
+  ]}
+/>
+
+## Animation presets
+
+<TokensTable
+  caption="Named animation presets (duration, easing, scale)."
+  rows={[
+    { token: 'motion.animation.smashFeedback', value: `${motion.animation.smashFeedback.duration}ms, scale ${motion.animation.smashFeedback.scale}`, description: 'Smash / press feedback', preview: 'none' },
+    { token: 'motion.animation.rewardPop', value: `${motion.animation.rewardPop.duration}ms, scale ${motion.animation.rewardPop.scale}`, description: 'Reward pop', preview: 'none' },
+    { token: 'motion.animation.freezeEffect', value: `${motion.animation.freezeEffect.duration}ms`, description: 'Freeze effect', preview: 'none' },
+    { token: 'motion.animation.rainbowEffect', value: `${motion.animation.rainbowEffect.duration}ms`, description: 'Rainbow effect', preview: 'none' },
+    { token: 'motion.animation.bottomSheetEnter', value: `${motion.animation.bottomSheetEnter.duration}ms`, description: 'Bottom sheet enter', preview: 'none' },
+  ]}
+/>
+
+## CSS variables
+
+`--pxd-motion-fast`, `--pxd-motion-base`, `--pxd-easing-standard`, `--pxd-easing-playful`, `--pxd-scale-press`, `--pxd-scale-reward-pop`, `--pxd-opacity-disabled`. Reduced motion overrides in `tokens.css` set duration variables to 0ms when `prefers-reduced-motion: reduce`.
