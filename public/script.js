@@ -4139,9 +4139,9 @@ class PixDoneApp {
         currentList.tasks.forEach(t => {
             delete t.isProcessing;
         });
-        // Use provided element or find it in DOM
+        // Use provided element or find it in DOM (must be the task card .task-item, not a child with data-task-id)
         if (!taskElement) {
-            taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+            taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
         }
         console.log('Task found, toggling completion:', task.title, 'completed:', task.completed);
         if (task.completed) {
@@ -4195,48 +4195,51 @@ class PixDoneApp {
             // Show comic effects immediately with the current task element (skip when from PerfectTiming - effects handled there)
             if (!options.fromPerfectTiming && window.taskAnimationEffects && taskElement && taskElement.nodeType === 1) {
                 const taskRect = taskElement.getBoundingClientRect();
-                if (taskRect.width === 0 || taskRect.height === 0) {
-                    window.taskAnimationEffects.animateTaskCompletion(taskElement);
-                } else {
-                    // Run effect on a body-level clone so it is never clipped by .pager-viewport (all effects full width)
-                    const effectClone = taskElement.cloneNode(true);
-                    effectClone.style.position = 'fixed';
-                    effectClone.style.left = taskRect.left + 'px';
-                    effectClone.style.top = taskRect.top + 'px';
-                    effectClone.style.width = taskRect.width + 'px';
-                    effectClone.style.height = taskRect.height + 'px';
-                    effectClone.style.margin = '0';
-                    effectClone.style.zIndex = '10000';
-                    effectClone.style.pointerEvents = 'none';
-                    effectClone.style.visibility = 'visible';
-                    effectClone.style.display = 'block';
-                    document.body.appendChild(effectClone);
+                // Always use a body-level clone so the effect is visible (never clipped by .pager-viewport).
+                // When rect is 0 (e.g. element in hidden page), use fallback position/size so animation still shows.
+                const hasSize = taskRect.width > 0 && taskRect.height > 0;
+                const left = hasSize ? taskRect.left : Math.max(0, (window.innerWidth - 280) / 2);
+                const top = hasSize ? taskRect.top : Math.max(0, (window.innerHeight - 56) / 2);
+                const width = hasSize ? taskRect.width : 280;
+                const height = hasSize ? taskRect.height : 56;
 
-                    taskElement.style.visibility = 'hidden';
+                const effectClone = taskElement.cloneNode(true);
+                effectClone.style.position = 'fixed';
+                effectClone.style.left = left + 'px';
+                effectClone.style.top = top + 'px';
+                effectClone.style.width = width + 'px';
+                effectClone.style.height = height + 'px';
+                effectClone.style.margin = '0';
+                effectClone.style.zIndex = '9990';
+                effectClone.style.pointerEvents = 'none';
+                effectClone.style.visibility = 'visible';
+                effectClone.style.display = 'block';
+                document.body.appendChild(effectClone);
 
-                    document.body.classList.add('task-effect-playing');
-                    document.documentElement.classList.add('task-effect-playing');
+                if (hasSize) taskElement.style.visibility = 'hidden';
+
+                document.body.classList.add('task-effect-playing');
+                document.documentElement.classList.add('task-effect-playing');
+                requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                            const viewport = document.querySelector('.pager-viewport');
-                            const track = document.querySelector('.pager-track');
-                            if (viewport && track) {
-                                const currentIndex = Math.max(0, this.lists?.findIndex(list => list.id === this.currentListId) ?? 0);
-                                track.style.transform = `translateX(${-currentIndex * viewport.offsetWidth}px)`;
-                            }
-                        });
+                        const viewport = document.querySelector('.pager-viewport');
+                        const track = document.querySelector('.pager-track');
+                        if (viewport && track) {
+                            const currentIndex = Math.max(0, this.lists?.findIndex(list => list.id === this.currentListId) ?? 0);
+                            track.style.transform = `translateX(${-currentIndex * viewport.offsetWidth}px)`;
+                        }
                     });
+                });
 
-                    window.taskAnimationEffects.animateTaskCompletion(effectClone);
+                window.taskAnimationEffects.animateTaskCompletion(effectClone);
 
-                    setTimeout(() => {
-                        effectClone.remove();
-                        if (taskElement.parentNode) taskElement.style.visibility = '';
-                        document.body.classList.remove('task-effect-playing');
-                        document.documentElement.classList.remove('task-effect-playing');
-                        this.syncPagerPages();
-                    }, 1100);
-                }
+                setTimeout(() => {
+                    effectClone.remove();
+                    if (hasSize && taskElement.parentNode) taskElement.style.visibility = '';
+                    document.body.classList.remove('task-effect-playing');
+                    document.documentElement.classList.remove('task-effect-playing');
+                    this.syncPagerPages();
+                }, 1100);
 
                 // Special handling for Smash List - delay replenishment until after effects
                 if (currentList.id === 'smash-list' || currentList.name === '💥 Smash List') {
