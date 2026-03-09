@@ -4198,10 +4198,10 @@ class PixDoneApp {
                 // Always use a body-level clone so the effect is visible (never clipped by .pager-viewport).
                 // When rect is 0 (e.g. element in hidden page), use fallback position/size so animation still shows.
                 const hasSize = taskRect.width > 0 && taskRect.height > 0;
-                const left = hasSize ? taskRect.left : Math.max(0, (window.innerWidth - 280) / 2);
-                const top = hasSize ? taskRect.top : Math.max(0, (window.innerHeight - 56) / 2);
-                const width = hasSize ? taskRect.width : 280;
-                const height = hasSize ? taskRect.height : 56;
+                const left = taskRect.left;
+                const top = taskRect.top;
+                const width = taskRect.width;
+                const height = taskRect.height;
 
                 const effectClone = taskElement.cloneNode(true);
                 effectClone.style.position = 'fixed';

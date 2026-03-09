@@ -743,9 +743,21 @@ class ComicEffectsManager {
     }
 
     playComboSound(comboCount) {
+        // Use shared audioContext so mobile browsers treat combo sounds
+        // the same as other effect sounds (one context, resumed on gesture).
+        if (this.soundEnabled === false) return;
         try {
-            const audioContext = new (window.AudioContext ||
-                window.webkitAudioContext)();
+            if (!this.audioContextReady || !this.audioContext) {
+                console.warn("Combo audio: audio context not ready");
+                return;
+            }
+
+            const audioContext = this.audioContext;
+
+            // Resume if suspended (common on mobile)
+            if (audioContext.state === "suspended") {
+                audioContext.resume();
+            }
 
             if (comboCount >= 10) {
                 // 10コンボ以上：豪華なファンファーレ

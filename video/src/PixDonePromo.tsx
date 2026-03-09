@@ -1,4 +1,4 @@
-import { AbsoluteFill } from "remotion";
+import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
 import {
   TransitionSeries,
   linearTiming,
@@ -25,6 +25,9 @@ const transitionTiming = springTiming({
 export const PixDonePromo = () => {
   return (
     <AbsoluteFill>
+      <Sequence from={0} durationInFrames={600} layout="none">
+        <Audio src={staticFile("bgm.mp3")} volume={0.4} loop />
+      </Sequence>
       <TransitionSeries>
         {/* Intro: 3s */}
         <TransitionSeries.Sequence durationInFrames={90}>
