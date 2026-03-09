@@ -4889,6 +4889,24 @@ class PixDoneApp {
             // Record touch time to prevent duplicate click events
             this.lastTouchTime = Date.now();
 
+            // Parent task checkbox fallback: environments without PointerEvents / PerfectTiming
+            // (e.g. some mobile browsers) should still toggle completion + play effects on tap.
+            if (e.target.closest('.task-checkbox')) {
+                const hasPointerEvents = typeof window.PointerEvent !== 'undefined';
+                const hasPerfectTiming = typeof window.PerfectTimingManager !== 'undefined';
+                if (!hasPointerEvents || !hasPerfectTiming) {
+                    const cb = e.target.closest('.task-checkbox');
+                    const taskItem = cb && cb.closest('.task-item');
+                    const taskId = taskItem && taskItem.dataset ? taskItem.dataset.taskId : null;
+                    if (taskId && taskItem) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        this.toggleTaskCompletion(taskId, taskItem);
+                        return;
+                    }
+                }
+            }
+
             // Subtask preview checkbox
             if (e.target.closest('.subtask-preview-checkbox')) {
                 e.stopPropagation();

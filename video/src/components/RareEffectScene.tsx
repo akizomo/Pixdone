@@ -22,16 +22,16 @@ const TILE_H = Math.floor((GRID_H - (ROWS - 1) * GRID_GAP) / ROWS);
 const TILE_W = Math.floor((1080 - GRID_PADDING * 2 - GRID_GAP) / COLS);
 
 const EFFECTS = [
-  { name: "RAINBOW",   color: "#ff6ec7", delay: 4  },
-  { name: "FREEZE",    color: "#00eeff", delay: 9  },
-  { name: "LIGHTNING", color: "#ffd700", delay: 14 },
-  { name: "FIRE",      color: "#ff6b35", delay: 19 },
-  { name: "CRYSTAL",   color: "#7fffaa", delay: 24 },
-  { name: "VORTEX",    color: "#b06aff", delay: 29 },
-  { name: "STAR",      color: "#fff066", delay: 34 },
-  { name: "BLOOM",     color: "#ff9de2", delay: 39 },
-  { name: "MEGA",      color: "#ff4040", delay: 44 },
-  { name: "WAVE",      color: "#40c4ff", delay: 49 },
+  { name: "EXPLODE",   color: "#ff4040", delay: 4  },
+  { name: "FLY AWAY",  color: "#40c4ff", delay: 9  },
+  { name: "CRUMPLE",   color: "#b06aff", delay: 14 },
+  { name: "SHATTER",   color: "#00eeff", delay: 19 },
+  { name: "VANISH",    color: "#7fffaa", delay: 24 },
+  { name: "SPIN OFF",  color: "#ffd700", delay: 29 },
+  { name: "MELT",      color: "#ff6b35", delay: 34 },
+  { name: "TORNADO",   color: "#ff9de2", delay: 39 },
+  { name: "BOUNCE",    color: "#fff066", delay: 44 },
+  { name: "WOBBLE",    color: "#ff6ec7", delay: 49 },
   { name: "???",       color: "#555",    delay: 60, hidden: true },
   { name: "???",       color: "#444",    delay: 68, hidden: true },
 ] as const;

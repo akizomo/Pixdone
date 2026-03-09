@@ -4,16 +4,16 @@ import { pixelFont, bodyFont } from "../fonts";
 
 // エフェクト定義 (10種 + 隠し2種)
 const EFFECTS = [
-  { name: "RAINBOW",   color: "#ff6ec7", delay: 4  },
-  { name: "FREEZE",    color: "#00eeff", delay: 10 },
-  { name: "LIGHTNING", color: "#ffd700", delay: 16 },
-  { name: "FIRE",      color: "#ff6b35", delay: 22 },
-  { name: "CRYSTAL",   color: "#7fffaa", delay: 28 },
-  { name: "VORTEX",    color: "#b06aff", delay: 34 },
-  { name: "STAR",      color: "#fff066", delay: 40 },
-  { name: "BLOOM",     color: "#ff9de2", delay: 46 },
-  { name: "MEGA",      color: "#ff4040", delay: 52 },
-  { name: "WAVE",      color: "#40c4ff", delay: 58 },
+  { name: "EXPLODE",   color: "#ff4040", delay: 4  },
+  { name: "FLY AWAY",  color: "#40c4ff", delay: 10 },
+  { name: "CRUMPLE",   color: "#b06aff", delay: 16 },
+  { name: "SHATTER",   color: "#00eeff", delay: 22 },
+  { name: "VANISH",    color: "#7fffaa", delay: 28 },
+  { name: "SPIN OFF",  color: "#ffd700", delay: 34 },
+  { name: "MELT",      color: "#ff6b35", delay: 40 },
+  { name: "TORNADO",   color: "#ff9de2", delay: 46 },
+  { name: "BOUNCE",    color: "#fff066", delay: 52 },
+  { name: "WOBBLE",    color: "#ff6ec7", delay: 58 },
   { name: "???",       color: "#888",    delay: 70, hidden: true },
   { name: "???",       color: "#666",    delay: 80, hidden: true },
 ] as const;
