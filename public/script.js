@@ -647,6 +647,11 @@ class PixDoneApp {
             const subtaskAddBtn = sheet.querySelector('#subtaskAddBtn');
             const subtasksList = sheet.querySelector('#subtasksList');
 
+            if (subtaskInput && !subtaskInput.hyperlinkPasteSetup) {
+                this.handleHyperlinkPaste(subtaskInput);
+                subtaskInput.hyperlinkPasteSetup = true;
+            }
+
             // Add subtask on button click
             subtaskAddBtn.addEventListener('click', () => {
                 if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
@@ -3757,6 +3762,11 @@ class PixDoneApp {
 
         if (!subtaskInput || !subtasksList) return;
 
+        if (!subtaskInput.hyperlinkPasteSetup) {
+            this.handleHyperlinkPaste(subtaskInput);
+            subtaskInput.hyperlinkPasteSetup = true;
+        }
+
         // Add subtask on button click
         if (subtaskAddBtn) {
             subtaskAddBtn.addEventListener('click', () => {
@@ -4242,9 +4252,13 @@ class PixDoneApp {
         currentList.tasks.forEach(t => {
             delete t.isProcessing;
         });
-        // Use provided element or find it in DOM (must be the task card .task-item, not a child with data-task-id)
+        // Use provided element or find it in DOM.
+        // Normalize to the task card element (.task-item) so rect/clone match Smash list behavior.
         if (!taskElement) {
             taskElement = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+        } else if (taskElement && taskElement.nodeType === 1 && !taskElement.classList.contains('task-item')) {
+            const closestCard = taskElement.closest ? taskElement.closest(`.task-item[data-task-id="${taskId}"], .task-item`) : null;
+            if (closestCard) taskElement = closestCard;
         }
         console.log('Task found, toggling completion:', task.title, 'completed:', task.completed);
         if (task.completed) {
@@ -4271,6 +4285,10 @@ class PixDoneApp {
             if (options.fromPerfectTiming && options.perfectTimingResult) {
                 task.perfectTimingResult = options.perfectTimingResult;
             }
+
+            // onSnapshot による renderTasks を一時抑制（Firestore 更新中にDOM置換が先に走るのを防ぐ）
+            this.suppressSnapshotRenderUntil = Date.now() + 1200;
+
             if (this.isAuthenticated) {
                 try {
                     await toggleTaskCompletionFirestore(taskId, true);
@@ -4282,8 +4300,59 @@ class PixDoneApp {
             // Show celebration effects once for all cases
             this.showCelebration(task);
 
-            // onSnapshot による renderTasks を一時抑制（完了アニメが途切れないように）
-            this.suppressSnapshotRenderUntil = Date.now() + 1200;
+            // Keep pager transform stable BEFORE capturing rect (Smash list is usually index=0; normal lists can drift if transform is updated later).
+            const viewport = document.querySelector('.pager-viewport');
+            const track = document.querySelector('.pager-track');
+            if (viewport && track) {
+                const currentIndex = Math.max(0, this.lists?.findIndex(list => list.id === this.currentListId) ?? 0);
+                track.style.transform = `translateX(${-currentIndex * viewport.offsetWidth}px)`;
+            }
+
+            // Capture rect + clone BEFORE any DOM changes (position/size can shift after adding .completed)
+            let taskRectForEffect = null;
+            let effectCloneBase = null;
+            if (taskElement && taskElement.nodeType === 1) {
+                // getBoundingClientRect includes CSS transforms (e.g. :hover translate(-1px,-1px)).
+                // Smash list is often triggered via keyboard/tap (no hover), so compensate translation here
+                // so the clone starts exactly where the non-hover card is.
+                const rect = taskElement.getBoundingClientRect();
+                const cs = window.getComputedStyle(taskElement);
+                let tx = 0;
+                let ty = 0;
+                const tf = cs && cs.transform ? cs.transform : 'none';
+                if (tf && tf !== 'none') {
+                    // matrix(a,b,c,d,tx,ty)
+                    const m2 = tf.match(/^matrix\(([^)]+)\)$/);
+                    if (m2) {
+                        const parts = m2[1].split(',').map(s => parseFloat(s.trim()));
+                        if (parts.length === 6 && Number.isFinite(parts[4]) && Number.isFinite(parts[5])) {
+                            tx = parts[4];
+                            ty = parts[5];
+                        }
+                    } else {
+                        // matrix3d(..., tx, ty, tz)
+                        const m3 = tf.match(/^matrix3d\(([^)]+)\)$/);
+                        if (m3) {
+                            const parts = m3[1].split(',').map(s => parseFloat(s.trim()));
+                            if (parts.length === 16 && Number.isFinite(parts[12]) && Number.isFinite(parts[13])) {
+                                tx = parts[12];
+                                ty = parts[13];
+                            }
+                        }
+                    }
+                }
+                taskRectForEffect = {
+                    left: rect.left - tx,
+                    top: rect.top - ty,
+                    width: rect.width,
+                    height: rect.height,
+                    right: rect.right - tx,
+                    bottom: rect.bottom - ty,
+                    x: rect.x - tx,
+                    y: rect.y - ty,
+                };
+                effectCloneBase = taskElement.cloneNode(true);
+            }
 
             // Update DOM immediately for visual feedback
             if (taskElement) {
@@ -4296,48 +4365,48 @@ class PixDoneApp {
             }
 
             // Show comic effects immediately with the current task element (skip when from PerfectTiming - effects handled there)
-            if (!options.fromPerfectTiming && window.taskAnimationEffects && taskElement && taskElement.nodeType === 1) {
-                const taskRect = taskElement.getBoundingClientRect();
-                // Always use a body-level clone so the effect is visible (never clipped by .pager-viewport).
-                // When rect is 0 (e.g. element in hidden page), use fallback position/size so animation still shows.
+            if (!options.fromPerfectTiming && window.taskAnimationEffects && effectCloneBase && taskRectForEffect) {
+                const taskRect = taskRectForEffect;
+                // Body-level clone so effect is visible (not clipped by .pager-viewport).
+                // Fallback when rect has no size (e.g. hidden page) so animation still shows.
                 const hasSize = taskRect.width > 0 && taskRect.height > 0;
-                const left = taskRect.left;
-                const top = taskRect.top;
-                const width = taskRect.width;
-                const height = taskRect.height;
+                const left = hasSize ? taskRect.left : Math.max(0, (window.innerWidth - 280) / 2);
+                const top = hasSize ? taskRect.top : Math.max(0, (window.innerHeight - 56) / 2);
+                const width = hasSize ? taskRect.width : 280;
+                const height = hasSize ? taskRect.height : 56;
 
-                const effectClone = taskElement.cloneNode(true);
-                effectClone.style.position = 'fixed';
-                effectClone.style.left = left + 'px';
-                effectClone.style.top = top + 'px';
-                effectClone.style.width = width + 'px';
-                effectClone.style.height = height + 'px';
-                effectClone.style.margin = '0';
-                effectClone.style.zIndex = '9990';
-                effectClone.style.pointerEvents = 'none';
-                effectClone.style.visibility = 'visible';
-                effectClone.style.display = 'block';
+                const effectClone = effectCloneBase;
+                effectClone.classList.add('task-effect-clone');
+                effectClone.setAttribute('style', [
+                    'position: fixed !important',
+                    'left: ' + left + 'px !important',
+                    'top: ' + top + 'px !important',
+                    'width: ' + width + 'px !important',
+                    'height: ' + height + 'px !important',
+                    'margin: 0 !important',
+                    'pointer-events: none !important',
+                    'visibility: visible !important',
+                    'z-index: 99999 !important',
+                    'box-sizing: border-box !important'
+                ].join('; '));
                 document.body.appendChild(effectClone);
-
-                if (hasSize) taskElement.style.visibility = 'hidden';
 
                 document.body.classList.add('task-effect-playing');
                 document.documentElement.classList.add('task-effect-playing');
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        const viewport = document.querySelector('.pager-viewport');
-                        const track = document.querySelector('.pager-track');
-                        if (viewport && track) {
-                            const currentIndex = Math.max(0, this.lists?.findIndex(list => list.id === this.currentListId) ?? 0);
-                            track.style.transform = `translateX(${-currentIndex * viewport.offsetWidth}px)`;
-                        }
-                    });
-                });
 
-                window.taskAnimationEffects.animateTaskCompletion(effectClone);
+                const effectRect = { left, top, width, height };
+                // Start effect immediately (avoid "task disappears then effect appears" feel)
+                window.taskAnimationEffects.animateTaskCompletion(effectClone, effectRect);
+
+                // Hide original only after effect has started (next frame) to match Smash list feel
+                if (hasSize && taskElement && taskElement.parentNode) {
+                    requestAnimationFrame(() => {
+                        try { taskElement.style.visibility = 'hidden'; } catch (e) {}
+                    });
+                }
 
                 setTimeout(() => {
-                    effectClone.remove();
+                    if (effectClone.parentNode) effectClone.remove();
                     if (hasSize && taskElement.parentNode) taskElement.style.visibility = '';
                     document.body.classList.remove('task-effect-playing');
                     document.documentElement.classList.remove('task-effect-playing');
@@ -4359,26 +4428,26 @@ class PixDoneApp {
                     }, 1000); // Wait longer for effects to be visible
                 } else if (taskId.startsWith('tutorial-')) {
                     // Tutorial: 完了タスクはリストに残し Completed に表示する
-                    this.focusNextTaskCheckbox(taskId);
                     setTimeout(() => {
                         this.saveTasks();
                         this.renderTasks();
                         this.updateCompletedCount();
                         this.renderListTabs();
+                        // Move focus after DOM updates (avoid shifting layout mid-effect; align with Smash list feel)
+                        this.focusNextTaskCheckbox(taskId);
                         this.processingTaskId = null;
                     }, 500);
                 } else {
-                    // 連続完了のために次のタスクのチェックボックスにフォーカス移動
-                    this.focusNextTaskCheckbox(taskId);
-
-                    // Save and re-render after effect starts
+                    // Keep behavior aligned with Smash list: don't re-render mid-effect.
                     setTimeout(() => {
                         this.saveTasks();
                         this.renderTasks();
                         this.updateCompletedCount();
                         this.renderListTabs(); // Update tab counts
+                        // Move focus after DOM updates (avoid shifting layout mid-effect; align with Smash list feel)
+                        this.focusNextTaskCheckbox(taskId);
                         this.processingTaskId = null;
-                    }, 500);
+                    }, 1000);
                 }
             } else {
                 console.warn('No taskAnimationEffects or taskElement available, taskElement:', taskElement);
@@ -4419,7 +4488,7 @@ class PixDoneApp {
                         this.processingTaskId = null;
                     }, 800);
                 } else {
-                    // Don't save Smash List tasks - they're temporary
+                    // Normal lists fallback (no animation library): keep timings closer to Smash list.
                     this.saveTasks();
                     this.renderTasks();
                     this.updateCompletedCount();
@@ -5154,20 +5223,82 @@ class PixDoneApp {
                 }
             }
             if (taskElement && firstTask) {
-                e.preventDefault();
-                e.stopPropagation();
+                if (e && e.preventDefault) e.preventDefault();
+                if (e && e.stopPropagation) e.stopPropagation();
                 this.toggleTaskCompletion(firstTask.id, taskElement);
             }
         };
 
-        // Space: Smash List で先頭タスクを smash
-        const handleKey = (e) => {
-            const isSpace = (e.key === ' ' || e.code === 'Space' || e.keyCode === 32) && !e.ctrlKey && !e.altKey && !e.metaKey;
-            if (isSpace) {
-                trySmashFirstTask(e);
+        // Space: Smash List — short press = complete one task; long press = open Perfect Timing game
+        let spaceHoldTimer = null;
+        let spaceLongPressTriggered = false;
+        let spaceKeyDownForSmash = false;
+        const spaceHoldMs = (typeof window.PerfectTimingManager !== 'undefined' && window.PerfectTimingManager.config)
+            ? window.PerfectTimingManager.config.holdThresholdMs : 350;
+
+        const clearSpaceHold = () => {
+            if (spaceHoldTimer) {
+                clearTimeout(spaceHoldTimer);
+                spaceHoldTimer = null;
             }
         };
-        window.addEventListener('keydown', handleKey, true);
+
+        const handleKeyDown = (e) => {
+            const isSpace = (e.key === ' ' || e.code === 'Space' || e.keyCode === 32) && !e.ctrlKey && !e.altKey && !e.metaKey;
+            if (!isSpace) return;
+            const currentList = this.getCurrentList();
+            const isSmashList = currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List');
+            if (!isSmashList) return;
+            const activeElement = document.activeElement;
+            if (activeElement && (
+                activeElement.tagName === 'INPUT' ||
+                activeElement.tagName === 'TEXTAREA' ||
+                activeElement.isContentEditable ||
+                activeElement.closest('.modal') ||
+                activeElement.closest('.task-form')
+            )) {
+                return;
+            }
+            e.preventDefault();
+            if (e.repeat) return;
+            spaceLongPressTriggered = false;
+            clearSpaceHold();
+            const firstIncomplete = currentList.tasks.find(t => this.isTopLevelTask(t) && !t.completed);
+            if (!firstIncomplete) return;
+            spaceKeyDownForSmash = true;
+            spaceHoldTimer = setTimeout(() => {
+                spaceHoldTimer = null;
+                spaceLongPressTriggered = true;
+                const taskEl = document.querySelector(`.task-item[data-task-id="${firstIncomplete.id}"]`) ||
+                    document.getElementById('taskList')?.querySelector('.task-item:not(.completed)');
+                if (typeof window.PerfectTimingManager?.openForTask === 'function') {
+                    window.PerfectTimingManager.openForTask(firstIncomplete.id, taskEl);
+                    if (this.comicEffects?.playSound) this.comicEffects.playSound('buttonClick');
+                } else {
+                    trySmashFirstTask(e);
+                }
+            }, spaceHoldMs);
+        };
+
+        const handleKeyUp = (e) => {
+            const isSpace = (e.key === ' ' || e.code === 'Space' || e.keyCode === 32) && !e.ctrlKey && !e.altKey && !e.metaKey;
+            if (!isSpace) {
+                spaceKeyDownForSmash = false;
+                return;
+            }
+            const currentList = this.getCurrentList();
+            const isSmashList = currentList && (currentList.id === 'smash-list' || currentList.name === '💥 Smash List');
+            clearSpaceHold();
+            if (isSmashList && spaceKeyDownForSmash && !spaceLongPressTriggered) {
+                e.preventDefault();
+                trySmashFirstTask(e);
+            }
+            spaceKeyDownForSmash = false;
+            spaceLongPressTriggered = false;
+        };
+
+        window.addEventListener('keydown', handleKeyDown, true);
+        window.addEventListener('keyup', handleKeyUp, true);
         console.log('Keyboard shortcuts set up successfully');
     }
 
@@ -6116,39 +6247,30 @@ class PixDoneApp {
             }
         };
 
-        // Handle paste to convert pasted URLs
+        // Handle paste: selected text + URL paste → [text](url) markdown link
+        const urlRegex = /^https?:\/\/[^\s<>"']+$/i;
         const handlePaste = (e) => {
             e.preventDefault();
+            const rawPaste = e.clipboardData.getData('text/plain') || '';
+            const pastedTrimmed = rawPaste.trim();
 
             const selection = window.getSelection();
-            const pastedData = e.clipboardData.getData('text/plain');
+            if (!selection.rangeCount) return;
+            const range = selection.getRangeAt(0);
+            if (!element.contains(range.commonAncestorContainer)) return;
+            const selectedText = selection.toString();
 
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const selectedText = selection.toString();
-
-                // If text is selected and pasted data is URL, create markdown link
-                if (selectedText && this.isValidURL(pastedData)) {
-                    const markdownLink = `[${selectedText}](${pastedData})`;
-                    range.deleteContents();
-                    range.insertNode(document.createTextNode(markdownLink));
-                    range.collapse(false);
-                    
-                    // Trigger auto-grow for details input after paste
-                    if (isDetailsInput) {
-                        setTimeout(() => {
-                            handleInput();
-                        }, 10);
-                    }
-                } else {
-                    // Regular paste
-                    range.insertNode(document.createTextNode(pastedData));
-                    range.collapse(false);
-                }
-
-                // Trigger link processing
-                setTimeout(handleInput, 10);
+            if (selectedText && urlRegex.test(pastedTrimmed)) {
+                const markdownLink = `[${selectedText}](${pastedTrimmed})`;
+                range.deleteContents();
+                range.insertNode(document.createTextNode(markdownLink));
+                range.collapse(false);
+                if (isDetailsInput) setTimeout(() => handleInput(), 10);
+            } else {
+                range.insertNode(document.createTextNode(rawPaste));
+                range.collapse(false);
             }
+            setTimeout(handleInput, 10);
         };
 
         element.addEventListener('input', handleInput);

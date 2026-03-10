@@ -249,6 +249,15 @@
         document.addEventListener('pointercancel', (e) => {
             onPointerCancel(e);
         }, { passive: false });
+
+        // When overlay was opened by keyboard (e.g. Space long-press), release Space to judge
+        document.addEventListener('keyup', (e) => {
+            if (!state.active) return;
+            const isSpace = (e.key === ' ' || e.code === 'Space' || e.keyCode === 32) && !e.ctrlKey && !e.altKey && !e.metaKey;
+            if (!isSpace) return;
+            e.preventDefault();
+            onRelease(completeTask);
+        }, true);
     }
 
     /**

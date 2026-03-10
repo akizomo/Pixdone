@@ -96,12 +96,26 @@ body {
     overflow-x: hidden; /* フルブリードのpager-viewportで横スクロールを防ぐ */
 }
 
+/* Prevent horizontal layout shift when toggling scroll lock */
+html {
+    scrollbar-gutter: stable;
+}
+
 /* タスク完了エフェクト再生中: 左右の見切れを防ぐため body のみ overflow-x: visible（パーティクル等は body 直下のため見切れない） */
 /* .pager-viewport は hidden のままにして隣のタブのリストを見せない */
 body.task-effect-playing,
 html.task-effect-playing {
     overflow-x: visible !important;
-    overflow-y: hidden !important;
+    /* Keep scrollbar space stable so clone and list don't shift */
+    overflow-y: auto !important;
+}
+
+/* タスク完了エフェクト用 clone: 継承された transform を無効化し表示位置を固定 */
+/* Clone for completion effect: position only; transform is left to animation keyframes (explode, slide, etc.) */
+.task-effect-clone {
+    position: fixed !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
 }
 
 /* アイコンルール: 世界観に合わせて角丸を避けピクセル風に */
@@ -3160,6 +3174,14 @@ div[id="newTaskDetails"] a:hover {
 @media (hover: hover) and (pointer: fine) {
     .desktop-only {
         display: block;
+    }
+}
+
+/* Smash list Space hint: show on desktop viewport so it's visible even with touch/coarse pointer */
+@media (min-width: 769px) {
+    .smash-list-message .smash-list-hint,
+    .smash-list-message .desktop-only.smash-list-hint {
+        display: block !important;
     }
 }
 

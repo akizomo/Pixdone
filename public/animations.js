@@ -235,7 +235,7 @@ class ComicEffectsManager {
             }
             
             .explosion-particles {
-                position: absolute;
+                position: fixed;
                 width: 4px;
                 height: 4px;
                 background: #ff6b6b;
@@ -592,8 +592,8 @@ class ComicEffectsManager {
         document.head.appendChild(style);
     }
 
-    // Play random effect on task completion
-    playRandomEffect(taskElement) {
+    // Play random effect on task completion (effectRect = optional viewport rect when clone not laid out)
+    playRandomEffect(taskElement, effectRect) {
         if (this.effectLock) return;
         const random = Math.random();
         let selectedEffect;
@@ -657,7 +657,7 @@ class ComicEffectsManager {
             this.comboCount = 0;
         }, 5000);
 
-        this.playEffect(selectedEffect, taskElement);
+        this.playEffect(selectedEffect, taskElement, effectRect);
     }
 
     // Clear existing effect text to prevent overlapping
@@ -882,110 +882,111 @@ class ComicEffectsManager {
         }, 100);
     }
 
-    playEffect(effectType, taskElement) {
+    playEffect(effectType, taskElement, effectRect) {
         if (!taskElement) {
             console.warn("No taskElement provided to playEffect");
             return;
         }
 
-        const rect = taskElement.getBoundingClientRect();
+        const rect = effectRect && effectRect.width > 0 && effectRect.height > 0
+            ? effectRect
+            : taskElement.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) {
             console.warn("Task element has no dimensions");
             return;
         }
-        console.log("Effect position:", { rect });
 
         switch (effectType) {
             case "explode":
-                this.createExplodeEffect(taskElement);
+                this.createExplodeEffect(taskElement, rect);
                 this.playSound("explosion");
                 this.playHapticFeedback("strong");
                 break;
             case "flyAway":
-                this.createFlyAwayEffect(taskElement);
+                this.createFlyAwayEffect(taskElement, rect);
                 this.playSound("whoosh");
                 this.playHapticFeedback("medium");
                 break;
             case "crumpleThrow":
-                this.createCrumpleThrowEffect(taskElement);
+                this.createCrumpleThrowEffect(taskElement, rect);
                 this.playSound("crumple");
                 this.playHapticFeedback("medium");
                 break;
             case "shatter":
-                this.createShatterEffect(taskElement);
+                this.createShatterEffect(taskElement, rect);
                 this.playSound("shatter");
                 this.playHapticFeedback("strong");
                 break;
             case "vanish":
-                this.createVanishEffect(taskElement);
+                this.createVanishEffect(taskElement, rect);
                 this.playSound("vanish");
                 this.playHapticFeedback("light");
                 break;
             case "spinOff":
-                this.createSpinOffEffect(taskElement);
+                this.createSpinOffEffect(taskElement, rect);
                 this.playSound("spin");
                 this.playHapticFeedback("medium");
                 break;
             case "melt":
-                this.createMeltEffect(taskElement);
+                this.createMeltEffect(taskElement, rect);
                 this.playSound("melt");
                 this.playHapticFeedback("light");
                 break;
             case "tornado":
-                this.createTornadoEffect(taskElement);
+                this.createTornadoEffect(taskElement, rect);
                 this.playSound("tornado");
                 this.playHapticFeedback("strong");
                 break;
             case "bounce":
-                this.createBounceEffect(taskElement);
+                this.createBounceEffect(taskElement, rect);
                 this.playSound("bounce");
                 this.playHapticFeedback("medium");
                 break;
             case "slideLeft":
-                this.createSlideLeftEffect(taskElement);
+                this.createSlideLeftEffect(taskElement, rect);
                 this.playSound("slide");
                 this.playHapticFeedback("light");
                 break;
             case "slideRight":
-                this.createSlideRightEffect(taskElement);
+                this.createSlideRightEffect(taskElement, rect);
                 this.playSound("slide");
                 this.playHapticFeedback("light");
                 break;
             case "flip":
-                this.createFlipEffect(taskElement);
+                this.createFlipEffect(taskElement, rect);
                 this.playSound("flip");
                 this.playHapticFeedback("medium");
                 break;
             case "shrink":
-                this.createShrinkEffect(taskElement);
+                this.createShrinkEffect(taskElement, rect);
                 this.playSound("shrink");
                 this.playHapticFeedback("light");
                 break;
             case "stretch":
-                this.createStretchEffect(taskElement);
+                this.createStretchEffect(taskElement, rect);
                 this.playSound("stretch");
                 this.playHapticFeedback("medium");
                 break;
             case "wobble":
-                this.createWobbleEffect(taskElement);
+                this.createWobbleEffect(taskElement, rect);
                 this.playSound("wobble");
                 this.playHapticFeedback("medium");
                 break;
             case "fadeOut":
-                this.createFadeOutEffect(taskElement);
+                this.createFadeOutEffect(taskElement, rect);
                 this.playSound("fadeOut");
                 this.playHapticFeedback("light");
                 break;
             case "rainbowSmash":
                 this.effectLock = true;
-                this.createRainbowSmashEffect(taskElement);
+                this.createRainbowSmashEffect(taskElement, rect);
                 this.playRainbowSmashSound();
                 this.playHapticFeedback("strong");
                 break;
             case "freeze":
                 this.effectLock = true;
                 this.playFreezeSound();
-                this.createFreezeEffect(taskElement);
+                this.createFreezeEffect(taskElement, rect);
                 this.playHapticFeedback("strong");
                 break;
         }
@@ -1001,10 +1002,8 @@ class ComicEffectsManager {
         this.playEffect("freeze", el);
     }
 
-    createExplodeEffect(taskElement) {
-        console.log("Creating Pixel Confetti effect for:", taskElement);
-
-        const rect = taskElement.getBoundingClientRect();
+    createExplodeEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) {
             console.warn("Task element has no dimensions");
             return;
@@ -1052,10 +1051,8 @@ class ComicEffectsManager {
         }, 1500);
     }
 
-    createFlyAwayEffect(taskElement) {
-        console.log("Creating Stamp 済 8bit effect for:", taskElement);
-
-        const rect = taskElement.getBoundingClientRect();
+    createFlyAwayEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) {
             console.warn("Task element has no dimensions");
             return;
@@ -1115,10 +1112,8 @@ class ComicEffectsManager {
         }, 1800);
     }
 
-    createCrumpleThrowEffect(taskElement) {
-        console.log("Creating Crumple Trash 8bit effect for:", taskElement);
-
-        const rect = taskElement.getBoundingClientRect();
+    createCrumpleThrowEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) {
             console.warn("Task element has no dimensions");
             return;
@@ -1175,14 +1170,12 @@ class ComicEffectsManager {
         }, 2000);
     }
 
-    createShatterEffect(taskElement) {
-        console.log("Creating shatter effect for:", taskElement);
+    createShatterEffect(taskElement, optionalRect) {
 
         // Apply CSS animation class
         taskElement.classList.add("shatter-effect");
 
-        // Create particles
-        const rect = taskElement.getBoundingClientRect();
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         this.createShatterParticles(rect);
 
         // Remove effect class after animation
@@ -1191,10 +1184,8 @@ class ComicEffectsManager {
         }, 1200);
     }
 
-    createVanishEffect(taskElement) {
-        console.log("Creating Pop Pixel effect for:", taskElement);
-
-        const rect = taskElement.getBoundingClientRect();
+    createVanishEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) {
             console.warn("Task element has no dimensions");
             return;
@@ -1249,14 +1240,10 @@ class ComicEffectsManager {
         }, 1000);
     }
 
-    createSpinOffEffect(taskElement) {
-        console.log("Creating spin off effect for:", taskElement);
-
-        // Apply CSS animation class
+    createSpinOffEffect(taskElement, optionalRect) {
         taskElement.classList.add("spin-off-effect");
 
-        // Create particles
-        const rect = taskElement.getBoundingClientRect();
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         this.createSpinTrailParticles(rect);
 
         // Remove effect class after animation
@@ -1265,10 +1252,8 @@ class ComicEffectsManager {
         }, 1500);
     }
 
-    createMeltEffect(taskElement) {
-        console.log("Creating Fire Pixel effect for:", taskElement);
-
-        const rect = taskElement.getBoundingClientRect();
+    createMeltEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) {
             console.warn("Task element has no dimensions");
             return;
@@ -1334,14 +1319,9 @@ class ComicEffectsManager {
         }, 1800);
     }
 
-    createTornadoEffect(taskElement) {
-        console.log("Creating tornado effect for:", taskElement);
-
-        // Apply CSS animation class
+    createTornadoEffect(taskElement, optionalRect) {
         taskElement.classList.add("tornado-effect");
-
-        // Create particles
-        const rect = taskElement.getBoundingClientRect();
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         this.createTornadoParticles(rect);
 
         // Remove effect class after animation
@@ -1360,15 +1340,9 @@ class ComicEffectsManager {
             return;
         }
 
-        const scrollTop =
-            window.pageYOffset || document.documentElement.scrollTop;
-        const scrollLeft =
-            window.pageXOffset || document.documentElement.scrollLeft;
-
-        const centerX = rect.left + scrollLeft + rect.width / 2;
-        const centerY = rect.top + scrollTop + rect.height / 2;
-
-        console.log("Creating particles at:", centerX, centerY);
+        // Use viewport coordinates (getBoundingClientRect); particles are position:absolute on body → viewport
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
 
         const colors = [
             "#ff6b6b",
@@ -2624,9 +2598,8 @@ class ComicEffectsManager {
     }
 
     // New effect methods
-    createBounceEffect(taskElement) {
-        // Add text effect
-        const rect = taskElement.getBoundingClientRect();
+    createBounceEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         const bounceText = document.createElement("div");
         bounceText.innerHTML = "BOUNCE!";
         bounceText.className = "effect-text";
@@ -2664,9 +2637,8 @@ class ComicEffectsManager {
         }, 1200);
     }
 
-    createSlideLeftEffect(taskElement) {
-        // Add text effect
-        const rect = taskElement.getBoundingClientRect();
+    createSlideLeftEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         const slideText = document.createElement("div");
         slideText.innerHTML = "SLIDE!";
         slideText.className = "effect-text";
@@ -2700,9 +2672,8 @@ class ComicEffectsManager {
         }, 1300);
     }
 
-    createSlideRightEffect(taskElement) {
-        // Add text effect
-        const rect = taskElement.getBoundingClientRect();
+    createSlideRightEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         const slideText = document.createElement("div");
         slideText.innerHTML = "SLIDE!";
         slideText.className = "effect-text";
@@ -2736,9 +2707,8 @@ class ComicEffectsManager {
         }, 1300);
     }
 
-    createFlipEffect(taskElement) {
-        // Add text effect
-        const rect = taskElement.getBoundingClientRect();
+    createFlipEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         const flipText = document.createElement("div");
         flipText.innerHTML = "FLIP!";
         flipText.className = "effect-text";
@@ -2772,15 +2742,11 @@ class ComicEffectsManager {
         }, 1400);
     }
 
-    createShrinkEffect(taskElement) {
-        // Set transform-origin to center to minimize layout impact on FAB position
-        const taskRect = taskElement.getBoundingClientRect();
-        const centerX = taskRect.left + taskRect.width / 2;
-        const centerY = taskRect.top + taskRect.height / 2;
-        taskElement.style.transformOrigin = `${centerX - taskRect.left}px ${centerY - taskRect.top}px`;
-        
-        // Add text effect
-        const rect = taskElement.getBoundingClientRect();
+    createShrinkEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        taskElement.style.transformOrigin = `${centerX - rect.left}px ${centerY - rect.top}px`;
         const shrinkText = document.createElement("div");
         shrinkText.innerHTML = "SHRINK!";
         shrinkText.className = "effect-text";
@@ -2816,9 +2782,8 @@ class ComicEffectsManager {
         }, 1000);
     }
 
-    createStretchEffect(taskElement) {
-        // Add text effect
-        const rect = taskElement.getBoundingClientRect();
+    createStretchEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         const stretchText = document.createElement("div");
         stretchText.innerHTML = "STRETCH!";
         stretchText.className = "effect-text";
@@ -2852,9 +2817,8 @@ class ComicEffectsManager {
         }, 1100);
     }
 
-    createWobbleEffect(taskElement) {
-        // Add text effect
-        const rect = taskElement.getBoundingClientRect();
+    createWobbleEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         const wobbleText = document.createElement("div");
         wobbleText.innerHTML = "WOBBLE!";
         wobbleText.className = "effect-text";
@@ -2892,9 +2856,8 @@ class ComicEffectsManager {
         }, 1500);
     }
 
-    createFadeOutEffect(taskElement) {
-        // Add text effect
-        const rect = taskElement.getBoundingClientRect();
+    createFadeOutEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         const fadeText = document.createElement("div");
         fadeText.innerHTML = "FADE!";
         fadeText.className = "effect-text";
@@ -2930,10 +2893,8 @@ class ComicEffectsManager {
         }, 1200);
     }
 
-    createRainbowSmashEffect(taskElement) {
-        console.log("🌈 Creating Rainbow Smash effect for:", taskElement);
-
-        const rect = taskElement.getBoundingClientRect();
+    createRainbowSmashEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) {
             console.warn("Task element has no dimensions");
             return;
@@ -2992,7 +2953,7 @@ class ComicEffectsManager {
         }, 3000);
     }
 
-    createFreezeEffect(taskElement) {
+    createFreezeEffect(taskElement, optionalRect) {
         if (typeof window.FreezeEffect !== "function") {
             console.warn("FreezeEffect module not loaded");
             this.effectLock = false;
@@ -3550,22 +3511,8 @@ class TaskAnimationEffects {
         this.comicEffects = new ComicEffectsManager();
     }
 
-    animateTaskCompletion(taskElement) {
+    animateTaskCompletion(taskElement, effectRect) {
         if (!taskElement) return;
-
-        console.log(
-            "TaskAnimationEffects - animateTaskCompletion called with:",
-            taskElement,
-        );
-        console.log("TaskAnimationEffects - element type:", typeof taskElement);
-        console.log(
-            "TaskAnimationEffects - element constructor:",
-            taskElement.constructor.name,
-        );
-        console.log(
-            "TaskAnimationEffects - element properties:",
-            Object.keys(taskElement),
-        );
 
         // Check if it's a real DOM element
         if (taskElement.nodeType !== 1) {
@@ -3582,8 +3529,8 @@ class TaskAnimationEffects {
             checkbox.classList.add("task-checkbox-completing");
         }
 
-        // Play random comic effect immediately
-        this.comicEffects.playRandomEffect(taskElement);
+        // Play random comic effect (pass effectRect so position is correct when clone isn't laid out yet)
+        this.comicEffects.playRandomEffect(taskElement, effectRect);
 
         // Remove animation classes
         setTimeout(() => {
