@@ -1163,12 +1163,45 @@ class PixDoneApp {
             }
         };
 
-        // Show native date picker
+        // Show native date picker (bottom sheet): make input openable then call showPicker/click
         this.showNativeDatePicker = (sheet) => {
             const nativeDatePicker = sheet.querySelector('#newNativeDatePicker');
-            if (nativeDatePicker) {
-                nativeDatePicker.showPicker();
+            if (!nativeDatePicker) return;
+            // Many browsers won't open the picker when input is display:none. Make it "visible" but invisible.
+            nativeDatePicker.style.display = 'block';
+            nativeDatePicker.style.position = 'fixed';
+            nativeDatePicker.style.left = '0';
+            nativeDatePicker.style.top = '0';
+            nativeDatePicker.style.width = '100%';
+            nativeDatePicker.style.height = '100%';
+            nativeDatePicker.style.opacity = '0';
+            nativeDatePicker.style.pointerEvents = 'auto';
+            nativeDatePicker.style.zIndex = '99999';
+            if (!nativeDatePicker.value) {
+                const today = new Date();
+                nativeDatePicker.value = today.toISOString().split('T')[0];
             }
+            const hideAgain = () => {
+                nativeDatePicker.style.display = 'none';
+                nativeDatePicker.style.position = '';
+                nativeDatePicker.style.left = '';
+                nativeDatePicker.style.top = '';
+                nativeDatePicker.style.width = '';
+                nativeDatePicker.style.height = '';
+                nativeDatePicker.style.opacity = '';
+                nativeDatePicker.style.pointerEvents = '';
+                nativeDatePicker.style.zIndex = '';
+            };
+            nativeDatePicker.addEventListener('blur', hideAgain, { once: true });
+            nativeDatePicker.addEventListener('change', hideAgain, { once: true });
+            setTimeout(() => {
+                if (typeof nativeDatePicker.showPicker === 'function') {
+                    nativeDatePicker.showPicker();
+                } else {
+                    nativeDatePicker.focus();
+                    nativeDatePicker.click();
+                }
+            }, 10);
         };
 
         // Show repeat selector in bottom sheet
@@ -3203,11 +3236,36 @@ class PixDoneApp {
             return;
         }
 
-        // Desktop task input form
+        // Desktop task input form (always "add" when called from Add task button)
+        this.currentTask = null;
         this.isInputVisible = true;
         const container = document.getElementById('taskInputContainer');
         if (container) {
             container.style.display = 'block';
+
+            // When opening for NEW task, clear form so previous details don't persist
+            if (!this.currentTask) {
+                const titleInput = document.getElementById('taskTitle');
+                const detailsEl = document.getElementById('taskDetails');
+                if (titleInput) titleInput.value = '';
+                if (detailsEl) {
+                    detailsEl.textContent = '';
+                    detailsEl.innerHTML = '';
+                    if (detailsEl.hasAttribute('placeholder')) detailsEl.classList.add('empty');
+                }
+                this.selectedDate = null;
+                this.selectedRepeat = 'none';
+                const repeatSelector = document.getElementById('repeatSelector');
+                const repeatInterval = document.getElementById('repeatInterval');
+                const repeatBtn = document.getElementById('repeatBtn');
+                const customDatePicker = document.getElementById('customDatePicker');
+                if (repeatSelector) repeatSelector.style.display = 'none';
+                if (repeatInterval) repeatInterval.value = 'none';
+                if (repeatBtn) repeatBtn.classList.remove('active');
+                if (customDatePicker) customDatePicker.value = '';
+                document.querySelectorAll('.date-btn').forEach(btn => btn.classList.remove('active'));
+                this.updateCalendarButtonText();
+            }
 
             // Hide empty states
             const emptyState = document.getElementById('emptyState');
@@ -3284,7 +3342,11 @@ class PixDoneApp {
 
     resetForm() {
         document.getElementById('taskTitle').value = '';
-        document.getElementById('taskDetails').value = '';
+        const taskDetailsEl = document.getElementById('taskDetails');
+        if (taskDetailsEl) {
+            taskDetailsEl.textContent = '';
+            taskDetailsEl.innerHTML = '';
+        }
         this.selectedDate = null;
         this.currentTask = null;
         this.selectedRepeat = 'none';
@@ -3373,40 +3435,43 @@ class PixDoneApp {
         const calendarBtn = document.getElementById('calendarBtn');
 
         if (datePicker && calendarBtn) {
-            // カレンダーボタンの位置を取得
-            const rect = calendarBtn.getBoundingClientRect();
-            const form = document.getElementById('taskForm');
-            const formRect = form.getBoundingClientRect();
-
-            // 日付入力を一時的に表示
+            // 日付入力を一時的にクリック可能にする（position/opacity/pointer-events を有効化）
             datePicker.style.position = 'absolute';
-            datePicker.style.left = (rect.left - formRect.left) + 'px';
-            datePicker.style.top = (rect.bottom - formRect.top + 5) + 'px';
-            datePicker.style.opacity = '1';
+            datePicker.style.left = '0';
+            datePicker.style.top = '0';
+            datePicker.style.width = '100%';
+            datePicker.style.height = '100%';
+            datePicker.style.opacity = '0';
             datePicker.style.pointerEvents = 'auto';
             datePicker.style.zIndex = '9999';
             datePicker.style.display = 'block';
 
-            // 即座にカレンダーを開く
-            setTimeout(() => {
-                datePicker.focus();
-                datePicker.click();
-            }, 10);
-
-            // 選択後に隠すためのイベントリスナーを追加
             const hideAfterSelection = () => {
                 setTimeout(() => {
                     datePicker.style.position = 'absolute';
                     datePicker.style.left = '-9999px';
                     datePicker.style.top = '-9999px';
+                    datePicker.style.width = '';
+                    datePicker.style.height = '';
                     datePicker.style.opacity = '0';
                     datePicker.style.pointerEvents = 'none';
                     datePicker.style.zIndex = '-1';
                 }, 100);
             };
 
+            const openPicker = () => {
+                if (typeof datePicker.showPicker === 'function') {
+                    datePicker.showPicker();
+                } else {
+                    datePicker.focus();
+                    datePicker.click();
+                }
+            };
+
             datePicker.addEventListener('blur', hideAfterSelection, { once: true });
             datePicker.addEventListener('change', hideAfterSelection, { once: true });
+
+            setTimeout(openPicker, 10);
         }
     }
 
@@ -3477,7 +3542,7 @@ class PixDoneApp {
                     <div class="inline-date-buttons">
                         <button type="button" class="inline-date-btn" id="inline-today-${taskId}" onclick="window.pixDoneApp.selectInlineDate('${taskId}', 'today')">${it('today')}</button>
                         <button type="button" class="inline-date-btn" id="inline-tomorrow-${taskId}" onclick="window.pixDoneApp.selectInlineDate('${taskId}', 'tomorrow')">${it('tomorrow')}</button>
-                        <button type="button" class="inline-date-btn inline-calendar-btn" id="inline-calendar-${taskId}" onclick="window.pixDoneApp.showInlineDatePicker('${taskId}')">
+                        <button type="button" class="inline-date-btn inline-calendar-btn" id="inline-calendar-${taskId}">
                             <i class="fa fa-calendar"></i> ${it('pick')}
                         </button>
                         <button type="button" class="inline-repeat-btn" id="inline-repeat-${taskId}" onclick="window.pixDoneApp.toggleInlineRepeat('${taskId}')">
@@ -3539,6 +3604,17 @@ class PixDoneApp {
 
             // Set up date buttons based on task data
             this.updateInlineDateButtons(taskId, task.dueDate);
+
+            // Set up inline calendar button (addEventListener so it works without relying on window.pixDoneApp)
+            const calendarBtn = document.getElementById(`inline-calendar-${taskId}`);
+            if (calendarBtn) {
+                calendarBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (this.comicEffects && this.comicEffects.playSound) this.comicEffects.playSound('buttonClick');
+                    this.showInlineDatePicker(taskId);
+                });
+            }
 
             // Set up repeat selector based on task data
             this.updateInlineRepeatSelector(taskId, task.repeat || 'none');
@@ -3905,20 +3981,48 @@ class PixDoneApp {
 
     showInlineDatePicker(taskId) {
         const datePicker = document.getElementById(`inline-date-picker-${taskId}`);
-        if (datePicker) {
+        if (!datePicker) return;
+        // Make input openable (browsers often block showPicker when input is off-screen/hidden)
+        datePicker.removeAttribute('style');
+        datePicker.style.position = 'fixed';
+        datePicker.style.left = '0';
+        datePicker.style.top = '0';
+        datePicker.style.width = '100%';
+        datePicker.style.height = '100%';
+        datePicker.style.opacity = '0';
+        datePicker.style.pointerEvents = 'auto';
+        datePicker.style.zIndex = '99999';
+        datePicker.style.display = 'block';
+        if (!datePicker.value) {
             const today = new Date();
             datePicker.value = today.toISOString().split('T')[0];
-            datePicker.focus();
-
-            if (datePicker.showPicker) {
+        }
+        const hideAgain = () => {
+            datePicker.style.position = 'absolute';
+            datePicker.style.left = '-9999px';
+            datePicker.style.top = '0';
+            datePicker.style.width = '';
+            datePicker.style.height = '';
+            datePicker.style.opacity = '0';
+            datePicker.style.pointerEvents = 'none';
+            datePicker.style.zIndex = '-1';
+            datePicker.style.display = '';
+        };
+        datePicker.addEventListener('blur', hideAgain, { once: true });
+        datePicker.addEventListener('change', hideAgain, { once: true });
+        datePicker.focus();
+        try {
+            if (typeof datePicker.showPicker === 'function') {
                 datePicker.showPicker();
             } else {
                 datePicker.click();
             }
-
-            datePicker.onchange = () => {
-                const selectedDate = datePicker.value;
-                if (selectedDate) {
+        } catch (err) {
+            datePicker.click();
+        }
+        datePicker.onchange = () => {
+            const selectedDate = datePicker.value;
+            if (selectedDate) {
                     this.selectedDate = selectedDate;
 
                     // Reset other buttons
@@ -3938,7 +4042,6 @@ class PixDoneApp {
                     }
                 }
             };
-        }
     }
 
     toggleInlineRepeat(taskId) {
@@ -5605,10 +5708,24 @@ class PixDoneApp {
         const completedTasks = this.tasks.filter(t => this.isTopLevelTask(t) && t.completed);
         this.tasks = [...activeTasks, ...completedTasks];
 
-        // Save the new order
+        // Save the new order (localStorage when guest; Firestore when authenticated)
         this.saveTasks();
+        this.persistTaskOrder();
         this.renderTasks();
         this.renderListTabs();
+    }
+
+    /** Persist task order to Firestore so it survives list switch / reload. No-op when not authenticated or Smash list. */
+    async persistTaskOrder() {
+        if (!this.isAuthenticated || this.currentListId === 'smash-list') return;
+        const activeTasks = this.tasks.filter(t => this.isTopLevelTask(t) && !t.completed);
+        try {
+            for (let i = 0; i < activeTasks.length; i++) {
+                await updateTaskInFirestore(activeTasks[i].id, { order: i });
+            }
+        } catch (err) {
+            console.error('[PixDone] Error persisting task order:', err);
+        }
     }
 
     getDueStatus(dueDate) {
@@ -7555,6 +7672,7 @@ async function addTaskToFirestore(title, details = '', dueDate = null, repeat = 
         repeat: repeat || 'none',
         subtasks: subtasks || [],
         completed: !!completed,
+        order: 0,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     return taskId;
@@ -7675,7 +7793,16 @@ function listenTasksFromFirestore(listId, onUpdate) {
         .onSnapshot(
             snap => {
                 const tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                onUpdate(tasks);
+                // Sort by order field so drag-to-reorder persists; tasks without order keep index order; same order → newest first
+                const withOrder = tasks.map((t, i) => ({ ...t, _order: typeof t.order === 'number' ? t.order : i }));
+                withOrder.sort((a, b) => {
+                    if (a._order !== b._order) return a._order - b._order;
+                    const ca = a.createdAt?.toMillis?.() ?? 0;
+                    const cb = b.createdAt?.toMillis?.() ?? 0;
+                    return cb - ca;
+                });
+                const sorted = withOrder.map(({ _order, ...t }) => t);
+                onUpdate(sorted);
             },
             err => { console.error('[PixDone] Firestore snapshot error (tasks):', err); }
         );
