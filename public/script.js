@@ -26,9 +26,13 @@ class PixDoneApp {
         this.contextMenuListId = null;
         this.tasksUnsubscribe = null;
         this.listsUnsubscribe = null;
+        this.allTasksUnsubscribe = null;
+        this.taskCountsByListId = {};
         this.isCreatingMyTasksList = false;
         this.isCreatingSmashList = false;
         this.isLoadingFromFirestore = false;
+        this._dayRolloverTimeout = null;
+        this._lastTodayYMD = null;
 
         // Tutorial tasks for unauthenticated users (title resolved via i18n: tutorialTask1, tutorialTask2, tutorialTask3)
         this.tutorialTasks = [
@@ -213,6 +217,7 @@ class PixDoneApp {
         // i18n: apply translations and sync lang buttons
         if (typeof window.applyI18n === 'function') window.applyI18n();
         this.refreshLangUI();
+        this.setupDayRolloverRefresh();
 
         // 新しいコンポーネント管理システムの初期化
         this.initializeComponentSystem();
@@ -337,6 +342,10 @@ class PixDoneApp {
                     this.currentSubtasks = [];
                 }, 300);
             }
+            // Reset edit state so the next "new task" starts clean
+            this.currentTask = null;
+            this.selectedDate = null;
+            this.selectedRepeat = 'none';
             this.isMobileModalOpen = false;
             this.renderMobileFab();
             console.log('[PixDone] Bottom sheet hidden');
@@ -1004,14 +1013,13 @@ class PixDoneApp {
                     this.renderSubtasks(sheet);
                     this.updateSubtasksCount(sheet);
                     if (this.currentTask.dueDate) {
-                        const dueDate = new Date(this.currentTask.dueDate);
-                        const today = new Date();
-                        const tomorrow = new Date(today);
-                        tomorrow.setDate(today.getDate() + 1);
-                        if (dueDate.toDateString() === today.toDateString()) this.selectBottomSheetDate(sheet, 'today');
-                        else if (dueDate.toDateString() === tomorrow.toDateString()) this.selectBottomSheetDate(sheet, 'tomorrow');
+                        const dueYMD = this.normalizeDueYMD(this.currentTask.dueDate);
+                        const todayStr = this.getTodayYMD();
+                        const tomorrowStr = this.getTomorrowYMD();
+                        if (dueYMD === todayStr) this.selectBottomSheetDate(sheet, 'today');
+                        else if (dueYMD === tomorrowStr) this.selectBottomSheetDate(sheet, 'tomorrow');
                         else {
-                            this.selectedDate = dueDate;
+                            this.selectedDate = dueYMD;
                             sheet.querySelector('#newCalendarBtn').classList.add('active');
                         }
                     }
@@ -1078,7 +1086,7 @@ class PixDoneApp {
                 if (this.updateSubtasksCount) this.updateSubtasksCount(sheet);
             }
 
-            const dueDate = this.selectedDate ? (typeof this.selectedDate === 'string' ? this.selectedDate : this.selectedDate.toISOString().split('T')[0]) : null;
+            const dueDate = this.selectedDate ? this.normalizeDueYMD(this.selectedDate) : null;
             const repeat = this.selectedRepeat || 'none';
             const subtasks = (this.currentSubtasks || []).map(st => this.normalizeSubtask(st)).filter(Boolean);
             const listId = this.currentListId || 'default';
@@ -1154,17 +1162,15 @@ class PixDoneApp {
             if (dateType === 'today') {
                 const btn = sheet.querySelector('#newTodayBtn');
                 btn.classList.add('active');
-                this.selectedDate = new Date();
+                this.selectedDate = this.getTodayYMD();
             } else if (dateType === 'tomorrow') {
                 const btn = sheet.querySelector('#newTomorrowBtn');
                 btn.classList.add('active');
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                this.selectedDate = tomorrow;
+                this.selectedDate = this.getTomorrowYMD();
             } else if (dateType === 'custom' && customDate) {
                 const btn = sheet.querySelector('#newCalendarBtn');
                 btn.classList.add('active');
-                this.selectedDate = new Date(customDate);
+                this.selectedDate = this.normalizeDueYMD(customDate);
             }
         };
 
@@ -1183,8 +1189,7 @@ class PixDoneApp {
             nativeDatePicker.style.pointerEvents = 'auto';
             nativeDatePicker.style.zIndex = '99999';
             if (!nativeDatePicker.value) {
-                const today = new Date();
-                nativeDatePicker.value = today.toISOString().split('T')[0];
+                nativeDatePicker.value = this.getTodayYMD();
             }
             const hideAgain = () => {
                 nativeDatePicker.style.display = 'none';
@@ -1199,14 +1204,20 @@ class PixDoneApp {
             };
             nativeDatePicker.addEventListener('blur', hideAgain, { once: true });
             nativeDatePicker.addEventListener('change', hideAgain, { once: true });
-            setTimeout(() => {
+            // Open synchronously within user gesture when possible
+            try {
                 if (typeof nativeDatePicker.showPicker === 'function') {
                     nativeDatePicker.showPicker();
                 } else {
                     nativeDatePicker.focus();
                     nativeDatePicker.click();
                 }
-            }, 10);
+            } catch (e) {
+                try {
+                    nativeDatePicker.focus();
+                    nativeDatePicker.click();
+                } catch (_) { }
+            }
         };
 
         // Show repeat selector in bottom sheet
@@ -1296,23 +1307,21 @@ class PixDoneApp {
                 btn.style.background = 'var(--accent-color)';
                 btn.style.color = 'white';
                 btn.style.borderColor = 'var(--accent-color)';
-                this.selectedDate = new Date();
+                this.selectedDate = this.getTodayYMD();
             } else if (dateType === 'tomorrow') {
                 const btn = document.getElementById('newTomorrowBtn');
                 btn.classList.add('active');
                 btn.style.background = 'var(--accent-color)';
                 btn.style.color = 'white';
                 btn.style.borderColor = 'var(--accent-color)';
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                this.selectedDate = tomorrow;
+                this.selectedDate = this.getTomorrowYMD();
             } else if (dateType === 'custom' && customDate) {
                 const btn = document.getElementById('newCalendarBtn');
                 btn.classList.add('active');
                 btn.style.background = 'var(--accent-color)';
                 btn.style.color = 'white';
                 btn.style.borderColor = 'var(--accent-color)';
-                this.selectedDate = new Date(customDate);
+                this.selectedDate = this.normalizeDueYMD(customDate);
             }
 
             // No need to hide anything for native date picker
@@ -1341,7 +1350,7 @@ class PixDoneApp {
                 // Set today as default if no date is selected
                 if (!datePicker.value) {
                     const today = new Date();
-                    datePicker.value = today.toISOString().split('T')[0];
+                    datePicker.value = this.getTodayYMD();
                 }
                 datePicker.focus();
                 // Use showPicker for better native experience
@@ -1474,10 +1483,8 @@ class PixDoneApp {
             });
 
             if (task.dueDate) {
-                const today = new Date().toISOString().split('T')[0];
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                const today = this.getTodayYMD();
+                const tomorrowStr = this.getTomorrowYMD();
 
                 if (task.dueDate === today) {
                     const todayBtn = document.getElementById('newTodayBtn');
@@ -1504,7 +1511,7 @@ class PixDoneApp {
                         calendarBtn.style.color = 'white';
                         calendarBtn.style.borderColor = 'var(--accent-color)';
                         // Format date for display
-                        const date = new Date(task.dueDate);
+                        const date = this.parseYMDToLocalDate(task.dueDate) || new Date(task.dueDate);
                         const month = (date.getMonth() + 1).toString().padStart(2, '0');
                         const day = date.getDate().toString().padStart(2, '0');
                         calendarBtn.innerHTML = `<i class="fa fa-calendar"></i> ${month}/${day}`;
@@ -1571,7 +1578,7 @@ class PixDoneApp {
                 // Update existing task
                 this.currentTask.title = title;
                 this.currentTask.details = details;
-                this.currentTask.dueDate = this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null;
+                this.currentTask.dueDate = this.selectedDate ? this.normalizeDueYMD(this.selectedDate) : null;
                 this.currentTask.repeat = this.selectedRepeat || 'none';
                 this.currentTask.subtasks = (this.currentSubtasks || []).map(st => this.normalizeSubtask(st)).filter(Boolean);
 
@@ -1588,7 +1595,7 @@ class PixDoneApp {
                     id: Date.now().toString(),
                     title: title,
                     details: details,
-                    dueDate: this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null,
+                    dueDate: this.selectedDate ? this.normalizeDueYMD(this.selectedDate) : null,
                     repeat: this.selectedRepeat || 'none',
                     completed: false,
                     listId: this.currentListId || 'default',
@@ -1653,12 +1660,8 @@ class PixDoneApp {
 
         // Date selection methods
         this.selectNewModalDate = (type, customDate = null) => {
-            const today = new Date();
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-
-            const todayStr = today.toISOString().split('T')[0];
-            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            const todayStr = this.getTodayYMD();
+            const tomorrowStr = this.getTomorrowYMD();
 
             // Check if we're toggling off an already selected date
             if (type === 'today' && this.selectedDate === todayStr) {
@@ -1749,10 +1752,8 @@ class PixDoneApp {
         this.setNewModalDate = (dueDate) => {
             if (!dueDate) return;
 
-            const today = new Date().toISOString().split('T')[0];
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            const today = this.getTodayYMD();
+            const tomorrowStr = this.getTomorrowYMD();
 
             if (dueDate === today) {
                 this.selectNewModalDate('today');
@@ -1847,6 +1848,8 @@ class PixDoneApp {
                 // ログアウト時：Firestoreリスナーを解除してローカルデータに切り替え
                 if (this.listsUnsubscribe) this.listsUnsubscribe();
                 if (this.tasksUnsubscribe) this.tasksUnsubscribe();
+                if (this.allTasksUnsubscribe) this.allTasksUnsubscribe();
+                this.taskCountsByListId = {};
 
                 // 未ログインでもデフォルトリストを確保
                 this.loadTasks();
@@ -1973,6 +1976,23 @@ class PixDoneApp {
         // 既存のリスナーを解除
         if (this.listsUnsubscribe) this.listsUnsubscribe();
         if (this.tasksUnsubscribe) this.tasksUnsubscribe();
+        if (this.allTasksUnsubscribe) this.allTasksUnsubscribe();
+
+        // Tasks (all lists) listener for tab badge counts
+        this.allTasksUnsubscribe = listenAllTasksFromFirestore((tasks) => {
+            const counts = {};
+            for (const t of tasks || []) {
+                if (!t) continue;
+                if (!t.listId) continue;
+                if (t.completed) continue;
+                if (!this.isTopLevelTask(t)) continue;
+                const lid = String(t.listId);
+                counts[lid] = (counts[lid] || 0) + 1;
+            }
+            this.taskCountsByListId = counts;
+            this.renderListTabs();
+        });
+
         // リスト監視
         this.listsUnsubscribe = listenListsFromFirestore(async (lists) => {
             this.lists = lists;
@@ -2801,12 +2821,26 @@ class PixDoneApp {
                     }
                 }
             } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-                // Only handle arrow keys if no modals are open and no input is focused
+                // Only handle arrow keys if no modals are open and user is NOT editing text
+                const isTextEditing = (() => {
+                    if (e.isComposing || e.keyCode === 229) return true;
+                    const target = e.target;
+                    if (target && typeof target.closest === 'function') {
+                        if (target.closest('input, textarea, select, [contenteditable="true"], [role="textbox"]')) return true;
+                    }
+                    const ae = document.activeElement;
+                    if (!ae) return false;
+                    if (ae.tagName && ae.tagName.match(/INPUT|TEXTAREA|SELECT/)) return true;
+                    if (ae.isContentEditable) return true;
+                    if (ae.closest && ae.closest('[contenteditable="true"]')) return true;
+                    return false;
+                })();
+
                 if (!this.isInputVisible &&
                     !document.getElementById('createListModal').classList.contains('active') &&
                     !document.getElementById('deleteModal').classList.contains('active') &&
                     !this.isMobileModalOpen &&
-                    !document.activeElement.tagName.match(/INPUT|TEXTAREA/)) {
+                    !isTextEditing) {
 
                     e.preventDefault();
                     if (e.key === 'ArrowLeft') {
@@ -3237,6 +3271,11 @@ class PixDoneApp {
         // Desktop task input functionality
         if (window.innerWidth <= 768) {
             // Mobile devices use modal
+            // Ensure "new task" never inherits previous edit state
+            this.currentTask = null;
+            this.selectedDate = null;
+            this.selectedRepeat = 'none';
+            this.currentSubtasks = [];
             this.showMobileModal();
             return;
         }
@@ -3386,7 +3425,7 @@ class PixDoneApp {
 
         if (this.selectedDate) {
             // 日付を表示形式に変換
-            const date = new Date(this.selectedDate);
+            const date = this.parseYMDToLocalDate(this.selectedDate) || new Date(this.selectedDate);
             const month = date.getMonth() + 1;
             const day = date.getDate();
             calendarBtn.innerHTML = `<span>${month}/${day}</span>`;
@@ -3407,17 +3446,15 @@ class PixDoneApp {
         if (dateType === 'today') {
             selectedBtn = document.getElementById('todayBtn');
             // 既に選択されている場合は解除
-            if (this.selectedDate === new Date().toISOString().split('T')[0]) {
+            if (this.selectedDate === this.getTodayYMD()) {
                 this.selectedDate = null;
                 this.updateCalendarButtonText();
                 return;
             }
-            dueDate = new Date().toISOString().split('T')[0];
+            dueDate = this.getTodayYMD();
         } else if (dateType === 'tomorrow') {
             selectedBtn = document.getElementById('tomorrowBtn');
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            const tomorrowStr = this.getTomorrowYMD();
             // 既に選択されている場合は解除
             if (this.selectedDate === tomorrowStr) {
                 this.selectedDate = null;
@@ -3475,8 +3512,15 @@ class PixDoneApp {
 
             datePicker.addEventListener('blur', hideAfterSelection, { once: true });
             datePicker.addEventListener('change', hideAfterSelection, { once: true });
-
-            setTimeout(openPicker, 10);
+            // Open picker synchronously within the user gesture to avoid browser blocking
+            try {
+                openPicker();
+            } catch (err) {
+                try {
+                    datePicker.focus();
+                    datePicker.click();
+                } catch (_) { }
+            }
         }
     }
 
@@ -3973,14 +4017,12 @@ class PixDoneApp {
             const btn = document.getElementById(`inline-today-${taskId}`);
             btn.classList.add('active');
             btn.textContent = t('today');
-            this.selectedDate = new Date().toISOString().split('T')[0];
+            this.selectedDate = this.getTodayYMD();
         } else if (dateType === 'tomorrow') {
             const btn = document.getElementById(`inline-tomorrow-${taskId}`);
             btn.classList.add('active');
             btn.textContent = t('tomorrow');
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            this.selectedDate = tomorrow.toISOString().split('T')[0];
+            this.selectedDate = this.getTomorrowYMD();
         }
 
         // Play sound
@@ -4004,8 +4046,7 @@ class PixDoneApp {
         datePicker.style.zIndex = '99999';
         datePicker.style.display = 'block';
         if (!datePicker.value) {
-            const today = new Date();
-            datePicker.value = today.toISOString().split('T')[0];
+            datePicker.value = this.getTodayYMD();
         }
         const hideAgain = () => {
             datePicker.style.position = 'absolute';
@@ -4043,7 +4084,7 @@ class PixDoneApp {
                     // Update calendar button
                     const calendarBtn = document.getElementById(`inline-calendar-${taskId}`);
                     calendarBtn.classList.add('active');
-                    const date = new Date(selectedDate);
+                    const date = this.parseYMDToLocalDate(selectedDate) || new Date(selectedDate);
                     calendarBtn.innerHTML = `<i class="fa fa-calendar"></i> ${date.getMonth() + 1}/${date.getDate()}`;
 
                     // Play sound
@@ -4087,10 +4128,8 @@ class PixDoneApp {
     updateInlineDateButtons(taskId, dueDate) {
         if (!dueDate) return;
 
-        const today = new Date().toISOString().split('T')[0];
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        const today = this.getTodayYMD();
+        const tomorrowStr = this.getTomorrowYMD();
 
         if (dueDate === today) {
             const btn = document.getElementById(`inline-today-${taskId}`);
@@ -4102,7 +4141,7 @@ class PixDoneApp {
             const calendarBtn = document.getElementById(`inline-calendar-${taskId}`);
             if (calendarBtn) {
                 calendarBtn.classList.add('active');
-                const date = new Date(dueDate);
+                const date = this.parseYMDToLocalDate(dueDate) || new Date(dueDate);
                 calendarBtn.innerHTML = `<i class="fa fa-calendar"></i> ${date.getMonth() + 1}/${date.getDate()}`;
             }
         }
@@ -4646,10 +4685,8 @@ class PixDoneApp {
             });
 
             if (task.dueDate) {
-                const today = new Date().toISOString().split('T')[0];
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                const today = this.getTodayYMD();
+                const tomorrowStr = this.getTomorrowYMD();
 
                 if (task.dueDate === today) {
                     document.getElementById('todayBtn').classList.add('active');
@@ -5859,11 +5896,106 @@ class PixDoneApp {
         }
     }
 
+    /** Format Date as local calendar day string (YYYY-MM-DD). */
+    formatLocalYMD(date) {
+        const d = date instanceof Date ? date : new Date(date);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    /** Parse YYYY-MM-DD into a local Date (at local midnight). */
+    parseYMDToLocalDate(ymd) {
+        if (!ymd || typeof ymd !== 'string') return null;
+        const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
+        if (!m) return null;
+        const y = Number(m[1]);
+        const mo = Number(m[2]);
+        const d = Number(m[3]);
+        return new Date(y, mo - 1, d);
+    }
+
+    /** Normalize stored dueDate to YYYY-MM-DD if possible. */
+    normalizeDueYMD(dueDate) {
+        if (!dueDate) return null;
+        if (typeof dueDate === 'string') {
+            // Already date-only
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return dueDate;
+            // Try parse other string formats
+            const parsed = new Date(dueDate);
+            return isNaN(parsed.getTime()) ? null : this.formatLocalYMD(parsed);
+        }
+        if (dueDate instanceof Date) return this.formatLocalYMD(dueDate);
+        return null;
+    }
+
+    getTodayYMD() {
+        return this.formatLocalYMD(new Date());
+    }
+
+    getTomorrowYMD() {
+        const t = new Date();
+        t.setDate(t.getDate() + 1);
+        return this.formatLocalYMD(t);
+    }
+
+    /** Recompute date-relative UI at local day boundary and when tab becomes visible. */
+    setupDayRolloverRefresh() {
+        const today = this.getTodayYMD();
+        if (this._lastTodayYMD === today && this._dayRolloverTimeout) return;
+        this._lastTodayYMD = today;
+
+        if (this._dayRolloverTimeout) {
+            clearTimeout(this._dayRolloverTimeout);
+            this._dayRolloverTimeout = null;
+        }
+
+        const now = new Date();
+        const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+        const ms = Math.max(1000, nextMidnight.getTime() - now.getTime() + 250);
+        this._dayRolloverTimeout = setTimeout(() => {
+            this._dayRolloverTimeout = null;
+            this.triggerDayRolloverRefresh();
+            this.setupDayRolloverRefresh();
+        }, ms);
+
+        if (!this._dayRolloverVisibilityBound) {
+            this._dayRolloverVisibilityBound = true;
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    this.triggerDayRolloverRefresh();
+                    this.setupDayRolloverRefresh();
+                }
+            });
+        }
+    }
+
+    triggerDayRolloverRefresh() {
+        try {
+            this.renderTasks();
+            this.updateCompletedCount();
+            this.renderListTabs();
+
+            // If inline edits are open, refresh their date button state too
+            document.querySelectorAll('.inline-edit-form').forEach(form => {
+                const taskId = form.getAttribute('data-editing-task');
+                if (!taskId) return;
+                const currentList = this.getCurrentList();
+                const task = currentList && currentList.tasks ? currentList.tasks.find(t => String(t.id) === String(taskId)) : null;
+                if (task && task.dueDate) this.updateInlineDateButtons(taskId, this.normalizeDueYMD(task.dueDate));
+            });
+        } catch (e) {
+            // no-op
+        }
+    }
+
     getDueStatus(dueDate) {
         if (!dueDate) return '';
 
-        const today = new Date().toISOString().split('T')[0];
-        const taskDate = new Date(dueDate).toISOString().split('T')[0];
+        const today = this.getTodayYMD();
+        const taskDate = this.normalizeDueYMD(dueDate);
+        if (!taskDate) return '';
 
         if (taskDate < today) return 'overdue';
         if (taskDate === today) return 'today';
@@ -5878,13 +6010,11 @@ class PixDoneApp {
             return window.formatDueShort(dueDate, typeof window.getLang === 'function' ? window.getLang() : 'en');
         }
         if (!dueDate) return '';
-        const today = new Date().toISOString().split('T')[0];
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        const today = this.getTodayYMD();
+        const tomorrowStr = this.getTomorrowYMD();
         if (dueDate === today) return 'Today';
         if (dueDate === tomorrowStr) return 'Tomorrow';
-        const d = new Date(dueDate);
+        const d = this.parseYMDToLocalDate(dueDate) || new Date(dueDate);
         const y = d.getFullYear();
         const thisYear = new Date().getFullYear();
         const m = d.getMonth() + 1;
@@ -5921,14 +6051,12 @@ class PixDoneApp {
             const short = window.formatDueShort(dueDate, typeof window.getLang === 'function' ? window.getLang() : 'en');
             if (short) return short;
         }
-        const today = new Date().toISOString().split('T')[0];
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        const today = this.getTodayYMD();
+        const tomorrowStr = this.getTomorrowYMD();
         const t = typeof window.t === 'function' ? window.t : (k) => k;
         if (dueDate === today) return t('dueToday');
         if (dueDate === tomorrowStr) return t('dueTomorrow');
-        const date = new Date(dueDate);
+        const date = this.parseYMDToLocalDate(dueDate) || new Date(dueDate);
         const lang = typeof window.getLang === 'function' ? window.getLang() : 'en';
         return date.toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'en-US', { month: 'short', day: 'numeric' });
     }
@@ -6413,11 +6541,14 @@ class PixDoneApp {
             const displayName = (list.id === 'smash-list' || list.name === '💥 Smash List')
                 ? '💥'
                 : (this.isMyTasksList(list) ? t('myTasks') : list.name);
+            const count = (this.isAuthenticated && this.taskCountsByListId)
+                ? (this.taskCountsByListId[String(list.id)] ?? 0)
+                : (list.tasks || []).filter(task => this.isTopLevelTask(task) && !task.completed).length;
             return `
             <button class="list-tab ${list.id === this.currentListId ? 'active' : ''}" 
                     data-list-id="${list.id}">
                 <span class="list-name">${this.escapeHtml(displayName)}</span>
-                ${(list.id === 'smash-list' || list.name === '💥 Smash List') ? '' : `<span class="list-count">${list.tasks.filter(task => this.isTopLevelTask(task) && !task.completed).length}</span>`}
+                ${(list.id === 'smash-list' || list.name === '💥 Smash List') ? '' : `<span class="list-count">${count}</span>`}
             </button>
         `}).join('');
 
@@ -7927,6 +8058,26 @@ function listenTasksFromFirestore(listId, onUpdate) {
                 onUpdate(sorted);
             },
             err => { console.error('[PixDone] Firestore snapshot error (tasks):', err); }
+        );
+}
+
+/**
+ * Firestoreのtasksコレクションを全リスト横断でリアルタイム監視（主にタブ件数用）
+ * @param {function} onUpdate - タスク配列を受け取るコールバック
+ */
+function listenAllTasksFromFirestore(onUpdate) {
+    const user = firebase.auth().currentUser;
+    if (!user) return () => { };
+    return db.collection('tasks')
+        .where('uid', '==', user.uid)
+        .orderBy('createdAt', 'desc')
+        .limit(500)
+        .onSnapshot(
+            snap => {
+                const tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                onUpdate(tasks);
+            },
+            err => { console.error('[PixDone] Firestore snapshot error (tasks all):', err); }
         );
 }
 
