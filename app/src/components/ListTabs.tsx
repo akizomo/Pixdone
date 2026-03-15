@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import type { List } from '../types/list';
 
 export interface ListTabsProps {
@@ -5,7 +6,6 @@ export interface ListTabsProps {
   activeListId: string | null;
   onSelect: (listId: string) => void;
   onAddList: () => void;
-  /** e.g. (list) => list.id === 'smash-list' for emoji-only tab */
   getTabLabel: (list: List) => string;
   getTabCount?: (list: List) => number;
 }
@@ -18,9 +18,25 @@ export function ListTabs({
   getTabLabel,
   getTabCount,
 }: ListTabsProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    const btn = activeRef.current;
+    if (!container || !btn) return;
+    const containerCenter = container.clientWidth / 2;
+    const btnCenter = btn.offsetLeft + btn.offsetWidth / 2;
+    container.scrollTo({ left: btnCenter - containerCenter, behavior: 'smooth' });
+  }, [activeListId]);
+
   return (
-    <div className="flex items-center gap-2 w-full overflow-hidden">
-      <div className="pd-list-tabs-scroll flex items-center gap-0.5 flex-1 min-w-0 pb-0">
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+      <div
+        ref={scrollRef}
+        className="pd-list-tabs-scroll"
+        style={{ display: 'flex', alignItems: 'center', gap: '2px', flex: 1, minWidth: 0, overflowX: 'auto' }}
+      >
         {lists.map((list) => {
           const isActive = list.id === activeListId;
           const count = getTabCount?.(list);
@@ -28,23 +44,53 @@ export function ListTabs({
           return (
             <button
               key={list.id}
+              ref={isActive ? activeRef : null}
               type="button"
-              className={`flex items-center gap-1 py-1.5 px-2 border-b-2 flex-shrink-0 whitespace-nowrap rounded-none text-[0.875rem] transition-all ${
-                isActive
-                  ? 'border-[var(--pd-color-accent-default)] text-[var(--pd-color-text-primary)] font-medium'
-                  : 'border-transparent text-[var(--pd-color-text-secondary)] hover:bg-[var(--pd-color-background-hover)] hover:text-[var(--pd-color-text-primary)]'
-              }`}
-              style={{ fontFamily: 'var(--pd-font-body)' }}
               onClick={() => onSelect(list.id)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '6px 8px',
+                borderBottom: `2px solid ${isActive ? 'var(--pd-color-accent-default)' : 'transparent'}`,
+                borderTop: 'none',
+                borderLeft: 'none',
+                borderRight: 'none',
+                background: 'none',
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
+                fontSize: '0.875rem',
+                fontFamily: 'var(--pd-font-body)',
+                color: isActive ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
+                fontWeight: isActive ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)';
+                  (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-primary)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'none';
+                  (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-secondary)';
+                }
+              }}
             >
               <span>{getTabLabel(list)}</span>
               {showCount && (
                 <span
-                  className={`ml-1 px-1 py-0.5 text-xs rounded-none pd-pixel-ui border ${
-                    isActive
-                      ? 'bg-[var(--pd-color-accent-default)] border-[var(--pd-color-accent-default)] text-white'
-                      : 'bg-[var(--pd-color-background-elevated)] border-[var(--pd-color-border-default)] text-[var(--pd-color-text-secondary)]'
-                  }`}
+                  style={{
+                    marginLeft: '2px',
+                    padding: '1px 4px',
+                    fontSize: '0.6875rem',
+                    borderRadius: 0,
+                    border: `1px solid ${isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
+                    background: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-background-elevated)',
+                    color: isActive ? 'white' : 'var(--pd-color-text-secondary)',
+                  }}
                 >
                   {count}
                 </span>
@@ -55,9 +101,30 @@ export function ListTabs({
       </div>
       <button
         type="button"
-        className="flex items-center justify-center w-7 h-7 flex-shrink-0 border border-[var(--pd-color-border-default)] rounded-none pd-pixel-ui text-[var(--pd-color-text-secondary)] hover:bg-[var(--pd-color-background-hover)] hover:text-[var(--pd-color-text-primary)]"
         onClick={onAddList}
         aria-label="Add list"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '28px',
+          height: '28px',
+          flexShrink: 0,
+          border: '1px solid var(--pd-color-border-default)',
+          borderRadius: 0,
+          background: 'none',
+          color: 'var(--pd-color-text-secondary)',
+          cursor: 'pointer',
+          fontSize: '1rem',
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)';
+          (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-primary)';
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background = 'none';
+          (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-secondary)';
+        }}
       >
         +
       </button>

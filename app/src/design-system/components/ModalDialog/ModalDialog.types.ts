@@ -9,5 +9,7 @@ export interface ModalDialogProps {
   /** Custom action buttons (e.g. Cancel / Confirm) */
   actions?: ReactNode;
   closeOnOverlayClick?: boolean;
+  /** When set, called on overlay click instead of onClose (e.g. save then close) */
+  onOverlayClick?: () => void;
   'aria-label'?: string;
 }

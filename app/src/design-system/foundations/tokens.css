@@ -1,211 +1,369 @@
 /**
- * Pixdone design tokens as CSS custom properties.
- * Prefix: --pxd-
+ * Pixdone design tokens – CSS custom properties.
+ *
+ * Architecture:
+ *
+ *   Primitive tokens   --pxd-{color}-{step}
+ *       ↓ var() reference
+ *   Semantic tokens    --pxd-color-{role}-{variant}   (default = light mode)
+ *       ↓ selector override
+ *   [data-theme="dark"]                               (dark mode semantics)
+ *       ↓ cssVariables override
+ *   VisualTheme (arcade / synthwave / custom…)
+ *
+ * To create a custom theme:
+ *   1. Override specific primitives  →  semantics cascade automatically.
+ *   2. Override specific semantics   →  for fine-grained control.
+ *   3. Register via VisualTheme.cssVariables.{ light, dark }.
+ *
  * Import once (e.g. in global.css or app entry).
  */
 
+/* =============================================================================
+   PRIMITIVE TOKENS
+   The raw color palette. Theme-neutral. Never reference semantics here.
+   ============================================================================= */
+
 :root {
-  /* -------------------------------------------------------------------------
-     Accessibility
-     ------------------------------------------------------------------------- */
+  /* ── Neutral light scale ─────────────────────────────────────────────────── */
+  /*    Used for light-mode surfaces, text, and borders.                       */
+  --pxd-gray-0:   #FCFCFC;
+  --pxd-gray-50:  #F7F7F8;
+  --pxd-gray-100: #EFEFF1;
+  --pxd-gray-200: #DDDEE3;
+  --pxd-gray-300: #C7C9D1;
+  --pxd-gray-400: #A6AAB6;
+  --pxd-gray-500: #858B99;
+  --pxd-gray-600: #666C7A;
+  --pxd-gray-700: #4C5160;
+  --pxd-gray-800: #2E3440;
+  --pxd-gray-900: #191D24;
+
+  /* ── Ink scale ───────────────────────────────────────────────────────────── */
+  /*    Cool blue-gray tones for dark mode.                                    */
+  /*    ink-50…300  = dark-mode text & borders  (light end of the scale)       */
+  /*    ink-400…950 = dark-mode surfaces        (dark end of the scale)        */
+  --pxd-ink-50:  #E8EBF4;
+  --pxd-ink-100: #9DA3B4;
+  --pxd-ink-200: #5E6478;
+  --pxd-ink-300: #404758;
+  --pxd-ink-400: #363E55;
+  --pxd-ink-500: #354262;
+  --pxd-ink-600: #2E3A52;
+  --pxd-ink-700: #252D40;
+  --pxd-ink-800: #1E2435;
+  --pxd-ink-900: #1A1F2C;
+  --pxd-ink-950: #12151C;
+
+  /* ── Blue ────────────────────────────────────────────────────────────────── */
+  --pxd-blue-300: #7BB4FF;
+  --pxd-blue-500: #4C8DFF;
+  --pxd-blue-700: #2D5BDB;
+
+  /* ── Green ───────────────────────────────────────────────────────────────── */
+  --pxd-green-300: #7EE3A7;
+  --pxd-green-350: #5CE896;  /* dark mode text-success  */
+  --pxd-green-400: #4CD98A;  /* dark mode feedback-success */
+  --pxd-green-500: #35C26B;
+  --pxd-green-700: #1D8F4A;
+
+  /* ── Yellow ──────────────────────────────────────────────────────────────── */
+  --pxd-yellow-300: #FFD86B;
+  --pxd-yellow-500: #F5B82E;
+  --pxd-yellow-700: #B78112;
+
+  /* ── Red ─────────────────────────────────────────────────────────────────── */
+  --pxd-red-300: #FF9C96;    /* brand smash */
+  --pxd-red-400: #FF7070;    /* dark mode danger (text / feedback / border) */
+  --pxd-red-500: #E85D5D;
+  --pxd-red-700: #B93D3D;
+
+  /* ── Purple ──────────────────────────────────────────────────────────────── */
+  --pxd-purple-50:  #F3F1FF;  /* light mode action-secondary hover bg   */
+  --pxd-purple-100: #E6E1FF;  /* light mode action-secondary pressed bg */
+  --pxd-purple-300: #B79CFF;
+  --pxd-purple-400: #A590FF;  /* dark mode text-accent & action hover   */
+  --pxd-purple-500: #7B61FF;
+  --pxd-purple-600: #6B52F0;
+  --pxd-purple-700: #5B43D6;
+
+  /* ── Pink ────────────────────────────────────────────────────────────────── */
+  --pxd-pink-300: #FF9DE1;
+  --pxd-pink-500: #F45CCB;
+  --pxd-pink-700: #C73CA1;
+
+  /* ── Cyan ────────────────────────────────────────────────────────────────── */
+  --pxd-cyan-300: #8FE7FF;
+  --pxd-cyan-500: #43CBEA;
+  --pxd-cyan-700: #2396B2;
+
+  /* ── Base ────────────────────────────────────────────────────────────────── */
+  --pxd-white: #FFFFFF;
+  --pxd-black: #111111;
+}
+
+/* =============================================================================
+   SEMANTIC TOKENS – Light mode (default)
+   Reference only primitive tokens via var(). Do not hard-code hex values here.
+   ============================================================================= */
+
+:root {
+  /* ── Accessibility ── */
   --pxd-tap-target-min: 44px;
 
-  /* -------------------------------------------------------------------------
-     Color – semantic surface
-     ------------------------------------------------------------------------- */
-  --pxd-color-surface-page: #F7F7F8;
-  --pxd-color-surface-page-alt: #EFEFF1;
-  --pxd-color-surface-primary: #FFFFFF;
-  --pxd-color-surface-secondary: #F7F7F8;
-  --pxd-color-surface-raised: #FFFFFF;
-  --pxd-color-surface-overlay: rgba(17, 17, 17, 0.64);
-  --pxd-color-surface-inverse: #191D24;
-  --pxd-color-surface-disabled: #DDDEE3;
+  /* ── Surface ── */
+  --pxd-color-surface-page:      var(--pxd-gray-50);
+  --pxd-color-surface-page-alt:  var(--pxd-gray-100);
+  --pxd-color-surface-primary:   var(--pxd-white);
+  --pxd-color-surface-secondary: var(--pxd-gray-50);
+  --pxd-color-surface-raised:    var(--pxd-white);
+  --pxd-color-surface-overlay:   rgba(17, 17, 17, 0.64);
+  --pxd-color-surface-inverse:   var(--pxd-gray-900);
+  --pxd-color-surface-disabled:  var(--pxd-gray-200);
 
-  /* -------------------------------------------------------------------------
-     Color – semantic text
-     ------------------------------------------------------------------------- */
-  --pxd-color-text-primary: #191D24;
-  --pxd-color-text-secondary: #4C5160;
-  --pxd-color-text-tertiary: #666C7A;
-  --pxd-color-text-inverse: #FFFFFF;
-  --pxd-color-text-disabled: #858B99;
-  --pxd-color-text-accent: #5B43D6;
-  --pxd-color-text-success: #1D8F4A;
-  --pxd-color-text-warning: #B78112;
-  --pxd-color-text-danger: #B93D3D;
+  /* ── Text ── */
+  --pxd-color-text-primary:   var(--pxd-gray-900);
+  --pxd-color-text-secondary: var(--pxd-gray-700);
+  --pxd-color-text-tertiary:  var(--pxd-gray-600);
+  --pxd-color-text-inverse:   var(--pxd-white);
+  --pxd-color-text-disabled:  var(--pxd-gray-500);
+  --pxd-color-text-accent:    var(--pxd-purple-700);
+  --pxd-color-text-success:   var(--pxd-green-700);
+  --pxd-color-text-warning:   var(--pxd-yellow-700);
+  --pxd-color-text-danger:    var(--pxd-red-700);
 
-  /* -------------------------------------------------------------------------
-     Color – semantic border
-     ------------------------------------------------------------------------- */
-  --pxd-color-border-subtle: #DDDEE3;
-  --pxd-color-border-default: #A6AAB6;
-  --pxd-color-border-strong: #2E3440;
-  --pxd-color-border-inverse: #FFFFFF;
-  --pxd-color-border-focus: #4C8DFF;
-  --pxd-color-border-danger: #E85D5D;
+  /* ── Border ── */
+  --pxd-color-border-subtle:  var(--pxd-gray-200);
+  --pxd-color-border-default: var(--pxd-gray-400);
+  --pxd-color-border-strong:  var(--pxd-gray-800);
+  --pxd-color-border-inverse: var(--pxd-white);
+  --pxd-color-border-focus:   var(--pxd-blue-500);
+  --pxd-color-border-danger:  var(--pxd-red-500);
 
-  /* -------------------------------------------------------------------------
-     Color – semantic feedback & action
-     ------------------------------------------------------------------------- */
-  --pxd-color-feedback-info: #4C8DFF;
-  --pxd-color-feedback-success: #35C26B;
-  --pxd-color-feedback-warning: #F5B82E;
-  --pxd-color-feedback-danger: #E85D5D;
+  /* ── Feedback ── */
+  --pxd-color-feedback-info:    var(--pxd-blue-500);
+  --pxd-color-feedback-success: var(--pxd-green-500);
+  --pxd-color-feedback-warning: var(--pxd-yellow-500);
+  --pxd-color-feedback-danger:  var(--pxd-red-500);
 
-  --pxd-color-action-primary: #7B61FF;
-  --pxd-color-action-primary-hover: #6B52F0;
-  --pxd-color-action-primary-pressed: #5B43D6;
-  --pxd-color-action-secondary: #FFFFFF;
-  --pxd-color-action-secondary-hover: #F3F1FF;
-  --pxd-color-action-secondary-pressed: #E6E1FF;
-  --pxd-color-action-ghost-hover: #EFEFF1;
-  --pxd-color-action-ghost-pressed: #DDDEE3;
-  --pxd-color-action-disabled: #C7C9D1;
+  /* ── Action ── */
+  --pxd-color-action-primary:           var(--pxd-purple-500);
+  --pxd-color-action-primary-hover:     var(--pxd-purple-600);
+  --pxd-color-action-primary-pressed:   var(--pxd-purple-700);
+  --pxd-color-action-secondary:         var(--pxd-white);
+  --pxd-color-action-secondary-hover:   var(--pxd-purple-50);
+  --pxd-color-action-secondary-pressed: var(--pxd-purple-100);
+  --pxd-color-action-ghost-hover:       var(--pxd-gray-100);
+  --pxd-color-action-ghost-pressed:     var(--pxd-gray-200);
+  --pxd-color-action-disabled:          var(--pxd-gray-300);
 
-  --pxd-color-focus-ring: #4C8DFF;
-  --pxd-color-focus-ring-offset: #FFFFFF;
+  /* ── Focus ── */
+  --pxd-color-focus-ring:        var(--pxd-blue-500);
+  --pxd-color-focus-ring-offset: var(--pxd-white);
 
-  /* -------------------------------------------------------------------------
-     Color – brand
-     ------------------------------------------------------------------------- */
-  --pxd-color-brand-primary: #7B61FF;
-  --pxd-color-brand-secondary: #F5B82E;
-  --pxd-color-brand-reward: #35C26B;
-  --pxd-color-brand-epic: #F45CCB;
-  --pxd-color-brand-freeze: #43CBEA;
-  --pxd-color-brand-smash: #FF9C96;
-  --pxd-color-brand-pixel-ink: #191D24;
-  --pxd-color-brand-pixel-paper: #FFFFFF;
+  /* ── Brand (mode-invariant) ── */
+  --pxd-color-brand-primary:     var(--pxd-purple-500);
+  --pxd-color-brand-secondary:   var(--pxd-yellow-500);
+  --pxd-color-brand-reward:      var(--pxd-green-500);
+  --pxd-color-brand-epic:        var(--pxd-pink-500);
+  --pxd-color-brand-freeze:      var(--pxd-cyan-500);
+  --pxd-color-brand-smash:       var(--pxd-red-300);
+  --pxd-color-brand-pixel-ink:   var(--pxd-gray-900);
+  --pxd-color-brand-pixel-paper: var(--pxd-white);
 
-  --pxd-color-rarity-common: #A6AAB6;
-  --pxd-color-rarity-rare: #4C8DFF;
-  --pxd-color-rarity-epic: #F45CCB;
-  --pxd-color-rarity-legendary: #F5B82E;
+  --pxd-color-rarity-common:    var(--pxd-gray-400);
+  --pxd-color-rarity-rare:      var(--pxd-blue-500);
+  --pxd-color-rarity-epic:      var(--pxd-pink-500);
+  --pxd-color-rarity-legendary: var(--pxd-yellow-500);
 
-  --pxd-color-reward-glow-green: rgba(53, 194, 107, 0.28);
+  /*
+   * Reward glows use semi-transparent alpha; they can't use var() from
+   * an opaque primitive today. Override with color-mix() if you want
+   * a custom brand color to ripple here automatically.
+   */
+  --pxd-color-reward-glow-green:  rgba(53, 194, 107, 0.28);
   --pxd-color-reward-glow-purple: rgba(123, 97, 255, 0.28);
-  --pxd-color-reward-glow-pink: rgba(244, 92, 203, 0.28);
-  --pxd-color-reward-glow-cyan: rgba(67, 203, 234, 0.28);
+  --pxd-color-reward-glow-pink:   rgba(244, 92, 203, 0.28);
+  --pxd-color-reward-glow-cyan:   rgba(67, 203, 234, 0.28);
 
-  /* -------------------------------------------------------------------------
-     Spacing (px)
-     ------------------------------------------------------------------------- */
-  --pxd-space-0: 0;
-  --pxd-space-1: 4px;
-  --pxd-space-2: 8px;
-  --pxd-space-3: 12px;
-  --pxd-space-4: 16px;
-  --pxd-space-5: 20px;
-  --pxd-space-6: 24px;
-  --pxd-space-8: 32px;
+  /* ── Shadow (light mode) ── */
+  --pxd-shadow-none:                none;
+  --pxd-shadow-soft-xs:             0 1px 2px  rgba(17, 17, 17, 0.08);
+  --pxd-shadow-soft-sm:             0 2px 6px  rgba(17, 17, 17, 0.10);
+  --pxd-shadow-soft-md:             0 4px 12px rgba(17, 17, 17, 0.12);
+  --pxd-shadow-pixel-sm:            2px 2px 0px rgba(25, 29, 36, 0.92);
+  --pxd-shadow-pixel-md:            3px 3px 0px rgba(25, 29, 36, 0.92);
+  --pxd-shadow-pixel-lg:            4px 4px 0px rgba(25, 29, 36, 0.95);
+  --pxd-shadow-pixel-inset:         inset 2px 2px 0px rgba(255, 255, 255, 0.12);
+  --pxd-shadow-reward-glow-green:   0 0 0 4px rgba(53, 194, 107, 0.18);
+  --pxd-shadow-reward-glow-purple:  0 0 0 4px rgba(123, 97, 255, 0.18);
+  --pxd-shadow-reward-glow-pink:    0 0 0 4px rgba(244, 92, 203, 0.18);
+
+  /* ── Spacing ── */
+  --pxd-space-0:  0;
+  --pxd-space-1:  4px;
+  --pxd-space-2:  8px;
+  --pxd-space-3:  12px;
+  --pxd-space-4:  16px;
+  --pxd-space-5:  20px;
+  --pxd-space-6:  24px;
+  --pxd-space-8:  32px;
   --pxd-space-10: 40px;
   --pxd-space-12: 48px;
   --pxd-space-14: 56px;
   --pxd-space-16: 64px;
 
-  --pxd-layout-xs: 4px;
-  --pxd-layout-sm: 8px;
-  --pxd-layout-md: 12px;
-  --pxd-layout-lg: 16px;
-  --pxd-layout-xl: 24px;
+  --pxd-layout-xs:  4px;
+  --pxd-layout-sm:  8px;
+  --pxd-layout-md:  12px;
+  --pxd-layout-lg:  16px;
+  --pxd-layout-xl:  24px;
   --pxd-layout-2xl: 32px;
   --pxd-layout-3xl: 40px;
 
-  /* -------------------------------------------------------------------------
-     Radius (px)
-     ------------------------------------------------------------------------- */
+  /* ── Radius ── */
   --pxd-radius-none: 0;
-  --pxd-radius-xs: 4px;
-  --pxd-radius-sm: 6px;
-  --pxd-radius-md: 8px;
-  --pxd-radius-lg: 12px;
-  --pxd-radius-xl: 16px;
+  --pxd-radius-xs:   4px;
+  --pxd-radius-sm:   6px;
+  --pxd-radius-md:   8px;
+  --pxd-radius-lg:   12px;
+  --pxd-radius-xl:   16px;
   --pxd-radius-full: 9999px;
 
-  /* -------------------------------------------------------------------------
-     Border width (px)
-     ------------------------------------------------------------------------- */
-  --pxd-border-none: 0;
-  --pxd-border-thin: 1px;
-  --pxd-border-base: 2px;
+  /* ── Border width ── */
+  --pxd-border-none:   0;
+  --pxd-border-thin:   1px;
+  --pxd-border-base:   2px;
   --pxd-border-strong: 3px;
 
-  /* -------------------------------------------------------------------------
-     Shadow
-     ------------------------------------------------------------------------- */
-  --pxd-shadow-none: none;
-  --pxd-shadow-soft-xs: 0 1px 2px rgba(17, 17, 17, 0.08);
-  --pxd-shadow-soft-sm: 0 2px 6px rgba(17, 17, 17, 0.10);
-  --pxd-shadow-soft-md: 0 4px 12px rgba(17, 17, 17, 0.12);
-  --pxd-shadow-pixel-sm: 2px 2px 0px rgba(25, 29, 36, 0.92);
-  --pxd-shadow-pixel-md: 3px 3px 0px rgba(25, 29, 36, 0.92);
-  --pxd-shadow-pixel-lg: 4px 4px 0px rgba(25, 29, 36, 0.95);
-  --pxd-shadow-pixel-inset: inset 2px 2px 0px rgba(255, 255, 255, 0.12);
-  --pxd-shadow-reward-glow-green: 0 0 0 4px rgba(53, 194, 107, 0.18);
-  --pxd-shadow-reward-glow-purple: 0 0 0 4px rgba(123, 97, 255, 0.18);
-  --pxd-shadow-reward-glow-pink: 0 0 0 4px rgba(244, 92, 203, 0.18);
-
-  /* -------------------------------------------------------------------------
-     Typography
-     ------------------------------------------------------------------------- */
-  --pxd-font-body: "Inter", "Noto Sans JP", system-ui, sans-serif;
+  /* ── Typography ── */
+  --pxd-font-body:    "Inter", "Noto Sans JP", system-ui, sans-serif;
   --pxd-font-display: "Press Start 2P", "DotGothic16", monospace;
-  --pxd-font-mono: "JetBrains Mono", monospace;
+  --pxd-font-mono:    "JetBrains Mono", monospace;
 
-  --pxd-font-size-xs: 12px;
-  --pxd-font-size-sm: 14px;
-  --pxd-font-size-md: 16px;
-  --pxd-font-size-lg: 18px;
-  --pxd-font-size-xl: 20px;
+  --pxd-font-size-xs:  12px;
+  --pxd-font-size-sm:  14px;
+  --pxd-font-size-md:  16px;
+  --pxd-font-size-lg:  18px;
+  --pxd-font-size-xl:  20px;
   --pxd-font-size-2xl: 24px;
   --pxd-font-size-3xl: 32px;
 
-  --pxd-line-height-tight: 1.2;
-  --pxd-line-height-snug: 1.35;
-  --pxd-line-height-normal: 1.5;
+  --pxd-line-height-tight:   1.2;
+  --pxd-line-height-snug:    1.35;
+  --pxd-line-height-normal:  1.5;
   --pxd-line-height-relaxed: 1.65;
 
-  --pxd-font-weight-regular: 400;
-  --pxd-font-weight-medium: 500;
+  --pxd-font-weight-regular:  400;
+  --pxd-font-weight-medium:   500;
   --pxd-font-weight-semibold: 600;
-  --pxd-font-weight-bold: 700;
+  --pxd-font-weight-bold:     700;
 
-  /* -------------------------------------------------------------------------
-     Motion
-     ------------------------------------------------------------------------- */
+  /* ── Motion ── */
   --pxd-motion-instant: 80ms;
-  --pxd-motion-fast: 120ms;
-  --pxd-motion-base: 180ms;
-  --pxd-motion-slow: 240ms;
-  --pxd-motion-slower: 320ms;
-  --pxd-motion-reward: 700ms;
+  --pxd-motion-fast:    120ms;
+  --pxd-motion-base:    180ms;
+  --pxd-motion-slow:    240ms;
+  --pxd-motion-slower:  320ms;
+  --pxd-motion-reward:  700ms;
 
-  --pxd-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --pxd-easing-standard:   cubic-bezier(0.2, 0, 0, 1);
   --pxd-easing-decelerate: cubic-bezier(0, 0, 0, 1);
   --pxd-easing-accelerate: cubic-bezier(0.3, 0, 1, 1);
-  --pxd-easing-playful: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --pxd-easing-press: cubic-bezier(0.2, 0, 0, 1);
+  --pxd-easing-playful:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --pxd-easing-press:      cubic-bezier(0.2, 0, 0, 1);
 
-  --pxd-scale-press: 0.96;
-  --pxd-scale-hover: 1.01;
-  --pxd-scale-reward-pop: 1.06;
+  --pxd-scale-press:       0.96;
+  --pxd-scale-hover:       1.01;
+  --pxd-scale-reward-pop:  1.06;
   --pxd-scale-modal-enter: 0.98;
 
   --pxd-opacity-disabled: 0.48;
-  --pxd-opacity-muted: 0.72;
+  --pxd-opacity-muted:    0.72;
 }
 
-/* ---------------------------------------------------------------------------
-   Reduced motion
-   --------------------------------------------------------------------------- */
+/* =============================================================================
+   SEMANTIC TOKENS – Dark mode overrides
+   Only semantic tokens are overridden here; primitives stay shared.
+   Each token points to a different step on the ink / vibrant scales.
+
+   To create a custom dark theme, override primitives (e.g. --pxd-ink-950)
+   and these semantics cascade automatically. For fine-grained control,
+   override individual semantic tokens in VisualTheme.cssVariables.dark.
+   ============================================================================= */
+
+[data-theme="dark"] {
+  /* ── Surface ── */
+  --pxd-color-surface-page:      var(--pxd-ink-950);
+  --pxd-color-surface-page-alt:  var(--pxd-ink-900);
+  --pxd-color-surface-primary:   var(--pxd-ink-800);
+  --pxd-color-surface-secondary: var(--pxd-ink-950);
+  --pxd-color-surface-raised:    var(--pxd-ink-700);
+  --pxd-color-surface-overlay:   rgba(0, 0, 0, 0.75);
+  --pxd-color-surface-inverse:   var(--pxd-gray-50);
+  --pxd-color-surface-disabled:  var(--pxd-ink-800);
+
+  /* ── Text ── */
+  --pxd-color-text-primary:   var(--pxd-ink-50);
+  --pxd-color-text-secondary: var(--pxd-ink-100);
+  --pxd-color-text-tertiary:  var(--pxd-ink-200);
+  --pxd-color-text-inverse:   var(--pxd-gray-900);
+  --pxd-color-text-disabled:  var(--pxd-ink-300);
+  --pxd-color-text-accent:    var(--pxd-purple-400);
+  --pxd-color-text-success:   var(--pxd-green-350);
+  --pxd-color-text-warning:   var(--pxd-yellow-300);
+  --pxd-color-text-danger:    var(--pxd-red-400);
+
+  /* ── Border ── */
+  --pxd-color-border-subtle:  var(--pxd-ink-700);
+  --pxd-color-border-default: var(--pxd-ink-400);
+  --pxd-color-border-strong:  var(--pxd-ink-100);
+  --pxd-color-border-inverse: var(--pxd-gray-900);
+  --pxd-color-border-focus:   var(--pxd-blue-300);
+  --pxd-color-border-danger:  var(--pxd-red-400);
+
+  /* ── Feedback ── */
+  --pxd-color-feedback-info:    var(--pxd-blue-300);
+  --pxd-color-feedback-success: var(--pxd-green-400);
+  --pxd-color-feedback-warning: var(--pxd-yellow-300);
+  --pxd-color-feedback-danger:  var(--pxd-red-400);
+
+  /* ── Action ── */
+  --pxd-color-action-primary:           var(--pxd-purple-500);
+  --pxd-color-action-primary-hover:     var(--pxd-purple-400);
+  --pxd-color-action-primary-pressed:   var(--pxd-purple-600);
+  --pxd-color-action-secondary:         var(--pxd-ink-700);
+  --pxd-color-action-secondary-hover:   var(--pxd-ink-600);
+  --pxd-color-action-secondary-pressed: var(--pxd-ink-500);
+  --pxd-color-action-ghost-hover:       var(--pxd-ink-800);
+  --pxd-color-action-ghost-pressed:     var(--pxd-ink-700);
+  --pxd-color-action-disabled:          var(--pxd-ink-700);
+
+  /* ── Focus ── */
+  --pxd-color-focus-ring:        var(--pxd-blue-300);
+  --pxd-color-focus-ring-offset: var(--pxd-ink-950);
+
+  /* ── Shadow ── */
+  --pxd-shadow-soft-xs:     0 1px 2px  rgba(0, 0, 0, 0.32);
+  --pxd-shadow-soft-sm:     0 2px 6px  rgba(0, 0, 0, 0.48);
+  --pxd-shadow-soft-md:     0 4px 12px rgba(0, 0, 0, 0.56);
+  --pxd-shadow-pixel-sm:    2px 2px 0px rgba(0, 0, 0, 0.80);
+  --pxd-shadow-pixel-md:    3px 3px 0px rgba(0, 0, 0, 0.85);
+  --pxd-shadow-pixel-lg:    4px 4px 0px rgba(0, 0, 0, 0.90);
+  --pxd-shadow-pixel-inset: inset 2px 2px 0px rgba(255, 255, 255, 0.06);
+}
+
+/* =============================================================================
+   REDUCED MOTION
+   ============================================================================= */
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --pxd-motion-instant: 0ms;
-    --pxd-motion-fast: 0ms;
-    --pxd-motion-base: 0ms;
-    --pxd-motion-slow: 0ms;
-    --pxd-motion-slower: 0ms;
-    --pxd-motion-reward: 0ms;
+    --pxd-motion-fast:    0ms;
+    --pxd-motion-base:    0ms;
+    --pxd-motion-slow:    0ms;
+    --pxd-motion-slower:  0ms;
+    --pxd-motion-reward:  0ms;
   }
 }

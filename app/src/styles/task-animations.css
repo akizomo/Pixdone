@@ -1,0 +1,29 @@
+/* === Task Completion Animations === */
+
+/* Vanilla parity: body/html during effect (animations.js) */
+body.task-effect-playing,
+html.task-effect-playing {
+  overflow-x: visible !important;
+  overflow-y: auto !important;
+}
+
+/* Vanilla parity: clone for completion effect (position fixed; transform from animation keyframes) */
+.task-effect-clone {
+  position: fixed !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  /* Start fully opaque; layout preserved via inline style merge in runVanillaCompletionEffect */
+  opacity: 1;
+  min-height: 0;
+  /* Prevent flex/shrink issues when clone has fixed width/height */
+  flex-shrink: 0;
+}
+
+/* === List Switch Animation === */
+.pd-list-enter {
+  animation: pdListSlideIn 0.18s ease-out;
+}
+@keyframes pdListSlideIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}

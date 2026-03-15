@@ -9,7 +9,7 @@ const meta: Meta<typeof Chip> = {
     docs: {
       description: {
         component:
-          '**When to use:** Filters, status labels, tags. **Accessibility:** Removable chips use a button with aria-label="Remove" (min 24px hit area). Selected state is conveyed visually and via aria-selected when used as an option. **Visual:** Compact padding; selected shows focus ring; variants use semantic colors with light tint backgrounds.',
+          '**When to use:** Filters, status labels, tags. **Accessibility:** Removable chips use a button with aria-label="Remove" (min 24px hit area). Selected state is conveyed visually and via aria-selected when used as an option. **Visual:** Compact padding; selected shows focus ring; variants use semantic colors with light tint backgrounds. **Sound (vanilla parity):** Select → `buttonClick`; Remove → `taskCancel`.',
       },
     },
   },

@@ -1,21 +1,24 @@
-/* Chip – compact, clear selected and removable. */
+/* Chip – pixel art lang-chip style, matches public/style.css .lang-chip */
 
 .pxd-chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--pxd-space-2);
+  gap: 4px;
   box-sizing: border-box;
-  padding: var(--pxd-space-1) var(--pxd-space-3);
-  font-family: var(--pxd-font-body);
-  font-weight: var(--pxd-font-weight-medium);
-  line-height: var(--pxd-line-height-snug);
-  border-width: var(--pxd-border-base);
+  padding: 2px 8px;
+  font-family: var(--pd-font-brand);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-width: 2px;
   border-style: solid;
-  border-radius: var(--pxd-radius-full);
-  transition:
-    background-color var(--pxd-motion-fast) var(--pxd-easing-standard),
-    border-color var(--pxd-motion-fast) var(--pxd-easing-standard),
-    box-shadow var(--pxd-motion-fast) var(--pxd-easing-standard);
+  border-radius: 0;
+  image-rendering: pixelated;
+  box-shadow: 1px 1px 0 var(--pd-color-shadow-default);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  min-width: 28px;
+  text-align: center;
+  user-select: none;
 }
 
 .pxd-chip:focus {
@@ -23,94 +26,86 @@
 }
 
 .pxd-chip:focus-visible {
-  outline: 2px solid var(--pxd-color-focus-ring);
+  outline: 2px solid var(--pd-color-accent-default);
   outline-offset: 2px;
 }
 
-.pxd-chip--selected {
-  box-shadow: 0 0 0 2px var(--pxd-color-focus-ring-offset), 0 0 0 4px var(--pxd-color-focus-ring);
+/* Default (neutral, not selected) */
+.pxd-chip--neutral {
+  background-color: var(--pd-color-background-elevated);
+  color: var(--pd-color-text-secondary);
+  border-color: var(--pd-color-border-default);
+}
+
+.pxd-chip--neutral:hover {
+  background-color: var(--pd-color-background-hover);
+  color: var(--pd-color-text-primary);
+}
+
+/* Selected */
+.pxd-chip--selected,
+.pxd-chip--neutral.pxd-chip--selected {
+  background-color: var(--pd-color-accent-subtle);
+  color: var(--pd-color-accent-default);
+  border-color: var(--pd-color-accent-default);
+  box-shadow: 2px 2px 0 var(--pd-color-shadow-default);
+}
+
+/* Accent variant */
+.pxd-chip--accent {
+  background-color: var(--pd-color-accent-subtle);
+  color: var(--pd-color-accent-default);
+  border-color: var(--pd-color-accent-default);
+}
+
+/* Size overrides */
+.pxd-chip--sm {
+  padding: 1px 6px;
+  font-size: 0.75rem;
+}
+
+.pxd-chip--md {
+  padding: 2px 8px;
+  font-size: 0.875rem;
+}
+
+/* Semantic variants (kept minimal) */
+.pxd-chip--success {
+  background-color: rgba(52, 168, 83, 0.15);
+  color: var(--pd-color-semantic-success);
+  border-color: var(--pd-color-semantic-success);
+}
+
+.pxd-chip--warning {
+  background-color: rgba(251, 188, 4, 0.15);
+  color: var(--pd-color-semantic-warning);
+  border-color: var(--pd-color-semantic-warning);
+}
+
+.pxd-chip--danger {
+  background-color: rgba(234, 67, 53, 0.15);
+  color: var(--pd-color-semantic-danger);
+  border-color: var(--pd-color-semantic-danger);
 }
 
 .pxd-chip__remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: var(--pxd-space-1);
-  padding: var(--pxd-space-1);
-  min-width: 24px;
-  min-height: 24px;
+  margin-left: 4px;
+  padding: 2px;
+  min-width: 20px;
+  min-height: 20px;
   border: none;
-  border-radius: var(--pxd-radius-full);
+  border-radius: 0;
   background: transparent;
   color: inherit;
   font-size: 1rem;
   line-height: 1;
   cursor: pointer;
   opacity: 0.85;
-  transition: background-color var(--pxd-motion-fast), opacity var(--pxd-motion-fast);
 }
 
 .pxd-chip__remove:hover {
   opacity: 1;
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.pxd-chip__remove:focus {
-  outline: none;
-}
-
-.pxd-chip__remove:focus-visible {
-  outline: 2px solid var(--pxd-color-focus-ring);
-  outline-offset: 1px;
-}
-
-/* ---- Sizes ---- */
-
-.pxd-chip--sm {
-  padding: 2px var(--pxd-space-2);
-  font-size: var(--pxd-font-size-xs);
-}
-
-.pxd-chip--sm .pxd-chip__remove {
-  min-width: 20px;
-  min-height: 20px;
-  padding: 2px;
-  font-size: 0.875rem;
-}
-
-.pxd-chip--md {
-  padding: var(--pxd-space-1) var(--pxd-space-3);
-  font-size: var(--pxd-font-size-sm);
-}
-
-/* ---- Variants (explicit backgrounds; no reliance on /opacity) ---- */
-
-.pxd-chip--neutral {
-  background-color: var(--pxd-color-surface-secondary);
-  color: var(--pxd-color-text-primary);
-  border-color: var(--pxd-color-border-subtle);
-}
-
-.pxd-chip--accent {
-  background-color: var(--pxd-color-action-secondary);
-  color: var(--pxd-color-text-accent);
-  border-color: var(--pxd-color-text-accent);
-}
-
-.pxd-chip--success {
-  background-color: rgba(53, 194, 107, 0.14);
-  color: var(--pxd-color-text-success);
-  border-color: var(--pxd-color-feedback-success);
-}
-
-.pxd-chip--warning {
-  background-color: rgba(245, 184, 46, 0.18);
-  color: var(--pxd-color-text-warning);
-  border-color: var(--pxd-color-feedback-warning);
-}
-
-.pxd-chip--danger {
-  background-color: rgba(232, 93, 93, 0.14);
-  color: var(--pxd-color-text-danger);
-  border-color: var(--pxd-color-feedback-danger);
 }

@@ -11,7 +11,7 @@ const meta: Meta<typeof BottomSheet> = {
     docs: {
       description: {
         component:
-          '**When to use:** Mobile-style actions, filters, or supplementary content. **Accessibility:** role="dialog", aria-modal, aria-labelledby when titled; ESC closes; close button has 44px target. **Visual:** Token spacing; handle bar when showHandle; smooth slide-up entrance; overlay fades in.',
+          '**When to use:** Mobile-style actions, filters, or supplementary content. **Accessibility:** role="dialog", aria-modal, aria-labelledby when titled; ESC closes; close button has 44px target. **Visual:** Token spacing; handle bar when showHandle; smooth slide-up entrance; overlay fades in. **Sound (vanilla parity):** Close button / ESC → `taskCancel`.',
       },
     },
   },

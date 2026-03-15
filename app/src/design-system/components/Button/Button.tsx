@@ -1,3 +1,4 @@
+import { playSound } from '../../../services/sound';
 import type { ButtonProps } from './Button.types';
 import './Button.css';
 
@@ -21,6 +22,7 @@ export function Button({
   children,
   type = 'button',
   className = '',
+  onClick,
   ...rest
 }: ButtonProps) {
   const classes = [
@@ -39,6 +41,7 @@ export function Button({
       className={classes}
       disabled={disabled || loading}
       aria-busy={loading}
+      onClick={(e) => { playSound('buttonClick'); onClick?.(e); }}
       {...rest}
     >
       {loading ? '…' : children}

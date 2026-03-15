@@ -1,3 +1,4 @@
+import { playSound } from '../../../services/sound';
 import type { IconButtonProps } from './IconButton.types';
 import './IconButton.css';
 
@@ -16,6 +17,7 @@ export function IconButton({
   'aria-label': ariaLabel,
   icon,
   className = '',
+  onClick,
   ...rest
 }: IconButtonProps) {
   const classes = ['pxd-icon-button', sizeMap[size], variantMap[variant], className].filter(Boolean).join(' ');
@@ -26,6 +28,7 @@ export function IconButton({
       className={classes}
       disabled={disabled}
       aria-label={ariaLabel}
+      onClick={(e) => { playSound('buttonClick'); onClick?.(e); }}
       {...rest}
     >
       <span className="pxd-icon-button__icon" aria-hidden>

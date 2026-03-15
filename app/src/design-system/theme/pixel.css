@@ -14,6 +14,9 @@
   --completed-color: var(--pd-color-semantic-success);
   --danger-color: var(--pd-color-semantic-danger);
   --warning-color: var(--pd-color-semantic-warning);
+  /* Vanilla parity for empty/tutorial states */
+  --pixel-cyan: #33ffff;
+  --pixel-green: #33ff33;
 }
 
 /* App layout – matches .app-container in public/style.css */
@@ -79,4 +82,333 @@
 }
 .pd-list-tabs-scroll::-webkit-scrollbar {
   display: none;
+}
+
+/* Smash list / hint: Space key badge (vanilla .command-key parity) */
+.command-key {
+  display: inline-block;
+  padding: 2px 6px;
+  background-color: rgba(128, 128, 128, 0.15);
+  color: inherit;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 2px;
+  font-family: var(--pd-font-brand);
+  font-size: 0.9em;
+  font-weight: 400;
+  line-height: 1.2;
+  vertical-align: baseline;
+  letter-spacing: 0.5px;
+}
+[lang="en"] .command-key {
+  font-size: 1em;
+}
+
+/* Mobile FAB – hidden on desktop, shown on mobile */
+.pd-mobile-fab {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .pd-mobile-fab {
+    display: flex !important;
+  }
+
+  /* Hide desktop "Add a task" button on mobile */
+  .pd-add-task-section {
+    display: none !important;
+  }
+
+  /* Extra padding so content isn't hidden behind FAB */
+  .pd-app-container {
+    padding-bottom: 88px;
+  }
+}
+
+@media (min-width: 769px) {
+  /* Remove extra bottom padding on desktop */
+  .pd-app-container {
+    padding-bottom: 20px;
+  }
+}
+
+/* ===== Retro animations ===== */
+@keyframes pd-retro-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
+@keyframes pd-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pd-sleeping-char {
+  0%, 80% { opacity: 0.8; transform: scale(1); }
+  85%, 95% { opacity: 0.5; transform: scale(0.98); }
+  100% { opacity: 0.8; transform: scale(1); }
+}
+
+/* ===== Empty state: "READY?" ===== */
+.pd-empty-ready-text {
+  font-family: var(--pd-font-brand);
+  font-size: 2rem;
+  color: var(--pd-color-accent-default);
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  animation: pd-retro-blink 1s infinite;
+  image-rendering: pixelated;
+  margin: 0 0 8px;
+}
+
+/* ===== Empty state: sleeping pixel character ===== */
+.pd-pixel-character {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: pd-sleeping-char 3s infinite;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.1));
+  height: 120px;
+  justify-content: center;
+}
+
+.pd-sleep-bubble {
+  position: relative;
+  background-color: var(--pd-color-background-default);
+  border: 4px solid var(--pd-color-text-primary);
+  border-radius: 0;
+  padding: 16px 20px;
+  box-shadow: 4px 4px 0 var(--pd-color-text-primary);
+  animation: pd-float 3s ease-in-out infinite;
+}
+
+/* pixel-art staircase tail (border color) */
+.pd-sleep-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 24px;
+  width: 24px;
+  height: 20px;
+  background-color: var(--pd-color-text-primary);
+  clip-path: polygon(0 0, 20px 0, 20px 2px, 18px 2px, 18px 4px, 16px 4px,
+    16px 6px, 14px 6px, 14px 8px, 12px 8px, 12px 10px, 10px 10px,
+    10px 12px, 8px 12px, 8px 14px, 6px 14px, 6px 16px, 4px 16px,
+    4px 18px, 2px 18px, 2px 20px, 0 20px);
+}
+
+/* pixel-art staircase tail (inner fill) */
+.pd-sleep-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 27px;
+  width: 18px;
+  height: 16px;
+  background-color: var(--pd-color-background-default);
+  clip-path: polygon(0 0, 14px 0, 14px 2px, 12px 2px, 12px 4px, 10px 4px,
+    10px 6px, 8px 6px, 8px 8px, 6px 8px, 6px 10px, 4px 10px,
+    4px 12px, 2px 12px, 2px 14px, 0 14px);
+}
+
+.pd-bubble-text {
+  font-family: var(--pd-font-brand);
+  font-size: 2rem;
+  font-weight: normal;
+  color: var(--pd-color-text-primary);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  image-rendering: pixelated;
+  line-height: 1;
+}
+
+/* ===== Tutorial complete CTA ===== */
+.pd-tutorial-cta-text {
+  font-family: var(--pd-font-brand);
+  font-size: 1.5rem;
+  color: #33ff33;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  margin-bottom: 12px;
+  animation: pd-retro-blink 1.5s infinite;
+  image-rendering: pixelated;
+  line-height: 1.6;
+}
+
+.pd-tutorial-cta-sub {
+  font-family: var(--pd-font-brand);
+  font-size: 1.125rem;
+  color: var(--pd-color-text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.4;
+  image-rendering: pixelated;
+}
+
+/* ===== Vanilla-parity: Game start empty & empty state & tutorial CTA ===== */
+.game-start-empty {
+  width: 100%;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  box-sizing: border-box;
+}
+
+.game-start-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.ready-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: var(--md-headline-small, 1.5rem);
+  color: var(--pixel-cyan);
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  animation: pd-retro-blink 1s infinite;
+  image-rendering: pixelated;
+  margin-bottom: 8px;
+}
+
+.start-instruction {
+  font-size: var(--md-body-medium, 0.875rem);
+  color: var(--text-muted);
+  font-family: var(--pd-font-body);
+}
+
+/* Regular empty state (sleeping character) – same structure as public/index.html */
+.empty-state {
+  width: 100%;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  box-sizing: border-box;
+}
+
+.empty-state p {
+  font-size: var(--md-body-medium, 0.875rem);
+}
+
+.empty-illustration {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pixel-character {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: pd-sleeping-char 3s infinite;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.1));
+  height: 120px;
+  justify-content: center;
+}
+
+.sleep-bubble {
+  position: relative;
+  background-color: var(--bg-primary);
+  border: 4px solid var(--text-primary);
+  border-radius: 0;
+  padding: 16px 20px;
+  box-shadow: 4px 4px 0 var(--text-primary);
+  animation: pd-float 3s ease-in-out infinite;
+}
+
+.sleep-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 24px;
+  width: 24px;
+  height: 20px;
+  background-color: var(--text-primary);
+  clip-path: polygon(0 0, 20px 0, 20px 2px, 18px 2px, 18px 4px, 16px 4px,
+    16px 6px, 14px 6px, 14px 8px, 12px 8px, 12px 10px, 10px 10px,
+    10px 12px, 8px 12px, 8px 14px, 6px 14px, 6px 16px, 4px 16px,
+    4px 18px, 2px 18px, 2px 20px, 0 20px);
+}
+
+.sleep-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 27px;
+  width: 18px;
+  height: 16px;
+  background-color: var(--bg-primary);
+  clip-path: polygon(0 0, 14px 0, 14px 2px, 12px 2px, 12px 4px, 10px 4px,
+    10px 6px, 8px 6px, 8px 8px, 6px 8px, 6px 10px, 4px 10px,
+    4px 12px, 2px 12px, 2px 14px, 0 14px);
+}
+
+.bubble-text {
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: var(--md-headline-medium, 1.75rem);
+  font-weight: normal;
+  color: var(--text-primary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  image-rendering: pixelated;
+  line-height: 1;
+}
+
+/* Tutorial complete CTA – same structure as public/index.html */
+.tutorial-complete-cta {
+  text-align: center;
+  padding: 24px 20px;
+  margin: 8px 0 24px 0;
+  image-rendering: pixelated;
+}
+
+.tutorial-complete-cta-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: var(--md-title-medium, 1rem);
+  color: var(--pixel-green);
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  margin-bottom: 12px;
+  animation: pd-retro-blink 1.5s infinite;
+  image-rendering: pixelated;
+  line-height: 1.6;
+}
+
+.tutorial-complete-cta-sub {
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: var(--md-body-large, 1rem);
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.4;
+  image-rendering: pixelated;
+}
+
+.tutorial-complete-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 28px;
+  font-size: var(--md-label-large, 0.875rem);
+  font-weight: 600;
+  font-family: 'Press Start 2P', monospace;
+  color: #fff;
+  background: var(--completed-color);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+  transition: all 0.15s ease;
+  image-rendering: pixelated;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tutorial-complete-cta-btn:hover {
+  background: #2e7d32;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.3);
+}
+
+.tutorial-complete-cta-btn:active {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
 }

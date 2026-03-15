@@ -4,7 +4,7 @@
  * Use --pxd-* CSS variables (tokens.css) or these exports in code.
  */
 
-export { color } from './color.tokens';
+export { color, primitiveLookup } from './color.tokens';
 export { spacing, layoutSpacing } from './spacing.tokens';
 export { radius } from './radius.tokens';
 export { border } from './border.tokens';

@@ -60,7 +60,7 @@ class ComicEffectsManager {
             "fadeOut",
         ];
         this.superRareEffects = ["rainbowSmash", "freeze"];
-        this.epicChance = 0.03; // 3% chance (shared by rainbow and freeze)
+        this.epicChance = 0.05; // 5% chance (shared by rainbow and freeze)
         this.rainbowSmashChance = this.epicChance;
         this.effectLock = false;
         this.audioContext = null;

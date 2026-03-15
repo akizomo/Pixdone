@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import type { Task } from '../types/task';
 import { TaskItem } from './TaskItem';
+import { isEditingText } from '../lib/utils';
 
 export interface SmashListPanelProps {
   subtitle: string;
@@ -10,30 +12,56 @@ export interface SmashListPanelProps {
 }
 
 export function SmashListPanel({ subtitle, hint, tasks, onSmash, getDisplayTitle }: SmashListPanelProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.isComposing || isEditingText()) return;
+      if (e.key !== ' ') return;
+      e.preventDefault();
+      const first = tasks.find((t) => !t.completed);
+      if (first) onSmash(first.id);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [tasks, onSmash]);
+
   return (
-    <div className="p-4">
+    <div style={{ padding: '16px' }}>
       <div
-        className="rounded-none border-2 p-3 mb-6 pd-shadow-sm pd-pixel-ui"
         style={{
-          borderColor: 'var(--pd-color-smash-border)',
+          padding: '12px',
+          marginBottom: '24px',
+          border: '2px solid var(--pd-color-smash-border)',
           background: 'linear-gradient(135deg, var(--pd-color-smash-gradientStart) 0%, var(--pd-color-smash-gradientEnd) 100%)',
+          boxShadow: '2px 2px 0 var(--pd-color-shadow-default)',
         }}
       >
         <p
-          className="text-[1rem] font-semibold mb-0 leading-[1.35]"
-          style={{ color: 'var(--pd-color-smash-text)', fontFamily: 'var(--pd-font-body)' }}
+          style={{
+            color: 'var(--pd-color-smash-text)',
+            fontFamily: 'var(--pd-font-body)',
+            fontSize: '1rem',
+            fontWeight: 600,
+            marginBottom: 0,
+            lineHeight: 1.35,
+          }}
           dangerouslySetInnerHTML={{ __html: subtitle.replace(/\. /g, '.<br>') }}
         />
         {hint ? (
           <p
-            className="text-[1rem] font-semibold mt-1.5 mb-0 leading-[1.3]"
-            style={{ color: 'var(--pd-color-smash-hint)' }}
-            dangerouslySetInnerHTML={{ __html: hint.replace(/\bSpace\b/g, '<kbd class="px-1 border-2 border-current rounded-none">Space</kbd>') }}
+            style={{
+              color: 'var(--pd-color-smash-hint)',
+              fontSize: '1rem',
+              fontWeight: 600,
+              marginTop: '6px',
+              marginBottom: 0,
+              lineHeight: 1.3,
+            }}
+            dangerouslySetInnerHTML={{ __html: hint.replace(/\bSpace\b/g, '<span class="command-key">Space</span>') }}
           />
         ) : null}
       </div>
-      <div className="space-y-2">
-        {tasks.slice(0, 3).map((task) => (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {tasks.filter((t) => !t.completed).slice(0, 3).map((task) => (
           <TaskItem
             key={task.id}
             task={{ ...task, title: getDisplayTitle(task) }}

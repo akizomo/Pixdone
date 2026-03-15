@@ -9,7 +9,7 @@ const meta: Meta<typeof Button> = {
     docs: {
       description: {
         component:
-          '**When to use:** Primary actions (Save, Submit), secondary actions (Cancel, Back), or low-emphasis actions (Skip). Use **primary** for the single main CTA; **secondary** for alternatives; **ghost** for tertiary; **danger** for destructive actions; **reward** for success/completion. **Accessibility:** Min 44px height for md/lg; focus-visible shows a 2px ring; disabled remains legible. **Visual:** Pixel shadow on primary/danger/reward; ghost is flat; press scale 0.96 for tactile feedback.',
+          '**When to use:** Primary actions (Save, Submit), secondary actions (Cancel, Back), or low-emphasis actions (Skip). Use **primary** for the single main CTA; **secondary** for alternatives; **ghost** for tertiary; **danger** for destructive actions; **reward** for success/completion. **Accessibility:** Min 44px height for md/lg; focus-visible shows a 2px ring; disabled remains legible. **Visual:** Pixel shadow on primary/danger/reward; ghost is flat; press scale 0.96 for tactile feedback. **Sound (vanilla parity):** Click → `buttonClick`.',
       },
     },
   },

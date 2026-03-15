@@ -1,58 +1,58 @@
 /**
  * Pixdone sound tokens.
- * どの操作にどの音を割り当てるかを定義。playSound(key) の key と対応。
- * 実再生は services/sound.ts / ComicEffectsManager に委譲。
+ * vanilla (public/script.js + .cursor/rules/pixdone-sounds.mdc) と同一の割り当てルール。
+ * key は playSound に渡す値。実再生は services/sound.ts / ComicEffectsManager に委譲。
  */
 
-/** サウンドトークン: key は playSound に渡す値。when は鳴らすタイミングの説明。 */
+/** サウンドトークン: key は playSound に渡す値。when は鳴らすタイミング（vanilla ルール準拠）。 */
 export const sound = {
-  /** データ追加の確定（タスク・リスト・サブタスク追加、作成） */
+  /** データ追加（タスク/リスト/サブタスク追加、確定） */
   taskAdd: {
     key: "taskAdd",
     role: "dataAdd",
-    when: "Save new task, add list, create list, add subtask (confirm)",
-    description: "ポジティブな確定フィードバック",
+    when: "タスク/リスト/サブタスク追加・確定",
+    description: "データ追加のフィードバック",
   },
-  /** 編集開始・編集の確定（タスク編集を開く、保存、リスト名変更） */
+  /** 編集・モード開始（タスク編集を開く、サブタスク編集） */
   taskEdit: {
     key: "taskEdit",
     role: "editConfirm",
-    when: "Open task/subtask edit, save existing task, rename list",
-    description: "編集・確定のフィードバック",
+    when: "タスク編集を開く、サブタスク編集",
+    description: "編集・モード開始のフィードバック",
   },
-  /** データ削除の確定（タスク・リスト・アカウント削除の確認後） */
+  /** データ削除（タスク/リスト削除） */
   taskDelete: {
     key: "taskDelete",
     role: "dataDelete",
-    when: "Confirm delete task, list, or account",
-    description: "削除の確定（破壊的アクション）",
+    when: "タスク/リスト削除の確定",
+    description: "データ削除のフィードバック",
   },
-  /** キャンセル・閉じる（シート・フォーム・モーダルを閉じる、キャンセルボタン） */
+  /** キャンセル・閉じる（モーダルを閉じる、キャンセル） */
   taskCancel: {
     key: "taskCancel",
     role: "cancel",
-    when: "Close sheet, cancel form, close modal, cancel delete",
-    description: "軽いキャンセル・閉じる",
+    when: "モーダルを閉じる、キャンセルボタン",
+    description: "キャンセル・閉じるのフィードバック",
   },
-  /** タスク完了（完了エフェクト後やフォールバック時。ログイン/ログアウト成功なども） */
+  /** 成功・完了（ログイン/ログアウト成功、パスワードリセット成功、タスク完了フォールバック時） */
   taskComplete: {
     key: "taskComplete",
     role: "completion",
-    when: "Task marked complete (after effect), login/logout success, password reset success",
-    description: "祝い・完了のフィードバック",
+    when: "ログイン/ログアウト成功、パスワードリセット成功",
+    description: "成功・完了のフィードバック",
   },
-  /** 汎用ボタン・選択・トグル（タブ、チップ、日付ボタン、サウンドON時など） */
+  /** 選択・トグル（タブ、チップ、サウンドトグル、その他汎用クリック） */
   buttonClick: {
     key: "buttonClick",
     role: "selection",
-    when: "Tab switch, language chip, sound toggle, date button, empty state, list tab, auth close",
-    description: "中立なクリック・選択",
+    when: "タブ切替、言語チップ、サウンドトグル、日付/繰り返しボタン、リストタブ、メニュー開閉など",
+    description: "選択・トグルのフィードバック",
   },
-  /** サブタスクを完了にしたとき（picoSound ビープ、コンボでピッチ可） */
+  /** サブタスク完了・コンボビープ（vanilla: picoSound.playSubtaskCompleteSound） */
   subtaskComplete: {
     key: "subtaskComplete",
     role: "subtaskCompletion",
-    when: "Subtask toggled to done",
+    when: "サブタスクを完了にしたとき",
     description: "サブタスク完了・コンボビープ",
   },
 } as const;

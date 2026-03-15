@@ -11,7 +11,7 @@ const meta: Meta<typeof ModalDialog> = {
     docs: {
       description: {
         component:
-          '**When to use:** Confirmations, forms, or focused content that must block the page. **Accessibility:** role="dialog", aria-modal, aria-labelledby/describedby; ESC closes; focus moves to first focusable inside; overlay click optional. **Visual:** Token spacing for title, description, body, actions; subtle open animation (opacity + scale).',
+          '**When to use:** Confirmations, forms, or focused content that must block the page. **Accessibility:** role="dialog", aria-modal, aria-labelledby/describedby; ESC closes; focus moves to first focusable inside; overlay click optional. **Visual:** Token spacing for title, description, body, actions; subtle open animation (opacity + scale). **Sound (vanilla parity):** Overlay click / ESC close → `taskCancel`.',
       },
     },
   },

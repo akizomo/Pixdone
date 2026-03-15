@@ -1,94 +1,144 @@
 import { Meta } from '@storybook/addon-docs/blocks';
-import { color } from '../../design-system';
+import { color, primitiveLookup } from '../../design-system';
 import { TokensTable } from './TokensTable';
 
 <Meta title="Foundations PXD/Color" />
 
 # Color Tokens
 
-Pixdone uses a modern color system designed for readability while allowing playful retro accents. Use semantic tokens in components; reserve brand colors (epic, freeze, smash) for rewards and special moments.
+Pixdone uses a **Primitive → Semantic** color architecture.
+
+- **Primitive** tokens (`--pxd-gray-*`, `--pxd-ink-*`, `--pxd-purple-*` …) define the raw palette.
+- **Semantic** tokens (`--pxd-color-surface-page`, `--pxd-color-text-primary` …) assign UI meaning and are overridden per color mode.
+- **Components** must only reference semantic tokens — never primitives directly.
+
+The table below shows how each semantic token resolves in **Light** and **Dark** mode.
 
 ---
 
 ## Surface
 
 <TokensTable
-  caption="Semantic surface tokens for page, cards, overlay."
+  primitiveMap={primitiveLookup}
+  caption="Background layers: page, cards, overlay."
   rows={[
-    { token: 'color.semantic.surface.page', value: color.semantic.surface.page, description: 'Page background', preview: 'color' },
-    { token: 'color.semantic.surface.pageAlt', value: color.semantic.surface.pageAlt, description: 'Alternate page / stripes', preview: 'color' },
-    { token: 'color.semantic.surface.primary', value: color.semantic.surface.primary, description: 'Primary surface (cards, panels)', preview: 'color' },
-    { token: 'color.semantic.surface.secondary', value: color.semantic.surface.secondary, description: 'Secondary surface', preview: 'color' },
-    { token: 'color.semantic.surface.raised', value: color.semantic.surface.raised, description: 'Raised / dropdown', preview: 'color' },
-    { token: 'color.semantic.surface.overlay', value: color.semantic.surface.overlay, description: 'Modal backdrop', preview: 'color' },
-    { token: 'color.semantic.surface.inverse', value: color.semantic.surface.inverse, description: 'Dark surface (header)', preview: 'color' },
-    { token: 'color.semantic.surface.disabled', value: color.semantic.surface.disabled, description: 'Disabled control surface', preview: 'color' },
+    { token: '--pxd-color-surface-page',      lightValue: color.semantic.light.surface.page,      darkValue: color.semantic.dark.surface.page,      description: 'Page background',               preview: 'color' },
+    { token: '--pxd-color-surface-page-alt',  lightValue: color.semantic.light.surface.pageAlt,   darkValue: color.semantic.dark.surface.pageAlt,   description: 'Alternate page / stripes',       preview: 'color' },
+    { token: '--pxd-color-surface-primary',   lightValue: color.semantic.light.surface.primary,   darkValue: color.semantic.dark.surface.primary,   description: 'Primary surface (cards, panels)', preview: 'color' },
+    { token: '--pxd-color-surface-secondary', lightValue: color.semantic.light.surface.secondary, darkValue: color.semantic.dark.surface.secondary, description: 'Secondary surface',              preview: 'color' },
+    { token: '--pxd-color-surface-raised',    lightValue: color.semantic.light.surface.raised,    darkValue: color.semantic.dark.surface.raised,    description: 'Raised / dropdown',              preview: 'color' },
+    { token: '--pxd-color-surface-overlay',   lightValue: color.semantic.light.surface.overlay,   darkValue: color.semantic.dark.surface.overlay,   description: 'Modal backdrop',                 preview: 'color' },
+    { token: '--pxd-color-surface-inverse',   lightValue: color.semantic.light.surface.inverse,   darkValue: color.semantic.dark.surface.inverse,   description: 'Inverse surface',                preview: 'color' },
+    { token: '--pxd-color-surface-disabled',  lightValue: color.semantic.light.surface.disabled,  darkValue: color.semantic.dark.surface.disabled,  description: 'Disabled control surface',       preview: 'color' },
   ]}
 />
 
 ## Text
 
 <TokensTable
+  primitiveMap={primitiveLookup}
   caption="Text hierarchy and semantic emphasis."
   rows={[
-    { token: 'color.semantic.text.primary', value: color.semantic.text.primary, description: 'Body and headings', preview: 'color' },
-    { token: 'color.semantic.text.secondary', value: color.semantic.text.secondary, description: 'Secondary text', preview: 'color' },
-    { token: 'color.semantic.text.tertiary', value: color.semantic.text.tertiary, description: 'Tertiary / muted', preview: 'color' },
-    { token: 'color.semantic.text.inverse', value: color.semantic.text.inverse, description: 'On dark backgrounds', preview: 'color' },
-    { token: 'color.semantic.text.disabled', value: color.semantic.text.disabled, description: 'Disabled text', preview: 'color' },
-    { token: 'color.semantic.text.accent', value: color.semantic.text.accent, description: 'Links, accent', preview: 'color' },
-    { token: 'color.semantic.text.success', value: color.semantic.text.success, description: 'Success state', preview: 'color' },
-    { token: 'color.semantic.text.warning', value: color.semantic.text.warning, description: 'Warning state', preview: 'color' },
-    { token: 'color.semantic.text.danger', value: color.semantic.text.danger, description: 'Error / danger', preview: 'color' },
+    { token: '--pxd-color-text-primary',   lightValue: color.semantic.light.text.primary,   darkValue: color.semantic.dark.text.primary,   description: 'Body and headings',        preview: 'color' },
+    { token: '--pxd-color-text-secondary', lightValue: color.semantic.light.text.secondary, darkValue: color.semantic.dark.text.secondary, description: 'Secondary text',           preview: 'color' },
+    { token: '--pxd-color-text-tertiary',  lightValue: color.semantic.light.text.tertiary,  darkValue: color.semantic.dark.text.tertiary,  description: 'Tertiary / muted',         preview: 'color' },
+    { token: '--pxd-color-text-inverse',   lightValue: color.semantic.light.text.inverse,   darkValue: color.semantic.dark.text.inverse,   description: 'On inverse backgrounds',   preview: 'color' },
+    { token: '--pxd-color-text-disabled',  lightValue: color.semantic.light.text.disabled,  darkValue: color.semantic.dark.text.disabled,  description: 'Disabled text',            preview: 'color' },
+    { token: '--pxd-color-text-accent',    lightValue: color.semantic.light.text.accent,    darkValue: color.semantic.dark.text.accent,    description: 'Links, accent',            preview: 'color' },
+    { token: '--pxd-color-text-success',   lightValue: color.semantic.light.text.success,   darkValue: color.semantic.dark.text.success,   description: 'Success state',            preview: 'color' },
+    { token: '--pxd-color-text-warning',   lightValue: color.semantic.light.text.warning,   darkValue: color.semantic.dark.text.warning,   description: 'Warning state',            preview: 'color' },
+    { token: '--pxd-color-text-danger',    lightValue: color.semantic.light.text.danger,    darkValue: color.semantic.dark.text.danger,    description: 'Error / danger',           preview: 'color' },
   ]}
 />
 
 ## Border
 
 <TokensTable
-  caption="Border colors for default, focus, and danger."
+  primitiveMap={primitiveLookup}
+  caption="Border colors for structure, focus, and danger states."
   rows={[
-    { token: 'color.semantic.border.subtle', value: color.semantic.border.subtle, description: 'Subtle border', preview: 'color' },
-    { token: 'color.semantic.border.default', value: color.semantic.border.default, description: 'Default border', preview: 'color' },
-    { token: 'color.semantic.border.strong', value: color.semantic.border.strong, description: 'Strong border', preview: 'color' },
-    { token: 'color.semantic.border.focus', value: color.semantic.border.focus, description: 'Focus ring', preview: 'color' },
-    { token: 'color.semantic.border.danger', value: color.semantic.border.danger, description: 'Error border', preview: 'color' },
+    { token: '--pxd-color-border-subtle',  lightValue: color.semantic.light.border.subtle,  darkValue: color.semantic.dark.border.subtle,  description: 'Subtle divider',   preview: 'color' },
+    { token: '--pxd-color-border-default', lightValue: color.semantic.light.border.default, darkValue: color.semantic.dark.border.default, description: 'Default border',   preview: 'color' },
+    { token: '--pxd-color-border-strong',  lightValue: color.semantic.light.border.strong,  darkValue: color.semantic.dark.border.strong,  description: 'Strong border',    preview: 'color' },
+    { token: '--pxd-color-border-focus',   lightValue: color.semantic.light.border.focus,   darkValue: color.semantic.dark.border.focus,   description: 'Focus ring',       preview: 'color' },
+    { token: '--pxd-color-border-danger',  lightValue: color.semantic.light.border.danger,  darkValue: color.semantic.dark.border.danger,  description: 'Error border',     preview: 'color' },
+    { token: '--pxd-color-border-inverse', lightValue: color.semantic.light.border.inverse, darkValue: color.semantic.dark.border.inverse, description: 'Inverse border',   preview: 'color' },
   ]}
 />
 
-## Feedback & Action
+## Feedback
 
 <TokensTable
-  caption="Feedback and action (button) colors."
+  primitiveMap={primitiveLookup}
+  caption="Status colors for info, success, warning, and danger."
   rows={[
-    { token: 'color.semantic.feedback.info', value: color.semantic.feedback.info, description: 'Info state', preview: 'color' },
-    { token: 'color.semantic.feedback.success', value: color.semantic.feedback.success, description: 'Success state', preview: 'color' },
-    { token: 'color.semantic.feedback.warning', value: color.semantic.feedback.warning, description: 'Warning state', preview: 'color' },
-    { token: 'color.semantic.feedback.danger', value: color.semantic.feedback.danger, description: 'Danger state', preview: 'color' },
-    { token: 'color.semantic.action.primary', value: color.semantic.action.primary, description: 'Primary button', preview: 'color' },
-    { token: 'color.semantic.action.primaryHover', value: color.semantic.action.primaryHover, description: 'Primary hover', preview: 'color' },
-    { token: 'color.semantic.action.primaryPressed', value: color.semantic.action.primaryPressed, description: 'Primary pressed', preview: 'color' },
+    { token: '--pxd-color-feedback-info',    lightValue: color.semantic.light.feedback.info,    darkValue: color.semantic.dark.feedback.info,    description: 'Info',    preview: 'color' },
+    { token: '--pxd-color-feedback-success', lightValue: color.semantic.light.feedback.success, darkValue: color.semantic.dark.feedback.success, description: 'Success', preview: 'color' },
+    { token: '--pxd-color-feedback-warning', lightValue: color.semantic.light.feedback.warning, darkValue: color.semantic.dark.feedback.warning, description: 'Warning', preview: 'color' },
+    { token: '--pxd-color-feedback-danger',  lightValue: color.semantic.light.feedback.danger,  darkValue: color.semantic.dark.feedback.danger,  description: 'Danger',  preview: 'color' },
   ]}
 />
 
-## Brand (Pixdone)
+## Action
 
 <TokensTable
-  caption="Brand and rarity colors; use sparingly for rewards."
+  primitiveMap={primitiveLookup}
+  caption="Interactive element colors for primary, secondary, and ghost actions."
   rows={[
-    { token: 'color.brand.pixdone.primary', value: color.brand.pixdone.primary, description: 'Brand primary', preview: 'color' },
-    { token: 'color.brand.pixdone.secondary', value: color.brand.pixdone.secondary, description: 'Brand secondary', preview: 'color' },
-    { token: 'color.brand.pixdone.reward', value: color.brand.pixdone.reward, description: 'Reward', preview: 'color' },
-    { token: 'color.brand.pixdone.epic', value: color.brand.pixdone.epic, description: 'Epic (special)', preview: 'color' },
-    { token: 'color.brand.pixdone.freeze', value: color.brand.pixdone.freeze, description: 'Freeze (special)', preview: 'color' },
-    { token: 'color.brand.pixdone.smash', value: color.brand.pixdone.smash, description: 'Smash feedback', preview: 'color' },
-    { token: 'color.brand.rarity.common', value: color.brand.rarity.common, description: 'Rarity: common', preview: 'color' },
-    { token: 'color.brand.rarity.rare', value: color.brand.rarity.rare, description: 'Rarity: rare', preview: 'color' },
-    { token: 'color.brand.rarity.epic', value: color.brand.rarity.epic, description: 'Rarity: epic', preview: 'color' },
-    { token: 'color.brand.rarity.legendary', value: color.brand.rarity.legendary, description: 'Rarity: legendary', preview: 'color' },
+    { token: '--pxd-color-action-primary',           lightValue: color.semantic.light.action.primary,           darkValue: color.semantic.dark.action.primary,           description: 'Primary button',           preview: 'color' },
+    { token: '--pxd-color-action-primary-hover',     lightValue: color.semantic.light.action.primaryHover,      darkValue: color.semantic.dark.action.primaryHover,      description: 'Primary hover',            preview: 'color' },
+    { token: '--pxd-color-action-primary-pressed',   lightValue: color.semantic.light.action.primaryPressed,    darkValue: color.semantic.dark.action.primaryPressed,    description: 'Primary pressed',          preview: 'color' },
+    { token: '--pxd-color-action-secondary',         lightValue: color.semantic.light.action.secondary,         darkValue: color.semantic.dark.action.secondary,         description: 'Secondary button',         preview: 'color' },
+    { token: '--pxd-color-action-secondary-hover',   lightValue: color.semantic.light.action.secondaryHover,    darkValue: color.semantic.dark.action.secondaryHover,    description: 'Secondary hover',          preview: 'color' },
+    { token: '--pxd-color-action-secondary-pressed', lightValue: color.semantic.light.action.secondaryPressed,  darkValue: color.semantic.dark.action.secondaryPressed,  description: 'Secondary pressed',        preview: 'color' },
+    { token: '--pxd-color-action-ghost-hover',       lightValue: color.semantic.light.action.ghostHover,        darkValue: color.semantic.dark.action.ghostHover,        description: 'Ghost hover',              preview: 'color' },
+    { token: '--pxd-color-action-ghost-pressed',     lightValue: color.semantic.light.action.ghostPressed,      darkValue: color.semantic.dark.action.ghostPressed,      description: 'Ghost pressed',            preview: 'color' },
+    { token: '--pxd-color-action-disabled',          lightValue: color.semantic.light.action.disabled,          darkValue: color.semantic.dark.action.disabled,          description: 'Disabled',                 preview: 'color' },
   ]}
 />
 
-## CSS variables
+## Focus
 
-Use the `--pxd-` prefix in CSS: e.g. `--pxd-color-surface-page`, `--pxd-color-text-primary`. See `tokens.css`.
+<TokensTable
+  primitiveMap={primitiveLookup}
+  caption="Focus ring and offset colors."
+  rows={[
+    { token: '--pxd-color-focus-ring',        lightValue: color.semantic.light.focus.ring,       darkValue: color.semantic.dark.focus.ring,       description: 'Focus ring',        preview: 'color' },
+    { token: '--pxd-color-focus-ring-offset', lightValue: color.semantic.light.focus.ringOffset,  darkValue: color.semantic.dark.focus.ringOffset,  description: 'Focus ring offset', preview: 'color' },
+  ]}
+/>
+
+## Brand (mode-invariant)
+
+<TokensTable
+  primitiveMap={primitiveLookup}
+  caption="Identity and rarity colors. Same in light and dark mode."
+  rows={[
+    { token: '--pxd-color-brand-primary',     lightValue: color.brand.pixdone.primary,    description: 'Brand primary (purple)',     preview: 'color' },
+    { token: '--pxd-color-brand-secondary',   lightValue: color.brand.pixdone.secondary,  description: 'Brand secondary (yellow)',   preview: 'color' },
+    { token: '--pxd-color-brand-reward',      lightValue: color.brand.pixdone.reward,     description: 'Reward (green)',             preview: 'color' },
+    { token: '--pxd-color-brand-epic',        lightValue: color.brand.pixdone.epic,       description: 'Epic (pink)',                preview: 'color' },
+    { token: '--pxd-color-brand-freeze',      lightValue: color.brand.pixdone.freeze,     description: 'Freeze (cyan)',              preview: 'color' },
+    { token: '--pxd-color-brand-smash',       lightValue: color.brand.pixdone.smash,      description: 'Smash feedback (coral)',     preview: 'color' },
+    { token: '--pxd-color-rarity-common',     lightValue: color.brand.rarity.common,      description: 'Rarity: common (gray)',      preview: 'color' },
+    { token: '--pxd-color-rarity-rare',       lightValue: color.brand.rarity.rare,        description: 'Rarity: rare (blue)',        preview: 'color' },
+    { token: '--pxd-color-rarity-epic',       lightValue: color.brand.rarity.epic,        description: 'Rarity: epic (pink)',        preview: 'color' },
+    { token: '--pxd-color-rarity-legendary',  lightValue: color.brand.rarity.legendary,   description: 'Rarity: legendary (gold)',   preview: 'color' },
+  ]}
+/>
+
+---
+
+## CSS変数の使い方
+
+コンポーネントでは `--pxd-` プレフィックスのセマンティックトークンを使用する。プリミティブトークン (`--pxd-gray-*`, `--pxd-ink-*`) は直接参照しない。
+
+```css
+/* ✅ 正しい — セマンティックトークンを参照 */
+color: var(--pxd-color-text-primary);
+background: var(--pxd-color-surface-page);
+
+/* ❌ 誤り — プリミティブを直接参照 */
+color: var(--pxd-gray-900);
+background: var(--pxd-ink-950);
+```

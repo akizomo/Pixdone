@@ -1,3 +1,4 @@
+import { playSound } from '../../../services/sound';
 import type { ChipProps } from './Chip.types';
 import './Chip.css';
 
@@ -18,6 +19,7 @@ export function Chip({
   onRemove,
   children,
   className = '',
+  onClick,
   ...rest
 }: ChipProps) {
   const classes = [
@@ -35,13 +37,14 @@ export function Chip({
       role={selected ? 'option' : undefined}
       aria-selected={selected ? true : undefined}
       className={classes}
+      onClick={(e) => { playSound('buttonClick'); onClick?.(e); }}
       {...rest}
     >
       {children}
       {removable && (
         <button
           type="button"
-          onClick={onRemove}
+          onClick={(e) => { e.stopPropagation(); playSound('taskCancel'); onRemove?.(); }}
           className="pxd-chip__remove"
           aria-label="Remove"
         >

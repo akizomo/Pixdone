@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { playSound } from '../../../services/sound';
 import type { ModalDialogProps } from './ModalDialog.types';
 import './ModalDialog.css';
 
@@ -10,55 +11,74 @@ export function ModalDialog({
   children,
   actions,
   closeOnOverlayClick = true,
+  onOverlayClick,
   'aria-label': ariaLabel,
 }: ModalDialogProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(open);
   const [entered, setEntered] = useState(false);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (open) {
-      const id = requestAnimationFrame(() => setEntered(true));
-      return () => cancelAnimationFrame(id);
-    }
-    setEntered(false);
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [open, onClose]);
-
-  useEffect(() => {
-    if (open) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+      setVisible(true);
+      let id1: number, id2: number;
+      id1 = requestAnimationFrame(() => {
+        id2 = requestAnimationFrame(() => setEntered(true));
+      });
+      return () => { cancelAnimationFrame(id1); cancelAnimationFrame(id2); };
+    } else {
+      setEntered(false);
+      closeTimerRef.current = setTimeout(() => setVisible(false), 200);
       return () => {
-        document.body.style.overflow = prev;
+        if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
       };
     }
   }, [open]);
 
   useEffect(() => {
     if (!open) return;
-    const id = requestAnimationFrame(() => {
-      const first = panelRef.current?.querySelector<HTMLElement>(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
-      first?.focus();
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { playSound('taskCancel'); onClose(); }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (visible) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [visible]);
+
+  useEffect(() => {
+    if (!open) return;
+    let id1: number, id2: number;
+    id1 = requestAnimationFrame(() => {
+      id2 = requestAnimationFrame(() => {
+        const first = panelRef.current?.querySelector<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        first?.focus();
+      });
     });
-    return () => cancelAnimationFrame(id);
+    return () => { cancelAnimationFrame(id1); cancelAnimationFrame(id2); };
   }, [open]);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
-    if (closeOnOverlayClick && e.target === overlayRef.current) onClose();
+    if (!closeOnOverlayClick || e.target !== overlayRef.current) return;
+    playSound('taskCancel');
+    if (onOverlayClick) onOverlayClick();
+    else onClose();
   };
 
-  if (!open) return null;
+  if (!visible) return null;
 
   return (
     <div
