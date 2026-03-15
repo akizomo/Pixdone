@@ -131,6 +131,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/user/theme', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { themeKey } = req.body;
+      const validThemes = ['arcade', 'synthwave'];
+      if (!themeKey || !validThemes.includes(themeKey)) {
+        return res.status(400).json({ message: "Invalid themeKey" });
+      }
+      const user = await storage.updateUserTheme(userId, themeKey);
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating user theme:", error);
+      res.status(500).json({ message: "Failed to update theme" });
+    }
+  });
+
   // Task routes
   app.get('/api/tasks', isAuthenticated, async (req: any, res) => {
     try {

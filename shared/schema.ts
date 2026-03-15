@@ -34,6 +34,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   passwordHash: varchar("password_hash"),
+  themeKey: varchar("theme_key").default('arcade'),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

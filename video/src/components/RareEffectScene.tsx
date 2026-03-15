@@ -161,7 +161,15 @@ const EffectCard: React.FC<{
   );
 };
 
-export const RareEffectScene: React.FC = () => {
+type Props = {
+  headline?: string;
+  subtext?: string;
+};
+
+export const RareEffectScene: React.FC<Props> = ({
+  headline = "10種類以上の\nエフェクト。",
+  subtext = "ときどき、レア演出。",
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -268,9 +276,9 @@ export const RareEffectScene: React.FC = () => {
             marginBottom: 16,
           }}
         >
-          10種類以上の
-          <br />
-          エフェクト。
+          {headline.split("\n").map((line, i) => (
+            <React.Fragment key={i}>{line}{i < headline.split("\n").length - 1 && <br />}</React.Fragment>
+          ))}
         </div>
 
         <div
@@ -290,7 +298,7 @@ export const RareEffectScene: React.FC = () => {
               color: "rgba(255,255,255,0.55)",
             }}
           >
-            ときどき、レア演出。
+            {subtext}
           </span>
         </div>
       </div>

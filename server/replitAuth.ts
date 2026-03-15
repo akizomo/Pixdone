@@ -22,7 +22,7 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
-export function getSession() {
+function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({

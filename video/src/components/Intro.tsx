@@ -10,7 +10,15 @@ import {
 import { bodyFont, pixelFont } from "../fonts";
 import { PixelParticles } from "./PixelParticles";
 
-export const Intro = () => {
+type Props = {
+  line1?: string;
+  line2?: string;
+};
+
+export const Intro = ({
+  line1 = "タスクを終わらせる。",
+  line2 = "ちょっと楽しい。",
+}: Props) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -88,7 +96,7 @@ export const Intro = () => {
             marginBottom: 16,
           }}
         >
-          タスクを終わらせる。
+          {line1}
         </div>
         <div
           style={{
@@ -101,7 +109,7 @@ export const Intro = () => {
             letterSpacing: -3,
           }}
         >
-          ちょっと楽しい。
+          {line2}
         </div>
       </div>
 

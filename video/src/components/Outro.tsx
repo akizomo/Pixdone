@@ -10,7 +10,15 @@ import {
 import { bodyFont, pixelFont } from "../fonts";
 import { PixelParticles } from "./PixelParticles";
 
-export const Outro = () => {
+type Props = {
+  catchline?: string;
+  subcatch?: string;
+};
+
+export const Outro = ({
+  catchline = "タスクを、ゲームに。",
+  subcatch = "Work becomes your favorite game.",
+}: Props) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -102,7 +110,7 @@ export const Outro = () => {
             letterSpacing: -2,
           }}
         >
-          タスクを、ゲームに。
+          {catchline}
         </div>
         <div
           style={{
@@ -113,7 +121,7 @@ export const Outro = () => {
             marginTop: 16,
           }}
         >
-          Work becomes your favorite game.
+          {subcatch}
         </div>
       </div>
 

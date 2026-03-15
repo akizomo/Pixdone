@@ -14,12 +14,13 @@ import { eq, and, desc } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 // Interface for storage operations
-export interface IStorage {
+interface IStorage {
   // User operations
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUserTheme(userId: string, themeKey: string): Promise<User>;
 
   // Task operations
   getUserTasks(userId: string): Promise<Task[]>;
@@ -35,7 +36,7 @@ export interface IStorage {
   getTasksByListId(listId: number, userId: string): Promise<Task[]>;
 }
 
-export class DatabaseStorage implements IStorage {
+class DatabaseStorage implements IStorage {
   // User operations
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
 
@@ -66,6 +67,15 @@ export class DatabaseStorage implements IStorage {
     // Create default "My Tasks" list if it doesn't exist
     await this.ensureDefaultTaskList(user.id);
 
+    return user;
+  }
+
+  async updateUserTheme(userId: string, themeKey: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ themeKey, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
     return user;
   }
 

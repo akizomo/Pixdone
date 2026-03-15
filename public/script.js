@@ -4391,6 +4391,13 @@ class PixDoneApp {
                     y: rect.y - ty,
                 };
                 effectCloneBase = taskElement.cloneNode(true);
+                // Make clone look completed so the effect has a "done" feel
+                effectCloneBase.classList.add('completed');
+                const cloneCheckbox = effectCloneBase.querySelector('.task-checkbox');
+                if (cloneCheckbox) {
+                    cloneCheckbox.classList.add('completed');
+                    cloneCheckbox.setAttribute('aria-checked', 'true');
+                }
             }
 
             // Update DOM immediately for visual feedback
