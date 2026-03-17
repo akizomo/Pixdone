@@ -41,6 +41,20 @@ export const sound = {
     when: "ログイン/ログアウト成功、パスワードリセット成功",
     description: "成功・完了のフィードバック",
   },
+  /** タイマー完了（フォーカス/休憩のカウントが 0 になったとき） */
+  focusAlarm: {
+    key: "focusAlarm",
+    role: "completion",
+    when: "フォーカスタイマー/休憩タイマーが完了したとき（アラーム）",
+    description: "ピクセル調の少し長い完了アラーム",
+  },
+  /** ミニゲーム: Great（ご褒美） */
+  perfectTimingGreat: {
+    key: "perfectTimingGreat",
+    role: "completion",
+    when: "ミニゲームで Great のご褒美演出",
+    description: "ミニゲームのご褒美サウンド",
+  },
   /** 選択・トグル（タブ、チップ、サウンドトグル、その他汎用クリック） */
   buttonClick: {
     key: "buttonClick",

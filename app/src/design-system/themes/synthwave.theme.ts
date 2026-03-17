@@ -63,6 +63,8 @@ export const synthwaveTheme: VisualTheme = {
       // Purple-tinted text
       '--pxd-sw-purple-text-50': '#EEDDFF',  // text-primary  (~12:1 on navy-950)
       '--pxd-sw-purple-muted':   '#9070C0',  // text-muted / disabled  (5.1:1 on navy-950)
+      // Neutral "chrome" color (borders/shadows/hover tints) for usability
+      '--pxd-sw-chrome':         'var(--pxd-sw-purple-muted)',
 
       // Smash list
       '--pxd-sw-smash-text':       '#DD00DD',
@@ -94,10 +96,11 @@ export const synthwaveTheme: VisualTheme = {
       '--pxd-color-text-danger':    'var(--pxd-sw-hot-red-300)',
 
       // Border
-      '--pxd-color-border-outline-variant':    'color-mix(in srgb, var(--pxd-magenta-500) 20%, transparent)',
-      '--pxd-color-border-outline':            'color-mix(in srgb, var(--pxd-magenta-500) 35%, transparent)',
-      '--pxd-color-border-interactive':        'color-mix(in srgb, var(--pxd-magenta-500) 60%, transparent)',
-      '--pxd-color-border-interactive-active': 'var(--pxd-magenta-500)',
+      // Neutralized borders for usability (reduce "hot pink" hue entirely)
+      '--pxd-color-border-outline-variant':    'color-mix(in srgb, var(--pxd-sw-chrome) 22%, transparent)',
+      '--pxd-color-border-outline':            'color-mix(in srgb, var(--pxd-sw-chrome) 34%, transparent)',
+      '--pxd-color-border-interactive':        'color-mix(in srgb, var(--pxd-sw-chrome) 55%, transparent)',
+      '--pxd-color-border-interactive-active': 'var(--pxd-sw-chrome)',
       '--pxd-color-border-inverse':            'var(--pxd-sw-navy-950)',
       '--pxd-color-border-focus':              'var(--pxd-sw-neon-cyan-300)',
       '--pxd-color-border-danger':             'var(--pxd-sw-hot-red-300)',
@@ -115,8 +118,8 @@ export const synthwaveTheme: VisualTheme = {
       '--pxd-color-action-secondary':         'var(--pxd-sw-navy-800)',
       '--pxd-color-action-secondary-hover':   'var(--pxd-sw-navy-700)',
       '--pxd-color-action-secondary-pressed': 'var(--pxd-sw-navy-500)',
-      '--pxd-color-action-ghost-hover':       'color-mix(in srgb, var(--pxd-magenta-500) 12%, transparent)',
-      '--pxd-color-action-ghost-pressed':     'color-mix(in srgb, var(--pxd-magenta-500) 20%, transparent)',
+      '--pxd-color-action-ghost-hover':       'color-mix(in srgb, var(--pxd-sw-chrome) 10%, transparent)',
+      '--pxd-color-action-ghost-pressed':     'color-mix(in srgb, var(--pxd-sw-chrome) 18%, transparent)',
       '--pxd-color-action-disabled':          'var(--pxd-sw-navy-600)',
 
       // Focus
@@ -140,7 +143,8 @@ export const synthwaveTheme: VisualTheme = {
       '--pd-color-accent-subtle':  'color-mix(in srgb, var(--pxd-sw-neon-cyan-300) 12%, transparent)',
       '--pd-color-accent-text':    'var(--pxd-sw-navy-950)',   // dark text on bright cyan
 
-      '--pd-color-shadow-default': 'color-mix(in srgb, var(--pxd-magenta-500) 55%, transparent)',
+      // Shadows were too magenta-heavy; use neutral purple-muted instead
+      '--pd-color-shadow-default': 'color-mix(in srgb, var(--pxd-sw-chrome) 18%, transparent)',
 
       '--pd-color-semantic-success':      'var(--pxd-sw-neon-green-300)',
       '--pd-color-semantic-successHover': 'var(--pxd-sw-neon-green-500)',
@@ -149,7 +153,8 @@ export const synthwaveTheme: VisualTheme = {
       '--pd-color-semantic-dangerText':   'var(--pxd-white)',
       '--pd-color-semantic-warning':      'var(--pxd-sw-amber-500)',
 
-      '--pd-color-smash-border':        'var(--pxd-magenta-500)',
+      // Keep Smash identity separate from global "chrome" borders; use neutral border color
+      '--pd-color-smash-border':        'var(--pxd-sw-chrome)',
       '--pd-color-smash-text':          'var(--pxd-sw-smash-text)',
       '--pd-color-smash-hint':          'var(--pxd-sw-smash-hint)',
       '--pd-color-smash-gradientStart': 'var(--pxd-sw-smash-grad-start)',

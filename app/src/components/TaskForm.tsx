@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import type { Task } from '../types/task';
-import { Button, TextField, TextArea } from '../design-system';
+import { Button, RichTextField, RichTextArea, TextField } from '../design-system';
 import { t } from '../lib/i18n';
 import { getTodayYMD, getTomorrowYMD } from '../lib/date';
 import { playSound } from '../services/sound';
@@ -32,7 +32,7 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
   const [subtasks, setSubtasks] = useState(task?.subtasks ?? []);
   const [newSubtask, setNewSubtask] = useState('');
 
-  const titleRef = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
   const today = getTodayYMD();
   const tomorrow = getTomorrowYMD();
 
@@ -49,18 +49,10 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
     onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
   }, [title, details, dueDate, repeat, subtasks, onSave, onCancel]);
 
-  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSave();
-    }
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Escape') {
       e.preventDefault();
-      if (title.trim()) {
-        handleSave();
-      } else {
-        onCancel();
-      }
+      onCancel();
     }
   };
 
@@ -109,18 +101,19 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
       }}
     >
       {/* Title */}
-      <TextField
-        ref={titleRef}
+      <RichTextField
+        id="task-title"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        onKeyDown={handleTitleKeyDown}
+        onChange={setTitle}
         placeholder={lang === 'ja' ? 'タスク名' : 'Task title'}
+        onKeyDown={handleTitleKeyDown}
+        ref={titleRef}
       />
 
       {/* Details (memo) */}
-      <TextArea
+      <RichTextArea
         value={details}
-        onChange={(e) => setDetails(e.target.value)}
+        onChange={(v) => setDetails(v)}
         placeholder={t('details', lang)}
         rows={3}
       />
@@ -251,12 +244,24 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
       </div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
-        {onDelete && (
-          <Button variant="danger" size="sm" onClick={onDelete}>{t('delete', lang)}</Button>
-        )}
-        <Button variant="secondary" size="sm" onClick={onCancel}>{t('cancel', lang)}</Button>
-        <Button variant="primary" size="sm" onClick={handleSave}>{t('save', lang)}</Button>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          marginTop: '4px',
+        }}
+      >
+        <div style={{ display: 'flex' }}>
+          <Button variant="secondary" size="sm" onClick={onCancel}>{t('cancel', lang)}</Button>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          {onDelete && (
+            <Button variant="dangerOutline" size="sm" onClick={onDelete}>{t('delete', lang)}</Button>
+          )}
+          <Button variant="primary" size="sm" onClick={handleSave}>{t('save', lang)}</Button>
+        </div>
       </div>
     </div>
   );

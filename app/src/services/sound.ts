@@ -33,8 +33,12 @@ export function playSound(key: SoundKey): void {
     const ce = w.taskAnimationEffects.comicEffects;
     if (!ce.getSoundEnabled()) return;
     if (key !== 'subtaskComplete') {
-      ce.playSound(key);
-      return;
+      try {
+        ce.playSound(key);
+        return;
+      } catch {
+        // If vanilla doesn't know this key (e.g. React-only sound), fall back.
+      }
     }
   }
 

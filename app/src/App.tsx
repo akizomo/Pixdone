@@ -153,7 +153,6 @@ function AppContent() {
   /* ---- Task handlers ---- */
   const handleComplete = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
-    const isMobile = window.innerWidth <= 480;
 
     const doComplete = () => {
       completeTask(taskId);
@@ -161,7 +160,7 @@ function AppContent() {
       setMobileSheetOpen(false);
     };
 
-    if (taskEl && !isMobile) {
+    if (taskEl) {
       runVanillaCompletionEffect(taskEl, () => {
         doComplete();
         // Vanilla ComicEffectsManager plays its own effect sound; no playSound('taskComplete') here
@@ -177,13 +176,9 @@ function AppContent() {
   }, [uncompleteTask]);
 
   const handleEdit = useCallback((taskId: string) => {
-    // Mobile: open BottomSheet for editing
-    if (window.innerWidth <= 768) {
-      setMobileEditTaskId(taskId);
-      setMobileSheetOpen(true);
-    } else {
-      setTaskFormMode(taskId);
-    }
+    // Always use BottomSheet (modal) for editing
+    setMobileEditTaskId(taskId);
+    setMobileSheetOpen(true);
     playSound('taskEdit');
   }, []);
 
@@ -203,13 +198,12 @@ function AppContent() {
 
   const handleSmash = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
-    const isMobile = window.innerWidth <= 480;
 
     const doSmash = () => {
       completeTask(taskId);
     };
 
-    if (taskEl && !isMobile) {
+    if (taskEl) {
       runVanillaCompletionEffect(taskEl, () => {
         doSmash();
         // Vanilla ComicEffectsManager plays its own effect sound
@@ -252,12 +246,8 @@ function AppContent() {
     }
     // Other lists: open task add UI
     playSound('buttonClick');
-    if (window.innerWidth <= 768) {
-      setMobileEditTaskId(null);
-      setMobileSheetOpen(true);
-    } else {
-      setTaskFormMode('add');
-    }
+    setMobileEditTaskId(null);
+    setMobileSheetOpen(true);
   }, [isSmash, currentList, handleSmash]);
 
   /* ---- Sound toggle (vanilla: sync ComicEffectsManager.setSoundEnabled so effect sounds match) ---- */
@@ -307,11 +297,99 @@ function AppContent() {
           background: 'var(--pd-color-background-default)',
           zIndex: 100,
         }}>
-          <FocusScreen
-            lists={lists}
-            lang={lang}
-            onCompleteTask={handleComplete}
-          />
+          {user ? (
+            <FocusScreen
+              lists={lists}
+              lang={lang}
+              onCompleteTask={handleComplete}
+              onEditTask={handleEdit}
+            />
+          ) : (
+            <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+              {/* Inactive timer section (layout-only, no interactions) */}
+              <div
+                aria-label={lang === 'ja' ? 'フォーカスタイマー（未ログイン）' : 'Focus timer (logged out)'}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  marginBottom: '24px',
+                  padding: '24px 20px 20px',
+                  background: 'var(--pd-color-background-elevated)',
+                  border: '2px solid var(--pd-color-border-default)',
+                  boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
+                  minHeight: 'min(360px, 40vh)',
+                  justifyContent: 'center',
+                  opacity: 0.6,
+                  filter: 'grayscale(1)',
+                  userSelect: 'none',
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                  marginBottom: '20px',
+                  flexWrap: 'wrap',
+                  visibility: 'visible',
+                }}>
+                  <Chip selected>{t('pomodoro', lang)}</Chip>
+                  <Chip>{t('shortBreak', lang)}</Chip>
+                  <Chip>{t('longBreak', lang)}</Chip>
+                </div>
+
+                <div style={{
+                  fontFamily: 'var(--pd-font-brand)',
+                  fontSize: 'clamp(4rem, 20vw, 7rem)',
+                  color: 'var(--pd-color-text-primary)',
+                  letterSpacing: '0.04em',
+                  lineHeight: 1,
+                }}>
+                  25:00
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <Button disabled style={{ minWidth: '120px' }}>
+                    {t('startFocus', lang)}
+                  </Button>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div
+                style={{
+                  background: 'var(--pd-color-background-elevated)',
+                  border: '2px solid var(--pd-color-border-default)',
+                  boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
+                  padding: '16px',
+                }}
+              >
+                <div style={{
+                  fontFamily: 'var(--pd-font-brand)',
+                  fontSize: '1.25rem',
+                  color: 'var(--pd-color-text-primary)',
+                  letterSpacing: '0.08em',
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                }}>
+                  {lang === 'ja' ? 'フォーカスはサインアップ後に利用できます' : 'Focus is available after sign up'}
+                </div>
+                <p style={{
+                  margin: '0 0 12px',
+                  fontFamily: 'var(--pd-font-body)',
+                  fontSize: '0.875rem',
+                  color: 'var(--pd-color-text-secondary)',
+                  lineHeight: 1.45,
+                }}>
+                  {lang === 'ja'
+                    ? 'タスクの保存・同期とあわせて、フォーカスタイマーを使えるようになります。'
+                    : 'Sign up to save & sync tasks, and unlock the focus timer.'}
+                </p>
+                <Button variant="primary" fullWidth onClick={() => setSignupOpen(true)}>
+                  {lang === 'ja' ? 'サインアップ' : 'Sign up'}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -473,7 +551,7 @@ function AppContent() {
               <>
                 <Chip selected={lang === 'en'} onClick={() => { changeLang('en'); playSound('buttonClick'); }}>En</Chip>
                 <Chip selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
-                <Button variant="signup" onClick={() => { playSound('buttonClick'); setSignupOpen(true); }}>Sign up</Button>
+                <Button variant="primary" onClick={() => { playSound('buttonClick'); setSignupOpen(true); }}>Sign up</Button>
               </>
             )}
           </div>
@@ -608,7 +686,7 @@ function AppContent() {
                           task={task}
                           lang={lang}
                           onComplete={handleUncomplete}
-                          onEdit={() => {}}
+                          onEdit={handleEdit}
                           onDelete={handleDelete}
                         />
                       ))}
@@ -656,7 +734,7 @@ function AppContent() {
                 {completedExpanded && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
                     {completedTasks.map((task) => (
-                      <TaskItem key={task.id} task={task} lang={lang} onComplete={handleUncomplete} onEdit={() => {}} onDelete={handleDelete} />
+                      <TaskItem key={task.id} task={task} lang={lang} onComplete={handleUncomplete} onEdit={handleEdit} onDelete={handleDelete} />
                     ))}
                   </div>
                 )}
@@ -720,7 +798,7 @@ function AppContent() {
                           task={task}
                           lang={lang}
                           onComplete={handleUncomplete}
-                          onEdit={() => {}}
+                          onEdit={handleEdit}
                           onDelete={handleDelete}
                         />
                       ))}

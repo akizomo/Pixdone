@@ -124,6 +124,26 @@ const sounds: Record<string, () => void> = {
     beep(784, 0.12, 0.08, 0.18);
   },
 
+  // Timer finished alarm — longer, alarm-like, but still pixel/square.
+  focusAlarm: () => {
+    // Two short "rings" (approx 1.4s total)
+    const ring = (start: number) => {
+      beep(988, 0.10, 0.09, start + 0.00); // B5
+      beep(784, 0.10, 0.08, start + 0.12); // G5
+      beep(988, 0.10, 0.09, start + 0.24);
+      beep(784, 0.14, 0.08, start + 0.36);
+    };
+    ring(0.00);
+    ring(0.72);
+  },
+
+  perfectTimingGreat: () => {
+    // Short celebratory arpeggio (higher & brighter than taskComplete)
+    beep(784, 0.07, 0.09, 0);     // G5
+    beep(988, 0.07, 0.09, 0.09);  // B5
+    beep(1175, 0.10, 0.09, 0.18); // D6
+  },
+
   subtaskComplete: () => blip(523, 0.07, 0.06),
 };
 
@@ -137,6 +157,21 @@ const soundsSynth: Record<string, () => void> = {
     blip(880, 0.06, 0.08, 0);
     blip(1046, 0.06, 0.08, 0.08);
     blip(1318, 0.10, 0.08, 0.16);
+  },
+  focusAlarm: () => {
+    const ring = (start: number) => {
+      blip(988, 0.10, 0.09, start + 0.00);
+      blip(784, 0.10, 0.08, start + 0.12);
+      blip(988, 0.10, 0.09, start + 0.24);
+      blip(784, 0.14, 0.08, start + 0.36);
+    };
+    ring(0.00);
+    ring(0.72);
+  },
+  perfectTimingGreat: () => {
+    blip(784, 0.06, 0.09, 0);
+    blip(988, 0.06, 0.09, 0.08);
+    blip(1175, 0.10, 0.09, 0.16);
   },
 };
 

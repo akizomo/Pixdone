@@ -6,12 +6,14 @@
   z-index: 399;
   background-color: var(--pd-color-overlay-backdrop);
   opacity: 0;
+  pointer-events: none;
   /* opening: fade in */
   transition: opacity 0.35s ease;
 }
 
 .pxd-sheet-backdrop[data-open="true"] {
   opacity: 1;
+  pointer-events: auto;
   /* closing: fade out faster */
   transition: opacity 0.25s ease;
 }
@@ -27,6 +29,7 @@
   flex-direction: column;
   background-color: var(--pd-color-background-default);
   transform: translateY(100%);
+  pointer-events: none;
   /* opening: spring-like deceleration */
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   image-rendering: pixelated;
@@ -34,6 +37,7 @@
 
 .pxd-sheet[data-open="true"] {
   transform: translateY(0);
+  pointer-events: auto;
   /* closing: accelerate out */
   transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1);
 }

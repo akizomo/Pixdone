@@ -123,6 +123,24 @@
   box-shadow: 1px 1px 0px var(--pd-color-shadow-default);
 }
 
+.pxd-button--danger-outline {
+  background-color: transparent;
+  color: var(--pd-color-semantic-danger);
+  border-color: var(--pd-color-semantic-danger);
+  box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
+}
+
+.pxd-button--danger-outline:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--pd-color-semantic-danger) 12%, transparent);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+}
+
+.pxd-button--danger-outline:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: 1px 1px 0px var(--pd-color-shadow-default);
+}
+
 .pxd-button--reward {
   background-color: var(--pd-color-semantic-success);
   color: var(--pd-color-semantic-successText);

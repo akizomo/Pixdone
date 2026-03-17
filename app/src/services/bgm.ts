@@ -323,5 +323,6 @@ export function isBgmOn(): boolean {
 
 export function setBgmOn(on: boolean): void {
   try { localStorage.setItem(BGM_ENABLED_KEY, on ? 'true' : 'false'); } catch { /* ignore */ }
-  if (on) startBgm(); else stopBgm();
+  // Playback is controlled by Focus UI (e.g. only while timer running and menu open).
+  if (!on) stopBgm();
 }

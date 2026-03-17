@@ -13,7 +13,7 @@ export function TutorialPanel({ headline, subtext, buttonLabel, onSignUp }: Tuto
     <div className="tutorial-complete-cta">
       <p className="tutorial-complete-cta-text">{headline}</p>
       <p className="tutorial-complete-cta-sub">{subtext}</p>
-      <Button variant="signup" onClick={() => { playSound('buttonClick'); onSignUp(); }}>
+      <Button variant="primary" onClick={() => { playSound('buttonClick'); onSignUp(); }}>
         {buttonLabel}
       </Button>
     </div>

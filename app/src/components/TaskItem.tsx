@@ -1,6 +1,7 @@
 import type { Task } from '../types/task';
 import { formatDueDate, getDueStatus } from '../lib/date';
 import { t } from '../lib/i18n';
+import { renderTextWithLinks } from '../lib/linkify';
 
 export interface TaskItemProps {
   task: Task;
@@ -32,6 +33,7 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
   const doneCount = subtasks.filter((s) => s.done).length;
   const dueStatus = getDueStatus(task.dueDate);
   const displayTitle = TUTORIAL_KEYS[task.id] ? t(TUTORIAL_KEYS[task.id], lang) : task.title;
+  const details = (task.details ?? '').trim();
 
   const badgeStyle: React.CSSProperties = {
     fontSize: '0.6875rem',
@@ -125,8 +127,27 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
             fontSize: '0.875rem',
           }}
         >
-          {displayTitle}
+          {renderTextWithLinks(displayTitle)}
         </span>
+
+        {details && (
+          <div
+            style={{
+              marginTop: '6px',
+              color: 'var(--pd-color-text-secondary)',
+              fontFamily: 'var(--pd-font-body)',
+              fontSize: '0.75rem',
+              lineHeight: 1.35,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              wordBreak: 'break-word',
+            }}
+          >
+            {renderTextWithLinks(details)}
+          </div>
+        )}
 
         {/* Meta row: due date, repeat, subtask count */}
         {(dueLabel || repeatLabel || subtasks.length > 0) && (

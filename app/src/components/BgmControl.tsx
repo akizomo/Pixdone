@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { setBgmTrack, setBgmOn, setBgmVolume, getBgmTrack, getBgmVolume, isBgmOn } from '../services/bgm';
+import { setBgmTrack, setBgmOn, setBgmVolume, getBgmTrack, getBgmVolume, isBgmOn, startBgm, stopBgm } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
 import { playSound } from '../services/sound';
 
@@ -17,12 +17,24 @@ const TRACKS: { id: TrackOption; labelEn: string; labelJa: string }[] = [
   { id: 'chill',     labelEn: 'Chill',     labelJa: 'チル' },
 ];
 
-export function BgmControl({ lang }: BgmControlProps) {
+export function BgmControl({ lang, focusRunning }: BgmControlProps) {
   const [open, setOpen]   = useState(false);
   const [on, setOn]       = useState(isBgmOn);
   const [track, setTrack] = useState<BgmTrack>(getBgmTrack);
   const [vol, setVol]     = useState(() => Math.round(getBgmVolume() * 100));
   const wrapRef           = useRef<HTMLDivElement>(null);
+
+  // Playback rule:
+  // - If timer is running and BGM is ON -> play
+  // - If timer is NOT running but menu is open and BGM is ON -> preview play
+  // - Otherwise -> stop
+  useEffect(() => {
+    if (on && (focusRunning || open)) {
+      startBgm(track);
+    } else {
+      stopBgm();
+    }
+  }, [focusRunning, open, on, track]);
 
   useEffect(() => {
     if (!open) return;

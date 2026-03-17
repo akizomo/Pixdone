@@ -8,6 +8,7 @@ const variantMap = {
   secondary: 'pxd-button--secondary',
   ghost: 'pxd-button--ghost',
   danger: 'pxd-button--danger',
+  dangerOutline: 'pxd-button--danger-outline',
   reward: 'pxd-button--reward',
   signup: 'pxd-button--signup',
   icon: 'pxd-button--icon',

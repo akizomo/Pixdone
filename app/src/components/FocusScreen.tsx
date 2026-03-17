@@ -1,11 +1,12 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Button, Chip } from '../design-system';
 import { t } from '../lib/i18n';
 import { getTodayYMD } from '../lib/date';
 import { useFocusTimer } from '../hooks/useFocusTimer';
 import { PixelBreaker } from './PixelBreaker';
 import { BgmControl } from './BgmControl';
-import { startBgm, stopBgm, isBgmOn, getBgmTrack } from '../services/bgm';
+import { TaskItem } from './TaskItem';
+import { stopBgm } from '../services/bgm';
 import { playSound } from '../services/sound';
 import type { List } from '../types/list';
 import type { Task } from '../types/task';
@@ -16,6 +17,7 @@ export interface FocusScreenProps {
   lists: List[];
   lang: 'en' | 'ja';
   onCompleteTask: (taskId: string) => void;
+  onEditTask?: (taskId: string) => void;
 }
 
 const MODE_DEFAULTS: Record<TimerMode, number> = {
@@ -34,21 +36,73 @@ function formatTime(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-export function FocusScreen({ lists, lang, onCompleteTask }: FocusScreenProps) {
+function TimeDigits({ value }: { value: string }) {
+  // Fixed-width per digit like timer apps (each glyph gets its own slot).
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+      {value.split('').map((ch, i) => (
+        <span
+          key={`${i}-${ch}`}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: ch === ':' ? '0.6ch' : '1ch',
+          }}
+        >
+          {ch}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+export function FocusScreen({ lists, lang, onCompleteTask, onEditTask }: FocusScreenProps) {
   const [mode, setMode] = useState<TimerMode>('pomodoro');
   const [minutes, setMinutes] = useState(MODE_DEFAULTS.pomodoro);
+  const [pomodoroCount, setPomodoroCount] = useState(0); // 0..3 (4th triggers long break)
+  const [taskPanelMode, setTaskPanelMode] = useState<'today' | 'lists'>('today');
+  const [selectedListId, setSelectedListId] = useState<string>(() => lists[0]?.id ?? '');
+
+  // keep selected list valid when lists change
+  useEffect(() => {
+    const nextFocusLists = lists.filter((l) => !(l.id === 'smash-list' || l.name === '💥 Smash List'));
+    if (!selectedListId || !nextFocusLists.some((l) => l.id === selectedListId)) {
+      setSelectedListId(nextFocusLists[0]?.id ?? '');
+    }
+  }, [lists, selectedListId]);
+
+  const modeRef = useRef<TimerMode>(mode);
+  useEffect(() => { modeRef.current = mode; }, [mode]);
+  const pomodoroCountRef = useRef<number>(pomodoroCount);
+  useEffect(() => { pomodoroCountRef.current = pomodoroCount; }, [pomodoroCount]);
 
   const handleTimerEnd = useCallback(() => {
-    if (mode === 'pomodoro') {
-      // Auto-switch to short break when pomodoro ends
-      const next: TimerMode = 'shortBreak';
+    // Pixel-style completion cue (vanilla parity: success/complete)
+    playSound('focusAlarm');
+    stopBgm();
+    const m = modeRef.current;
+
+    if (m === 'pomodoro') {
+      // 4 pomodoros -> long break, otherwise short break
+      const nextCount = (pomodoroCountRef.current + 1) % 4;
+      setPomodoroCount(nextCount);
+      const next: TimerMode = nextCount === 0 ? 'longBreak' : 'shortBreak';
       setMode(next);
       setMinutes(MODE_DEFAULTS[next]);
-      timer.reset(MODE_DEFAULTS[next] * 60);
+      timerRef.current?.reset(MODE_DEFAULTS[next] * 60);
+      return;
     }
-  }, [mode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Break finished -> back to pomodoro
+    setMode('pomodoro');
+    setMinutes(MODE_DEFAULTS.pomodoro);
+    timerRef.current?.reset(MODE_DEFAULTS.pomodoro * 60);
+  }, []); // uses refs
 
   const timer = useFocusTimer(handleTimerEnd);
+  const timerRef = useRef(timer);
+  useEffect(() => { timerRef.current = timer; }, [timer]);
   const isBreakMode = mode === 'shortBreak' || mode === 'longBreak';
 
   const switchMode = (newMode: TimerMode) => {
@@ -76,7 +130,6 @@ export function FocusScreen({ lists, lang, onCompleteTask }: FocusScreenProps) {
   const handleStart = () => {
     playSound('buttonClick');
     timer.start();
-    if (mode === 'pomodoro' && isBgmOn()) startBgm(getBgmTrack());
   };
 
   const handlePause = () => {
@@ -88,14 +141,26 @@ export function FocusScreen({ lists, lang, onCompleteTask }: FocusScreenProps) {
   const handleResume = () => {
     playSound('buttonClick');
     timer.resume();
-    if (mode === 'pomodoro' && isBgmOn()) startBgm(getBgmTrack());
+  };
+
+  const handleSkipBreak = () => {
+    if (!isBreakMode) return;
+    playSound('taskCancel');
+    stopBgm();
+    const next: TimerMode = 'pomodoro';
+    setMode(next);
+    setMinutes(MODE_DEFAULTS[next]);
+    timer.reset(MODE_DEFAULTS[next] * 60);
   };
 
   // Today tasks across all lists (pomodoro only)
   const today = getTodayYMD();
-  const todayTasks: Task[] = lists
+  const focusLists = lists.filter((l) => !(l.id === 'smash-list' || l.name === '💥 Smash List'));
+  const todayTasks: Task[] = focusLists
     .flatMap((l) => l.tasks)
     .filter((task) => !task.completed && task.dueDate !== null && task.dueDate <= today);
+  const selectedList = focusLists.find((l) => l.id === selectedListId) ?? null;
+  const listTasks: Task[] = (selectedList?.tasks ?? []).filter((task) => !task.completed);
 
   const isRunning = timer.timerState === 'running';
   const isPaused = timer.timerState === 'paused';
@@ -112,29 +177,37 @@ export function FocusScreen({ lists, lang, onCompleteTask }: FocusScreenProps) {
         )}
 
         {/* Mode chips */}
-        {timer.timerState === 'idle' && (
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-            {MODES.map((m) => (
-              <Chip
-                key={m}
-                selected={mode === m}
-                onClick={() => switchMode(m)}
-              >
-                {t(m, lang)}
-              </Chip>
-            ))}
-          </div>
-        )}
+        <div
+          aria-hidden={timer.timerState !== 'idle'}
+          style={{
+            display: 'flex',
+            gap: '8px',
+            marginBottom: '20px',
+            flexWrap: 'wrap',
+            visibility: timer.timerState === 'idle' ? 'visible' : 'hidden',
+            pointerEvents: timer.timerState === 'idle' ? 'auto' : 'none',
+          }}
+        >
+          {MODES.map((m) => (
+            <Chip
+              key={m}
+              selected={mode === m}
+              onClick={() => switchMode(m)}
+            >
+              {t(m, lang)}
+            </Chip>
+          ))}
+        </div>
 
         {/* Time display with adjust arrows (idle only) */}
         {timer.timerState === 'idle' ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <AdjustButton onClick={() => adjustMinutes(-5)}>▼</AdjustButton>
-            <div style={timerDisplayStyle}>{formatTime(timer.remaining)}</div>
+            <div style={timerDisplayStyle}><TimeDigits value={formatTime(timer.remaining)} /></div>
             <AdjustButton onClick={() => adjustMinutes(5)}>▲</AdjustButton>
           </div>
         ) : (
-          <div style={timerDisplayStyle}>{formatTime(timer.remaining)}</div>
+          <div style={timerDisplayStyle}><TimeDigits value={formatTime(timer.remaining)} /></div>
         )}
 
         {/* CTA buttons */}
@@ -151,7 +224,11 @@ export function FocusScreen({ lists, lang, onCompleteTask }: FocusScreenProps) {
                   ? (lang === 'ja' ? '一時停止' : 'Pause')
                   : (lang === 'ja' ? '再開' : 'Resume')}
               </Button>
-              {!isBreakMode && (
+              {isBreakMode ? (
+                <Button variant="secondary" onClick={handleSkipBreak}>
+                  {t('skipBreak', lang)}
+                </Button>
+              ) : (
                 <Button onClick={handleComplete}>
                   {lang === 'ja' ? '完了' : 'Complete'}
                 </Button>
@@ -165,6 +242,15 @@ export function FocusScreen({ lists, lang, onCompleteTask }: FocusScreenProps) {
       {/* Break: Pixel Breaker game (short/long break while running or paused) */}
       {isBreakMode && (isRunning || isPaused) && (
         <div style={{ marginBottom: '24px' }}>
+          <p style={{
+            margin: '0 0 10px',
+            fontFamily: 'var(--pd-font-body)',
+            fontSize: '0.875rem',
+            color: 'var(--pd-color-text-secondary)',
+            lineHeight: 1.4,
+          }}>
+            {t('breakGamePitch', lang)}
+          </p>
           <PixelBreaker lang={lang} />
         </div>
       )}
@@ -172,20 +258,109 @@ export function FocusScreen({ lists, lang, onCompleteTask }: FocusScreenProps) {
       {/* Today's Tasks (pomodoro mode only) */}
       {mode === 'pomodoro' && (
         <div>
-          <h3 style={sectionTitleStyle}>{t('todayTasks', lang)}</h3>
-          {todayTasks.length === 0 ? (
-            <div style={emptyTasksStyle}>{t('noTodayTasks', lang)}</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
+            <h3 style={{ ...sectionTitleStyle, marginBottom: 0 }}>{t('todayTasks', lang)}</h3>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              {(['today', 'lists'] as const).map((k) => {
+                const active = taskPanelMode === k;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => { playSound('buttonClick'); setTaskPanelMode(k); }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      fontFamily: 'var(--pd-font-body)',
+                      fontSize: '0.75rem',
+                      color: active ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
+                      fontWeight: active ? 700 : 500,
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {t(k === 'today' ? 'focusTasksToday' : 'focusTasksLists', lang)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {taskPanelMode === 'today' ? (
+            todayTasks.length === 0 ? (
+              <div style={emptyTasksStyle}>{t('noTodayTasks', lang)}</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {todayTasks.map((task) => (
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    lang={lang}
+                    onComplete={onCompleteTask}
+                    onEdit={onEditTask ?? (() => {})}
+                  />
+                ))}
+              </div>
+            )
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {todayTasks.map((task) => (
-                <TodayTaskRow
-                  key={task.id}
-                  task={task}
-                  lang={lang}
-                  showSmash={isRunning}
-                  onSmash={onCompleteTask}
-                />
-              ))}
+            <div>
+              <div
+                role="tablist"
+                aria-label={lang === 'ja' ? 'リスト切り替え' : 'List switcher'}
+                style={{
+                  display: 'flex',
+                  gap: '10px',
+                  alignItems: 'center',
+                  overflowX: 'auto',
+                  paddingBottom: '6px',
+                  marginBottom: '12px',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                {focusLists.map((l) => {
+                  const active = l.id === selectedListId;
+                  return (
+                    <button
+                      key={l.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => { playSound('buttonClick'); setSelectedListId(l.id); }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: '2px 0',
+                        cursor: 'pointer',
+                        fontFamily: 'var(--pd-font-body)',
+                        fontSize: '0.75rem',
+                        whiteSpace: 'nowrap',
+                        color: active ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
+                        borderBottom: `2px solid ${active ? 'var(--pd-color-accent-default)' : 'transparent'}`,
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {l.name}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {listTasks.length === 0 ? (
+                <div style={emptyTasksStyle}>{t('focusNoListTasks', lang)}</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {listTasks.slice(0, 12).map((task) => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      lang={lang}
+                      onComplete={onCompleteTask}
+                      onEdit={onEditTask ?? (() => {})}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -232,61 +407,6 @@ function AdjustButton({ onClick, children }: { onClick: () => void; children: Re
   );
 }
 
-/* Today task row */
-function TodayTaskRow({ task, lang, showSmash, onSmash }: {
-  task: Task;
-  lang: 'en' | 'ja';
-  showSmash: boolean;
-  onSmash: (taskId: string) => void;
-}) {
-  return (
-    <div
-      data-task-id={task.id}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        padding: '12px 16px',
-        background: 'var(--pd-color-background-elevated)',
-        border: '2px solid var(--pd-color-border-default)',
-        boxShadow: '2px 2px 0 var(--pd-color-shadow-default)',
-      }}
-    >
-      <span style={{ fontSize: '0.625rem', color: 'var(--pd-color-text-secondary)', flexShrink: 0 }}>□</span>
-      <span style={{
-        flex: 1,
-        fontFamily: 'var(--pd-font-body)',
-        fontSize: '0.875rem',
-        color: 'var(--pd-color-text-primary)',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-      }}>
-        {task.title}
-      </span>
-      {showSmash && (
-        <button
-          type="button"
-          onClick={() => onSmash(task.id)}
-          style={{
-            background: 'var(--pd-color-accent-default)',
-            color: 'var(--pd-color-accent-text)',
-            border: 'none',
-            padding: '4px 10px',
-            fontFamily: 'var(--pd-font-body)',
-            fontSize: '0.75rem',
-            cursor: 'pointer',
-            flexShrink: 0,
-            boxShadow: '2px 2px 0 var(--pd-color-shadow-default)',
-          }}
-        >
-          {t('smash', lang)}
-        </button>
-      )}
-    </div>
-  );
-}
-
 /* Styles */
 const containerStyle: React.CSSProperties = {
   padding: '24px 16px',
@@ -304,6 +424,9 @@ const timerBlockStyle: React.CSSProperties = {
   background: 'var(--pd-color-background-elevated)',
   border: '2px solid var(--pd-color-border-default)',
   boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
+  // Mobile UX: reserve ~40% viewport so controls don't sit too high
+  minHeight: 'min(360px, 40vh)',
+  justifyContent: 'center',
 };
 
 const timerDisplayStyle: React.CSSProperties = {
@@ -312,6 +435,15 @@ const timerDisplayStyle: React.CSSProperties = {
   color: 'var(--pd-color-text-primary)',
   letterSpacing: '0.04em',
   lineHeight: 1,
+  // Theme-safe layout: keep baseline/metrics from shifting the block height
+  height: '1em',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  overflow: 'hidden',
+  paddingTop: '0.04em',
+  // Keep whole time block stable
+  minWidth: '5ch', // "MM:SS"
 };
 
 const sectionTitleStyle: React.CSSProperties = {
