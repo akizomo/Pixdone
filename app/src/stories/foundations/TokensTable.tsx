@@ -74,17 +74,6 @@ function ShadowBox({ value }: { value: string }) {
   );
 }
 
-function PreviewCell({ value, preview }: { value: string | number; preview?: PreviewType }) {
-  if (!preview || preview === 'none') return <span style={{ color: 'var(--pxd-color-text-disabled, #A6AAB6)', fontSize: 12 }}>—</span>;
-  if (preview === 'color') return <ColorSwatch value={value} />;
-  if (preview === 'spacing') {
-    const num = typeof value === 'number' ? value : parseInt(String(value).replace(/px/g, ''), 10) || 0;
-    return <SpacingBar value={num} />;
-  }
-  if (preview === 'shadow') return <ShadowBox value={String(value)} />;
-  return null;
-}
-
 export function TokensTable({ rows, caption, primitiveMap }: TokensTableProps) {
   const hasDark = rows.some(r => r.darkValue !== undefined);
 

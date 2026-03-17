@@ -15,9 +15,6 @@ const meta: Meta<typeof BottomSheet> = {
       },
     },
   },
-  argTypes: {
-    snap: { control: 'select', options: ['content', 'medium', 'large'] },
-  },
 };
 export default meta;
 
@@ -43,7 +40,7 @@ export const ActionSheetStyle: Story = {
     return (
       <>
         <Button variant="secondary" onClick={() => setOpen(true)}>Options</Button>
-        <BottomSheet open={open} onClose={() => setOpen(false)} title="Choose action" showHandle>
+        <BottomSheet open={open} onClose={() => setOpen(false)} title="Choose action">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--pxd-space-2)' }}>
             <Button variant="primary" fullWidth onClick={() => setOpen(false)}>Save</Button>
             <Button variant="secondary" fullWidth onClick={() => setOpen(false)}>Share</Button>
@@ -61,7 +58,7 @@ export const LongContentSheet: Story = {
     return (
       <>
         <Button variant="secondary" onClick={() => setOpen(true)}>Open long content</Button>
-        <BottomSheet open={open} onClose={() => setOpen(false)} title="Scrollable content" snap="large">
+        <BottomSheet open={open} onClose={() => setOpen(false)} title="Scrollable content">
           <div style={{ paddingBottom: 'var(--pxd-space-6)' }}>
             {Array.from({ length: 20 }, (_, i) => (
               <p key={i}>Paragraph {i + 1}. Lorem ipsum dolor sit amet.</p>

@@ -11,6 +11,6 @@ export type { ChipProps, ChipVariant, ChipSize } from './Chip/Chip.types';
 export { ModalDialog } from './ModalDialog/ModalDialog';
 export type { ModalDialogProps } from './ModalDialog/ModalDialog.types';
 export { BottomSheet } from './BottomSheet/BottomSheet';
-export type { BottomSheetProps, BottomSheetSnap } from './BottomSheet/BottomSheet.types';
+export type { BottomSheetProps } from './BottomSheet/BottomSheet.types';
 export { Select } from './Select/Select';
 export type { SelectProps, SelectOption, SelectSize } from './Select/Select.types';

@@ -9,7 +9,7 @@ import { useLists } from './features/useLists';
 import { SMASH_TITLES } from './features/useLists';
 import { useKeyboardNav } from './hooks/useKeyboardNav';
 import { useMidnightRefresh } from './hooks/useMidnightRefresh';
-import { playSound, getSoundEnabled, setSoundMuted } from './services/sound';
+import { playSound, getSoundEnabled } from './services/sound';
 import { initSoundEngine } from './services/soundEngine';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
