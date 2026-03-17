@@ -1,4 +1,4 @@
-import { createContext, useCallback, useLayoutEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { getThemeCSSVariables, type ThemeMode } from '../tokens';
 import { themes, type ThemeKey } from '../themes/themeRegistry';
 
@@ -55,11 +55,20 @@ export function ThemeProvider({
   const [theme, setThemeState] = useState<ThemeMode>(defaultTheme ?? getInitialTheme);
   const [visualTheme, setVisualThemeState] = useState<ThemeKey>(defaultVisualTheme ?? getInitialVisualTheme);
 
+  // Track which CSS variables were injected by the previous visual theme so we
+  // can remove them before applying a new theme (prevents bleed-through).
+  const prevThemeVarKeysRef = useRef<string[]>([]);
+
   useLayoutEffect(() => {
     const baseVars = getThemeCSSVariables(theme);
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
     root.setAttribute('data-visual-theme', visualTheme);
+
+    // Remove overrides left by the previous visual theme before applying new ones
+    for (const key of prevThemeVarKeysRef.current) {
+      root.style.removeProperty(key);
+    }
 
     // Apply base token variables
     for (const [key, value] of Object.entries(baseVars)) {
@@ -69,9 +78,12 @@ export function ThemeProvider({
     // Apply visual theme overrides for the current color mode
     const vt = themes[visualTheme];
     const modeVars = vt.cssVariables[theme] ?? {};
+    const appliedKeys: string[] = [];
     for (const [key, value] of Object.entries(modeVars)) {
       root.style.setProperty(key, value);
+      appliedKeys.push(key);
     }
+    prevThemeVarKeysRef.current = appliedKeys;
 
     // Inject font if needed
     if (vt.fontImportUrl) {

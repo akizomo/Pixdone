@@ -1,10 +1,10 @@
-/* TextField – readable, trustworthy, clear states. */
+/* Select – pixel art style, matches TextField aesthetics */
 
-.pxd-text-field {
+.pxd-select {
   display: block;
 }
 
-.pxd-text-field__label {
+.pxd-select__label {
   display: block;
   margin-bottom: var(--pxd-space-2);
   font-family: var(--pxd-font-body);
@@ -14,15 +14,19 @@
   color: var(--pxd-color-text-primary);
 }
 
-.pxd-text-field__label .pxd-text-field__required {
+.pxd-select__label .pxd-select__required {
   color: var(--pxd-color-feedback-danger);
 }
 
-.pxd-text-field__input {
+.pxd-select__wrapper {
+  position: relative;
+}
+
+.pxd-select__input {
   box-sizing: border-box;
   width: 100%;
   min-height: var(--pxd-tap-target-min);
-  padding: var(--pxd-space-2) var(--pxd-space-3);
+  padding: var(--pxd-space-2) var(--pxd-space-8) var(--pxd-space-2) var(--pxd-space-3);
   font-family: var(--pxd-font-body);
   font-size: var(--pxd-font-size-sm);
   line-height: var(--pxd-line-height-normal);
@@ -30,55 +34,65 @@
   background-color: var(--pxd-color-surface-primary);
   border-width: var(--pxd-border-base);
   border-style: solid;
-  border-radius: 0;
   border-color: var(--pxd-color-border-interactive);
+  border-radius: 0;
+  appearance: none;
+  cursor: pointer;
   transition:
     border-color var(--pxd-motion-fast) var(--pxd-easing-standard),
     box-shadow var(--pxd-motion-fast) var(--pxd-easing-standard);
 }
 
+/* Custom chevron icon */
+.pxd-select__chevron {
+  position: absolute;
+  right: var(--pxd-space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--pxd-color-text-tertiary);
+  font-size: 0.625rem;
+  line-height: 1;
+}
+
 /* Size variants */
-.pxd-text-field--sm .pxd-text-field__input {
+.pxd-select--sm .pxd-select__input {
   min-height: 32px;
-  padding: var(--pxd-space-1) var(--pxd-space-2);
+  padding: var(--pxd-space-1) var(--pxd-space-6) var(--pxd-space-1) var(--pxd-space-2);
   font-size: var(--pxd-font-size-xs);
 }
 
-.pxd-text-field--md .pxd-text-field__input {
-  min-height: var(--pxd-tap-target-min);
+.pxd-select--sm .pxd-select__chevron {
+  right: var(--pxd-space-2);
 }
 
-.pxd-text-field__input::placeholder {
-  color: var(--pxd-color-text-tertiary);
-}
-
-.pxd-text-field__input:hover:not(:disabled):not(:focus) {
+.pxd-select__input:hover:not(:disabled):not(:focus) {
   border-color: var(--pxd-color-border-interactive-active);
 }
 
-.pxd-text-field__input:focus {
+.pxd-select__input:focus {
   outline: none;
   border-color: var(--pxd-color-border-focus);
   box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.25);
 }
 
-.pxd-text-field__input:disabled {
+.pxd-select__input:disabled {
   background-color: var(--pxd-color-surface-disabled);
   color: var(--pxd-color-text-disabled);
   cursor: not-allowed;
   border-color: var(--pxd-color-border-outline-variant);
 }
 
-.pxd-text-field__input.pxd-text-field__input--error {
+.pxd-select__input.pxd-select__input--error {
   border-color: var(--pxd-color-border-danger);
 }
 
-.pxd-text-field__input.pxd-text-field__input--error:focus {
+.pxd-select__input.pxd-select__input--error:focus {
   border-color: var(--pxd-color-feedback-danger);
   box-shadow: 0 0 0 3px rgba(232, 93, 93, 0.2);
 }
 
-.pxd-text-field__helper {
+.pxd-select__helper {
   margin-top: var(--pxd-space-2);
   font-family: var(--pxd-font-body);
   font-size: var(--pxd-font-size-xs);
@@ -86,11 +100,11 @@
   color: var(--pxd-color-text-secondary);
 }
 
-.pxd-text-field__helper-error {
+.pxd-select__helper-error {
   color: var(--pxd-color-text-danger);
   font-weight: var(--pxd-font-weight-medium);
 }
 
-.pxd-text-field__helper-error[role="alert"] {
+.pxd-select__helper-error[role="alert"] {
   margin-top: var(--pxd-space-1);
 }

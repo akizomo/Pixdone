@@ -57,9 +57,10 @@ The table below shows how each semantic token resolves in **Light** and **Dark**
   primitiveMap={primitiveLookup}
   caption="Border colors for structure, focus, and danger states."
   rows={[
-    { token: '--pxd-color-border-subtle',  lightValue: color.semantic.light.border.subtle,  darkValue: color.semantic.dark.border.subtle,  description: 'Subtle divider',   preview: 'color' },
-    { token: '--pxd-color-border-default', lightValue: color.semantic.light.border.default, darkValue: color.semantic.dark.border.default, description: 'Default border',   preview: 'color' },
-    { token: '--pxd-color-border-strong',  lightValue: color.semantic.light.border.strong,  darkValue: color.semantic.dark.border.strong,  description: 'Strong border',    preview: 'color' },
+    { token: '--pxd-color-border-outline-variant',    lightValue: color.semantic.light.border.outlineVariant,    darkValue: color.semantic.dark.border.outlineVariant,    description: 'Subtle dividers, card edges',          preview: 'color' },
+    { token: '--pxd-color-border-outline',            lightValue: color.semantic.light.border.outline,            darkValue: color.semantic.dark.border.outline,            description: 'Structural containers, modals',         preview: 'color' },
+    { token: '--pxd-color-border-interactive',        lightValue: color.semantic.light.border.interactive,        darkValue: color.semantic.dark.border.interactive,        description: 'Input / button rest state',              preview: 'color' },
+    { token: '--pxd-color-border-interactive-active', lightValue: color.semantic.light.border.interactiveActive, darkValue: color.semantic.dark.border.interactiveActive, description: 'Input / button hover & active state',    preview: 'color' },
     { token: '--pxd-color-border-focus',   lightValue: color.semantic.light.border.focus,   darkValue: color.semantic.dark.border.focus,   description: 'Focus ring',       preview: 'color' },
     { token: '--pxd-color-border-danger',  lightValue: color.semantic.light.border.danger,  darkValue: color.semantic.dark.border.danger,  description: 'Error border',     preview: 'color' },
     { token: '--pxd-color-border-inverse', lightValue: color.semantic.light.border.inverse, darkValue: color.semantic.dark.border.inverse, description: 'Inverse border',   preview: 'color' },

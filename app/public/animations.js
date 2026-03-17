@@ -41,6 +41,7 @@ const WORLD_SHUTDOWN_CRT_CONFIG = {
 
 class ComicEffectsManager {
     constructor() {
+        // Arcade theme effect pool (original)
         this.effects = [
             "explode",
             "flyAway",
@@ -60,6 +61,9 @@ class ComicEffectsManager {
             "fadeOut",
         ];
         this.superRareEffects = ["rainbowSmash", "freeze"];
+        // Synthwave theme effect pool
+        this.synthwaveEffects = ["glitchSlide", "neonWarp"];
+        this.synthwaveSuperRareEffects = ["neonBigBang"];
         this.epicChance = 0.05; // 5% chance (shared by rainbow and freeze)
         this.rainbowSmashChance = this.epicChance;
         this.effectLock = false;
@@ -474,6 +478,57 @@ class ComicEffectsManager {
                 50% { background-position: 100% 50%; }
                 100% { background-position: 0% 50%; }
             }
+
+            /* ── Synthwave effects ── */
+
+            .glitch-slide-effect {
+                animation: glitchSlideCard 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            }
+
+            @keyframes glitchSlideCard {
+                0%  { transform: translateX(0);     opacity: 1; }
+                15% { transform: translateX(6px);   opacity: 1; }
+                30% { transform: translateX(-10px); opacity: 0.9; }
+                50% { transform: translateX(-50px); opacity: 0.7; }
+                75% { transform: translateX(-120px); opacity: 0.3; }
+                100%{ transform: translateX(-250%); opacity: 0; }
+            }
+
+            .neon-warp-effect {
+                animation: neonWarpCard 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+                transform-origin: center left;
+            }
+
+            @keyframes neonWarpCard {
+                0%  { transform: scaleX(1);  opacity: 1;   filter: blur(0px) brightness(1); }
+                25% { transform: scaleX(1.5); opacity: 1;  filter: blur(0px) brightness(1.5); }
+                55% { transform: scaleX(4);  opacity: 0.7; filter: blur(1px) brightness(2); }
+                80% { transform: scaleX(8);  opacity: 0.3; filter: blur(2px) brightness(3); }
+                100%{ transform: scaleX(14); opacity: 0;   filter: blur(4px) brightness(4); }
+            }
+
+            .neon-big-bang-effect {
+                animation: neonBigBangCard 0.5s ease-out forwards;
+            }
+
+            @keyframes neonBigBangCard {
+                0%  { transform: scale(1);    opacity: 1; filter: brightness(1); }
+                25% { transform: scale(1.1);  opacity: 1; filter: brightness(2.5); }
+                60% { transform: scale(1.6);  opacity: 0.5; filter: brightness(4); }
+                100%{ transform: scale(2.8);  opacity: 0;   filter: brightness(1); }
+            }
+
+            @keyframes neonRayExpand {
+                0%  { transform-origin: 0 50%; transform: scaleX(0) rotate(var(--ray-angle, 0rad)); opacity: 1; }
+                70% { opacity: 0.9; }
+                100%{ transform-origin: 0 50%; transform: scaleX(1) rotate(var(--ray-angle, 0rad)); opacity: 0; }
+            }
+
+            @keyframes neonBigBangFlash {
+                0%   { opacity: 0; }
+                25%  { opacity: 0.85; }
+                100% { opacity: 0; }
+            }
             
             #world-shutdown-overlay {
                 position: fixed;
@@ -592,6 +647,17 @@ class ComicEffectsManager {
         document.head.appendChild(style);
     }
 
+    /** Read the active visual theme key from the DOM (set by ThemeProvider). */
+    getVisualTheme() {
+        try {
+            const attr = document.documentElement.getAttribute("data-visual-theme");
+            if (attr) return attr;
+            return localStorage.getItem("pd-visual-theme") || "arcade";
+        } catch (_) {
+            return "arcade";
+        }
+    }
+
     // Play random effect on task completion (effectRect = optional viewport rect when clone not laid out)
     playRandomEffect(taskElement, effectRect) {
         if (this.effectLock) return;
@@ -600,6 +666,12 @@ class ComicEffectsManager {
         const params = typeof window !== "undefined" && window.location ? new URLSearchParams(window.location.search) : null;
         const forceFreeze = params && params.get("effect") === "freeze";
         const forceRainbow = params && params.get("effect") === "rainbow";
+        const forceNeonBigBang = params && params.get("effect") === "neonBigBang";
+
+        const visualTheme = this.getVisualTheme();
+        const isSynthwave = visualTheme === "synthwave";
+        const normalPool = isSynthwave ? this.synthwaveEffects : this.effects;
+        const superRarePool = isSynthwave ? this.synthwaveSuperRareEffects : this.superRareEffects;
 
         if (forceFreeze) {
             console.log("❄️ Epic Freeze effect (forced by ?effect=freeze)");
@@ -607,18 +679,14 @@ class ComicEffectsManager {
         } else if (forceRainbow) {
             console.log("🌈 Rainbow Smash (forced by ?effect=rainbow)");
             selectedEffect = "rainbowSmash";
+        } else if (forceNeonBigBang) {
+            console.log("💥 Neon Big Bang (forced by ?effect=neonBigBang)");
+            selectedEffect = "neonBigBang";
         } else if (random < this.epicChance) {
-            const epicRoll = Math.random();
-            if (epicRoll < 0.5) {
-                console.log("❄️ Epic Freeze effect triggered!");
-                selectedEffect = "freeze";
-            } else {
-                console.log("🌈 Super rare Rainbow Smash effect triggered!");
-                selectedEffect = "rainbowSmash";
-            }
+            selectedEffect = superRarePool[Math.floor(Math.random() * superRarePool.length)];
+            console.log(`✨ Super rare effect triggered! [${visualTheme}]:`, selectedEffect);
         } else {
-            selectedEffect =
-                this.effects[Math.floor(Math.random() * this.effects.length)];
+            selectedEffect = normalPool[Math.floor(Math.random() * normalPool.length)];
         }
 
         console.log(
@@ -987,6 +1055,22 @@ class ComicEffectsManager {
                 this.effectLock = true;
                 this.playFreezeSound();
                 this.createFreezeEffect(taskElement, rect);
+                this.playHapticFeedback("strong");
+                break;
+            case "glitchSlide":
+                this.createGlitchSlideEffect(taskElement, rect);
+                this.playGlitchSlideSound();
+                this.playHapticFeedback("medium");
+                break;
+            case "neonWarp":
+                this.createNeonWarpEffect(taskElement, rect);
+                this.playNeonWarpSound();
+                this.playHapticFeedback("medium");
+                break;
+            case "neonBigBang":
+                this.effectLock = true;
+                this.createNeonBigBangEffect(taskElement, rect);
+                this.playNeonBigBangSound();
                 this.playHapticFeedback("strong");
                 break;
         }
@@ -2994,6 +3078,297 @@ class ComicEffectsManager {
         freeze.trigger();
     }
 
+    // ── Synthwave effects ──────────────────────────────────────────────────
+
+    createGlitchSlideEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const FONT = "'Orbitron', 'Courier New', monospace";
+        const MAGENTA = "#ff2dff";
+        const CYAN = "#00fff0";
+        const DUR = 650;
+
+        // "GLITCH!" label
+        const label = document.createElement("div");
+        label.innerHTML = "GLITCH!";
+        label.className = "effect-text";
+        label.style.cssText = [
+            "position:fixed",
+            `font-size:18px`,
+            "font-weight:900",
+            `color:${CYAN}`,
+            `text-shadow:3px 0 ${MAGENTA},-3px 0 ${MAGENTA},0 0 14px ${CYAN}`,
+            `font-family:${FONT}`,
+            `left:${rect.left + rect.width / 2 - 42}px`,
+            `top:${rect.top + rect.height / 2 - 12}px`,
+            "z-index:100000",
+            "pointer-events:none",
+            "transform:scale(0)",
+            "transition:transform 0.12s steps(3,end)",
+            "letter-spacing:3px",
+        ].join(";");
+        document.body.appendChild(label);
+        setTimeout(() => { label.style.transform = "scale(1.15)"; }, 40);
+
+        // Magenta RGB ghost (offset +6px)
+        const ghostM = taskElement.cloneNode(true);
+        ghostM.removeAttribute("id");
+        ghostM.style.cssText = [
+            "position:fixed",
+            `left:${rect.left + 6}px`,
+            `top:${rect.top}px`,
+            `width:${rect.width}px`,
+            `height:${rect.height}px`,
+            "pointer-events:none",
+            "z-index:99997",
+            "opacity:0.55",
+            "mix-blend-mode:screen",
+            `filter:saturate(0) brightness(0) sepia(1) hue-rotate(280deg) saturate(6)`,
+            `animation:glitchSlideCard ${DUR}ms cubic-bezier(0.22,1,0.36,1) 35ms forwards`,
+            "overflow:hidden",
+            "box-sizing:border-box",
+        ].join(";");
+        document.body.appendChild(ghostM);
+
+        // Cyan RGB ghost (offset -6px)
+        const ghostC = taskElement.cloneNode(true);
+        ghostC.removeAttribute("id");
+        ghostC.style.cssText = [
+            "position:fixed",
+            `left:${rect.left - 6}px`,
+            `top:${rect.top}px`,
+            `width:${rect.width}px`,
+            `height:${rect.height}px`,
+            "pointer-events:none",
+            "z-index:99997",
+            "opacity:0.55",
+            "mix-blend-mode:screen",
+            `filter:saturate(0) brightness(0) sepia(1) hue-rotate(160deg) saturate(6)`,
+            `animation:glitchSlideCard ${DUR}ms cubic-bezier(0.22,1,0.36,1) 70ms forwards`,
+            "overflow:hidden",
+            "box-sizing:border-box",
+        ].join(";");
+        document.body.appendChild(ghostC);
+
+        // Main element
+        taskElement.classList.add("glitch-slide-effect");
+
+        setTimeout(() => {
+            taskElement.classList.remove("glitch-slide-effect");
+            label.remove();
+            ghostM.remove();
+            ghostC.remove();
+        }, DUR + 150);
+    }
+
+    createNeonWarpEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const FONT = "'Orbitron', 'Courier New', monospace";
+        const MAGENTA = "#ff2dff";
+        const CYAN = "#00fff0";
+        const DUR = 600;
+
+        // "WARP!" label — appears above, fades right
+        const label = document.createElement("div");
+        label.innerHTML = "WARP!";
+        label.className = "effect-text";
+        label.style.cssText = [
+            "position:fixed",
+            "font-size:22px",
+            "font-weight:900",
+            `color:${CYAN}`,
+            `text-shadow:0 0 8px ${CYAN},0 0 22px ${CYAN},2px 0 ${MAGENTA}`,
+            `font-family:${FONT}`,
+            `left:${rect.left + rect.width / 2 - 38}px`,
+            `top:${rect.top - 32}px`,
+            "z-index:100000",
+            "pointer-events:none",
+            "opacity:1",
+            "transition:opacity 0.25s ease,transform 0.25s ease",
+            "letter-spacing:4px",
+        ].join(";");
+        document.body.appendChild(label);
+        setTimeout(() => {
+            label.style.opacity = "0";
+            label.style.transform = "translateX(40px)";
+        }, 180);
+
+        // Cyan/magenta streak line at vertical center
+        const streak = document.createElement("div");
+        streak.style.cssText = [
+            "position:fixed",
+            `left:${rect.left}px`,
+            `top:${rect.top + rect.height / 2 - 1}px`,
+            `width:${rect.width}px`,
+            "height:2px",
+            "pointer-events:none",
+            "z-index:99998",
+            `background:linear-gradient(to right,transparent,${CYAN},${MAGENTA},transparent)`,
+            "opacity:0",
+            "transition:opacity 0.08s ease,width 0.35s ease",
+            "box-sizing:border-box",
+        ].join(";");
+        document.body.appendChild(streak);
+        setTimeout(() => { streak.style.opacity = "0.9"; streak.style.width = "220px"; }, 80);
+
+        // White flash overlay on the task
+        const flash = document.createElement("div");
+        flash.style.cssText = [
+            "position:fixed",
+            `left:${rect.left}px`,
+            `top:${rect.top}px`,
+            `width:${rect.width}px`,
+            `height:${rect.height}px`,
+            "pointer-events:none",
+            "z-index:99999",
+            "background:white",
+            "opacity:0",
+            "border-radius:4px",
+            "animation:neonBigBangFlash 0.3s ease-out 0.15s forwards",
+        ].join(";");
+        document.body.appendChild(flash);
+
+        // Main element warps right
+        taskElement.classList.add("neon-warp-effect");
+
+        setTimeout(() => {
+            taskElement.classList.remove("neon-warp-effect");
+            label.remove();
+            streak.remove();
+            flash.remove();
+        }, DUR + 100);
+    }
+
+    createNeonBigBangEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+            this.effectLock = false;
+            return;
+        }
+
+        const FONT = "'Orbitron', 'Courier New', monospace";
+        const MAGENTA = "#ff2dff";
+        const CYAN = "#00fff0";
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const maxLen = Math.hypot(window.innerWidth, window.innerHeight);
+
+        // "CLEARED!!" label
+        const label = document.createElement("div");
+        label.innerHTML = "CLEARED!!";
+        label.className = "effect-text";
+        label.style.cssText = [
+            "position:fixed",
+            "font-size:26px",
+            "font-weight:900",
+            `color:${CYAN}`,
+            `text-shadow:0 0 10px ${CYAN},0 0 30px ${CYAN},0 0 60px ${MAGENTA},2px 2px 0 ${MAGENTA}`,
+            `font-family:${FONT}`,
+            `left:${cx - 95}px`,
+            `top:${cy - 52}px`,
+            "z-index:100000",
+            "pointer-events:none",
+            "transform:scale(0)",
+            "transition:transform 0.2s cubic-bezier(0.22,1,0.36,1)",
+            "letter-spacing:4px",
+            "white-space:nowrap",
+        ].join(";");
+        document.body.appendChild(label);
+        setTimeout(() => { label.style.transform = "scale(1.05)"; }, 40);
+
+        // 8 rays: alternating magenta/cyan at 45° increments
+        const rayColors = [MAGENTA, CYAN, MAGENTA, CYAN, MAGENTA, CYAN, MAGENTA, CYAN];
+        const rays = rayColors.map((color, i) => {
+            const angleDeg = i * 45;
+            const angleRad = angleDeg * Math.PI / 180;
+            const ray = document.createElement("div");
+            ray.style.cssText = [
+                "position:fixed",
+                `left:${cx}px`,
+                `top:${cy - 2}px`,
+                `width:${maxLen}px`,
+                "height:4px",
+                "pointer-events:none",
+                `z-index:99998`,
+                `background:linear-gradient(to right,${color} 0%,${color} 30%,transparent 100%)`,
+                "transform-origin:0 50%",
+                `transform:rotate(${angleRad}rad) scaleX(0)`,
+                "opacity:1",
+                `box-shadow:0 0 6px ${color},0 0 14px ${color}`,
+                `transition:transform 0.7s cubic-bezier(0.22,1,0.36,1) ${i * 18}ms,opacity 0.4s ease ${400 + i * 18}ms`,
+            ].join(";");
+            document.body.appendChild(ray);
+            setTimeout(() => {
+                ray.style.transform = `rotate(${angleRad}rad) scaleX(1)`;
+            }, 20 + i * 10);
+            setTimeout(() => { ray.style.opacity = "0"; }, 420 + i * 18);
+            return ray;
+        });
+
+        // Center radial flash
+        const flash = document.createElement("div");
+        flash.style.cssText = [
+            "position:fixed",
+            `left:${rect.left}px`,
+            `top:${rect.top}px`,
+            `width:${rect.width}px`,
+            `height:${rect.height}px`,
+            "pointer-events:none",
+            "z-index:99999",
+            `background:radial-gradient(circle,white 0%,${MAGENTA} 45%,transparent 70%)`,
+            "opacity:0",
+            "border-radius:4px",
+            "animation:neonBigBangFlash 0.5s ease-out forwards",
+        ].join(";");
+        document.body.appendChild(flash);
+
+        // Neon particles
+        const pColors = [MAGENTA, CYAN, "#ff88ff", "#88ffff", "#ffffff"];
+        const particles = Array.from({ length: 22 }, (_, p) => {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 70 + Math.random() * 160;
+            const color = pColors[p % pColors.length];
+            const size = 3 + Math.random() * 5;
+            const el = document.createElement("div");
+            el.style.cssText = [
+                "position:fixed",
+                `left:${cx - size / 2}px`,
+                `top:${cy - size / 2}px`,
+                `width:${size}px`,
+                `height:${size}px`,
+                "pointer-events:none",
+                "z-index:99999",
+                `background:${color}`,
+                `box-shadow:0 0 6px ${color}`,
+                "border-radius:50%",
+                `transition:transform 0.75s cubic-bezier(0.25,1,0.5,1) ${20 + p * 12}ms,opacity 0.75s ease ${20 + p * 12}ms`,
+            ].join(";");
+            document.body.appendChild(el);
+            setTimeout(() => {
+                el.style.transform = `translate(${Math.cos(angle) * dist}px,${Math.sin(angle) * dist}px)`;
+                el.style.opacity = "0";
+            }, 30 + p * 12);
+            return el;
+        });
+
+        // Main task element
+        taskElement.classList.add("neon-big-bang-effect");
+
+        setTimeout(() => {
+            taskElement.classList.remove("neon-big-bang-effect");
+            label.remove();
+            flash.remove();
+            rays.forEach(r => r.remove());
+            particles.forEach(p => p.remove());
+            this.effectLock = false;
+        }, 1800);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+
     createPixelRainbow(rect) {
         // Create canvas for 8bit rainbow
         const canvas = document.createElement("canvas");
@@ -3170,6 +3545,162 @@ class ComicEffectsManager {
             setTimeout(() => glow.remove(), 1000);
         }, 2000);
     }
+
+    // ── Synthwave effect sounds ────────────────────────────────────────────
+
+    playGlitchSlideSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+
+            // Rapid sawtooth bursts at random frequencies (glitch stutter)
+            const bursts = [
+                { freq: 880,  time: 0,    dur: 0.045 },
+                { freq: 220,  time: 0.06, dur: 0.045 },
+                { freq: 1320, time: 0.12, dur: 0.04  },
+                { freq: 165,  time: 0.18, dur: 0.07  },
+            ];
+            bursts.forEach((b) => {
+                const osc  = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = "sawtooth";
+                osc.frequency.setValueAtTime(b.freq, now + b.time);
+                gain.gain.setValueAtTime(0.07, now + b.time);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + b.time + b.dur);
+                osc.start(now + b.time);
+                osc.stop(now + b.time + b.dur);
+            });
+
+            // Downward sweep: digital slide-out
+            const sweep = ctx.createOscillator();
+            const sweepGain = ctx.createGain();
+            sweep.connect(sweepGain);
+            sweepGain.connect(ctx.destination);
+            sweep.type = "sawtooth";
+            sweep.frequency.setValueAtTime(660, now + 0.26);
+            sweep.frequency.exponentialRampToValueAtTime(80, now + 0.58);
+            sweepGain.gain.setValueAtTime(0.07, now + 0.26);
+            sweepGain.gain.exponentialRampToValueAtTime(0.001, now + 0.58);
+            sweep.start(now + 0.26);
+            sweep.stop(now + 0.58);
+        } catch (e) {}
+    }
+
+    playNeonWarpSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+
+            // Main warp sweep: 80Hz → 2400Hz (acceleration)
+            const warpOsc  = ctx.createOscillator();
+            const warpGain = ctx.createGain();
+            warpOsc.connect(warpGain);
+            warpGain.connect(ctx.destination);
+            warpOsc.type = "sawtooth";
+            warpOsc.frequency.setValueAtTime(80, now);
+            warpOsc.frequency.exponentialRampToValueAtTime(2400, now + 0.45);
+            warpGain.gain.setValueAtTime(0.08, now);
+            warpGain.gain.linearRampToValueAtTime(0.12, now + 0.3);
+            warpGain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+            warpOsc.start(now);
+            warpOsc.stop(now + 0.55);
+
+            // Harmonic layer (sine, one octave up)
+            const harmOsc  = ctx.createOscillator();
+            const harmGain = ctx.createGain();
+            harmOsc.connect(harmGain);
+            harmGain.connect(ctx.destination);
+            harmOsc.type = "sine";
+            harmOsc.frequency.setValueAtTime(160, now);
+            harmOsc.frequency.exponentialRampToValueAtTime(4800, now + 0.45);
+            harmGain.gain.setValueAtTime(0.04, now);
+            harmGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+            harmOsc.start(now);
+            harmOsc.stop(now + 0.5);
+
+            // Bright click at warp peak
+            const clickOsc  = ctx.createOscillator();
+            const clickGain = ctx.createGain();
+            clickOsc.connect(clickGain);
+            clickGain.connect(ctx.destination);
+            clickOsc.type = "sine";
+            clickOsc.frequency.setValueAtTime(4000, now + 0.44);
+            clickGain.gain.setValueAtTime(0.14, now + 0.44);
+            clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.52);
+            clickOsc.start(now + 0.44);
+            clickOsc.stop(now + 0.52);
+        } catch (e) {}
+    }
+
+    playNeonBigBangSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+
+            // Sub bass hit (impact)
+            const bassOsc  = ctx.createOscillator();
+            const bassGain = ctx.createGain();
+            bassOsc.connect(bassGain);
+            bassGain.connect(ctx.destination);
+            bassOsc.type = "sine";
+            bassOsc.frequency.setValueAtTime(60, now);
+            bassOsc.frequency.exponentialRampToValueAtTime(28, now + 0.3);
+            bassGain.gain.setValueAtTime(0.3, now);
+            bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+            bassOsc.start(now);
+            bassOsc.stop(now + 0.3);
+
+            // Rising arpeggio: sawtooth, E minor pentatonic
+            [82, 123, 165, 247, 330, 494, 659].forEach((freq, i) => {
+                const osc  = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = "sawtooth";
+                osc.frequency.setValueAtTime(freq, now + 0.05 + i * 0.1);
+                gain.gain.setValueAtTime(0.09, now + 0.05 + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18 + i * 0.1);
+                osc.start(now + 0.05 + i * 0.1);
+                osc.stop(now + 0.18 + i * 0.1);
+            });
+
+            // Lead synth: sustained E5 with vibrato
+            const vibratoOsc  = ctx.createOscillator();
+            const vibratoGain = ctx.createGain();
+            const leadOsc     = ctx.createOscillator();
+            const leadGain    = ctx.createGain();
+            vibratoOsc.connect(vibratoGain);
+            vibratoGain.connect(leadOsc.frequency);
+            leadOsc.connect(leadGain);
+            leadGain.connect(ctx.destination);
+            vibratoOsc.type = "sine";
+            vibratoOsc.frequency.setValueAtTime(6, now + 0.75);
+            vibratoGain.gain.setValueAtTime(0, now + 0.75);
+            vibratoGain.gain.linearRampToValueAtTime(18, now + 1.1);
+            leadOsc.type = "sawtooth";
+            leadOsc.frequency.setValueAtTime(659, now + 0.75);
+            leadGain.gain.setValueAtTime(0.1, now + 0.75);
+            leadGain.gain.linearRampToValueAtTime(0.13, now + 0.95);
+            leadGain.gain.exponentialRampToValueAtTime(0.001, now + 1.7);
+            vibratoOsc.start(now + 0.75);
+            vibratoOsc.stop(now + 1.7);
+            leadOsc.start(now + 0.75);
+            leadOsc.stop(now + 1.7);
+        } catch (e) {}
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
 
     playRainbowSmashSound() {
         try {
@@ -3552,7 +4083,5 @@ class TaskAnimationEffects {
     }
 }
 
-// Expose for React app (vanilla script.js sets window.taskAnimationEffects itself)
-if (typeof window !== "undefined") {
-    window.TaskAnimationEffects = TaskAnimationEffects;
-}
+// Expose to window so React (main.tsx) and vanilla (script.js) can both initialize it
+window.TaskAnimationEffects = TaskAnimationEffects;

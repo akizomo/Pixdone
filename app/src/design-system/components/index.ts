@@ -3,10 +3,14 @@ export type { ButtonProps, ButtonVariant, ButtonSize } from './Button/Button.typ
 export { IconButton } from './IconButton/IconButton';
 export type { IconButtonProps, IconButtonVariant, IconButtonSize } from './IconButton/IconButton.types';
 export { TextField } from './TextField/TextField';
-export type { TextFieldProps, TextFieldType } from './TextField/TextField.types';
+export type { TextFieldProps, TextFieldType, TextFieldSize } from './TextField/TextField.types';
+export { TextArea } from './TextArea/TextArea';
+export type { TextAreaProps } from './TextArea/TextArea.types';
 export { Chip } from './Chip/Chip';
 export type { ChipProps, ChipVariant, ChipSize } from './Chip/Chip.types';
 export { ModalDialog } from './ModalDialog/ModalDialog';
 export type { ModalDialogProps } from './ModalDialog/ModalDialog.types';
 export { BottomSheet } from './BottomSheet/BottomSheet';
 export type { BottomSheetProps, BottomSheetSnap } from './BottomSheet/BottomSheet.types';
+export { Select } from './Select/Select';
+export type { SelectProps, SelectOption, SelectSize } from './Select/Select.types';

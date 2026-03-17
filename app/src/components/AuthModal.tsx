@@ -86,18 +86,12 @@ export function AuthModal({ open, onClose, lang, initialMode = 'signup' }: AuthM
     ? (lang === 'ja' ? 'ログイン' : 'Log in')
     : (lang === 'ja' ? 'サインアップ' : 'Sign up');
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    background: 'var(--pd-color-background-default)',
-    border: '2px solid var(--pd-color-border-default)',
-    borderRadius: 0,
-    color: 'var(--pd-color-text-primary)',
-    fontFamily: 'var(--pd-font-body)',
-    fontSize: '0.875rem',
-    padding: '8px 12px',
-    outline: 'none',
-    boxSizing: 'border-box',
-  };
+  const primaryLabel =
+    mode === 'reset'
+      ? (lang === 'ja' ? 'パスワードリセット' : 'Reset password')
+      : mode === 'login'
+      ? (lang === 'ja' ? 'ログイン' : 'Log in')
+      : (lang === 'ja' ? 'サインアップ' : 'Sign up');
 
   return (
     <ModalDialog
@@ -110,43 +104,47 @@ export function AuthModal({ open, onClose, lang, initialMode = 'signup' }: AuthM
             {lang === 'ja' ? 'キャンセル' : 'Cancel'}
           </Button>
           <Button variant="primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? '...' : title}
+            {loading ? '...' : primaryLabel}
           </Button>
         </>
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {/* Mode toggle chips (signup / login) */}
-        {mode !== 'reset' && (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <Chip selected={mode === 'signup'} onClick={() => { playSound('buttonClick'); switchMode('signup'); }}>
-              {lang === 'ja' ? 'サインアップ' : 'Sign Up'}
-            </Chip>
-            <Chip selected={mode === 'login'} onClick={() => { playSound('buttonClick'); switchMode('login'); }}>
-              {lang === 'ja' ? 'ログイン' : 'Log In'}
-            </Chip>
-          </div>
-        )}
-
         {/* Email */}
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          style={inputStyle}
-          onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-        />
+        <div className="pxd-text-field" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <label
+            htmlFor="auth-email-input"
+            style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}
+          >
+            {lang === 'ja' ? 'メールアドレス' : 'Email'}
+          </label>
+          <input
+            id="auth-email-input"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={lang === 'ja' ? 'example@email.com' : 'your.email@example.com'}
+            className="pxd-text-field__input"
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+          />
+        </div>
 
         {/* Password */}
         {mode !== 'reset' && (
-          <div style={{ position: 'relative' }}>
+          <div className="pxd-text-field" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <label
+              htmlFor="auth-password-input"
+              style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}
+            >
+              {lang === 'ja' ? 'パスワード' : 'Password'}
+            </label>
             <input
+              id="auth-password-input"
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={lang === 'ja' ? 'パスワード' : 'Password'}
-              style={{ ...inputStyle, paddingRight: '40px' }}
+              className="pxd-text-field__input"
               onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
             />
             <button
@@ -195,6 +193,43 @@ export function AuthModal({ open, onClose, lang, initialMode = 'signup' }: AuthM
           >
             {lang === 'ja' ? '← ログインに戻る' : '← Back to login'}
           </button>
+        )}
+
+        {/* Footer: switch between signup / login (vanilla parity: auth-footer) */}
+        {mode !== 'reset' && (
+          <div style={{ marginTop: '4px', fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}>
+            {mode === 'signup' ? (
+              <>
+                <span>{lang === 'ja' ? 'すでにアカウントをお持ちですか？ ' : 'Already have an account? '}</span>
+                <button
+                  type="button"
+                  onClick={() => { playSound('taskEdit'); switchMode('login'); }}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--pd-color-accent-default)', padding: 0,
+                    fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+                  }}
+                >
+                  {lang === 'ja' ? 'ログイン' : 'Log in'}
+                </button>
+              </>
+            ) : (
+              <>
+                <span>{lang === 'ja' ? 'アカウントがない？ ' : "Don't have an account? "}</span>
+                <button
+                  type="button"
+                  onClick={() => { playSound('taskEdit'); switchMode('signup'); }}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--pd-color-accent-default)', padding: 0,
+                    fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+                  }}
+                >
+                  {lang === 'ja' ? 'サインアップ' : 'Sign up'}
+                </button>
+              </>
+            )}
+          </div>
         )}
 
         {/* Error */}

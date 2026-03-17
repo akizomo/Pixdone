@@ -107,7 +107,7 @@
 .pxd-icon-button--secondary {
   background-color: var(--pxd-color-action-secondary);
   color: var(--pxd-color-text-primary);
-  border-color: var(--pxd-color-border-default);
+  border-color: var(--pxd-color-border-interactive);
   box-shadow: var(--pxd-shadow-soft-xs);
 }
 

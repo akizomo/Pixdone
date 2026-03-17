@@ -1,4 +1,22 @@
 /* PixDone pixel-art base – matches public/style.css */
+
+/* PixelMplus (ピクセルM+) webfont for Japanese pixel titles – same as public/style.css */
+@font-face {
+  font-family: 'PixelMplus10';
+  src: url('https://cdn.leafscape.be/PixelMplus/PixelMplus10-Regular_web.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PixelMplus10';
+  src: url('https://cdn.leafscape.be/PixelMplus/PixelMplus10-Bold_web.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Variable aliases for compatibility */
 :root {
   --bg-primary: var(--pd-color-background-default);
@@ -7,7 +25,7 @@
   --text-primary: var(--pd-color-text-primary);
   --text-secondary: var(--pd-color-text-secondary);
   --text-muted: var(--pd-color-text-muted);
-  --border-color: var(--pd-color-border-default);
+  --border-color: var(--pxd-color-border-outline);
   --accent-color: var(--pd-color-accent-default);
   --accent-hover: var(--pd-color-accent-hover);
   --shadow-color: var(--pd-color-shadow-default);
@@ -106,6 +124,38 @@
 /* Mobile FAB – hidden on desktop, shown on mobile */
 .pd-mobile-fab {
   display: none !important;
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateZ(0);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pd-mobile-fab:active {
+  transform: translateX(-50%) translateZ(0) scale(0.9);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.pd-mobile-fab--smash {
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.4);
+}
+
+.pd-mobile-fab--smash:active {
+  transform: translateX(-50%) translateZ(0);
+  animation: pd-hammer-smash 0.3s ease-in-out;
+}
+
+@keyframes pd-hammer-smash {
+  0% {
+    transform: translateX(-50%) translateZ(0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) translateZ(0) rotate(-45deg) scale(1.1);
+  }
+  100% {
+    transform: translateX(-50%) translateZ(0) rotate(0deg) scale(1);
+  }
 }
 
 @media (max-width: 768px) {
@@ -157,6 +207,10 @@
   animation: pd-retro-blink 1s infinite;
   image-rendering: pixelated;
   margin: 0 0 8px;
+}
+
+[lang="ja"] .pd-empty-ready-text {
+  font-family: var(--pd-font-brand-ja);
 }
 
 /* ===== Empty state: sleeping pixel character ===== */
@@ -221,6 +275,10 @@
   line-height: 1;
 }
 
+[lang="ja"] .pd-bubble-text {
+  font-family: var(--pd-font-brand-ja);
+}
+
 /* ===== Tutorial complete CTA ===== */
 .pd-tutorial-cta-text {
   font-family: var(--pd-font-brand);
@@ -231,6 +289,10 @@
   animation: pd-retro-blink 1.5s infinite;
   image-rendering: pixelated;
   line-height: 1.6;
+}
+
+[lang="ja"] .pd-tutorial-cta-text {
+  font-family: var(--pd-font-brand-ja);
 }
 
 .pd-tutorial-cta-sub {

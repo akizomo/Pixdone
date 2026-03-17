@@ -130,9 +130,10 @@ const SEMANTIC_GROUPS: { name: string; tokens: { label: string; var: string; on?
   {
     name: 'Border',
     tokens: [
-      { label: 'subtle',  var: '--pxd-color-border-subtle'  },
-      { label: 'default', var: '--pxd-color-border-default' },
-      { label: 'strong',  var: '--pxd-color-border-strong'  },
+      { label: 'outline-variant',    var: '--pxd-color-border-outline-variant'    },
+      { label: 'outline',            var: '--pxd-color-border-outline'            },
+      { label: 'interactive',        var: '--pxd-color-border-interactive'        },
+      { label: 'interactive-active', var: '--pxd-color-border-interactive-active' },
       { label: 'focus',   var: '--pxd-color-border-focus'   },
       { label: 'danger',  var: '--pxd-color-border-danger'  },
       { label: 'inverse', var: '--pxd-color-border-inverse' },
@@ -212,13 +213,13 @@ const h2Style: React.CSSProperties = {
   color: 'var(--pxd-color-text-primary)',
   marginBottom: '16px',
   marginTop: '32px',
-  borderBottom: '1px solid var(--pxd-color-border-subtle)',
+  borderBottom: '1px solid var(--pxd-color-border-outline-variant)',
   paddingBottom: '8px',
 };
 
 const divider: React.CSSProperties = {
   border: 'none',
-  borderTop: '1px solid var(--pxd-color-border-subtle)',
+  borderTop: '1px solid var(--pxd-color-border-outline-variant)',
   margin: '32px 0',
 };
 
@@ -234,7 +235,7 @@ function Swatch({ cssVar, label }: { cssVar: string; label: string }) {
           height: '48px',
           background: `var(${cssVar})`,
           borderRadius: '4px',
-          border: '1px solid var(--pxd-color-border-subtle)',
+          border: '1px solid var(--pxd-color-border-outline-variant)',
         }}
       />
       <span style={{
@@ -261,7 +262,7 @@ function SemanticToken({ cssVar, label }: { cssVar: string; label: string }) {
         flexShrink: 0,
         background: `var(${cssVar})`,
         borderRadius: '4px',
-        border: '1px solid var(--pxd-color-border-subtle)',
+        border: '1px solid var(--pxd-color-border-outline-variant)',
       }} />
       <code style={{
         fontFamily: 'var(--pxd-font-mono)',
@@ -340,7 +341,7 @@ function ColorTokens() {
             <p style={sectionTitle}>{group.name}</p>
             <div style={{
               background: 'var(--pxd-color-surface-raised)',
-              border: '1px solid var(--pxd-color-border-subtle)',
+              border: '1px solid var(--pxd-color-border-outline-variant)',
               borderRadius: '8px',
               padding: '8px 12px',
             }}>

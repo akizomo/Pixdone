@@ -28,7 +28,7 @@
   overflow-y: auto;
   padding: 24px;
   background-color: var(--pd-color-background-default);
-  border: 4px solid var(--pd-color-border-default);
+  border: 4px solid var(--pxd-color-border-outline);
   border-radius: 0;
   box-shadow: 6px 6px 0px var(--pd-color-shadow-default);
   image-rendering: pixelated;
@@ -53,6 +53,10 @@
   text-transform: uppercase;
   text-shadow: 1px 1px 0px var(--pd-color-shadow-default);
   image-rendering: pixelated;
+}
+
+[lang="ja"] .pxd-modal-title {
+  font-family: var(--pd-font-brand-ja);
 }
 
 .pxd-modal-description {

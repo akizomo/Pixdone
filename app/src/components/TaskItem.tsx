@@ -1,5 +1,6 @@
 import type { Task } from '../types/task';
 import { formatDueDate, getDueStatus } from '../lib/date';
+import { t } from '../lib/i18n';
 
 export interface TaskItemProps {
   task: Task;
@@ -18,12 +19,19 @@ const repeatShort: Record<NonNullable<Task['repeat']>, { en: string; ja: string 
   yearly: { en: 'Yearly', ja: '毎年' },
 };
 
+const TUTORIAL_KEYS: Record<string, string> = {
+  'tutorial-1': 'tutorialTask1',
+  'tutorial-2': 'tutorialTask2',
+  'tutorial-3': 'tutorialTask3',
+};
+
 export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdit, onDelete }: TaskItemProps) {
   const dueLabel = formatDueDate(task.dueDate, lang);
   const repeatLabel = task.repeat && task.repeat !== 'none' ? (repeatShort[task.repeat]?.[lang] ?? '') : '';
   const subtasks = task.subtasks ?? [];
   const doneCount = subtasks.filter((s) => s.done).length;
   const dueStatus = getDueStatus(task.dueDate);
+  const displayTitle = TUTORIAL_KEYS[task.id] ? t(TUTORIAL_KEYS[task.id], lang) : task.title;
 
   const badgeStyle: React.CSSProperties = {
     fontSize: '0.6875rem',
@@ -117,7 +125,7 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
             fontSize: '0.875rem',
           }}
         >
-          {task.title}
+          {displayTitle}
         </span>
 
         {/* Meta row: due date, repeat, subtask count */}

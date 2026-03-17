@@ -2,9 +2,9 @@ import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { ThemeProvider, Button, Chip, ModalDialog, BottomSheet } from './design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
-  TaskForm, ListModal, AuthModal,
+  TaskForm, ListModal, AuthModal, BottomNav, FocusScreen,
 } from './components';
-import type { ListModalMode } from './components';
+import type { ListModalMode, ActiveScreen } from './components';
 import { useLists } from './features/useLists';
 import { SMASH_TITLES } from './features/useLists';
 import { useKeyboardNav } from './hooks/useKeyboardNav';
@@ -57,6 +57,9 @@ function AppContent() {
   // Delete task confirmation
   const [deleteTaskConfirm, setDeleteTaskConfirm] = useState<string | null>(null); // taskId
 
+  /* ---- Screen navigation ---- */
+  const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
+
   /* ---- Sound state (vanilla parity: pixdone-sound-enabled, ComicEffectsManager when loaded) ---- */
   const [soundMuted, setSoundMuted] = useState(() => !getSoundEnabled());
 
@@ -65,6 +68,13 @@ function AppContent() {
     initSoundEngine();
     setSoundMuted(!getSoundEnabled());
   }, []);
+
+  /* ---- Sync document language for font rules ([lang=\"ja\"] selectors) ---- */
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = lang;
+    }
+  }, [lang]);
 
   /* ---- User menu click-outside ---- */
   useEffect(() => {
@@ -81,7 +91,7 @@ function AppContent() {
   /* ---- Midnight refresh ---- */
   useMidnightRefresh();
 
-  /* ---- 未ログイン時: default リスト名を 'Tutorial' に正規化（vanilla と同様にヘッダー・タブで「マイタスク」表示） ---- */
+  /* ---- 未ログイン時: default リスト名を 'Tutorial' に正規化 ---- */
   useEffect(() => {
     if (user) return;
     const defaultList = lists.find((l) => l.id === 'default');
@@ -90,9 +100,18 @@ function AppContent() {
     }
   }, [user, lists, renameList]);
 
+  /* ---- ログイン時: default リスト名を 'My Tasks' に切り替え ---- */
+  useEffect(() => {
+    if (!user) return;
+    const defaultList = lists.find((l) => l.id === 'default');
+    if (defaultList && defaultList.name !== 'My Tasks') {
+      renameList('default', 'My Tasks');
+    }
+  }, [user, lists, renameList]);
+
   /* ---- Derived ---- */
   const isSmash = currentList?.id === 'smash-list' || currentList?.name === '💥 Smash List';
-  const isTutorial = currentList?.id === 'default' && currentList?.name === 'Tutorial';
+  const isTutorial = currentList?.id === 'default';
 
   const allTasks = currentList?.tasks ?? [];
   const activeTasks = allTasks.filter((t) => !t.completed);
@@ -123,8 +142,9 @@ function AppContent() {
   /* ---- Tab labels: 未ログイン時は「チュートリアル」、ログイン時は「マイタスク」 ---- */
   const getTabLabel = (list: List) => {
     if (list.id === 'smash-list' || list.name === '💥 Smash List') return '💥';
-    if (list.id === 'default' && list.name === 'Tutorial') return t('tutorial', lang);
-    if (list.id === 'default') return t('myTasks', lang);
+    if (list.id === 'default') {
+      return user ? t('myTasks', lang) : t('tutorial', lang);
+    }
     return list.name;
   };
 
@@ -222,7 +242,15 @@ function AppContent() {
   }, []);
 
   const openAddTask = useCallback(() => {
-    if (isSmash) return;
+    // Smash List: FAB acts as a quick smash (same as Space key)
+    if (isSmash) {
+      const first = (currentList?.tasks ?? []).find((t) => !t.completed);
+      if (first) {
+        handleSmash(first.id);
+      }
+      return;
+    }
+    // Other lists: open task add UI
     playSound('buttonClick');
     if (window.innerWidth <= 768) {
       setMobileEditTaskId(null);
@@ -230,7 +258,7 @@ function AppContent() {
     } else {
       setTaskFormMode('add');
     }
-  }, [isSmash]);
+  }, [isSmash, currentList, handleSmash]);
 
   /* ---- Sound toggle (vanilla: sync ComicEffectsManager.setSoundEnabled so effect sounds match) ---- */
   const toggleSound = () => {
@@ -264,10 +292,29 @@ function AppContent() {
   }, [listModal, addList, renameList, deleteList, lists]);
 
   const anyModalOpen = signupOpen || themeModalOpen || listModal !== null || mobileSheetOpen || deleteTaskConfirm !== null;
+  const isFocusScreen = activeScreen === 'focus';
 
   /* ---- Render ---- */
   return (
     <div className="pd-app-container" style={{ paddingBottom: '80px' }}>
+      {/* Focus screen overlay */}
+      {isFocusScreen && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          bottom: 'calc(56px + env(safe-area-inset-bottom))',
+          overflowY: 'auto',
+          background: 'var(--pd-color-background-default)',
+          zIndex: 100,
+        }}>
+          <FocusScreen
+            lists={lists}
+            lang={lang}
+            onCompleteTask={handleComplete}
+          />
+        </div>
+      )}
+
       <header
         style={{
           display: 'flex',
@@ -285,8 +332,15 @@ function AppContent() {
             {/* Theme button */}
             <button
               type="button"
-              title="Change theme"
-              onClick={() => { playSound('buttonClick'); setThemeModalOpen(true); }}
+              title={user ? (lang === 'ja' ? 'テーマを変更' : 'Change theme') : (lang === 'ja' ? 'サインアップしてテーマ変更' : 'Sign up to change theme')}
+              onClick={() => {
+                playSound('buttonClick');
+                if (!user) {
+                  setSignupOpen(true);
+                } else {
+                  setThemeModalOpen(true);
+                }
+              }}
               style={{
                 background: 'var(--pd-color-background-elevated)',
                 border: '2px solid var(--pd-color-border-default)',
@@ -311,14 +365,16 @@ function AppContent() {
                   onClick={() => { playSound('buttonClick'); setUserMenuOpen((v) => !v); }}
                   title={user.email ?? 'Account'}
                   style={{
-                    background: 'var(--pd-color-accent-default)',
-                    border: '2px solid var(--pd-color-accent-default)',
-                    color: 'white',
+                    background: 'var(--pd-color-background-elevated)',
+                    border: '2px solid var(--pd-color-border-default)',
+                    color: 'var(--pd-color-text-secondary)',
                     padding: '4px 8px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     lineHeight: 1,
+                    fontFamily: 'var(--pd-font-brand)',
+                    fontSize: '1rem',
                   }}
                 >
                   <span className="material-icons" style={{ fontSize: '20px', lineHeight: 1 }}>person</span>
@@ -369,6 +425,27 @@ function AppContent() {
                         {soundMuted ? 'volume_off' : 'volume_up'}
                       </span>
                       {soundMuted ? (lang === 'ja' ? 'サウンドオフ' : 'Sound off') : (lang === 'ja' ? 'サウンドオン' : 'Sound on')}
+                    </button>
+                    {/* Support PixDone */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playSound('buttonClick');
+                        window.open('https://www.buymeacoffee.com/pixdone', '_blank', 'noopener,noreferrer');
+                      }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '8px',
+                        width: '100%', textAlign: 'left',
+                        padding: '10px 14px', background: 'none',
+                        border: 'none', borderBottom: '1px solid var(--pd-color-border-default)',
+                        color: 'var(--pd-color-text-primary)',
+                        fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem', cursor: 'pointer',
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
+                    >
+                      <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>favorite</span>
+                      {lang === 'ja' ? 'Support PixDone' : 'Support PixDone'}
                     </button>
                     {/* Log out */}
                     <button
@@ -479,8 +556,8 @@ function AppContent() {
         <div key={activeListId} className="pd-list-enter" style={{ flex: 1, overflowY: 'auto' }}>
           {isSmash ? (
             <SmashListPanel
-              subtitle="This list exists only to let you tap and smash tasks for pure satisfaction."
-              hint="Press Space to smash a task"
+              subtitle={t('smashListSubtitle', lang)}
+              hint={t('smashListHint', lang)}
               tasks={currentList?.tasks ?? []}
               onSmash={handleSmash}
               getDisplayTitle={(task: Task) => {
@@ -490,13 +567,56 @@ function AppContent() {
                 return task.title;
               }}
             />
-          ) : isTutorial && activeTasks.length === 0 ? (
-            <TutorialPanel
-              headline={lang === 'ja' ? 'チュートリアル完了！' : "You've completed the tutorial!"}
-              subtext={lang === 'ja' ? 'サインアップしてタスクを保存し、デバイス間で同期しましょう。' : 'Sign up to save your own tasks and sync across devices.'}
-              buttonLabel={lang === 'ja' ? 'サインアップ' : 'Sign up'}
-              onSignUp={() => setSignupOpen(true)}
-            />
+          ) : !user && isTutorial && activeTasks.length === 0 ? (
+            <div>
+              <TutorialPanel
+                headline={"You've completed the tutorial!"}
+                subtext={
+                  lang === 'ja'
+                    ? 'サインアップしてタスクを保存し、端末間で同期＆テーマ変更を楽しもう。'
+                    : 'Sign up to save your own tasks, sync across devices, and unlock theme customization.'
+                }
+                buttonLabel={lang === 'ja' ? 'サインアップ' : 'Sign up'}
+                onSignUp={() => setSignupOpen(true)}
+              />
+              {completedTasks.length > 0 && (
+                <div style={{ marginTop: '24px' }}>
+                  <button
+                    type="button"
+                    onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                      width: '100%', background: 'none', border: 'none',
+                      cursor: 'pointer', padding: '8px 4px',
+                      color: 'var(--pd-color-text-secondary)',
+                      fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <span style={{
+                      fontSize: '0.625rem', transition: 'transform 0.2s',
+                      transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                      display: 'inline-block',
+                    }}>▶</span>
+                    {lang === 'ja' ? `完了済み (${completedTasks.length})` : `Completed (${completedTasks.length})`}
+                  </button>
+                  {completedExpanded && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
+                      {completedTasks.map((task) => (
+                        <TaskItem
+                          key={task.id}
+                          task={task}
+                          lang={lang}
+                          onComplete={handleUncomplete}
+                          onEdit={() => {}}
+                          onDelete={handleDelete}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           ) : allTasks.length === 0 ? (
             /* AC 14.1: No tasks at all – "READY?" (vanilla parity: game-start-empty) */
             <div className="game-start-empty">
@@ -614,36 +734,33 @@ function AppContent() {
       </main>
 
       {/* Mobile FAB */}
-      {!anyModalOpen && (
+      {!anyModalOpen && !isFocusScreen && (
         <button
           type="button"
           onClick={openAddTask}
           aria-label={lang === 'ja' ? 'タスクを追加' : 'Add a task'}
-          className="pd-mobile-fab"
+          className={isSmash ? 'pd-mobile-fab pd-mobile-fab--smash' : 'pd-mobile-fab'}
           style={{
-            position: 'fixed',
-            bottom: 'calc(24px + env(safe-area-inset-bottom))',
-            left: '50%',
-            transform: 'translateX(-50%) translateZ(0)',
             width: '56px',
             height: '56px',
             borderRadius: '50%',
-            background: isSmash ? 'white' : 'var(--pd-color-accent-default)',
-            color: 'white',
+            background: isSmash ? 'white' : 'var(--accent-color)',
+            color: isSmash ? 'var(--pxd-color-brand-smash)' : 'white',
             border: 'none',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
             display: 'none', // shown via CSS media query
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '1.5rem',
             cursor: 'pointer',
             zIndex: 1000,
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
             userSelect: 'none',
             WebkitUserSelect: 'none',
           }}
         >
-          {isSmash ? '💥' : <span className="material-icons" style={{ fontSize: '24px', lineHeight: 1 }}>add</span>}
+          {isSmash
+            ? <span aria-hidden="true">💥</span>
+            : <span className="material-icons" aria-hidden="true" style={{ fontSize: '24px', lineHeight: 1 }}>add</span>
+          }
         </button>
       )}
 
@@ -695,6 +812,16 @@ function AppContent() {
       <AuthModal
         open={signupOpen}
         onClose={() => { playSound('taskCancel'); setSignupOpen(false); }}
+        lang={lang}
+      />
+
+      {/* Bottom navigation */}
+      <BottomNav
+        activeScreen={activeScreen}
+        onSelect={(screen) => {
+          playSound('buttonClick');
+          setActiveScreen(screen);
+          }}
         lang={lang}
       />
 

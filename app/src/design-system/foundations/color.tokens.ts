@@ -126,15 +126,16 @@ export const color = {
         danger:   "#B93D3D",  // red700
       },
       border: {
-        subtle:  "#DDDEE3",  // gray200
-        default: "#A6AAB6",  // gray400
-        strong:  "#2E3440",  // gray800
+        outlineVariant:    "#DDDEE3",  // gray200 – subtle dividers
+        outline:           "#C5C8D2",  // gray300 – structural containers
+        interactive:       "#A6AAB6",  // gray400 – input rest state
+        interactiveActive: "#2E3440",  // gray800 – input hover/active
         inverse: "#FFFFFF",  // white
-        focus:   "#4C8DFF",  // blue500
+        focus:   "#7B61FF",  // purple500
         danger:  "#E85D5D",  // red500
       },
       feedback: {
-        info:    "#4C8DFF",  // blue500
+        info:    "#43CBEA",  // cyan500
         success: "#35C26B",  // green500
         warning: "#F5B82E",  // yellow500
         danger:  "#E85D5D",  // red500
@@ -151,7 +152,7 @@ export const color = {
         disabled:          "#C7C9D1",  // gray300
       },
       focus: {
-        ring:       "#4C8DFF",  // blue500
+        ring:       "#7B61FF",  // purple500
         ringOffset: "#FFFFFF",  // white
       },
     },
@@ -182,15 +183,16 @@ export const color = {
         danger:   "#FF7070",  // red400
       },
       border: {
-        subtle:  "#252D40",  // ink700
-        default: "#363E55",  // ink400
-        strong:  "#9DA3B4",  // ink100
+        outlineVariant:    "#252D40",  // ink700 – subtle dividers
+        outline:           "#363E55",  // ink500 – structural containers
+        interactive:       "#5C657A",  // ink300 – input rest state
+        interactiveActive: "#9DA3B4",  // ink100 – input hover/active
         inverse: "#191D24",  // gray900
-        focus:   "#7BB4FF",  // blue300
+        focus:   "#A590FF",  // purple400
         danger:  "#FF7070",  // red400
       },
       feedback: {
-        info:    "#7BB4FF",  // blue300
+        info:    "#8FE7FF",  // cyan300
         success: "#4CD98A",  // green400
         warning: "#FFD86B",  // yellow300
         danger:  "#FF7070",  // red400
@@ -207,7 +209,7 @@ export const color = {
         disabled:          "#252D40",  // ink700
       },
       focus: {
-        ring:       "#7BB4FF",  // blue300
+        ring:       "#A590FF",  // purple400
         ringOffset: "#12151C",  // ink950
       },
     },

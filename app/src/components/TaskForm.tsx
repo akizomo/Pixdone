@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import type { Task } from '../types/task';
-import { Button } from '../design-system';
+import { Button, TextField, TextArea } from '../design-system';
 import { t } from '../lib/i18n';
 import { getTodayYMD, getTomorrowYMD } from '../lib/date';
 import { playSound } from '../services/sound';
@@ -122,22 +122,20 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
       }}
     >
       {/* Title */}
-      <input
-        ref={titleRef}
+      <TextField
+        ref={titleRef as React.RefObject<HTMLInputElement>}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={handleTitleKeyDown}
         placeholder={lang === 'ja' ? 'タスク名' : 'Task title'}
-        style={{ ...inputStyle, fontSize: '1rem', fontWeight: 600 }}
       />
 
-      {/* Details */}
-      <textarea
+      {/* Details (memo) */}
+      <TextArea
         value={details}
         onChange={(e) => setDetails(e.target.value)}
         placeholder={t('details', lang)}
-        rows={2}
-        style={{ ...inputStyle, resize: 'vertical' }}
+        rows={3}
       />
 
       {/* Date buttons */}
@@ -250,12 +248,13 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
           </div>
         ))}
         <div style={{ display: 'flex', gap: '6px' }}>
-          <input
+          <TextField
             value={newSubtask}
             onChange={(e) => setNewSubtask(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSubtask(); } }}
             placeholder={t('addSubtask', lang)}
-            style={{ ...inputStyle, flex: 1, padding: '4px 8px', fontSize: '0.8125rem' }}
+            size="sm"
+            style={{ flex: 1 }}
           />
           <button type="button" onClick={addSubtask}
             style={{ ...chipBtnStyle(false), padding: '4px 8px', display: 'flex', alignItems: 'center' }}>

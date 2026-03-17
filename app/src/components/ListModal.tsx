@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ModalDialog, Button } from '../design-system';
+import { ModalDialog, Button, TextField } from '../design-system';
 import { t } from '../lib/i18n';
 
 export type ListModalMode = 'add' | 'rename' | 'delete';
@@ -71,36 +71,18 @@ export function ListModal({ open, mode, initialName = '', lang, onConfirm, onClo
           {t('deleteConfirm', lang)}
         </p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label
-            htmlFor="list-name-input"
-            style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}
-          >
-            {t('listName', lang)}
-          </label>
-          <input
-            id="list-name-input"
-            ref={inputRef}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleConfirm();
-              if (e.key === 'Escape') onClose();
-            }}
-            style={{
-              width: '100%',
-              background: 'var(--pd-color-background-default)',
-              border: '2px solid var(--pd-color-border-default)',
-              borderRadius: 0,
-              color: 'var(--pd-color-text-primary)',
-              fontFamily: 'var(--pd-font-body)',
-              fontSize: '0.875rem',
-              padding: '8px 12px',
-              outline: 'none',
-              boxSizing: 'border-box',
-            }}
-          />
-        </div>
+        <TextField
+          id="list-name-input"
+          label={t('listName', lang)}
+          value={name}
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleConfirm();
+            if (e.key === 'Escape') onClose();
+          }}
+          autoFocus
+        />
       )}
     </ModalDialog>
   );

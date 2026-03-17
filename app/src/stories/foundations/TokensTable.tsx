@@ -67,7 +67,7 @@ function ShadowBox({ value }: { value: string }) {
         borderRadius: 4,
         backgroundColor: 'var(--pxd-color-surface-primary, #FFFFFF)',
         boxShadow: value === 'none' ? undefined : value,
-        border: '1px solid var(--pxd-color-border-subtle, #EFEFF1)',
+        border: '1px solid var(--pxd-color-border-outline-variant, #EFEFF1)',
       }}
       title={value}
     />
@@ -91,7 +91,7 @@ export function TokensTable({ rows, caption, primitiveMap }: TokensTableProps) {
   const th: React.CSSProperties = {
     textAlign: 'left',
     padding: '10px 14px',
-    borderBottom: '2px solid var(--pxd-color-border-default, #DDDEE3)',
+    borderBottom: '2px solid var(--pxd-color-border-outline, #DDDEE3)',
     fontWeight: 600,
     fontSize: 13,
     color: 'var(--pxd-color-text-secondary, #4C5160)',
@@ -101,7 +101,7 @@ export function TokensTable({ rows, caption, primitiveMap }: TokensTableProps) {
 
   const td: React.CSSProperties = {
     padding: '10px 14px',
-    borderBottom: '1px solid var(--pxd-color-border-subtle, #EFEFF1)',
+    borderBottom: '1px solid var(--pxd-color-border-outline-variant, #EFEFF1)',
     verticalAlign: 'middle',
   };
 

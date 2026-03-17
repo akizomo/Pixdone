@@ -16,6 +16,7 @@ export function TextField({
   type = 'text',
   id: idProp,
   className = '',
+  size = 'md',
   ...rest
 }: TextFieldProps) {
   const generatedId = useId();
@@ -23,7 +24,7 @@ export function TextField({
   const hasError = Boolean(errorText);
 
   return (
-    <div className={`pxd-text-field ${className}`.trim()}>
+    <div className={`pxd-text-field pxd-text-field--${size} ${className}`.trim()}>
       {label && (
         <label htmlFor={id} className="pxd-text-field__label">
           {label}

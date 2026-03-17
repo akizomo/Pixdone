@@ -6,6 +6,11 @@
       "sourceType": "github",
       "computedHash": "c591208a052cc9f7deb77be1183e4627daf54dbf575ea2653f519f29fe3bd4c8"
     },
+    "ui-animation": {
+      "source": "mblode/agent-skills",
+      "sourceType": "github",
+      "computedHash": "2246d0232b13fcb9b0aea790e2a7716c6db83c547a9588a2114ef0566adacb35"
+    },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",

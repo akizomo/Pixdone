@@ -71,3 +71,12 @@ export const StateComparison: Story = {
   ),
   parameters: { docs: { description: { story: 'Default, filled, error, and disabled states.' } } },
 };
+
+export const SmallField: Story = {
+  args: {
+    label: 'Subtask (sm)',
+    placeholder: 'Add subtask…',
+    size: 'sm',
+  },
+  parameters: { docs: { description: { story: 'Compact small text field used for subtask input.' } } },
+};

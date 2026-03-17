@@ -17,6 +17,13 @@ html.task-effect-playing {
   min-height: 0;
   /* Prevent flex/shrink issues when clone has fixed width/height */
   flex-shrink: 0;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+/* Effect labels (WOBBLE!, BAM!, etc.) must render above the task clone */
+.effect-text {
+  z-index: 100000 !important;
 }
 
 /* === List Switch Animation === */

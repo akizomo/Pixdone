@@ -34,6 +34,7 @@ export function ListTabs({
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
       <div
         ref={scrollRef}
+        role="tablist"
         className="pd-list-tabs-scroll"
         style={{ display: 'flex', alignItems: 'center', gap: '2px', flex: 1, minWidth: 0, overflowX: 'auto' }}
       >
@@ -46,6 +47,9 @@ export function ListTabs({
               key={list.id}
               ref={isActive ? activeRef : null}
               type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-label={showCount ? `${getTabLabel(list)}, ${count} tasks` : undefined}
               onClick={() => onSelect(list.id)}
               style={{
                 display: 'flex',
@@ -82,14 +86,15 @@ export function ListTabs({
               <span>{getTabLabel(list)}</span>
               {showCount && (
                 <span
+                  aria-hidden="true"
                   style={{
                     marginLeft: '2px',
                     padding: '1px 4px',
                     fontSize: '0.6875rem',
                     borderRadius: 0,
-                    border: `1px solid ${isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
+                    border: `1px solid ${isActive ? 'var(--pd-color-accent-default)' : 'var(--pxd-color-border-interactive)'}`,
                     background: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-background-elevated)',
-                    color: isActive ? 'white' : 'var(--pd-color-text-secondary)',
+                    color: isActive ? 'var(--pd-color-accent-text)' : 'var(--pd-color-text-secondary)',
                   }}
                 >
                   {count}
@@ -110,7 +115,7 @@ export function ListTabs({
           width: '28px',
           height: '28px',
           flexShrink: 0,
-          border: '1px solid var(--pd-color-border-default)',
+          border: '1px solid var(--pxd-color-border-interactive)',
           borderRadius: 0,
           background: 'none',
           color: 'var(--pd-color-text-secondary)',

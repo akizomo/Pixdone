@@ -1,13 +1,153 @@
 import { useState, useCallback, useEffect } from 'react';
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  addDoc,
+  writeBatch,
+  Timestamp,
+} from 'firebase/firestore';
 import type { List } from '../types/list';
 import type { Task, Subtask } from '../types/task';
+import { db } from '../lib/firebase';
+import { useAuth } from '../contexts/AuthContext';
 
 const STORAGE_KEY = 'pixdone_lists_v1';
 const ACTIVE_KEY = 'pixdone_active_v1';
 
+// Smash list dummy tasks – mirror vanilla `public/script.js` smashListTasks / smashListTasksJa
 export const SMASH_TITLES = {
-  en: ['Smash this!', 'Destroy it!', 'Crush it!', 'Annihilate!', 'Obliterate!', 'Wipe it out!', 'Demolish!', 'Eradicate!', 'Pulverize!', 'Vanquish!'],
-  ja: ['粉砕せよ！', 'やっつけろ！', 'やり遂げろ！', '一気に片付けろ！', 'ぶっ飛ばせ！', '消し去れ！', '全力でやれ！', '根絶せよ！', '打ち砕け！', '征服せよ！'],
+  en: [
+    'Fix the coffee machine',
+    'Buy milk and bread',
+    'Call mom',
+    'Clean the garage',
+    'Organize email inbox',
+    'Fix the leaky faucet',
+    'Plan weekend trip',
+    'Read 30 pages of a book',
+    'Go for a 30-minute walk',
+    'Backup computer files',
+    'Wash the car',
+    'Water the plants',
+    'Take out the trash',
+    'Pay electricity bill',
+    'Vacuum the living room',
+    'Sort through old clothes',
+    'Exercise for 20 minutes',
+    'Check bank balance',
+    'Update phone contacts',
+    'Charge all devices',
+    'Finish the laundry',
+    'Make grocery list',
+    'Review monthly budget',
+    'Call the dentist',
+    'Fix the broken drawer',
+    'Learn a new word',
+    'Stretch for 10 minutes',
+    'Write in journal',
+    'Reply to messages',
+    'Dust the furniture',
+    'Organize desk drawer',
+    'Check car oil',
+    'Practice a hobby',
+    'Send thank you note',
+    'Delete old photos',
+    'Clean the windows',
+    'Update software',
+    'Prepare lunch',
+    'Call old friend',
+    'Do 10 pushups',
+    'Organize bookshelf',
+    'Check weather forecast',
+    'Trim fingernails',
+    'Unsubscribe from emails',
+    'Take a 5-minute break',
+    'Smile at yourself',
+    'Drink a glass of water',
+    'Take a deep breath',
+    'High-five yourself',
+    'Say something nice',
+    // Legacy Firestore initial tasks – keep same as vanilla
+    'Check notifications',
+    'Organize desk',
+    'Review emails',
+    'Take deep breaths',
+    'Stretch muscles',
+    'Clear browser tabs',
+    'Clean keyboard',
+    'Water plants',
+    'Tidy up files',
+    'Quick workout',
+  ],
+  ja: [
+    'コーヒーメーカーを直す',
+    '牛乳とパンを買う',
+    '母に電話する',
+    'ガレージを掃除する',
+    'メールの受信箱を整理する',
+    '蛇口の漏水を直す',
+    '週末の旅行を計画する',
+    '本を30ページ読む',
+    '30分散歩する',
+    'パソコンのバックアップ',
+    '車を洗う',
+    '植物に水をやる',
+    'ゴミを出す',
+    '電気代を払う',
+    'リビングを掃除機がけする',
+    '古い服を整理する',
+    '20分運動する',
+    '残高を確認する',
+    '連絡先を更新する',
+    'デバイスを充電する',
+    '洗濯を終わらせる',
+    '買い物リストを作る',
+    '月の予算を見直す',
+    '歯医者に電話する',
+    '壊れた引き出しを直す',
+    '新しい単語を覚える',
+    '10分ストレッチする',
+    '日記を書く',
+    'メッセージに返信する',
+    '家具のホコリを払う',
+    '机の引き出しを整理する',
+    '車のオイルを確認する',
+    '趣味の練習をする',
+    'お礼のメッセージを送る',
+    '古い写真を削除する',
+    '窓を拭く',
+    'ソフトを更新する',
+    'お弁当を用意する',
+    '昔の友達に電話する',
+    '腕立て10回する',
+    '本棚を整理する',
+    '天気予報を確認する',
+    '爪を切る',
+    'メルマガを解除する',
+    '5分休憩する',
+    '自分に微笑む',
+    '水を一杯飲む',
+    '深呼吸する',
+    '自分とハイタッチする',
+    '自分を褒める',
+    // Legacy Firestore initial tasks – same order
+    '通知を確認する',
+    '机を整理する',
+    'メールを確認する',
+    '深呼吸する',
+    'ストレッチする',
+    'ブラウザのタブを閉じる',
+    'キーボードを掃除する',
+    '植物に水をやる',
+    'ファイルを整理する',
+    '軽い運動をする',
+  ],
 };
 
 function replenishSmashList(tasks: Task[], listId: string): Task[] {
@@ -48,9 +188,9 @@ const defaultLists: List[] = [
     id: 'smash-list',
     name: '💥 Smash List',
     tasks: [
-      { id: 's1', title: 'Smash this!', smashIdx: 0, completed: false, dueDate: null, listId: 'smash-list' },
-      { id: 's2', title: 'Destroy it!', smashIdx: 1, completed: false, dueDate: null, listId: 'smash-list' },
-      { id: 's3', title: 'Crush it!', smashIdx: 2, completed: false, dueDate: null, listId: 'smash-list' },
+      { id: 's1', title: SMASH_TITLES.en[0], smashIdx: 0, completed: false, dueDate: null, listId: 'smash-list' },
+      { id: 's2', title: SMASH_TITLES.en[1], smashIdx: 1, completed: false, dueDate: null, listId: 'smash-list' },
+      { id: 's3', title: SMASH_TITLES.en[2], smashIdx: 2, completed: false, dueDate: null, listId: 'smash-list' },
     ] as Task[],
   },
 ];
@@ -58,7 +198,18 @@ const defaultLists: List[] = [
 function loadLists(): List[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as List[];
+    if (raw) {
+      const parsed = JSON.parse(raw) as List[];
+      // 旧データなどで default リストが存在しない場合は、チュートリアル付きの初期状態にリセット
+      const hasDefault = Array.isArray(parsed) && parsed.some((l) => l.id === 'default');
+      if (!hasDefault) return defaultLists;
+      // Smash List のダミータスクが不足している場合は 3 件に補充
+      return parsed.map((l) => {
+        const isSmash = l.id === 'smash-list' || l.name === '💥 Smash List';
+        if (!isSmash || l.tasks.length >= 3) return l;
+        return { ...l, tasks: replenishSmashList(l.tasks, l.id) };
+      });
+    }
   } catch { /* ignore */ }
   return defaultLists;
 }
@@ -72,6 +223,8 @@ function loadActiveId(lists: List[]): string {
 }
 
 export function useLists() {
+  const { user } = useAuth();
+
   const [lists, setListsState] = useState<List[]>(() => loadLists());
   const [activeId, setActiveId] = useState<string>(() => {
     const initial = loadLists();
@@ -80,45 +233,208 @@ export function useLists() {
 
   const setLists = useCallback((updater: List[] | ((prev: List[]) => List[])) => {
     setListsState((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      const next = typeof updater === 'function' ? (updater as (prev: List[]) => List[])(prev) : updater;
+      if (!user) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      }
       return next;
     });
-  }, []);
+  }, [user]);
 
   const setActiveList = useCallback((id: string) => {
     setActiveId(id);
-    try { localStorage.setItem(ACTIVE_KEY, id); } catch { /* ignore */ }
-  }, []);
+    if (!user) {
+      try { localStorage.setItem(ACTIVE_KEY, id); } catch { /* ignore */ }
+    }
+  }, [user]);
 
   useEffect(() => {
-    try { localStorage.setItem(ACTIVE_KEY, activeId); } catch { /* ignore */ }
-  }, [activeId]);
+    if (!user) {
+      try { localStorage.setItem(ACTIVE_KEY, activeId); } catch { /* ignore */ }
+    }
+  }, [activeId, user]);
+
+  /* ---- Firestore sync when authenticated ---- */
+  useEffect(() => {
+    if (!user) return;
+
+    const listsQuery = query(
+      collection(db, 'lists'),
+      where('uid', '==', user.uid),
+    );
+
+    const unsubLists = onSnapshot(listsQuery, (snap) => {
+      setListsState((prev) => {
+        const tasksById = new Map<string, Task[]>();
+        prev.forEach((l) => tasksById.set(l.id, l.tasks));
+        const next: List[] = snap.docs.map((d) => {
+          const data = d.data() as any;
+          return {
+            id: d.id,
+            name: data.name ?? 'My Tasks',
+            tasks: tasksById.get(d.id) ?? [],
+          };
+        });
+        return next;
+      });
+    });
+
+    const tasksQuery = query(
+      collection(db, 'tasks'),
+      where('uid', '==', user.uid),
+    );
+
+    const unsubTasks = onSnapshot(tasksQuery, (snap) => {
+      const tasksByList: Record<string, Task[]> = {};
+
+      snap.docs.forEach((d) => {
+        const data = d.data() as any;
+        const listId = data.listId as string | undefined;
+        if (!listId) return;
+        const due = data.dueDate;
+        let dueDate: string | null = null;
+        if (due instanceof Timestamp) {
+          dueDate = due.toDate().toISOString().slice(0, 10);
+        } else if (typeof due === 'string') {
+          dueDate = due;
+        } else {
+          dueDate = null;
+        }
+        const task: Task = {
+          id: d.id,
+          title: data.title ?? '',
+          completed: !!data.completed,
+          dueDate,
+          details: data.details ?? '',
+          repeat: data.repeat ?? 'none',
+          subtasks: data.subtasks ?? [],
+          listId,
+        };
+        if (!tasksByList[listId]) tasksByList[listId] = [];
+        tasksByList[listId].push(task);
+      });
+
+      setListsState((prev) =>
+        prev.map((l) => ({
+          ...l,
+          tasks: tasksByList[l.id] ?? l.tasks,
+        })),
+      );
+    });
+
+    return () => {
+      unsubLists();
+      unsubTasks();
+    };
+  }, [user]);
 
   /* ---- List CRUD ---- */
   const addList = useCallback((name: string) => {
-    const id = `list-${Date.now()}`;
-    setLists((prev) => [...prev, { id, name, tasks: [] }]);
-    setActiveList(id);
-  }, [setLists, setActiveList]);
+    const optimisticId = `list-${Date.now()}`;
+
+    if (user) {
+      // 楽観的にローカル更新（Smash の場合は初期 3 件のダミータスクを表示）
+      const initialTasks: Task[] =
+        name === '💥 Smash List'
+          ? [0, 1, 2].map((i) => ({
+              id: `smash-${Date.now()}-${i}`,
+              title: SMASH_TITLES.en[i],
+              smashIdx: i,
+              completed: false,
+              dueDate: null,
+              listId: optimisticId,
+            }))
+          : [];
+      setLists((prev) => [...prev, { id: optimisticId, name, tasks: initialTasks }]);
+      setActiveList(optimisticId);
+
+      (async () => {
+        const listsCol = collection(db, 'lists');
+        const docRef = await addDoc(listsCol, {
+          uid: user.uid,
+          name,
+          createdAt: Timestamp.now(),
+        });
+        // Smash List の場合は初期ダミータスクを Firestore に追加（vanilla 互換）
+        if (name === '💥 Smash List') {
+          const batch = writeBatch(db);
+          const titles = [0, 1, 2].map(
+            () => SMASH_TITLES.en[Math.floor(Math.random() * SMASH_TITLES.en.length)],
+          );
+          titles.forEach((title) => {
+            const taskRef = doc(collection(db, 'tasks'));
+            batch.set(taskRef, {
+              uid: user.uid,
+              listId: docRef.id,
+              title,
+              details: '',
+              dueDate: null,
+              repeat: 'none',
+              subtasks: [],
+              completed: false,
+              createdAt: Timestamp.now(),
+            });
+          });
+          await batch.commit();
+        }
+      })();
+    } else {
+      const id = optimisticId;
+      const initialTasks: Task[] =
+        name === '💥 Smash List'
+          ? [0, 1, 2].map((i) => ({
+              id: `smash-${Date.now()}-${i}`,
+              title: SMASH_TITLES.en[i],
+              smashIdx: i,
+              completed: false,
+              dueDate: null,
+              listId: id,
+            }))
+          : [];
+      setLists((prev) => [...prev, { id, name, tasks: initialTasks }]);
+      setActiveList(id);
+    }
+  }, [setLists, setActiveList, user]);
 
   const renameList = useCallback((listId: string, name: string) => {
-    setLists((prev) => prev.map((l) => l.id === listId ? { ...l, name } : l));
-  }, [setLists]);
+    if (user) {
+      setLists((prev) => prev.map((l) => (l.id === listId ? { ...l, name } : l)));
+      (async () => {
+        const ref = doc(db, 'lists', listId);
+        await updateDoc(ref, { name });
+      })();
+    } else {
+      setLists((prev) => prev.map((l) => (l.id === listId ? { ...l, name } : l)));
+    }
+  }, [setLists, user]);
 
   const deleteList = useCallback((listId: string, allLists: List[]) => {
-    const remaining = allLists.filter((l) => l.id !== listId);
-    setLists(remaining);
-    if (activeId === listId) {
-      const newActive = remaining[0]?.id ?? '';
-      setActiveList(newActive);
+    if (user) {
+      const remaining = allLists.filter((l) => l.id !== listId);
+      setLists(remaining);
+      if (activeId === listId) {
+        const newActive = remaining[0]?.id ?? '';
+        setActiveList(newActive);
+      }
+      (async () => {
+        const ref = doc(db, 'lists', listId);
+        await deleteDoc(ref);
+      })();
+    } else {
+      const remaining = allLists.filter((l) => l.id !== listId);
+      setLists(remaining);
+      if (activeId === listId) {
+        const newActive = remaining[0]?.id ?? '';
+        setActiveList(newActive);
+      }
     }
-  }, [setLists, setActiveList, activeId]);
+  }, [setLists, setActiveList, activeId, user]);
 
   /* ---- Task CRUD ---- */
   const addTask = useCallback((listId: string, fields: Partial<Task> & { title: string }): Task => {
-    const task: Task = {
-      id: `task-${Date.now()}`,
+    const optimisticId = `task-${Date.now()}`;
+    const base: Task = {
+      id: optimisticId,
       title: fields.title,
       completed: false,
       dueDate: fields.dueDate ?? null,
@@ -127,26 +443,66 @@ export function useLists() {
       subtasks: fields.subtasks ?? [],
       listId,
     };
+
+    // まずローカルを更新（ログイン・未ログイン共通）
     setLists((prev) =>
-      prev.map((l) => l.id === listId ? { ...l, tasks: [...l.tasks, task] } : l)
+      prev.map((l) => (l.id === listId ? { ...l, tasks: [...l.tasks, base] } : l)),
     );
-    return task;
-  }, [setLists]);
+
+    if (user) {
+      (async () => {
+        const ref = doc(collection(db, 'tasks'));
+        await setDoc(ref, {
+          uid: user.uid,
+          listId,
+          title: base.title,
+          details: base.details ?? '',
+          dueDate: base.dueDate,
+          repeat: base.repeat ?? 'none',
+          subtasks: base.subtasks ?? [],
+          completed: base.completed,
+          createdAt: Timestamp.now(),
+        });
+      })();
+    }
+
+    return base;
+  }, [setLists, user]);
 
   const updateTask = useCallback((taskId: string, fields: Partial<Task>) => {
     setLists((prev) =>
       prev.map((l) => ({
         ...l,
-        tasks: l.tasks.map((t) => t.id === taskId ? { ...t, ...fields } : t),
-      }))
+        tasks: l.tasks.map((t) => (t.id === taskId ? { ...t, ...fields } : t)),
+      })),
     );
-  }, [setLists]);
+
+    if (user) {
+      (async () => {
+        const ref = doc(db, 'tasks', taskId);
+        await updateDoc(ref, {
+          title: fields.title,
+          details: fields.details,
+          dueDate: fields.dueDate,
+          repeat: fields.repeat,
+          subtasks: fields.subtasks,
+        });
+      })();
+    }
+  }, [setLists, user]);
 
   const deleteTask = useCallback((taskId: string) => {
     setLists((prev) =>
-      prev.map((l) => ({ ...l, tasks: l.tasks.filter((t) => t.id !== taskId) }))
+      prev.map((l) => ({ ...l, tasks: l.tasks.filter((t) => t.id !== taskId) })),
     );
-  }, [setLists]);
+
+    if (user) {
+      (async () => {
+        const ref = doc(db, 'tasks', taskId);
+        await deleteDoc(ref);
+      })();
+    }
+  }, [setLists, user]);
 
   const completeTask = useCallback((taskId: string) => {
     setLists((prev) =>
@@ -155,26 +511,41 @@ export function useLists() {
         const updated = l.tasks.map((t) =>
           t.id === taskId
             ? { ...t, completed: true, completedAt: new Date().toISOString() }
-            : t
+            : t,
         );
-        if (isSmash) {
+        if (isSmash && !user) {
+          // ゲスト時のみ Smash 補充ロジック
           return { ...l, tasks: replenishSmashList(updated, l.id) };
         }
         return { ...l, tasks: updated };
-      })
+      }),
     );
-  }, [setLists]);
+
+    if (user) {
+      (async () => {
+        const ref = doc(db, 'tasks', taskId);
+        await updateDoc(ref, { completed: true });
+      })();
+    }
+  }, [setLists, user]);
 
   const uncompleteTask = useCallback((taskId: string) => {
     setLists((prev) =>
       prev.map((l) => ({
         ...l,
         tasks: l.tasks.map((t) =>
-          t.id === taskId ? { ...t, completed: false, completedAt: undefined } : t
+          t.id === taskId ? { ...t, completed: false, completedAt: undefined } : t,
         ),
-      }))
+      })),
     );
-  }, [setLists]);
+
+    if (user) {
+      (async () => {
+        const ref = doc(db, 'tasks', taskId);
+        await updateDoc(ref, { completed: false });
+      })();
+    }
+  }, [setLists, user]);
 
   /* ---- Subtask CRUD ---- */
   const addSubtask = useCallback((taskId: string, text: string) => {

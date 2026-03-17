@@ -34,7 +34,7 @@
 .pxd-chip--neutral {
   background-color: var(--pd-color-background-elevated);
   color: var(--pd-color-text-secondary);
-  border-color: var(--pd-color-border-default);
+  border-color: var(--pxd-color-border-interactive);
 }
 
 .pxd-chip--neutral:hover {
@@ -45,10 +45,10 @@
 /* Selected */
 .pxd-chip--selected,
 .pxd-chip--neutral.pxd-chip--selected {
-  background-color: var(--pd-color-accent-subtle);
-  color: var(--pd-color-accent-default);
-  border-color: var(--pd-color-accent-default);
-  box-shadow: 2px 2px 0 var(--pd-color-shadow-default);
+  background-color: var(--pd-color-background-hover);
+  color: var(--pd-color-text-primary);
+  border-color: var(--pxd-color-border-interactive-active);
+  box-shadow: 1px 1px 0 var(--pd-color-shadow-default);
 }
 
 /* Accent variant */

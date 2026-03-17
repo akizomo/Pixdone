@@ -52,7 +52,7 @@
             pressPlusToStart: 'Press + to start your first task.',
             noTasksRest: 'No tasks - Time to rest!',
             tutorialComplete: "You've completed the tutorial!",
-            tutorialCompleteSub: 'Sign up to save your own tasks and sync across devices.',
+            tutorialCompleteSub: 'Sign up to save your own tasks, sync across devices, and unlock theme customization.',
 
             // Completed
             completed: 'Completed',
@@ -156,7 +156,7 @@
             pressPlusToStart: '+ で最初のタスクをはじめよう。',
             noTasksRest: 'タスクなし — やすもう！',
             tutorialComplete: "You've completed the tutorial!",
-            tutorialCompleteSub: 'サインアップしてタスクを保存し、端末間で同期できます。',
+            tutorialCompleteSub: 'サインアップしてタスクを保存し、端末間で同期＆テーマ変更を楽しもう。',
 
             // Completed
             completed: '完了',

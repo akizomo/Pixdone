@@ -54,7 +54,7 @@
 
 .pxd-button--primary {
   background-color: var(--pd-color-accent-default);
-  color: white;
+  color: var(--pd-color-accent-text);
   border-color: var(--pd-color-accent-default);
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
@@ -74,7 +74,7 @@
 .pxd-button--secondary {
   background-color: var(--pd-color-background-elevated);
   color: var(--pd-color-text-secondary);
-  border-color: var(--pd-color-border-default);
+  border-color: var(--pxd-color-border-interactive);
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
 
@@ -107,7 +107,7 @@
 
 .pxd-button--danger {
   background-color: var(--pd-color-semantic-danger);
-  color: white;
+  color: var(--pd-color-semantic-dangerText);
   border-color: var(--pd-color-semantic-danger);
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
@@ -125,7 +125,7 @@
 
 .pxd-button--reward {
   background-color: var(--pd-color-semantic-success);
-  color: white;
+  color: var(--pd-color-semantic-successText);
   border-color: var(--pd-color-semantic-success);
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
@@ -139,7 +139,7 @@
 /* Signup: green, matches .signup-btn in style.css */
 .pxd-button--signup {
   background-color: var(--pd-color-semantic-success);
-  color: white;
+  color: var(--pd-color-semantic-successText);
   border-color: var(--pd-color-semantic-success);
   box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
 }

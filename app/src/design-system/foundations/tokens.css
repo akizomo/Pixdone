@@ -97,6 +97,35 @@
   --pxd-cyan-500: #43CBEA;
   --pxd-cyan-700: #2396B2;
 
+  /* ── Magenta ─────────────────────────────────────────────────────────────── */
+  /*    Neon/cyberpunk themes. 300=light neon, 500=bright, 700=deep, 900=dark. */
+  --pxd-magenta-300: #FF77FF;
+  --pxd-magenta-500: #FF2DFF;
+  --pxd-magenta-700: #C020C0;
+  --pxd-magenta-900: #7A007A;
+
+  /* ── Teal ────────────────────────────────────────────────────────────────── */
+  /*    General-purpose dark accent; complements lavender in light modes.      */
+  --pxd-teal-300: #4DDBDA;
+  --pxd-teal-500: #007A78;
+  --pxd-teal-700: #005550;
+  --pxd-teal-900: #003D3B;
+
+  /* ── Lavender ────────────────────────────────────────────────────────────── */
+  /*    Light-mode surfaces for purple-toned themes.                           */
+  --pxd-lavender-50:  #F0EEFF;
+  --pxd-lavender-100: #EAE4FF;
+  --pxd-lavender-200: #E6E0FF;
+  --pxd-lavender-300: #D9D0FF;
+  --pxd-lavender-400: #CCC0FF;
+  --pxd-lavender-500: #C4BCEC;
+
+  /* ── Violet ──────────────────────────────────────────────────────────────── */
+  /*    Dark text for lavender backgrounds. 900=darkest, 600=tertiary/muted.   */
+  --pxd-violet-600: #6848AA;
+  --pxd-violet-700: #5A3A9A;
+  --pxd-violet-900: #1A0055;
+
   /* ── Base ────────────────────────────────────────────────────────────────── */
   --pxd-white: #FFFFFF;
   --pxd-black: #111111;
@@ -133,15 +162,16 @@
   --pxd-color-text-danger:    var(--pxd-red-700);
 
   /* ── Border ── */
-  --pxd-color-border-subtle:  var(--pxd-gray-200);
-  --pxd-color-border-default: var(--pxd-gray-400);
-  --pxd-color-border-strong:  var(--pxd-gray-800);
+  --pxd-color-border-outline-variant:    var(--pxd-gray-200);   /* structural, quiet  – dividers, disabled */
+  --pxd-color-border-outline:            var(--pxd-gray-300);   /* structural         – containers, cards  */
+  --pxd-color-border-interactive:        var(--pxd-gray-400);   /* interactive at rest – inputs, chips     */
+  --pxd-color-border-interactive-active: var(--pxd-gray-800);   /* interactive hover/active                */
   --pxd-color-border-inverse: var(--pxd-white);
-  --pxd-color-border-focus:   var(--pxd-blue-500);
+  --pxd-color-border-focus:   var(--pxd-purple-500);
   --pxd-color-border-danger:  var(--pxd-red-500);
 
   /* ── Feedback ── */
-  --pxd-color-feedback-info:    var(--pxd-blue-500);
+  --pxd-color-feedback-info:    var(--pxd-cyan-500);
   --pxd-color-feedback-success: var(--pxd-green-500);
   --pxd-color-feedback-warning: var(--pxd-yellow-500);
   --pxd-color-feedback-danger:  var(--pxd-red-500);
@@ -158,7 +188,7 @@
   --pxd-color-action-disabled:          var(--pxd-gray-300);
 
   /* ── Focus ── */
-  --pxd-color-focus-ring:        var(--pxd-blue-500);
+  --pxd-color-focus-ring:        var(--pxd-purple-500);
   --pxd-color-focus-ring-offset: var(--pxd-white);
 
   /* ── Brand (mode-invariant) ── */
@@ -315,15 +345,16 @@
   --pxd-color-text-danger:    var(--pxd-red-400);
 
   /* ── Border ── */
-  --pxd-color-border-subtle:  var(--pxd-ink-700);
-  --pxd-color-border-default: var(--pxd-ink-400);
-  --pxd-color-border-strong:  var(--pxd-ink-100);
+  --pxd-color-border-outline-variant:    var(--pxd-ink-700);   /* structural, quiet  – dividers, disabled */
+  --pxd-color-border-outline:            var(--pxd-ink-500);   /* structural         – containers, cards  */
+  --pxd-color-border-interactive:        var(--pxd-ink-300);   /* interactive at rest – inputs, chips     */
+  --pxd-color-border-interactive-active: var(--pxd-ink-100);   /* interactive hover/active                */
   --pxd-color-border-inverse: var(--pxd-gray-900);
-  --pxd-color-border-focus:   var(--pxd-blue-300);
+  --pxd-color-border-focus:   var(--pxd-purple-400);
   --pxd-color-border-danger:  var(--pxd-red-400);
 
   /* ── Feedback ── */
-  --pxd-color-feedback-info:    var(--pxd-blue-300);
+  --pxd-color-feedback-info:    var(--pxd-cyan-300);
   --pxd-color-feedback-success: var(--pxd-green-400);
   --pxd-color-feedback-warning: var(--pxd-yellow-300);
   --pxd-color-feedback-danger:  var(--pxd-red-400);
@@ -340,7 +371,7 @@
   --pxd-color-action-disabled:          var(--pxd-ink-700);
 
   /* ── Focus ── */
-  --pxd-color-focus-ring:        var(--pxd-blue-300);
+  --pxd-color-focus-ring:        var(--pxd-purple-400);
   --pxd-color-focus-ring-offset: var(--pxd-ink-950);
 
   /* ── Shadow ── */
