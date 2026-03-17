@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useKeyboardNav } from './useKeyboardNav';
@@ -21,17 +20,17 @@ function TestComponent({
 describe('useKeyboardNav', () => {
   const lists = [{ id: 'smash-list' }, { id: 'default' }, { id: 'list-2' }];
 
-  let onSelect: ReturnType<typeof vi.fn>;
-  let onSound: ReturnType<typeof vi.fn>;
+  let onSelect: (id: string) => void;
+  let onSound: () => void;
 
   beforeEach(() => {
-    onSelect = vi.fn();
-    onSound = vi.fn();
+    onSelect = vi.fn<(id: string) => void>();
+    onSound = vi.fn<() => void>();
   });
 
   afterEach(() => {
-    onSelect.mockReset();
-    onSound.mockReset();
+    (onSelect as any).mockReset?.();
+    (onSound as any).mockReset?.();
   });
 
   it('moves focus right and left within listTabsOrder and plays sound', () => {
@@ -50,8 +49,8 @@ describe('useKeyboardNav', () => {
     expect(onSelect).toHaveBeenCalledWith('default');
     expect(onSound).toHaveBeenCalledTimes(1);
 
-    onSelect.mockReset();
-    onSound.mockReset();
+    (onSelect as any).mockReset();
+    (onSound as any).mockReset();
 
     const left = new KeyboardEvent('keydown', { key: 'ArrowLeft' });
     document.dispatchEvent(left);

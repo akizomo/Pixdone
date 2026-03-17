@@ -1,8 +1,8 @@
-import { useId } from 'react';
+import { useId, forwardRef } from 'react';
 import type { TextFieldProps } from './TextField.types';
 import './TextField.css';
 
-export function TextField({
+export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField({
   label,
   placeholder,
   value,
@@ -18,7 +18,7 @@ export function TextField({
   className = '',
   size = 'md',
   ...rest
-}: TextFieldProps) {
+}: TextFieldProps, ref) {
   const generatedId = useId();
   const id = idProp ?? generatedId;
   const hasError = Boolean(errorText);
@@ -34,6 +34,7 @@ export function TextField({
       <input
         id={id}
         type={type}
+        ref={ref}
         value={value}
         defaultValue={defaultValue}
         placeholder={placeholder}
@@ -60,4 +61,4 @@ export function TextField({
       )}
     </div>
   );
-}
+});

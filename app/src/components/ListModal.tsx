@@ -75,7 +75,7 @@ export function ListModal({ open, mode, initialName = '', lang, onConfirm, onClo
           id="list-name-input"
           label={t('listName', lang)}
           value={name}
-          ref={inputRef as React.RefObject<HTMLInputElement>}
+          ref={inputRef}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleConfirm();

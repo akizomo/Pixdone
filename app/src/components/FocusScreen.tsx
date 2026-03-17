@@ -6,6 +6,7 @@ import { useFocusTimer } from '../hooks/useFocusTimer';
 import { PixelBreaker } from './PixelBreaker';
 import { BgmControl } from './BgmControl';
 import { startBgm, stopBgm, isBgmOn, getBgmTrack } from '../services/bgm';
+import { playSound } from '../services/sound';
 import type { List } from '../types/list';
 import type { Task } from '../types/task';
 
@@ -51,6 +52,7 @@ export function FocusScreen({ lists, lang, onCompleteTask }: FocusScreenProps) {
   const isBreakMode = mode === 'shortBreak' || mode === 'longBreak';
 
   const switchMode = (newMode: TimerMode) => {
+    playSound('buttonClick');
     setMode(newMode);
     const m = MODE_DEFAULTS[newMode];
     setMinutes(m);
@@ -60,33 +62,33 @@ export function FocusScreen({ lists, lang, onCompleteTask }: FocusScreenProps) {
 
   const adjustMinutes = (delta: number) => {
     if (timer.timerState !== 'idle') return;
+    playSound('buttonClick');
     const next = Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, minutes + delta));
     setMinutes(next);
     timer.reset(next * 60);
   };
 
   const handleComplete = () => {
+    playSound('taskComplete');
     switchMode('shortBreak'); // stopBgm called inside switchMode
   };
 
   const handleStart = () => {
+    playSound('buttonClick');
     timer.start();
     if (mode === 'pomodoro' && isBgmOn()) startBgm(getBgmTrack());
   };
 
   const handlePause = () => {
+    playSound('buttonClick');
     timer.pause();
     stopBgm();
   };
 
   const handleResume = () => {
+    playSound('buttonClick');
     timer.resume();
     if (mode === 'pomodoro' && isBgmOn()) startBgm(getBgmTrack());
-  };
-
-  const handleGameEnd = () => {
-    setShowGame(false);
-    timer.reset(MODE_DEFAULTS[mode] * 60);
   };
 
   // Today tasks across all lists (pomodoro only)
@@ -110,17 +112,19 @@ export function FocusScreen({ lists, lang, onCompleteTask }: FocusScreenProps) {
         )}
 
         {/* Mode chips */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          {MODES.map((m) => (
-            <Chip
-              key={m}
-              selected={mode === m}
-              onClick={() => switchMode(m)}
-            >
-              {t(m, lang)}
-            </Chip>
-          ))}
-        </div>
+        {timer.timerState === 'idle' && (
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+            {MODES.map((m) => (
+              <Chip
+                key={m}
+                selected={mode === m}
+                onClick={() => switchMode(m)}
+              >
+                {t(m, lang)}
+              </Chip>
+            ))}
+          </div>
+        )}
 
         {/* Time display with adjust arrows (idle only) */}
         {timer.timerState === 'idle' ? (

@@ -87,19 +87,6 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
     setSubtasks((prev) => prev.map((s) => s.id === id ? { ...s, done: !s.done } : s));
   };
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    background: 'var(--pd-color-background-default)',
-    border: '2px solid var(--pd-color-border-default)',
-    borderRadius: 0,
-    color: 'var(--pd-color-text-primary)',
-    fontFamily: 'var(--pd-font-body)',
-    fontSize: '0.875rem',
-    padding: '8px 12px',
-    outline: 'none',
-    boxSizing: 'border-box',
-  };
-
   const chipBtnStyle = (active: boolean): React.CSSProperties => ({
     padding: '4px 10px',
     border: '2px solid',
@@ -123,7 +110,7 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
     >
       {/* Title */}
       <TextField
-        ref={titleRef as React.RefObject<HTMLInputElement>}
+        ref={titleRef}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={handleTitleKeyDown}

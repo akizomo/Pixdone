@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ModalDialog, Button, Chip } from '../design-system';
+import { ModalDialog, Button } from '../design-system';
 import { useAuth } from '../contexts/AuthContext';
 import { playSound } from '../services/sound';
 

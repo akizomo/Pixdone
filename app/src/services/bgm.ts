@@ -101,7 +101,6 @@ function loopSeq(
     note(ctx, out, s.hz, t, s.beats * beat * 0.9, s.vol ?? 0.8, s.type ?? 'square');
     t += s.beats * beat;
   }
-  const loopLen = t - startAt;
   const msLeft  = (t - ctx.currentTime - 0.2) * 1000;
   loopTimer = setTimeout(() => {
     if (_playing && _track === checkTrack) loopSeq(ctx, out, seq, bpm, t, checkTrack);
@@ -171,7 +170,7 @@ function loopBass(ctx: AudioContext, out: AudioNode, startAt: number) {
 // Am → F → C → G, 95 BPM, sawtooth bass + arpeggiated lead
 
 const SW_BPM  = 95;
-const SW_16TH = 60 / SW_BPM / 4; // 16th note
+// 16th note length is implicit in SW_BPM*4 scheduling
 
 // Arpeggio pattern over 4 chords × 8 16th-notes each = 32 steps, ~8 s
 const SW_ARPS = [

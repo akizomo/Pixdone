@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { setBgmTrack, setBgmOn, setBgmVolume, getBgmTrack, getBgmVolume, isBgmOn } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
+import { playSound } from '../services/sound';
 
 export interface BgmControlProps {
   lang: 'en' | 'ja';
@@ -26,7 +27,10 @@ export function BgmControl({ lang }: BgmControlProps) {
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        playSound('taskCancel');
+        setOpen(false);
+      }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -35,6 +39,7 @@ export function BgmControl({ lang }: BgmControlProps) {
   const selected: TrackOption = on ? track : 'off';
 
   const handleTrackSelect = (opt: TrackOption) => {
+    playSound('buttonClick');
     if (opt === 'off') {
       setOn(false);
       setBgmOn(false);
@@ -57,7 +62,7 @@ export function BgmControl({ lang }: BgmControlProps) {
       {/* Trigger: BGM icon button */}
       <button
         type="button"
-        onClick={() => setOpen(v => !v)}
+        onClick={() => { playSound('buttonClick'); setOpen((v) => !v); }}
         aria-label={lang === 'ja' ? 'BGM設定' : 'BGM settings'}
         aria-expanded={open}
         style={{
@@ -66,13 +71,14 @@ export function BgmControl({ lang }: BgmControlProps) {
           justifyContent: 'center',
           width: '36px',
           height: '36px',
-          background: open ? 'var(--pxd-color-action-ghost-hover)' : 'none',
-          border: '2px solid',
-          borderColor: 'var(--pxd-color-border-interactive)',
-          color: on ? 'var(--pxd-color-text-primary)' : 'var(--pxd-color-text-tertiary)',
+          background: open ? 'var(--pd-color-background-hover)' : 'var(--pd-color-background-elevated)',
+          border: '2px solid var(--pd-color-border-default)',
+          color: on ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
           cursor: 'pointer',
-          transition: 'background var(--pxd-motion-fast) var(--pxd-easing-standard), border-color var(--pxd-motion-fast) var(--pxd-easing-standard), color var(--pxd-motion-fast) var(--pxd-easing-standard)',
+          boxShadow: '2px 2px 0 var(--pd-color-shadow-default)',
+          transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease',
           flexShrink: 0,
+          imageRendering: 'pixelated',
         }}
       >
         <span className="material-icons" style={{ fontSize: '16px', lineHeight: 1 }}>
@@ -90,9 +96,9 @@ export function BgmControl({ lang }: BgmControlProps) {
             top: 'calc(100% + 8px)',
             right: 0,
             zIndex: 500,
-            background: 'var(--pxd-color-surface-raised)',
-            border: '2px solid var(--pxd-color-border-outline)',
-            boxShadow: 'var(--pxd-shadow-soft-md)',
+            background: 'var(--pd-color-background-elevated)',
+            border: '2px solid var(--pd-color-border-default)',
+            boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
             padding: '12px',
             minWidth: '200px',
             display: 'flex',
@@ -114,23 +120,23 @@ export function BgmControl({ lang }: BgmControlProps) {
                   gap: '8px',
                   width: '100%',
                   padding: '8px 10px',
-                  background: isActive ? 'var(--pxd-color-action-ghost-hover)' : 'none',
+                  background: isActive ? 'var(--pd-color-background-hover)' : 'none',
                   border: 'none',
-                  color: 'var(--pxd-color-text-primary)',
-                  fontFamily: 'var(--pxd-font-body)',
-                  fontSize: 'var(--pxd-font-size-sm)',
+                  color: 'var(--pd-color-text-primary)',
+                  fontFamily: 'var(--pd-font-body)',
+                  fontSize: '0.875rem',
                   cursor: 'pointer',
                   textAlign: 'left',
-                  transition: 'background var(--pxd-motion-fast) var(--pxd-easing-standard)',
+                  transition: 'background 0.2s ease',
                 }}
                 onMouseEnter={e => {
-                  if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'var(--pxd-color-action-ghost-hover)';
+                  if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)';
                 }}
                 onMouseLeave={e => {
                   if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'none';
                 }}
               >
-                <span className="material-icons" style={{ fontSize: '14px', lineHeight: 1, color: 'var(--pxd-color-action-primary)', opacity: isActive ? 1 : 0 }}>
+                <span className="material-icons" style={{ fontSize: '14px', lineHeight: 1, color: 'var(--pd-color-accent-default)', opacity: isActive ? 1 : 0 }}>
                   check
                 </span>
                 {lang === 'ja' ? tr.labelJa : tr.labelEn}
@@ -164,6 +170,7 @@ export function BgmControl({ lang }: BgmControlProps) {
                 step={5}
                 value={vol}
                 onChange={handleVol}
+                onPointerDown={() => playSound('buttonClick')}
                 style={{
                   width: '100%',
                   accentColor: 'var(--pd-color-accent-default)',
