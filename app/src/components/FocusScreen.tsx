@@ -1,15 +1,14 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Chip } from '../design-system';
 import { t } from '../lib/i18n';
 import { getTodayYMD } from '../lib/date';
-import { useFocusTimer } from '../hooks/useFocusTimer';
 import { PixelBreaker } from './PixelBreaker';
 import { BgmControl } from './BgmControl';
 import { TaskItem } from './TaskItem';
-import { stopBgm } from '../services/bgm';
 import { playSound } from '../services/sound';
 import type { List } from '../types/list';
 import type { Task } from '../types/task';
+import type { FocusTimerState } from '../hooks/useFocusTimer';
 
 export type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -18,17 +17,21 @@ export interface FocusScreenProps {
   lang: 'en' | 'ja';
   onCompleteTask: (taskId: string) => void;
   onEditTask?: (taskId: string) => void;
+  mode: TimerMode;
+  minutes: number;
+  pomodoroCount: number;
+  timerState: FocusTimerState;
+  remaining: number;
+  onSwitchMode: (m: TimerMode) => void;
+  onAdjustMinutes: (deltaMinutes: number) => void;
+  onStart: () => void;
+  onPause: () => void;
+  onResume: () => void;
+  onSkipBreak: () => void;
+  onCompleteFocus: () => void;
 }
 
-const MODE_DEFAULTS: Record<TimerMode, number> = {
-  pomodoro: 25,
-  shortBreak: 5,
-  longBreak: 15,
-};
-
 const MODES: TimerMode[] = ['pomodoro', 'shortBreak', 'longBreak'];
-const MIN_MINUTES = 1;
-const MAX_MINUTES = 60;
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -57,12 +60,50 @@ function TimeDigits({ value }: { value: string }) {
   );
 }
 
-export function FocusScreen({ lists, lang, onCompleteTask, onEditTask }: FocusScreenProps) {
-  const [mode, setMode] = useState<TimerMode>('pomodoro');
-  const [minutes, setMinutes] = useState(MODE_DEFAULTS.pomodoro);
-  const [pomodoroCount, setPomodoroCount] = useState(0); // 0..3 (4th triggers long break)
+export function FocusScreen({
+  lists,
+  lang,
+  onCompleteTask,
+  onEditTask,
+  mode,
+  minutes,
+  timerState,
+  remaining,
+  onSwitchMode,
+  onAdjustMinutes,
+  onStart,
+  onPause,
+  onResume,
+  onSkipBreak,
+  onCompleteFocus,
+}: FocusScreenProps) {
   const [taskPanelMode, setTaskPanelMode] = useState<'today' | 'lists'>('today');
   const [selectedListId, setSelectedListId] = useState<string>(() => lists[0]?.id ?? '');
+  const SMALL_STEPS = [1, 3, 5] as const;
+
+  const nextMinutesByArrow = (current: number, dir: -1 | 1): number => {
+    // Spec:
+    // - Up to 5 minutes: 1 → 3 → 5 (and reverse)
+    // - After that: +/- 5 minutes
+    if (current < 5) {
+      const sorted = [...SMALL_STEPS];
+      const idx = sorted.findIndex((v) => v === current);
+      // If current isn't exactly 1/3/5 (shouldn't happen often), snap within the small range.
+      if (idx === -1) {
+        if (dir === 1) return current <= 1 ? 1 : current <= 3 ? 3 : 5;
+        return current <= 1 ? 1 : current <= 3 ? 1 : 3;
+      }
+      const nextIdx = Math.max(0, Math.min(sorted.length - 1, idx + dir));
+      return sorted[nextIdx];
+    }
+
+    if (current === 5) {
+      return dir === 1 ? 10 : 3;
+    }
+
+    if (dir === 1) return current + 5;
+    return Math.max(5, current - 5);
+  };
 
   // keep selected list valid when lists change
   useEffect(() => {
@@ -72,86 +113,10 @@ export function FocusScreen({ lists, lang, onCompleteTask, onEditTask }: FocusSc
     }
   }, [lists, selectedListId]);
 
-  const modeRef = useRef<TimerMode>(mode);
-  useEffect(() => { modeRef.current = mode; }, [mode]);
-  const pomodoroCountRef = useRef<number>(pomodoroCount);
-  useEffect(() => { pomodoroCountRef.current = pomodoroCount; }, [pomodoroCount]);
-
-  const handleTimerEnd = useCallback(() => {
-    // Pixel-style completion cue (vanilla parity: success/complete)
-    playSound('focusAlarm');
-    stopBgm();
-    const m = modeRef.current;
-
-    if (m === 'pomodoro') {
-      // 4 pomodoros -> long break, otherwise short break
-      const nextCount = (pomodoroCountRef.current + 1) % 4;
-      setPomodoroCount(nextCount);
-      const next: TimerMode = nextCount === 0 ? 'longBreak' : 'shortBreak';
-      setMode(next);
-      setMinutes(MODE_DEFAULTS[next]);
-      timerRef.current?.reset(MODE_DEFAULTS[next] * 60);
-      return;
-    }
-
-    // Break finished -> back to pomodoro
-    setMode('pomodoro');
-    setMinutes(MODE_DEFAULTS.pomodoro);
-    timerRef.current?.reset(MODE_DEFAULTS.pomodoro * 60);
-  }, []); // uses refs
-
-  const timer = useFocusTimer(handleTimerEnd);
-  const timerRef = useRef(timer);
-  useEffect(() => { timerRef.current = timer; }, [timer]);
   const isBreakMode = mode === 'shortBreak' || mode === 'longBreak';
 
-  const switchMode = (newMode: TimerMode) => {
-    playSound('buttonClick');
-    setMode(newMode);
-    const m = MODE_DEFAULTS[newMode];
-    setMinutes(m);
-    timer.reset(m * 60);
-    stopBgm(); // BGM stops on any mode switch (break or cancel)
-  };
-
-  const adjustMinutes = (delta: number) => {
-    if (timer.timerState !== 'idle') return;
-    playSound('buttonClick');
-    const next = Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, minutes + delta));
-    setMinutes(next);
-    timer.reset(next * 60);
-  };
-
-  const handleComplete = () => {
-    playSound('taskComplete');
-    switchMode('shortBreak'); // stopBgm called inside switchMode
-  };
-
-  const handleStart = () => {
-    playSound('buttonClick');
-    timer.start();
-  };
-
-  const handlePause = () => {
-    playSound('buttonClick');
-    timer.pause();
-    stopBgm();
-  };
-
-  const handleResume = () => {
-    playSound('buttonClick');
-    timer.resume();
-  };
-
-  const handleSkipBreak = () => {
-    if (!isBreakMode) return;
-    playSound('taskCancel');
-    stopBgm();
-    const next: TimerMode = 'pomodoro';
-    setMode(next);
-    setMinutes(MODE_DEFAULTS[next]);
-    timer.reset(MODE_DEFAULTS[next] * 60);
-  };
+  const isRunning = timerState === 'running';
+  const isPaused = timerState === 'paused';
 
   // Today tasks across all lists (pomodoro only)
   const today = getTodayYMD();
@@ -161,9 +126,6 @@ export function FocusScreen({ lists, lang, onCompleteTask, onEditTask }: FocusSc
     .filter((task) => !task.completed && task.dueDate !== null && task.dueDate <= today);
   const selectedList = focusLists.find((l) => l.id === selectedListId) ?? null;
   const listTasks: Task[] = (selectedList?.tasks ?? []).filter((task) => !task.completed);
-
-  const isRunning = timer.timerState === 'running';
-  const isPaused = timer.timerState === 'paused';
 
   return (
     <div style={containerStyle}>
@@ -178,21 +140,21 @@ export function FocusScreen({ lists, lang, onCompleteTask, onEditTask }: FocusSc
 
         {/* Mode chips */}
         <div
-          aria-hidden={timer.timerState !== 'idle'}
+          aria-hidden={timerState !== 'idle'}
           style={{
             display: 'flex',
             gap: '8px',
             marginBottom: '20px',
             flexWrap: 'wrap',
-            visibility: timer.timerState === 'idle' ? 'visible' : 'hidden',
-            pointerEvents: timer.timerState === 'idle' ? 'auto' : 'none',
+            visibility: timerState === 'idle' ? 'visible' : 'hidden',
+            pointerEvents: timerState === 'idle' ? 'auto' : 'none',
           }}
         >
           {MODES.map((m) => (
             <Chip
               key={m}
               selected={mode === m}
-              onClick={() => switchMode(m)}
+              onClick={() => onSwitchMode(m)}
             >
               {t(m, lang)}
             </Chip>
@@ -200,36 +162,44 @@ export function FocusScreen({ lists, lang, onCompleteTask, onEditTask }: FocusSc
         </div>
 
         {/* Time display with adjust arrows (idle only) */}
-        {timer.timerState === 'idle' ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <AdjustButton onClick={() => adjustMinutes(-5)}>▼</AdjustButton>
-            <div style={timerDisplayStyle}><TimeDigits value={formatTime(timer.remaining)} /></div>
-            <AdjustButton onClick={() => adjustMinutes(5)}>▲</AdjustButton>
+        {timerState === 'idle' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <AdjustButton onClick={() => {
+                const next = nextMinutesByArrow(minutes, -1);
+                onAdjustMinutes(next - minutes);
+              }}>▼</AdjustButton>
+              <div style={timerDisplayStyle}><TimeDigits value={formatTime(remaining)} /></div>
+              <AdjustButton onClick={() => {
+                const next = nextMinutesByArrow(minutes, 1);
+                onAdjustMinutes(next - minutes);
+              }}>▲</AdjustButton>
+            </div>
           </div>
         ) : (
-          <div style={timerDisplayStyle}><TimeDigits value={formatTime(timer.remaining)} /></div>
+          <div style={timerDisplayStyle}><TimeDigits value={formatTime(remaining)} /></div>
         )}
 
         {/* CTA buttons */}
         <div style={{ marginTop: '20px' }}>
-          {timer.timerState === 'idle' ? (
-            <Button onClick={handleStart} style={{ minWidth: '120px' }}>Start</Button>
+          {timerState === 'idle' ? (
+            <Button onClick={onStart} style={{ minWidth: '120px' }}>Start</Button>
           ) : (
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <Button
                 variant="secondary"
-                onClick={isRunning ? handlePause : handleResume}
+                onClick={isRunning ? onPause : onResume}
               >
                 {isRunning
                   ? (lang === 'ja' ? '一時停止' : 'Pause')
                   : (lang === 'ja' ? '再開' : 'Resume')}
               </Button>
               {isBreakMode ? (
-                <Button variant="secondary" onClick={handleSkipBreak}>
+                <Button variant="secondary" onClick={onSkipBreak}>
                   {t('skipBreak', lang)}
                 </Button>
               ) : (
-                <Button onClick={handleComplete}>
+                <Button onClick={onCompleteFocus}>
                   {lang === 'ja' ? '完了' : 'Complete'}
                 </Button>
               )}

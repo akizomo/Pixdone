@@ -14,7 +14,6 @@ const BLOCK_GAP = 3;
 const BLOCK_TOP = 24;
 const PADDLE_H = 8;
 const BALL_SIZE = 7;
-const GAME_SECS = 60;
 const START_DELAY_MS = 650;
 
 const ROW_COLORS = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff'];
@@ -71,10 +70,18 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
   } | null>(null);
   const rafRef   = useRef<number>(0);
   const tickRef  = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastBounceAtRef = useRef<number>(0);
 
   const [phase, setPhase] = useState<'ready' | 'playing' | 'ended'>('ready');
   const [endedBy, setEndedBy] = useState<'clear' | 'timeup' | 'miss' | null>(null);
-  const [timeLeft, setTimeLeft] = useState(GAME_SECS);
+
+  const playBounce = useCallback(() => {
+    const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    // Prevent ear-fatigue: clamp bounce SFX rate.
+    if (now - lastBounceAtRef.current < 60) return;
+    lastBounceAtRef.current = now;
+    playSound('subtaskComplete');
+  }, []);
 
   // Draw static initial frame on mount
   useEffect(() => {
@@ -171,18 +178,9 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
       blocks: initBlocks(cw),
       ball: { x: cw / 2, y: ch * 0.6, vx: speed * 0.75 * (Math.random() > 0.5 ? 1 : -1), vy: -speed * 0.75 },
       paddle: { x: cw / 2 - paddleW / 2, w: paddleW },
-      running: true, timeLeft: GAME_SECS, cw, ch, speed, paddleW, startedAtMs,
+      running: true, timeLeft: 0, cw, ch, speed, paddleW, startedAtMs,
     };
-    setTimeLeft(GAME_SECS);
     setPhase('playing');
-
-    tickRef.current = setInterval(() => {
-      const g = gameRef.current;
-      if (!g?.running) return;
-      g.timeLeft -= 1;
-      setTimeLeft(g.timeLeft);
-      if (g.timeLeft <= 0) endGame('timeup');
-    }, 1000);
 
     const loop = () => {
       const g = gameRef.current;
@@ -196,9 +194,9 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
         g.ball.y += g.ball.vy;
       }
 
-      if (g.ball.x <= 0)              { g.ball.x = 0; g.ball.vx *= -1; }
-      if (g.ball.x + BALL_SIZE >= g.cw) { g.ball.x = g.cw - BALL_SIZE; g.ball.vx *= -1; }
-      if (g.ball.y <= 0)              { g.ball.y = 0; g.ball.vy *= -1; }
+      if (g.ball.x <= 0)              { g.ball.x = 0; g.ball.vx *= -1; playBounce(); }
+      if (g.ball.x + BALL_SIZE >= g.cw) { g.ball.x = g.cw - BALL_SIZE; g.ball.vx *= -1; playBounce(); }
+      if (g.ball.y <= 0)              { g.ball.y = 0; g.ball.vy *= -1; playBounce(); }
       if (g.ball.y > g.ch + BALL_SIZE) { endGame('miss'); return; }
 
       const py = g.ch - PADDLE_H - 12;
@@ -208,6 +206,7 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
         g.ball.y = py - BALL_SIZE;
         const hit = (g.ball.x + BALL_SIZE / 2 - g.paddle.x) / g.paddle.w;
         g.ball.vx = g.speed * (hit * 2 - 1) * 1.5;
+        playBounce();
       }
 
       let alive = 0;
@@ -220,6 +219,7 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
           const minH = Math.min(g.ball.x + BALL_SIZE - b.x, b.x + b.w - g.ball.x);
           const minV = Math.min(g.ball.y + BALL_SIZE - b.y, b.y + BLOCK_H - g.ball.y);
           if (minH < minV) g.ball.vx *= -1; else g.ball.vy *= -1;
+          playBounce();
         }
       }
       if (alive === 0) { endGame('clear'); return; }
@@ -231,7 +231,7 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
-  }, [stopRound, endGame]);
+  }, [stopRound, endGame, playBounce]);
 
   // Paddle input
   useEffect(() => {
@@ -272,14 +272,7 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '8px', fontFamily: 'var(--pd-font-brand)', fontSize: '0.875rem', color: 'var(--pd-color-text-secondary)', letterSpacing: '0.1em', minHeight: '1em' }}>
-        <span style={{
-          color: timeLeft <= 10 ? '#ff6b6b' : undefined,
-          visibility: phase === 'playing' ? 'visible' : 'hidden',
-        }}>
-          {timeLeft}s
-        </span>
-      </div>
+      <div style={{ marginBottom: '8px', minHeight: '1em' }} />
       <div ref={wrapRef} style={{ position: 'relative', width: '100%' }}>
         <canvas
           ref={canvasRef}

@@ -92,7 +92,12 @@ export function ThemeProvider({
 
     // Notify sound system of theme change
     if (typeof window !== 'undefined') {
-      const w = window as unknown as { __pixdoneSetSoundPack?: (pack: string) => void };
+      const w = window as unknown as {
+        __pixdoneSetSoundPack?: (pack: string) => void;
+        __pixdoneDesiredSoundPack?: string;
+      };
+      // Store desired pack so late-initializing sound engine can pick it up.
+      w.__pixdoneDesiredSoundPack = vt.soundPackKey;
       w.__pixdoneSetSoundPack?.(vt.soundPackKey);
     }
   }, [theme, visualTheme]);

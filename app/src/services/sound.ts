@@ -17,7 +17,13 @@ function useVanillaSound(): boolean {
   if (typeof window === 'undefined') return false;
   const w = window as unknown as {
     taskAnimationEffects?: { comicEffects?: { playSound?: (k: string) => void; getSoundEnabled?: () => boolean } };
+    __pixdoneGetSoundPack?: () => string;
   };
+  // When a theme-specific pack is selected, prefer the React sound engine.
+  try {
+    const pack = w.__pixdoneGetSoundPack?.();
+    if (pack && pack !== 'retro') return false;
+  } catch { /* ignore */ }
   return Boolean(w.taskAnimationEffects?.comicEffects?.playSound && w.taskAnimationEffects?.comicEffects?.getSoundEnabled);
 }
 

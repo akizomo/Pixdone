@@ -30,6 +30,7 @@
   background-color: var(--pd-color-background-default);
   transform: translateY(100%);
   pointer-events: none;
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--pxd-keyboard-inset, 0px));
   /* opening: spring-like deceleration */
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   image-rendering: pixelated;
@@ -93,6 +94,7 @@
   flex: 1;
   overflow-y: auto;
   padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom) + var(--pxd-keyboard-inset, 0px));
   font-family: var(--pd-font-body);
   font-size: 0.875rem;
   color: var(--pd-color-text-primary);

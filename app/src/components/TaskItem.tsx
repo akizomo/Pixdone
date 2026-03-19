@@ -63,6 +63,7 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
       }}
       className="task-item-row"
       data-task-id={task.id}
+      onClick={() => !isSmash && onEdit(task.id)}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLDivElement;
         el.style.transform = 'translate(-1px, -1px)';
@@ -114,7 +115,6 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
       {/* Task body */}
       <div
         style={{ flex: 1, minWidth: 0, cursor: isSmash ? 'default' : 'pointer' }}
-        onClick={() => !isSmash && onEdit(task.id)}
       >
         <span
           style={{
@@ -127,7 +127,7 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
             fontSize: '0.875rem',
           }}
         >
-          {renderTextWithLinks(displayTitle)}
+          <span onClick={(e) => e.stopPropagation()}>{renderTextWithLinks(displayTitle)}</span>
         </span>
 
         {details && (
@@ -145,7 +145,7 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
               wordBreak: 'break-word',
             }}
           >
-            {renderTextWithLinks(details)}
+            <span onClick={(e) => e.stopPropagation()}>{renderTextWithLinks(details)}</span>
           </div>
         )}
 

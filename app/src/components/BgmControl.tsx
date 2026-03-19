@@ -15,6 +15,9 @@ const TRACKS: { id: TrackOption; labelEn: string; labelJa: string }[] = [
   { id: 'retro',     labelEn: 'Retro',     labelJa: 'レトロ' },
   { id: 'synthwave', labelEn: 'Synthwave', labelJa: 'シンスウェーブ' },
   { id: 'chill',     labelEn: 'Chill',     labelJa: 'チル' },
+  { id: 'rain',      labelEn: 'Rain',      labelJa: '雨' },
+  { id: 'fireplace', labelEn: 'Fireplace', labelJa: '焚き火' },
+  { id: 'nightCity', labelEn: 'Night City', labelJa: '夜の街' },
 ];
 
 export function BgmControl({ lang, focusRunning }: BgmControlProps) {
@@ -55,11 +58,18 @@ export function BgmControl({ lang, focusRunning }: BgmControlProps) {
     if (opt === 'off') {
       setOn(false);
       setBgmOn(false);
+      stopBgm();
     } else {
+      const switching = opt !== track;
       setOn(true);
       setTrack(opt);
       setBgmTrack(opt);
       setBgmOn(true);
+      // Ensure instant preview switch without requiring "None" in-between.
+      if (focusRunning || open) {
+        if (switching) stopBgm();
+        startBgm(opt);
+      }
     }
   };
 

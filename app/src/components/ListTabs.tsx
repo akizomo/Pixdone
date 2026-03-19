@@ -71,16 +71,12 @@ export function ListTabs({
                 transition: 'all 0.15s',
               }}
               onMouseEnter={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)';
-                  (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-primary)';
-                }
+                (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-primary)';
               }}
               onMouseLeave={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLButtonElement).style.background = 'none';
-                  (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-secondary)';
-                }
+                (e.currentTarget as HTMLButtonElement).style.background = 'none';
+                (e.currentTarget as HTMLButtonElement).style.color = isActive ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)';
               }}
             >
               <span>{getTabLabel(list)}</span>

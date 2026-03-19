@@ -11,6 +11,8 @@ import { useKeyboardNav } from './hooks/useKeyboardNav';
 import { useMidnightRefresh } from './hooks/useMidnightRefresh';
 import { playSound, getSoundEnabled } from './services/sound';
 import { initSoundEngine } from './services/soundEngine';
+import { useFocusTimer } from './hooks/useFocusTimer';
+import { stopBgm } from './services/bgm';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
@@ -59,6 +61,19 @@ function AppContent() {
 
   /* ---- Screen navigation ---- */
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return window.matchMedia('(min-width: 769px)').matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(min-width: 769px)');
+    const apply = () => setIsDesktop(mq.matches);
+    apply();
+    mq.addEventListener?.('change', apply);
+    return () => mq.removeEventListener?.('change', apply);
+  }, []);
 
   /* ---- Sound state (vanilla parity: pixdone-sound-enabled, ComicEffectsManager when loaded) ---- */
   const [soundMuted, setSoundMuted] = useState(() => !getSoundEnabled());
@@ -176,11 +191,24 @@ function AppContent() {
   }, [uncompleteTask]);
 
   const handleEdit = useCallback((taskId: string) => {
-    // Always use BottomSheet (modal) for editing
-    setMobileEditTaskId(taskId);
-    setMobileSheetOpen(true);
+    if (isDesktop) {
+      // Desktop: vanilla parity – inline editor at top
+      setTaskFormMode(taskId);
+      setMobileSheetOpen(false);
+      setMobileEditTaskId(null);
+      // Improve perceived responsiveness: scroll the selected row into view
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`[data-task-id="${taskId}"]`);
+        el?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+      });
+    } else {
+      // Mobile: BottomSheet
+      setTaskFormMode(null);
+      setMobileEditTaskId(taskId);
+      setMobileSheetOpen(true);
+    }
     playSound('taskEdit');
-  }, []);
+  }, [isDesktop]);
 
   const doDelete = useCallback((taskId: string) => {
     deleteTask(taskId);
@@ -246,9 +274,16 @@ function AppContent() {
     }
     // Other lists: open task add UI
     playSound('buttonClick');
-    setMobileEditTaskId(null);
-    setMobileSheetOpen(true);
-  }, [isSmash, currentList, handleSmash]);
+    if (isDesktop) {
+      setTaskFormMode('add');
+      setMobileSheetOpen(false);
+      setMobileEditTaskId(null);
+    } else {
+      setTaskFormMode(null);
+      setMobileEditTaskId(null);
+      setMobileSheetOpen(true);
+    }
+  }, [isSmash, currentList, handleSmash, isDesktop]);
 
   /* ---- Sound toggle (vanilla: sync ComicEffectsManager.setSoundEnabled so effect sounds match) ---- */
   const toggleSound = () => {
@@ -284,115 +319,42 @@ function AppContent() {
   const anyModalOpen = signupOpen || themeModalOpen || listModal !== null || mobileSheetOpen || deleteTaskConfirm !== null;
   const isFocusScreen = activeScreen === 'focus';
 
+  /* ---- Focus timer state (persist across navigation) ---- */
+  const [focusMode, setFocusMode] = useState<'pomodoro' | 'shortBreak' | 'longBreak'>('pomodoro');
+  const [focusMinutes, setFocusMinutes] = useState(25);
+  const [focusPomodoroCount, setFocusPomodoroCount] = useState(0); // 0..3
+  const focusModeRef = useRef(focusMode);
+  useEffect(() => { focusModeRef.current = focusMode; }, [focusMode]);
+  const focusCountRef = useRef(focusPomodoroCount);
+  useEffect(() => { focusCountRef.current = focusPomodoroCount; }, [focusPomodoroCount]);
+
+  const focusTimer = useFocusTimer(() => {
+    const m = focusModeRef.current;
+    if (m === 'pomodoro') playSound('focusPomodoroComplete');
+    else playSound('focusBreakComplete');
+    stopBgm();
+
+    if (m === 'pomodoro') {
+      const nextCount = (focusCountRef.current + 1) % 4;
+      setFocusPomodoroCount(nextCount);
+      const nextMode = nextCount === 0 ? 'longBreak' : 'shortBreak';
+      setFocusMode(nextMode);
+      const nextMin = nextMode === 'longBreak' ? 15 : 5;
+      setFocusMinutes(nextMin);
+      focusTimerRef.current?.reset(nextMin * 60);
+      return;
+    }
+
+    setFocusMode('pomodoro');
+    setFocusMinutes(25);
+    focusTimerRef.current?.reset(25 * 60);
+  });
+  const focusTimerRef = useRef(focusTimer);
+  useEffect(() => { focusTimerRef.current = focusTimer; }, [focusTimer]);
+
   /* ---- Render ---- */
   return (
     <div className="pd-app-container" style={{ paddingBottom: '80px' }}>
-      {/* Focus screen overlay */}
-      {isFocusScreen && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          bottom: 'calc(56px + env(safe-area-inset-bottom))',
-          overflowY: 'auto',
-          background: 'var(--pd-color-background-default)',
-          zIndex: 100,
-        }}>
-          {user ? (
-            <FocusScreen
-              lists={lists}
-              lang={lang}
-              onCompleteTask={handleComplete}
-              onEditTask={handleEdit}
-            />
-          ) : (
-            <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-              {/* Inactive timer section (layout-only, no interactions) */}
-              <div
-                aria-label={lang === 'ja' ? 'フォーカスタイマー（未ログイン）' : 'Focus timer (logged out)'}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  marginBottom: '24px',
-                  padding: '24px 20px 20px',
-                  background: 'var(--pd-color-background-elevated)',
-                  border: '2px solid var(--pd-color-border-default)',
-                  boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
-                  minHeight: 'min(360px, 40vh)',
-                  justifyContent: 'center',
-                  opacity: 0.6,
-                  filter: 'grayscale(1)',
-                  userSelect: 'none',
-                }}
-              >
-                <div style={{
-                  display: 'flex',
-                  gap: '8px',
-                  marginBottom: '20px',
-                  flexWrap: 'wrap',
-                  visibility: 'visible',
-                }}>
-                  <Chip selected>{t('pomodoro', lang)}</Chip>
-                  <Chip>{t('shortBreak', lang)}</Chip>
-                  <Chip>{t('longBreak', lang)}</Chip>
-                </div>
-
-                <div style={{
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'clamp(4rem, 20vw, 7rem)',
-                  color: 'var(--pd-color-text-primary)',
-                  letterSpacing: '0.04em',
-                  lineHeight: 1,
-                }}>
-                  25:00
-                </div>
-
-                <div style={{ marginTop: '20px' }}>
-                  <Button disabled style={{ minWidth: '120px' }}>
-                    {t('startFocus', lang)}
-                  </Button>
-                </div>
-              </div>
-
-              {/* CTA */}
-              <div
-                style={{
-                  background: 'var(--pd-color-background-elevated)',
-                  border: '2px solid var(--pd-color-border-default)',
-                  boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
-                  padding: '16px',
-                }}
-              >
-                <div style={{
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '1.25rem',
-                  color: 'var(--pd-color-text-primary)',
-                  letterSpacing: '0.08em',
-                  marginBottom: '8px',
-                  textTransform: 'uppercase',
-                }}>
-                  {lang === 'ja' ? 'フォーカスはサインアップ後に利用できます' : 'Focus is available after sign up'}
-                </div>
-                <p style={{
-                  margin: '0 0 12px',
-                  fontFamily: 'var(--pd-font-body)',
-                  fontSize: '0.875rem',
-                  color: 'var(--pd-color-text-secondary)',
-                  lineHeight: 1.45,
-                }}>
-                  {lang === 'ja'
-                    ? 'タスクの保存・同期とあわせて、フォーカスタイマーを使えるようになります。'
-                    : 'Sign up to save & sync tasks, and unlock the focus timer.'}
-                </p>
-                <Button variant="primary" fullWidth onClick={() => setSignupOpen(true)}>
-                  {lang === 'ja' ? 'サインアップ' : 'Sign up'}
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
       <header
         style={{
           display: 'flex',
@@ -556,107 +518,235 @@ function AppContent() {
             )}
           </div>
         </div>
-        <ListTabs
-          lists={listTabsOrder}
-          activeListId={activeListId}
-          onSelect={(id) => { setActiveList(id); setTaskFormMode(null); playSound('buttonClick'); }}
-          onAddList={() => { playSound('buttonClick'); setListModal({ mode: 'add' }); }}
-          getTabLabel={getTabLabel}
-          getTabCount={getTabCount}
-        />
+        {!isFocusScreen && (
+          <ListTabs
+            lists={listTabsOrder}
+            activeListId={activeListId}
+            onSelect={(id) => { setActiveList(id); setTaskFormMode(null); playSound('buttonClick'); }}
+            onAddList={() => { playSound('buttonClick'); setListModal({ mode: 'add' }); }}
+            getTabLabel={getTabLabel}
+            getTabCount={getTabCount}
+          />
+        )}
       </header>
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <ListHeader
-          title={isTutorial ? t('tutorial', lang) : (currentList?.id === 'default' ? t('myTasks', lang) : (currentList?.name ?? ''))}
-          showMenu={!isTutorial && !isSmash}
-          lang={lang}
-          onRename={() => setListModal({ mode: 'rename', listId: currentList?.id })}
-          onDelete={() => setListModal({ mode: 'delete', listId: currentList?.id })}
-        />
-
-        {/* Add task button (desktop only) / inline form */}
-        {!isSmash && !isTutorial && (
-          <div style={{ paddingBottom: '8px' }} className="pd-add-task-section">
-            {taskFormMode === 'add' ? (
-              <TaskForm
-                lang={lang}
-                listId={currentList?.id ?? ''}
-                onSave={handleTaskFormSave}
-                onCancel={handleTaskFormCancel}
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={openAddTask}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  width: '100%',
-                  background: 'var(--pd-color-background-elevated)',
-                  border: '2px solid var(--pd-color-border-default)',
-                  borderRadius: 0,
-                  color: 'var(--pd-color-text-secondary)',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
-                  imageRendering: 'pixelated',
-                  fontFamily: 'var(--pd-font-body)',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget;
-                  el.style.background = 'var(--pd-color-background-hover)';
-                  el.style.color = 'var(--pd-color-text-primary)';
-                  el.style.borderColor = 'var(--pd-color-accent-default)';
-                  el.style.transform = 'translate(-1px, -1px)';
-                  el.style.boxShadow = '3px 3px 0px var(--pd-color-shadow-default)';
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget;
-                  el.style.background = 'var(--pd-color-background-elevated)';
-                  el.style.color = 'var(--pd-color-text-secondary)';
-                  el.style.borderColor = 'var(--pd-color-border-default)';
-                  el.style.transform = '';
-                  el.style.boxShadow = '2px 2px 0px var(--pd-color-shadow-default)';
-                }}
-              >
-                <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>add</span>
-                {lang === 'ja' ? 'タスクを追加' : 'Add a task'}
-              </button>
-            )}
-          </div>
-        )}
-
-        <div key={activeListId} className="pd-list-enter" style={{ flex: 1, overflowY: 'auto' }}>
-          {isSmash ? (
-            <SmashListPanel
-              subtitle={t('smashListSubtitle', lang)}
-              hint={t('smashListHint', lang)}
-              tasks={currentList?.tasks ?? []}
-              onSmash={handleSmash}
-              getDisplayTitle={(task: Task) => {
-                if (typeof task.smashIdx === 'number') {
-                  return SMASH_TITLES[lang][task.smashIdx] ?? task.title;
-                }
-                return task.title;
+        {isFocusScreen ? (
+          user ? (
+            <FocusScreen
+              lists={lists}
+              lang={lang}
+              onCompleteTask={handleComplete}
+              onEditTask={handleEdit}
+              mode={focusMode}
+              minutes={focusMinutes}
+              pomodoroCount={focusPomodoroCount}
+              timerState={focusTimer.timerState}
+              remaining={focusTimer.remaining}
+              onSwitchMode={(m) => {
+                playSound('buttonClick');
+                setFocusMode(m);
+                const nextMin = m === 'pomodoro' ? 25 : m === 'shortBreak' ? 5 : 15;
+                setFocusMinutes(nextMin);
+                focusTimer.reset(nextMin * 60);
+                stopBgm();
+              }}
+              onAdjustMinutes={(deltaMin) => {
+                if (focusTimer.timerState !== 'idle') return;
+                playSound('buttonClick');
+                const next = Math.min(60, Math.max(1, focusMinutes + deltaMin));
+                setFocusMinutes(next);
+                focusTimer.reset(next * 60);
+              }}
+              onStart={() => { playSound('buttonClick'); focusTimer.start(); }}
+              onPause={() => { playSound('buttonClick'); focusTimer.pause(); stopBgm(); }}
+              onResume={() => { playSound('buttonClick'); focusTimer.resume(); }}
+              onSkipBreak={() => {
+                if (!(focusMode === 'shortBreak' || focusMode === 'longBreak')) return;
+                playSound('taskCancel');
+                stopBgm();
+                setFocusMode('pomodoro');
+                setFocusMinutes(25);
+                focusTimer.reset(25 * 60);
+              }}
+              onCompleteFocus={() => {
+                playSound('taskComplete');
+                // manual complete -> short break
+                setFocusMode('shortBreak');
+                setFocusMinutes(5);
+                focusTimer.reset(5 * 60);
+                stopBgm();
               }}
             />
-          ) : !user && isTutorial && activeTasks.length === 0 ? (
-            <div>
-              <TutorialPanel
-                headline={"You've completed the tutorial!"}
-                subtext={
-                  lang === 'ja'
-                    ? 'サインアップしてタスクを保存し、端末間で同期＆テーマ変更を楽しもう。'
-                    : 'Sign up to save your own tasks, sync across devices, and unlock theme customization.'
-                }
-                buttonLabel={lang === 'ja' ? 'サインアップ' : 'Sign up'}
-                onSignUp={() => setSignupOpen(true)}
-              />
+          ) : (
+            <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+              {/* Inactive timer section (layout-only, no interactions) */}
+              <div
+                aria-label={lang === 'ja' ? 'フォーカスタイマー（未ログイン）' : 'Focus timer (logged out)'}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  marginBottom: '24px',
+                  padding: '24px 20px 20px',
+                  background: 'var(--pd-color-background-elevated)',
+                  border: '2px solid var(--pd-color-border-default)',
+                  boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
+                  minHeight: 'min(360px, 40vh)',
+                  justifyContent: 'center',
+                  opacity: 0.6,
+                  filter: 'grayscale(1)',
+                  userSelect: 'none',
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                  marginBottom: '20px',
+                  flexWrap: 'wrap',
+                  visibility: 'visible',
+                }}>
+                  <Chip selected>{t('pomodoro', lang)}</Chip>
+                  <Chip>{t('shortBreak', lang)}</Chip>
+                  <Chip>{t('longBreak', lang)}</Chip>
+                </div>
+
+                <div style={{
+                  fontFamily: 'var(--pd-font-brand)',
+                  fontSize: 'clamp(4rem, 20vw, 7rem)',
+                  color: 'var(--pd-color-text-primary)',
+                  letterSpacing: '0.04em',
+                  lineHeight: 1,
+                }}>
+                  25:00
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                  <Button disabled style={{ minWidth: '120px' }}>
+                    {t('startFocus', lang)}
+                  </Button>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div
+                style={{
+                  background: 'var(--pd-color-background-elevated)',
+                  border: '2px solid var(--pd-color-border-default)',
+                  boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
+                  padding: '16px',
+                }}
+              >
+                <div style={{
+                  fontFamily: 'var(--pd-font-brand)',
+                  fontSize: '1.25rem',
+                  color: 'var(--pd-color-text-primary)',
+                  letterSpacing: '0.08em',
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                }}>
+                  {lang === 'ja' ? 'フォーカスはサインアップ後に利用できます' : 'Focus is available after sign up'}
+                </div>
+                <p style={{
+                  margin: '0 0 12px',
+                  fontFamily: 'var(--pd-font-body)',
+                  fontSize: '0.875rem',
+                  color: 'var(--pd-color-text-secondary)',
+                  lineHeight: 1.45,
+                }}>
+                  {lang === 'ja'
+                    ? 'タスクの保存・同期とあわせて、フォーカスタイマーを使えるようになります。'
+                    : 'Sign up to save & sync tasks, and unlock the focus timer.'}
+                </p>
+                <Button variant="primary" fullWidth onClick={() => setSignupOpen(true)}>
+                  {lang === 'ja' ? 'サインアップ' : 'Sign up'}
+                </Button>
+              </div>
+            </div>
+          )
+        ) : (
+          <>
+            <ListHeader
+              title={isTutorial ? t('tutorial', lang) : (currentList?.id === 'default' ? t('myTasks', lang) : (currentList?.name ?? ''))}
+              showMenu={!isTutorial && !isSmash}
+              lang={lang}
+              onRename={() => setListModal({ mode: 'rename', listId: currentList?.id })}
+              onDelete={() => setListModal({ mode: 'delete', listId: currentList?.id })}
+            />
+
+            {/* Add task button (desktop only) / inline form */}
+            {!isSmash && !isTutorial && (
+              <div style={{ paddingBottom: '8px' }} className="pd-add-task-section">
+                <button
+                  type="button"
+                  onClick={openAddTask}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    width: '100%',
+                    background: 'var(--pd-color-background-elevated)',
+                    border: '2px solid var(--pd-color-border-default)',
+                    borderRadius: 0,
+                    color: 'var(--pd-color-text-secondary)',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    padding: '12px 16px',
+                    textAlign: 'left',
+                    boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
+                    imageRendering: 'pixelated',
+                    fontFamily: 'var(--pd-font-body)',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget;
+                    el.style.background = 'var(--pd-color-background-hover)';
+                    el.style.color = 'var(--pd-color-text-primary)';
+                    el.style.borderColor = 'var(--pd-color-accent-default)';
+                    el.style.transform = 'translate(-1px, -1px)';
+                    el.style.boxShadow = '3px 3px 0px var(--pd-color-shadow-default)';
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget;
+                    el.style.background = 'var(--pd-color-background-elevated)';
+                    el.style.color = 'var(--pd-color-text-secondary)';
+                    el.style.borderColor = 'var(--pd-color-border-default)';
+                    el.style.transform = '';
+                    el.style.boxShadow = '2px 2px 0px var(--pd-color-shadow-default)';
+                  }}
+                >
+                  <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>add</span>
+                  {lang === 'ja' ? 'タスクを追加' : 'Add a task'}
+                </button>
+              </div>
+            )}
+
+            <div key={activeListId} className="pd-list-enter" style={{ flex: 1, overflowY: 'auto' }}>
+              {isSmash ? (
+                <SmashListPanel
+                  subtitle={t('smashListSubtitle', lang)}
+                  hint={t('smashListHint', lang)}
+                  tasks={currentList?.tasks ?? []}
+                  onSmash={handleSmash}
+                  getDisplayTitle={(task: Task) => {
+                    if (typeof task.smashIdx === 'number') {
+                      return SMASH_TITLES[lang][task.smashIdx] ?? task.title;
+                    }
+                    return task.title;
+                  }}
+                />
+              ) : !user && isTutorial && activeTasks.length === 0 ? (
+                <div>
+                  <TutorialPanel
+                    headline={"You've completed the tutorial!"}
+                    subtext={
+                      lang === 'ja'
+                        ? 'サインアップしてタスクを保存し、端末間で同期＆テーマ変更を楽しもう。'
+                        : 'Sign up to save your own tasks, sync across devices, and unlock theme customization.'
+                    }
+                    buttonLabel={lang === 'ja' ? 'サインアップ' : 'Sign up'}
+                    onSignUp={() => setSignupOpen(true)}
+                  />
               {completedTasks.length > 0 && (
                 <div style={{ marginTop: '24px' }}>
                   <button
@@ -744,17 +834,29 @@ function AppContent() {
             <div>
               {/* Active tasks */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {taskFormMode === 'add' && (
+                  <div style={{ paddingTop: '16px', paddingBottom: '16px' }}>
+                    <TaskForm
+                      lang={lang}
+                      listId={currentList?.id ?? ''}
+                      onSave={handleTaskFormSave}
+                      onCancel={handleTaskFormCancel}
+                    />
+                  </div>
+                )}
                 {activeTasks.map((task) => (
                   <div key={task.id}>
                     {taskFormMode === task.id && editingTask ? (
-                      <TaskForm
-                        lang={lang}
-                        listId={currentList?.id ?? ''}
-                        task={editingTask}
-                        onSave={handleTaskFormSave}
-                        onCancel={handleTaskFormCancel}
-                        onDelete={() => handleDelete(task.id)}
-                      />
+                      <div style={{ paddingTop: '16px', paddingBottom: '16px' }}>
+                        <TaskForm
+                          lang={lang}
+                          listId={currentList?.id ?? ''}
+                          task={editingTask}
+                          onSave={handleTaskFormSave}
+                          onCancel={handleTaskFormCancel}
+                          onDelete={() => handleDelete(task.id)}
+                        />
+                      </div>
                     ) : (
                       <TaskItem
                         task={task}
@@ -806,9 +908,11 @@ function AppContent() {
                   )}
                 </div>
               )}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </main>
 
       {/* Mobile FAB */}
@@ -823,8 +927,9 @@ function AppContent() {
             height: '56px',
             borderRadius: '50%',
             background: isSmash ? 'white' : 'var(--accent-color)',
-            color: isSmash ? 'var(--pxd-color-brand-smash)' : 'white',
-            border: 'none',
+            color: isSmash ? 'var(--pxd-color-brand-smash)' : 'var(--pd-color-accent-text)',
+            border: isSmash ? 'none' : '2px solid var(--pd-color-accent-default)',
+            boxShadow: isSmash ? undefined : '2px 2px 0px var(--pd-color-shadow-default)',
             display: 'none', // shown via CSS media query
             alignItems: 'center',
             justifyContent: 'center',
@@ -844,7 +949,7 @@ function AppContent() {
 
       {/* Mobile BottomSheet for task add/edit */}
       <BottomSheet
-        open={mobileSheetOpen}
+        open={mobileSheetOpen && !isDesktop}
         onClose={handleTaskFormCancel}
         title={mobileEditTaskId
           ? (lang === 'ja' ? 'タスクを編集' : 'Edit task')
@@ -883,7 +988,7 @@ function AppContent() {
           <Button variant="secondary" onClick={() => { playSound('taskCancel'); setThemeModalOpen(false); }}>Close</Button>
         }
       >
-        <ThemeSelector onClose={() => { playSound('taskCancel'); setThemeModalOpen(false); }} />
+        <ThemeSelector onClose={() => { setThemeModalOpen(false); }} />
       </ModalDialog>
 
       {/* Auth modal */}

@@ -7,20 +7,27 @@
  * Chill    – RPG town-style, triangle wave, pentatonic, 72 BPM
  *
  * Initial state: OFF (safe for browser autoplay policy).
- * Volume 0.08 — well below SFX peaks so both can coexist.
+ * Volume 0.06 — tuned so SFX stays readable by default.
  */
 
-export type BgmTrack = 'retro' | 'synthwave' | 'chill';
+export type BgmTrack =
+  | 'retro'
+  | 'synthwave'
+  | 'chill'
+  | 'rain'
+  | 'fireplace'
+  | 'nightCity';
 
 const BGM_ENABLED_KEY = 'pixdone-bgm-enabled';
 const BGM_TRACK_KEY   = 'pixdone-bgm-track';
 const BGM_VOL_KEY     = 'pixdone-bgm-volume';
-const BGM_VOLUME      = 0.08; // default
+const BGM_VOLUME      = 0.06; // default
 
 let bgmCtx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let activeNodes: AudioNode[] = [];
 let loopTimer: ReturnType<typeof setTimeout> | null = null;
+let extraTimers: ReturnType<typeof setTimeout>[] = [];
 let _playing = false;
 let _track: BgmTrack = 'retro';
 
@@ -60,6 +67,8 @@ function killNodes() {
   }
   activeNodes = [];
   if (loopTimer) { clearTimeout(loopTimer); loopTimer = null; }
+  for (const t of extraTimers) clearTimeout(t);
+  extraTimers = [];
 }
 
 /* ── Helpers ─────────────────────────────────────────── */
@@ -161,9 +170,9 @@ function loopBass(ctx: AudioContext, out: AudioNode, startAt: number) {
   }
   const msLeft = (t - ctx.currentTime - 0.2) * 1000;
   // use a second timer key — store in activeNodes via closure check
-  setTimeout(() => {
+  extraTimers.push(setTimeout(() => {
     if (_playing && _track === 'retro') loopBass(ctx, out, t);
-  }, Math.max(0, msLeft));
+  }, Math.max(0, msLeft)));
 }
 
 /* ── Track 2: Synthwave ──────────────────────────────── */
@@ -213,9 +222,9 @@ function loopSwBass(ctx: AudioContext, out: AudioNode, startAt: number) {
     note(ctx, out, s.hz, t, s.beats * beat * 0.8, 0.9, 'sawtooth');
     t += s.beats * beat;
   }
-  setTimeout(() => {
+  extraTimers.push(setTimeout(() => {
     if (_playing && _track === 'synthwave') loopSwBass(ctx, out, t);
-  }, Math.max(0, (t - ctx.currentTime - 0.2) * 1000));
+  }, Math.max(0, (t - ctx.currentTime - 0.2) * 1000)));
 }
 
 /* ── Track 3: Chill (RPG town) ───────────────────────── */
@@ -278,24 +287,192 @@ function loopChillBass(ctx: AudioContext, out: AudioNode, startAt: number) {
     note(ctx, out, s.hz, t, s.beats * beat * 0.75, 0.8, s.type);
     t += s.beats * beat;
   }
-  setTimeout(() => {
+  extraTimers.push(setTimeout(() => {
     if (_playing && _track === 'chill') loopChillBass(ctx, out, t);
-  }, Math.max(0, (t - ctx.currentTime - 0.2) * 1000));
+  }, Math.max(0, (t - ctx.currentTime - 0.2) * 1000)));
+}
+
+/* ── Track 4: Rain (ambient) ─────────────────────────── */
+function startRain(ctx: AudioContext, out: AudioNode) {
+  // Pink-ish noise rain bed with gentle movement + occasional droplets
+  const noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 2), ctx.sampleRate);
+  const data = noiseBuf.getChannelData(0);
+  let last = 0;
+  for (let i = 0; i < data.length; i++) {
+    // simple low-pass on white noise -> softer rain
+    const white = Math.random() * 2 - 1;
+    last = last * 0.985 + white * 0.015;
+    data[i] = last;
+  }
+
+  const src = ctx.createBufferSource();
+  src.buffer = noiseBuf;
+  src.loop = true;
+
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 350;
+
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 1800;
+  bp.Q.value = 0.8;
+
+  const g = ctx.createGain();
+  // Bed volume: keep rain texture audible even under SFX
+  g.gain.value = 0.50;
+
+  src.connect(hp);
+  hp.connect(bp);
+  bp.connect(g);
+  g.connect(out);
+  src.start();
+
+  activeNodes.push(src, hp, bp, g);
+
+  const t0 = ctx.currentTime;
+  // slow shimmer in band
+  bp.frequency.setValueAtTime(1600, t0);
+  bp.frequency.linearRampToValueAtTime(2200, t0 + 6.0);
+  bp.frequency.linearRampToValueAtTime(1700, t0 + 12.0);
+
+  const scheduleDroplet = () => {
+    if (!_playing || _track !== 'rain') return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const og = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = 1200 + Math.random() * 800;
+    og.gain.setValueAtTime(0, now);
+    // Droplet: keep as accent, not the main presence
+    og.gain.linearRampToValueAtTime(0.035, now + 0.005);
+    og.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
+    osc.connect(og);
+    og.connect(out);
+    osc.start(now);
+    osc.stop(now + 0.08);
+    activeNodes.push(osc, og);
+    extraTimers.push(setTimeout(scheduleDroplet, 450 + Math.random() * 900));
+  };
+  extraTimers.push(setTimeout(scheduleDroplet, 600));
+}
+
+/* ── Track 5: Fireplace (ambient) ────────────────────── */
+function startFireplace(ctx: AudioContext, out: AudioNode) {
+  // Low warm hum + random crackles (noise bursts)
+  const hum = ctx.createOscillator();
+  hum.type = 'triangle';
+  hum.frequency.value = 55;
+  const humGain = ctx.createGain();
+  humGain.gain.value = 0.05;
+  hum.connect(humGain);
+  humGain.connect(out);
+  hum.start();
+  activeNodes.push(hum, humGain);
+
+  const crackleNoise = () => {
+    if (!_playing || _track !== 'fireplace') return;
+    const dur = 0.03 + Math.random() * 0.06;
+    const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    const s = ctx.createBufferSource();
+    s.buffer = buf;
+
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 1200 + Math.random() * 800;
+
+    const g = ctx.createGain();
+    g.gain.value = 0.16 + Math.random() * 0.08;
+
+    s.connect(hp);
+    hp.connect(g);
+    g.connect(out);
+    s.start();
+    s.stop(ctx.currentTime + dur + 0.01);
+    activeNodes.push(s, hp, g);
+
+    extraTimers.push(setTimeout(crackleNoise, 80 + Math.random() * 220));
+  };
+  extraTimers.push(setTimeout(crackleNoise, 120));
+}
+
+/* ── Track 6: Night City (ambient) ───────────────────── */
+function startNightCity(ctx: AudioContext, out: AudioNode) {
+  // Neon hum (slow detuned saw) + subtle sign noise + distant car sweeps
+  const humA = ctx.createOscillator();
+  const humB = ctx.createOscillator();
+  humA.type = 'sawtooth';
+  humB.type = 'triangle';
+  humA.frequency.value = 110;
+  humB.frequency.value = 110.6;
+  const humGain = ctx.createGain();
+  humGain.gain.value = 0.035;
+  humA.connect(humGain);
+  humB.connect(humGain);
+  humGain.connect(out);
+  humA.start();
+  humB.start();
+  activeNodes.push(humA, humB, humGain);
+
+  const signBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 1.5), ctx.sampleRate);
+  const sd = signBuf.getChannelData(0);
+  for (let i = 0; i < sd.length; i++) sd[i] = (Math.random() * 2 - 1) * 0.25;
+  const sign = ctx.createBufferSource();
+  sign.buffer = signBuf;
+  sign.loop = true;
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 2500;
+  bp.Q.value = 2.0;
+  const sg = ctx.createGain();
+  sg.gain.value = 0.10;
+  sign.connect(bp);
+  bp.connect(sg);
+  sg.connect(out);
+  sign.start();
+  activeNodes.push(sign, bp, sg);
+
+  const scheduleCar = () => {
+    if (!_playing || _track !== 'nightCity') return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.05, now + 0.12);
+    g.gain.linearRampToValueAtTime(0.0, now + 1.2);
+    osc.frequency.setValueAtTime(220 + Math.random() * 80, now);
+    osc.frequency.linearRampToValueAtTime(140 + Math.random() * 50, now + 1.2);
+    osc.connect(g);
+    g.connect(out);
+    osc.start(now);
+    osc.stop(now + 1.25);
+    activeNodes.push(osc, g);
+    extraTimers.push(setTimeout(scheduleCar, 1800 + Math.random() * 3200));
+  };
+  extraTimers.push(setTimeout(scheduleCar, 2200));
 }
 
 /* ── Public API ──────────────────────────────────────── */
 
 export function startBgm(track?: BgmTrack): void {
-  stopBgm();
   try {
     const ctx = getCtx();
     if (!ctx || !masterGain) return;
     if (ctx.state === 'suspended') ctx.resume();
-    if (track) _track = track;
+    const requested = track ?? _track;
+    if (_playing && requested === _track) return;
+    _track = requested;
+    stopBgm();
     _playing = true;
-    if (_track === 'retro')     startRetro(ctx, masterGain);
+    if (_track === 'retro')          startRetro(ctx, masterGain);
     else if (_track === 'synthwave') startSynthwave(ctx, masterGain);
     else if (_track === 'chill')     startChill(ctx, masterGain);
+    else if (_track === 'rain')      startRain(ctx, masterGain);
+    else if (_track === 'fireplace') startFireplace(ctx, masterGain);
+    else if (_track === 'nightCity') startNightCity(ctx, masterGain);
   } catch (e) {
     console.warn('[bgm] start failed:', e);
   }
@@ -307,9 +484,13 @@ export function stopBgm(): void {
 }
 
 export function setBgmTrack(track: BgmTrack): void {
-  _track = track;
   try { localStorage.setItem(BGM_TRACK_KEY, track); } catch { /* ignore */ }
-  if (_playing) startBgm(track);
+  if (_playing) {
+    // startBgm handles switching tracks; don't pre-mutate _track or it may early-return.
+    startBgm(track);
+  } else {
+    _track = track;
+  }
 }
 
 export function getBgmTrack(): BgmTrack {

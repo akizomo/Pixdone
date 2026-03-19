@@ -12,7 +12,7 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
 
   const handleSelect = (key: ThemeKey, isPremium: boolean) => {
     if (isPremium) return; // locked – will hook into payment flow later
-    playSound('buttonClick');
+    playSound('taskComplete');
     changeTheme(key);
     onClose?.();
   };

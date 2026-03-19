@@ -9,7 +9,6 @@ import {
   updateDoc,
   deleteDoc,
   addDoc,
-  writeBatch,
   Timestamp,
 } from 'firebase/firestore';
 import type { List } from '../types/list';
@@ -165,6 +164,22 @@ function replenishSmashList(tasks: Task[], listId: string): Task[] {
   return result.slice(0, 3);
 }
 
+function ensureVirtualSmashList(lists: List[]): List[] {
+  const existing = lists.find((l) => l.id === 'smash-list');
+  if (existing) {
+    if (existing.tasks.length >= 3) return lists;
+    return lists.map((l) =>
+      l.id === 'smash-list' ? { ...l, tasks: replenishSmashList(l.tasks, 'smash-list') } : l,
+    );
+  }
+
+  // Smash List is an "effect playground" list; keep it local-only (not persisted).
+  return [
+    { id: 'smash-list', name: '💥 Smash List', tasks: replenishSmashList([], 'smash-list') },
+    ...lists,
+  ];
+}
+
 const defaultLists: List[] = [
   {
     id: 'default',
@@ -267,15 +282,18 @@ export function useLists() {
       setListsState((prev) => {
         const tasksById = new Map<string, Task[]>();
         prev.forEach((l) => tasksById.set(l.id, l.tasks));
-        const next: List[] = snap.docs.map((d) => {
-          const data = d.data() as any;
-          return {
-            id: d.id,
-            name: data.name ?? 'My Tasks',
-            tasks: tasksById.get(d.id) ?? [],
-          };
-        });
-        return next;
+        const nextFromFirestore: List[] = snap.docs
+          .map((d) => {
+            const data = d.data() as any;
+            return {
+              id: d.id,
+              name: data.name ?? 'My Tasks',
+              tasks: tasksById.get(d.id) ?? [],
+            };
+          })
+          // If user once created a Firestore "Smash List", ignore it; we keep Smash local-only.
+          .filter((l) => l.name !== '💥 Smash List');
+        return ensureVirtualSmashList(nextFromFirestore);
       });
     });
 
@@ -315,10 +333,10 @@ export function useLists() {
       });
 
       setListsState((prev) =>
-        prev.map((l) => ({
-          ...l,
-          tasks: tasksByList[l.id] ?? l.tasks,
-        })),
+        prev.map((l) => {
+          if (l.id === 'smash-list') return l; // keep local-only
+          return { ...l, tasks: tasksByList[l.id] ?? l.tasks };
+        }),
       );
     });
 
@@ -330,68 +348,31 @@ export function useLists() {
 
   /* ---- List CRUD ---- */
   const addList = useCallback((name: string) => {
+    // Smash List is virtual; don't create in Firestore/localStorage.
+    if (name === '💥 Smash List') {
+      setLists((prev) => ensureVirtualSmashList(prev));
+      setActiveList('smash-list');
+      return;
+    }
+
     const optimisticId = `list-${Date.now()}`;
 
     if (user) {
-      // 楽観的にローカル更新（Smash の場合は初期 3 件のダミータスクを表示）
-      const initialTasks: Task[] =
-        name === '💥 Smash List'
-          ? [0, 1, 2].map((i) => ({
-              id: `smash-${Date.now()}-${i}`,
-              title: SMASH_TITLES.en[i],
-              smashIdx: i,
-              completed: false,
-              dueDate: null,
-              listId: optimisticId,
-            }))
-          : [];
-      setLists((prev) => [...prev, { id: optimisticId, name, tasks: initialTasks }]);
+      // optimistic local update
+      setLists((prev) => [...prev, { id: optimisticId, name, tasks: [] as Task[] }]);
       setActiveList(optimisticId);
 
       (async () => {
         const listsCol = collection(db, 'lists');
-        const docRef = await addDoc(listsCol, {
+        await addDoc(listsCol, {
           uid: user.uid,
           name,
           createdAt: Timestamp.now(),
         });
-        // Smash List の場合は初期ダミータスクを Firestore に追加（vanilla 互換）
-        if (name === '💥 Smash List') {
-          const batch = writeBatch(db);
-          const titles = [0, 1, 2].map(
-            () => SMASH_TITLES.en[Math.floor(Math.random() * SMASH_TITLES.en.length)],
-          );
-          titles.forEach((title) => {
-            const taskRef = doc(collection(db, 'tasks'));
-            batch.set(taskRef, {
-              uid: user.uid,
-              listId: docRef.id,
-              title,
-              details: '',
-              dueDate: null,
-              repeat: 'none',
-              subtasks: [],
-              completed: false,
-              createdAt: Timestamp.now(),
-            });
-          });
-          await batch.commit();
-        }
       })();
     } else {
       const id = optimisticId;
-      const initialTasks: Task[] =
-        name === '💥 Smash List'
-          ? [0, 1, 2].map((i) => ({
-              id: `smash-${Date.now()}-${i}`,
-              title: SMASH_TITLES.en[i],
-              smashIdx: i,
-              completed: false,
-              dueDate: null,
-              listId: id,
-            }))
-          : [];
-      setLists((prev) => [...prev, { id, name, tasks: initialTasks }]);
+      setLists((prev) => [...prev, { id, name, tasks: [] as Task[] }]);
       setActiveList(id);
     }
   }, [setLists, setActiveList, user]);
@@ -432,7 +413,7 @@ export function useLists() {
 
   /* ---- Task CRUD ---- */
   const addTask = useCallback((listId: string, fields: Partial<Task> & { title: string }): Task => {
-    const optimisticId = `task-${Date.now()}`;
+    const optimisticId = listId === 'smash-list' ? `smash-${Date.now()}-${Math.random()}` : `task-${Date.now()}`;
     const base: Task = {
       id: optimisticId,
       title: fields.title,
@@ -446,10 +427,17 @@ export function useLists() {
 
     // まずローカルを更新（ログイン・未ログイン共通）
     setLists((prev) =>
-      prev.map((l) => (l.id === listId ? { ...l, tasks: [...l.tasks, base] } : l)),
+      prev.map((l) => {
+        if (l.id !== listId) return l;
+        if (listId === 'smash-list') {
+          return { ...l, tasks: replenishSmashList([...(l.tasks ?? []), base], 'smash-list') };
+        }
+        return { ...l, tasks: [...l.tasks, base] };
+      }),
     );
 
-    if (user) {
+    // Smash List is local-only; never write it to Firestore.
+    if (user && listId !== 'smash-list') {
       (async () => {
         const ref = doc(collection(db, 'tasks'));
         await setDoc(ref, {
@@ -470,6 +458,9 @@ export function useLists() {
   }, [setLists, user]);
 
   const updateTask = useCallback((taskId: string, fields: Partial<Task>) => {
+    const task = lists.flatMap((l) => l.tasks).find((t) => t.id === taskId);
+    const isSmashTask = task?.listId === 'smash-list';
+
     setLists((prev) =>
       prev.map((l) => ({
         ...l,
@@ -477,7 +468,7 @@ export function useLists() {
       })),
     );
 
-    if (user) {
+    if (user && !isSmashTask) {
       (async () => {
         const ref = doc(db, 'tasks', taskId);
         await updateDoc(ref, {
@@ -492,19 +483,29 @@ export function useLists() {
   }, [setLists, user]);
 
   const deleteTask = useCallback((taskId: string) => {
+    const task = lists.flatMap((l) => l.tasks).find((t) => t.id === taskId);
+    const isSmashTask = task?.listId === 'smash-list';
+
     setLists((prev) =>
-      prev.map((l) => ({ ...l, tasks: l.tasks.filter((t) => t.id !== taskId) })),
+      prev.map((l) => {
+        if (l.id !== 'smash-list') return { ...l, tasks: l.tasks.filter((t) => t.id !== taskId) };
+        const nextTasks = l.tasks.filter((t) => t.id !== taskId);
+        return { ...l, tasks: replenishSmashList(nextTasks, 'smash-list') };
+      }),
     );
 
-    if (user) {
+    if (user && !isSmashTask) {
       (async () => {
         const ref = doc(db, 'tasks', taskId);
         await deleteDoc(ref);
       })();
     }
-  }, [setLists, user]);
+  }, [setLists, user, lists]);
 
   const completeTask = useCallback((taskId: string) => {
+    const task = lists.flatMap((l) => l.tasks).find((t) => t.id === taskId);
+    const isSmashTask = task?.listId === 'smash-list';
+
     setLists((prev) =>
       prev.map((l) => {
         const isSmash = l.id === 'smash-list' || l.name === '💥 Smash List';
@@ -513,23 +514,26 @@ export function useLists() {
             ? { ...t, completed: true, completedAt: new Date().toISOString() }
             : t,
         );
-        if (isSmash && !user) {
-          // ゲスト時のみ Smash 補充ロジック
-          return { ...l, tasks: replenishSmashList(updated, l.id) };
+        if (isSmash) {
+          // Smash List is local-only; always replenish to keep 3 active tasks.
+          return { ...l, tasks: replenishSmashList(updated, 'smash-list') };
         }
         return { ...l, tasks: updated };
       }),
     );
 
-    if (user) {
+    if (user && !isSmashTask) {
       (async () => {
         const ref = doc(db, 'tasks', taskId);
         await updateDoc(ref, { completed: true });
       })();
     }
-  }, [setLists, user]);
+  }, [setLists, user, lists]);
 
   const uncompleteTask = useCallback((taskId: string) => {
+    const task = lists.flatMap((l) => l.tasks).find((t) => t.id === taskId);
+    const isSmashTask = task?.listId === 'smash-list';
+
     setLists((prev) =>
       prev.map((l) => ({
         ...l,
@@ -539,13 +543,13 @@ export function useLists() {
       })),
     );
 
-    if (user) {
+    if (user && !isSmashTask) {
       (async () => {
         const ref = doc(db, 'tasks', taskId);
         await updateDoc(ref, { completed: false });
       })();
     }
-  }, [setLists, user]);
+  }, [setLists, user, lists]);
 
   /* ---- Subtask CRUD ---- */
   const addSubtask = useCallback((taskId: string, text: string) => {

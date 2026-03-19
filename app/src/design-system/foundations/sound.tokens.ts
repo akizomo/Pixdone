@@ -2,6 +2,11 @@
  * Pixdone sound tokens.
  * vanilla (public/script.js + .cursor/rules/pixdone-sounds.mdc) と同一の割り当てルール。
  * key は playSound に渡す値。実再生は services/sound.ts / ComicEffectsManager に委譲。
+ *
+ * テーマ別サウンド:
+ * - サウンドの「割り当て（どの操作でどのkeyを鳴らすか）」は key で固定
+ * - 音色/フレーズなどの実体は VisualTheme.soundPackKey によりテーマごとに差し替える
+ *   (ThemeProvider → window.__pixdoneSetSoundPack → services/soundEngine.ts)
  */
 
 /** サウンドトークン: key は playSound に渡す値。when は鳴らすタイミング（vanilla ルール準拠）。 */
@@ -47,6 +52,20 @@ export const sound = {
     role: "completion",
     when: "フォーカスタイマー/休憩タイマーが完了したとき（アラーム）",
     description: "ピクセル調の少し長い完了アラーム",
+  },
+  /** Pomodoro 完了（集中が終わったとき） */
+  focusPomodoroComplete: {
+    key: "focusPomodoroComplete",
+    role: "completion",
+    when: "Pomodoro が完了したとき（達成）",
+    description: "ポジティブ寄りの達成ファンファーレ",
+  },
+  /** Break 完了（休憩が終わったとき） */
+  focusBreakComplete: {
+    key: "focusBreakComplete",
+    role: "completion",
+    when: "休憩（Short/Long break）が完了したとき（復帰）",
+    description: "復帰の合図（軽めのポジティブサイン）",
   },
   /** ミニゲーム: Great（ご褒美） */
   perfectTimingGreat: {

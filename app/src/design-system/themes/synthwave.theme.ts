@@ -278,5 +278,5 @@ export const synthwaveTheme: VisualTheme = {
     },
   },
   effectsStyle: 'glow',
-  soundPackKey: 'synth',
+  soundPackKey: 'synthwave',
 };

@@ -38,7 +38,7 @@ export interface VisualTheme {
   /** Effect style: pixel art bursts or glow/beam effects */
   effectsStyle: 'pixel' | 'glow';
   /** Sound pack to use */
-  soundPackKey: 'retro' | 'synth';
+  soundPackKey: 'retro' | 'synth' | 'synthwave';
 }
 
 import { arcadeTheme } from './arcade.theme';
