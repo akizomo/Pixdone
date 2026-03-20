@@ -25,11 +25,11 @@ export function SmashListPanel({ subtitle, hint, tasks, onSmash, getDisplayTitle
   }, [tasks, onSmash]);
 
   return (
-    <div style={{ padding: '16px' }}>
+    <div style={{ padding: '8px 0 16px' }}>
       <div
         style={{
-          padding: '12px',
-          marginBottom: '24px',
+          padding: '10px 12px',
+          marginBottom: '16px',
           border: '2px solid var(--pd-color-smash-border)',
           background: 'linear-gradient(135deg, var(--pd-color-smash-gradientStart) 0%, var(--pd-color-smash-gradientEnd) 100%)',
           boxShadow: '2px 2px 0 var(--pd-color-shadow-default)',

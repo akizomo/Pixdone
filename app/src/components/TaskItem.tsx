@@ -52,7 +52,7 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
         background: 'var(--pd-color-background-default)',
         border: '2px solid var(--pd-color-border-default)',
         borderRadius: 0,
-        padding: '12px 16px',
+        padding: '10px 12px',
         marginBottom: '8px',
         cursor: 'pointer',
         transition: 'all 0.2s ease',

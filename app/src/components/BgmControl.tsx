@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
-import { setBgmTrack, setBgmOn, setBgmVolume, getBgmTrack, getBgmVolume, isBgmOn, startBgm, stopBgm } from '../services/bgm';
+import { IconButton } from '../design-system';
+import { setBgmTrack, setBgmOn, setBgmVolume, getBgmVolume } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
 import { playSound } from '../services/sound';
 
 export interface BgmControlProps {
   lang: 'en' | 'ja';
-  focusRunning: boolean;
+  bgmOn: boolean;
+  track: BgmTrack;
+  onChange: (next: { bgmOn: boolean; track: BgmTrack }) => void;
+  onMenuOpenChange?: (open: boolean) => void;
+  variant?: 'default' | 'ghost' | 'zen';
 }
 
 type TrackOption = BgmTrack | 'off';
@@ -20,24 +25,10 @@ const TRACKS: { id: TrackOption; labelEn: string; labelJa: string }[] = [
   { id: 'nightCity', labelEn: 'Night City', labelJa: '夜の街' },
 ];
 
-export function BgmControl({ lang, focusRunning }: BgmControlProps) {
+export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, variant = 'default' }: BgmControlProps) {
   const [open, setOpen]   = useState(false);
-  const [on, setOn]       = useState(isBgmOn);
-  const [track, setTrack] = useState<BgmTrack>(getBgmTrack);
   const [vol, setVol]     = useState(() => Math.round(getBgmVolume() * 100));
   const wrapRef           = useRef<HTMLDivElement>(null);
-
-  // Playback rule:
-  // - If timer is running and BGM is ON -> play
-  // - If timer is NOT running but menu is open and BGM is ON -> preview play
-  // - Otherwise -> stop
-  useEffect(() => {
-    if (on && (focusRunning || open)) {
-      startBgm(track);
-    } else {
-      stopBgm();
-    }
-  }, [focusRunning, open, on, track]);
 
   useEffect(() => {
     if (!open) return;
@@ -45,31 +36,24 @@ export function BgmControl({ lang, focusRunning }: BgmControlProps) {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
         playSound('taskCancel');
         setOpen(false);
+        onMenuOpenChange?.(false);
       }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  const selected: TrackOption = on ? track : 'off';
+  const selected: TrackOption = bgmOn ? track : 'off';
 
   const handleTrackSelect = (opt: TrackOption) => {
     playSound('buttonClick');
     if (opt === 'off') {
-      setOn(false);
       setBgmOn(false);
-      stopBgm();
+      onChange({ bgmOn: false, track });
     } else {
-      const switching = opt !== track;
-      setOn(true);
-      setTrack(opt);
       setBgmTrack(opt);
       setBgmOn(true);
-      // Ensure instant preview switch without requiring "None" in-between.
-      if (focusRunning || open) {
-        if (switching) stopBgm();
-        startBgm(opt);
-      }
+      onChange({ bgmOn: true, track: opt });
     }
   };
 
@@ -82,31 +66,54 @@ export function BgmControl({ lang, focusRunning }: BgmControlProps) {
   return (
     <div ref={wrapRef} style={{ position: 'relative', display: 'inline-block' }}>
       {/* Trigger: BGM icon button */}
-      <button
-        type="button"
-        onClick={() => { playSound('buttonClick'); setOpen((v) => !v); }}
-        aria-label={lang === 'ja' ? 'BGM設定' : 'BGM settings'}
-        aria-expanded={open}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '36px',
-          height: '36px',
-          background: open ? 'var(--pd-color-background-hover)' : 'var(--pd-color-background-elevated)',
-          border: '2px solid var(--pd-color-border-default)',
-          color: on ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
-          cursor: 'pointer',
-          boxShadow: '2px 2px 0 var(--pd-color-shadow-default)',
-          transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease',
-          flexShrink: 0,
-          imageRendering: 'pixelated',
-        }}
-      >
-        <span className="material-icons" style={{ fontSize: '16px', lineHeight: 1 }}>
-          {on ? 'music_note' : 'music_off'}
-        </span>
-      </button>
+      {variant === 'zen' || variant === 'ghost' ? (
+        <IconButton
+          variant="ghost"
+          size="sm"
+          aria-label={lang === 'ja' ? 'BGM設定' : 'BGM settings'}
+          icon={<span className="material-icons" style={{ fontSize: '16px', lineHeight: 1 }}>{bgmOn ? 'music_note' : 'music_off'}</span>}
+          onClick={() => {
+            setOpen((v) => {
+              const next = !v;
+              onMenuOpenChange?.(next);
+              return next;
+            });
+          }}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            playSound('buttonClick');
+            setOpen((v) => {
+              const next = !v;
+              onMenuOpenChange?.(next);
+              return next;
+            });
+          }}
+          aria-label={lang === 'ja' ? 'BGM設定' : 'BGM settings'}
+          aria-expanded={open}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '36px',
+            height: '36px',
+            background: open ? 'var(--pd-color-background-hover)' : 'var(--pd-color-background-elevated)',
+            border: '2px solid var(--pd-color-border-default)',
+            color: bgmOn ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
+            cursor: 'pointer',
+            boxShadow: '2px 2px 0 var(--pd-color-shadow-default)',
+            transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease',
+            flexShrink: 0,
+            imageRendering: 'pixelated',
+          }}
+        >
+          <span className="material-icons" style={{ fontSize: '16px', lineHeight: 1 }}>
+            {bgmOn ? 'music_note' : 'music_off'}
+          </span>
+        </button>
+      )}
 
       {/* Popover menu */}
       {open && (
@@ -118,9 +125,9 @@ export function BgmControl({ lang, focusRunning }: BgmControlProps) {
             top: 'calc(100% + 8px)',
             right: 0,
             zIndex: 500,
-            background: 'var(--pd-color-background-elevated)',
-            border: '2px solid var(--pd-color-border-default)',
-            boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
+            background: variant === 'zen' ? 'var(--pd-color-background-default)' : 'var(--pd-color-background-elevated)',
+            border: variant === 'zen' ? 'none' : '2px solid var(--pd-color-border-default)',
+            boxShadow: variant === 'zen' ? 'none' : '3px 3px 0 var(--pd-color-shadow-default)',
             padding: '12px',
             minWidth: '200px',
             display: 'flex',
@@ -168,7 +175,7 @@ export function BgmControl({ lang, focusRunning }: BgmControlProps) {
 
           {/* Volume slider — always visible */}
           <div style={{
-            borderTop: '1px solid var(--pd-color-border-default)',
+            borderTop: variant === 'zen' ? 'none' : '1px solid var(--pd-color-border-default)',
             marginTop: '4px',
             paddingTop: '10px',
             display: 'flex',

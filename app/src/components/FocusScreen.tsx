@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Chip } from '../design-system';
+import { Button, Chip, IconButton } from '../design-system';
 import { t } from '../lib/i18n';
 import { getTodayYMD } from '../lib/date';
 import { PixelBreaker } from './PixelBreaker';
@@ -9,6 +9,7 @@ import { playSound } from '../services/sound';
 import type { List } from '../types/list';
 import type { Task } from '../types/task';
 import type { FocusTimerState } from '../hooks/useFocusTimer';
+import type { BgmTrack } from '../services/bgm';
 
 export type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -22,6 +23,11 @@ export interface FocusScreenProps {
   pomodoroCount: number;
   timerState: FocusTimerState;
   remaining: number;
+  bgmOn: boolean;
+  bgmTrack: BgmTrack;
+  onBgmChange: (next: { bgmOn: boolean; track: BgmTrack }) => void;
+  onBgmMenuOpenChange?: (open: boolean) => void;
+  onOpenZenMode: () => void;
   onSwitchMode: (m: TimerMode) => void;
   onAdjustMinutes: (deltaMinutes: number) => void;
   onStart: () => void;
@@ -69,6 +75,11 @@ export function FocusScreen({
   minutes,
   timerState,
   remaining,
+  bgmOn,
+  bgmTrack,
+  onBgmChange,
+  onBgmMenuOpenChange,
+  onOpenZenMode,
   onSwitchMode,
   onAdjustMinutes,
   onStart,
@@ -130,17 +141,25 @@ export function FocusScreen({
   return (
     <div style={containerStyle}>
       {/* Timer panel */}
-      <div style={{ ...timerBlockStyle, position: 'relative' }}>
+      <div style={{ ...timerBlockStyle, position: 'relative' }} className="pd-focus-timer-block">
         {/* BGM button — top right */}
         {mode === 'pomodoro' && (
-          <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
-            <BgmControl lang={lang} focusRunning={isRunning} />
+          <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px' }}>
+            <IconButton
+              variant="ghost"
+              size="sm"
+              aria-label={lang === 'ja' ? '全画面でフォーカス' : 'Full screen focus'}
+              icon={<span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>fullscreen</span>}
+              onClick={onOpenZenMode}
+            />
+            <BgmControl lang={lang} bgmOn={bgmOn} track={bgmTrack} onChange={onBgmChange} onMenuOpenChange={onBgmMenuOpenChange} variant="ghost" />
           </div>
         )}
 
         {/* Mode chips */}
         <div
           aria-hidden={timerState !== 'idle'}
+          className="pd-focus-mode-chips"
           style={{
             display: 'flex',
             gap: '8px',
@@ -163,21 +182,27 @@ export function FocusScreen({
 
         {/* Time display with adjust arrows (idle only) */}
         {timerState === 'idle' ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <AdjustButton onClick={() => {
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AdjustButton
+                direction="down"
+                onClick={() => {
                 const next = nextMinutesByArrow(minutes, -1);
                 onAdjustMinutes(next - minutes);
-              }}>▼</AdjustButton>
-              <div style={timerDisplayStyle}><TimeDigits value={formatTime(remaining)} /></div>
-              <AdjustButton onClick={() => {
+              }}
+              />
+              <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>
+              <AdjustButton
+                direction="up"
+                onClick={() => {
                 const next = nextMinutesByArrow(minutes, 1);
                 onAdjustMinutes(next - minutes);
-              }}>▲</AdjustButton>
+              }}
+              />
             </div>
           </div>
         ) : (
-          <div style={timerDisplayStyle}><TimeDigits value={formatTime(remaining)} /></div>
+          <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>
         )}
 
         {/* CTA buttons */}
@@ -340,46 +365,25 @@ export function FocusScreen({
 }
 
 /* ▲/▼ adjust button */
-function AdjustButton({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+function AdjustButton({ onClick, direction }: { onClick: () => void; direction: 'up' | 'down' }) {
+  const labelJa = direction === 'up' ? '時間を増やす' : '時間を減らす';
+  const labelEn = direction === 'up' ? 'Increase minutes' : 'Decrease minutes';
+  const symbol = direction === 'up' ? '▲' : '▼';
   return (
-    <button
-      type="button"
+    <IconButton
+      variant="ghost"
+      size="sm"
+      aria-label={labelJa + ' / ' + labelEn}
+      icon={<span style={{ fontSize: '0.75rem', lineHeight: 1 }}>{symbol}</span>}
       onClick={onClick}
-      style={{
-        background: 'none',
-        border: '2px solid var(--pd-color-border-default)',
-        color: 'var(--pd-color-text-secondary)',
-        width: '36px',
-        height: '36px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-        fontFamily: 'var(--pd-font-body)',
-        fontSize: '0.75rem',
-        flexShrink: 0,
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLButtonElement;
-        el.style.background = 'var(--pd-color-background-hover)';
-        el.style.color = 'var(--pd-color-text-primary)';
-        el.style.borderColor = 'var(--pd-color-accent-default)';
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLButtonElement;
-        el.style.background = 'none';
-        el.style.color = 'var(--pd-color-text-secondary)';
-        el.style.borderColor = 'var(--pd-color-border-default)';
-      }}
-    >
-      {children}
-    </button>
+      soundKey="buttonClick"
+    />
   );
 }
 
 /* Styles */
 const containerStyle: React.CSSProperties = {
-  padding: '24px 16px',
+  padding: '24px 0',
   display: 'flex',
   flexDirection: 'column',
   minHeight: 0,
@@ -390,7 +394,7 @@ const timerBlockStyle: React.CSSProperties = {
   flexDirection: 'column',
   alignItems: 'center',
   marginBottom: '24px',
-  padding: '24px 20px 20px',
+  padding: '20px 0 16px',
   background: 'var(--pd-color-background-elevated)',
   border: '2px solid var(--pd-color-border-default)',
   boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',

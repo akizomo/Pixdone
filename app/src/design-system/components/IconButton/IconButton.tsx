@@ -16,6 +16,7 @@ export function IconButton({
   disabled = false,
   'aria-label': ariaLabel,
   icon,
+  soundKey = 'buttonClick',
   className = '',
   onClick,
   ...rest
@@ -28,7 +29,7 @@ export function IconButton({
       className={classes}
       disabled={disabled}
       aria-label={ariaLabel}
-      onClick={(e) => { playSound('buttonClick'); onClick?.(e); }}
+      onClick={(e) => { if (soundKey) playSound(soundKey); onClick?.(e); }}
       {...rest}
     >
       <span className="pxd-icon-button__icon" aria-hidden>

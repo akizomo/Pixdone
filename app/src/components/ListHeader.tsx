@@ -31,8 +31,8 @@ export function ListHeader({ title, showMenu, lang = 'en', onRename, onDelete }:
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '16px 20px',
-        marginBottom: '8px',
+        padding: '12px 0',
+        marginBottom: '4px',
       }}
     >
       <h2

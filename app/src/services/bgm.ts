@@ -26,7 +26,6 @@ const BGM_VOLUME      = 0.06; // default
 let bgmCtx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let activeNodes: AudioNode[] = [];
-let loopTimer: ReturnType<typeof setTimeout> | null = null;
 let extraTimers: ReturnType<typeof setTimeout>[] = [];
 let _playing = false;
 let _track: BgmTrack = 'retro';
@@ -66,7 +65,6 @@ function killNodes() {
     try { n.disconnect(); } catch { /* ignore */ }
   }
   activeNodes = [];
-  if (loopTimer) { clearTimeout(loopTimer); loopTimer = null; }
   for (const t of extraTimers) clearTimeout(t);
   extraTimers = [];
 }
@@ -111,9 +109,9 @@ function loopSeq(
     t += s.beats * beat;
   }
   const msLeft  = (t - ctx.currentTime - 0.2) * 1000;
-  loopTimer = setTimeout(() => {
+  extraTimers.push(setTimeout(() => {
     if (_playing && _track === checkTrack) loopSeq(ctx, out, seq, bpm, t, checkTrack);
-  }, Math.max(0, msLeft));
+  }, Math.max(0, msLeft)));
 }
 
 /* ── Track 1: Retro (chiptune) ───────────────────────── */
@@ -320,7 +318,7 @@ function startRain(ctx: AudioContext, out: AudioNode) {
 
   const g = ctx.createGain();
   // Bed volume: keep rain texture audible even under SFX
-  g.gain.value = 0.50;
+  g.gain.value = 0.78;
 
   src.connect(hp);
   hp.connect(bp);
@@ -344,8 +342,8 @@ function startRain(ctx: AudioContext, out: AudioNode) {
     osc.type = 'triangle';
     osc.frequency.value = 1200 + Math.random() * 800;
     og.gain.setValueAtTime(0, now);
-    // Droplet: keep as accent, not the main presence
-    og.gain.linearRampToValueAtTime(0.035, now + 0.005);
+    // Droplet: accent, but still audible under the bed
+    og.gain.linearRampToValueAtTime(0.045, now + 0.005);
     og.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
     osc.connect(og);
     og.connect(out);
@@ -364,7 +362,7 @@ function startFireplace(ctx: AudioContext, out: AudioNode) {
   hum.type = 'triangle';
   hum.frequency.value = 55;
   const humGain = ctx.createGain();
-  humGain.gain.value = 0.05;
+  humGain.gain.value = 0.075;
   hum.connect(humGain);
   humGain.connect(out);
   hum.start();
@@ -384,7 +382,7 @@ function startFireplace(ctx: AudioContext, out: AudioNode) {
     hp.frequency.value = 1200 + Math.random() * 800;
 
     const g = ctx.createGain();
-    g.gain.value = 0.16 + Math.random() * 0.08;
+    g.gain.value = 0.24 + Math.random() * 0.10;
 
     s.connect(hp);
     hp.connect(g);
@@ -408,7 +406,7 @@ function startNightCity(ctx: AudioContext, out: AudioNode) {
   humA.frequency.value = 110;
   humB.frequency.value = 110.6;
   const humGain = ctx.createGain();
-  humGain.gain.value = 0.035;
+  humGain.gain.value = 0.055;
   humA.connect(humGain);
   humB.connect(humGain);
   humGain.connect(out);
@@ -427,7 +425,7 @@ function startNightCity(ctx: AudioContext, out: AudioNode) {
   bp.frequency.value = 2500;
   bp.Q.value = 2.0;
   const sg = ctx.createGain();
-  sg.gain.value = 0.10;
+  sg.gain.value = 0.16;
   sign.connect(bp);
   bp.connect(sg);
   sg.connect(out);
@@ -441,7 +439,7 @@ function startNightCity(ctx: AudioContext, out: AudioNode) {
     osc.type = 'sine';
     const g = ctx.createGain();
     g.gain.setValueAtTime(0, now);
-    g.gain.linearRampToValueAtTime(0.05, now + 0.12);
+    g.gain.linearRampToValueAtTime(0.075, now + 0.12);
     g.gain.linearRampToValueAtTime(0.0, now + 1.2);
     osc.frequency.setValueAtTime(220 + Math.random() * 80, now);
     osc.frequency.linearRampToValueAtTime(140 + Math.random() * 50, now + 1.2);
@@ -467,12 +465,22 @@ export function startBgm(track?: BgmTrack): void {
     _track = requested;
     stopBgm();
     _playing = true;
-    if (_track === 'retro')          startRetro(ctx, masterGain);
-    else if (_track === 'synthwave') startSynthwave(ctx, masterGain);
-    else if (_track === 'chill')     startChill(ctx, masterGain);
-    else if (_track === 'rain')      startRain(ctx, masterGain);
-    else if (_track === 'fireplace') startFireplace(ctx, masterGain);
-    else if (_track === 'nightCity') startNightCity(ctx, masterGain);
+
+    // Per-track mix gain (keeps SFX readable without changing user volume slider).
+    const trackGain = ctx.createGain();
+    trackGain.gain.value =
+      _track === 'retro' || _track === 'synthwave' || _track === 'chill'
+        ? 0.7
+        : 1.0;
+    trackGain.connect(masterGain);
+    activeNodes.push(trackGain);
+
+    if (_track === 'retro')          startRetro(ctx, trackGain);
+    else if (_track === 'synthwave') startSynthwave(ctx, trackGain);
+    else if (_track === 'chill')     startChill(ctx, trackGain);
+    else if (_track === 'rain')      startRain(ctx, trackGain);
+    else if (_track === 'fireplace') startFireplace(ctx, trackGain);
+    else if (_track === 'nightCity') startNightCity(ctx, trackGain);
   } catch (e) {
     console.warn('[bgm] start failed:', e);
   }
@@ -485,16 +493,25 @@ export function stopBgm(): void {
 
 export function setBgmTrack(track: BgmTrack): void {
   try { localStorage.setItem(BGM_TRACK_KEY, track); } catch { /* ignore */ }
-  if (_playing) {
-    // startBgm handles switching tracks; don't pre-mutate _track or it may early-return.
-    startBgm(track);
-  } else {
-    _track = track;
-  }
+  // Persist selection only. Current playing track state is owned by startBgm/stopBgm.
 }
 
 export function getBgmTrack(): BgmTrack {
-  try { return (localStorage.getItem(BGM_TRACK_KEY) as BgmTrack) ?? 'retro'; } catch { return 'retro'; }
+  try {
+    const raw = localStorage.getItem(BGM_TRACK_KEY) as BgmTrack | null;
+    if (!raw) return 'retro';
+    const allowed: Record<BgmTrack, true> = {
+      retro: true,
+      synthwave: true,
+      chill: true,
+      rain: true,
+      fireplace: true,
+      nightCity: true,
+    };
+    return allowed[raw] ? raw : 'retro';
+  } catch {
+    return 'retro';
+  }
 }
 
 /** Initial state: OFF (browser autoplay safety). */
@@ -504,6 +521,5 @@ export function isBgmOn(): boolean {
 
 export function setBgmOn(on: boolean): void {
   try { localStorage.setItem(BGM_ENABLED_KEY, on ? 'true' : 'false'); } catch { /* ignore */ }
-  // Playback is controlled by Focus UI (e.g. only while timer running and menu open).
-  if (!on) stopBgm();
+  // Playback start/stop is controlled solely by App.tsx (timer state + bgmOn).
 }

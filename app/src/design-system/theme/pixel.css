@@ -181,6 +181,28 @@
   }
 }
 
+/* Focus timer: Synthwave font is visually larger (Orbitron) */
+[data-visual-theme="synthwave"] .pd-focus-timer-display {
+  font-size: clamp(3rem, 14vw, 4.8rem) !important;
+}
+
+@media (max-width: 768px) {
+  [data-visual-theme="synthwave"] .pd-focus-timer-block {
+    padding: 14px 14px 14px;
+    min-height: min(260px, 34vh);
+  }
+
+  [data-visual-theme="synthwave"] .pd-focus-mode-chips {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  [data-visual-theme="synthwave"] .pd-focus-mode-chips .pxd-chip {
+    padding: 0 6px;
+    font-size: 0.7rem;
+  }
+}
+
 /* ===== Retro animations ===== */
 @keyframes pd-retro-blink {
   0%, 50% { opacity: 1; }

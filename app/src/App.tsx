@@ -12,13 +12,15 @@ import { useMidnightRefresh } from './hooks/useMidnightRefresh';
 import { playSound, getSoundEnabled } from './services/sound';
 import { initSoundEngine } from './services/soundEngine';
 import { useFocusTimer } from './hooks/useFocusTimer';
-import { stopBgm } from './services/bgm';
+import { stopBgm, startBgm, isBgmOn, getBgmTrack } from './services/bgm';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
 import './styles/task-animations.css';
 import type { List } from './types/list';
 import type { Task } from './types/task';
+import type { BgmTrack } from './services/bgm';
+import { FocusZenMode } from './components/FocusZenMode';
 
 function AppContent() {
   const {
@@ -43,6 +45,7 @@ function AppContent() {
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const [focusZenOpen, setFocusZenOpen] = useState(false);
 
   // Desktop: null = closed, 'add' = new task, task.id = editing
   const [taskFormMode, setTaskFormMode] = useState<null | 'add' | string>(null);
@@ -316,13 +319,18 @@ function AppContent() {
     setListModal(null);
   }, [listModal, addList, renameList, deleteList, lists]);
 
-  const anyModalOpen = signupOpen || themeModalOpen || listModal !== null || mobileSheetOpen || deleteTaskConfirm !== null;
+  const anyModalOpen = signupOpen || themeModalOpen || listModal !== null || mobileSheetOpen || deleteTaskConfirm !== null || focusZenOpen;
   const isFocusScreen = activeScreen === 'focus';
 
   /* ---- Focus timer state (persist across navigation) ---- */
   const [focusMode, setFocusMode] = useState<'pomodoro' | 'shortBreak' | 'longBreak'>('pomodoro');
   const [focusMinutes, setFocusMinutes] = useState(25);
   const [focusPomodoroCount, setFocusPomodoroCount] = useState(0); // 0..3
+  const [bgmOn, setBgmOnState] = useState<boolean>(() => isBgmOn());
+  const [bgmTrack, setBgmTrackState] = useState<BgmTrack>(() => getBgmTrack());
+  const [, setBgmMenuOpen] = useState(false);
+  const prevBgmShouldPlayRef = useRef(false);
+  const prevBgmTrackRef = useRef<BgmTrack>(bgmTrack);
   const focusModeRef = useRef(focusMode);
   useEffect(() => { focusModeRef.current = focusMode; }, [focusMode]);
   const focusCountRef = useRef(focusPomodoroCount);
@@ -352,9 +360,46 @@ function AppContent() {
   const focusTimerRef = useRef(focusTimer);
   useEffect(() => { focusTimerRef.current = focusTimer; }, [focusTimer]);
 
+  // Safety: ensure BGM is stopped on timer reaching 0
+  useEffect(() => {
+    if (focusTimer.remaining === 0) {
+      stopBgm();
+    }
+  }, [focusTimer.remaining]);
+
+  // Fail-safe: never keep BGM while timer is not running.
+  useEffect(() => {
+    if (focusTimer.timerState !== 'running') {
+      stopBgm();
+    }
+  }, [focusTimer.timerState]);
+
+  // Single playback authority with explicit switch semantics:
+  // - running + BGM ON + remaining>0: play
+  // - track change while playing: always stop old -> start new
+  // - otherwise: stop
+  useEffect(() => {
+    const shouldPlay = bgmOn && focusTimer.timerState === 'running' && focusTimer.remaining > 0;
+    const wasPlaying = prevBgmShouldPlayRef.current;
+    const prevTrack = prevBgmTrackRef.current;
+
+    if (!shouldPlay) {
+      stopBgm();
+    } else if (!wasPlaying) {
+      startBgm(bgmTrack);
+    } else if (prevTrack !== bgmTrack) {
+      stopBgm();
+      startBgm(bgmTrack);
+    }
+
+    prevBgmShouldPlayRef.current = shouldPlay;
+    prevBgmTrackRef.current = bgmTrack;
+  }, [bgmOn, bgmTrack, focusTimer.timerState, focusTimer.remaining]);
+
   /* ---- Render ---- */
   return (
-    <div className="pd-app-container" style={{ paddingBottom: '80px' }}>
+    <div className="pd-app-container" style={{ paddingBottom: focusZenOpen ? 0 : '80px' }}>
+      {!focusZenOpen && (
       <header
         style={{
           display: 'flex',
@@ -529,6 +574,7 @@ function AppContent() {
           />
         )}
       </header>
+      )}
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {isFocusScreen ? (
@@ -543,6 +589,14 @@ function AppContent() {
               pomodoroCount={focusPomodoroCount}
               timerState={focusTimer.timerState}
               remaining={focusTimer.remaining}
+              bgmOn={bgmOn}
+              bgmTrack={bgmTrack}
+              onBgmChange={({ bgmOn: nextOn, track: nextTrack }) => {
+                setBgmOnState(nextOn);
+                setBgmTrackState(nextTrack);
+              }}
+              onBgmMenuOpenChange={setBgmMenuOpen}
+              onOpenZenMode={() => { playSound('buttonClick'); setFocusZenOpen(true); }}
               onSwitchMode={(m) => {
                 playSound('buttonClick');
                 setFocusMode(m);
@@ -550,6 +604,7 @@ function AppContent() {
                 setFocusMinutes(nextMin);
                 focusTimer.reset(nextMin * 60);
                 stopBgm();
+                setBgmMenuOpen(false);
               }}
               onAdjustMinutes={(deltaMin) => {
                 if (focusTimer.timerState !== 'idle') return;
@@ -568,6 +623,7 @@ function AppContent() {
                 setFocusMode('pomodoro');
                 setFocusMinutes(25);
                 focusTimer.reset(25 * 60);
+                setBgmMenuOpen(false);
               }}
               onCompleteFocus={() => {
                 playSound('taskComplete');
@@ -576,6 +632,7 @@ function AppContent() {
                 setFocusMinutes(5);
                 focusTimer.reset(5 * 60);
                 stopBgm();
+                setBgmMenuOpen(false);
               }}
             />
           ) : (
@@ -999,14 +1056,55 @@ function AppContent() {
       />
 
       {/* Bottom navigation */}
-      <BottomNav
-        activeScreen={activeScreen}
-        onSelect={(screen) => {
-          playSound('buttonClick');
-          setActiveScreen(screen);
+      {!focusZenOpen && (
+        <BottomNav
+          activeScreen={activeScreen}
+          onSelect={(screen) => {
+            playSound('buttonClick');
+            setActiveScreen(screen);
+            }}
+          lang={lang}
+        />
+      )}
+
+      {/* Focus Zen mode (full-screen, hides header/bottom nav) */}
+      {focusZenOpen && (
+        <FocusZenMode
+          isDesktop={isDesktop}
+          lang={lang}
+          mode={focusMode}
+          timerState={focusTimer.timerState}
+          remaining={focusTimer.remaining}
+          bgmOn={bgmOn}
+          bgmTrack={bgmTrack}
+          onBgmChange={({ bgmOn: nextOn, track: nextTrack }) => {
+            setBgmOnState(nextOn);
+            setBgmTrackState(nextTrack);
           }}
-        lang={lang}
-      />
+          onBgmMenuOpenChange={setBgmMenuOpen}
+          onClose={() => { playSound('taskCancel'); setFocusZenOpen(false); setBgmMenuOpen(false); }}
+          onStart={() => { playSound('buttonClick'); focusTimer.start(); }}
+          onPause={() => { playSound('buttonClick'); focusTimer.pause(); stopBgm(); }}
+          onResume={() => { playSound('buttonClick'); focusTimer.resume(); }}
+          onSkipBreak={() => {
+            if (!(focusMode === 'shortBreak' || focusMode === 'longBreak')) return;
+            playSound('taskCancel');
+            stopBgm();
+            setFocusMode('pomodoro');
+            setFocusMinutes(25);
+            focusTimer.reset(25 * 60);
+            setBgmMenuOpen(false);
+          }}
+          onCompleteFocus={() => {
+            playSound('taskComplete');
+            setFocusMode('shortBreak');
+            setFocusMinutes(5);
+            focusTimer.reset(5 * 60);
+            stopBgm();
+            setBgmMenuOpen(false);
+          }}
+        />
+      )}
 
       {/* Delete task confirmation */}
       <ModalDialog
