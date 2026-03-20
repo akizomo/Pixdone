@@ -142,19 +142,26 @@ export function FocusScreen({
     <div style={containerStyle}>
       {/* Timer panel */}
       <div style={{ ...timerBlockStyle, position: 'relative' }} className="pd-focus-timer-block">
-        {/* BGM button — top right */}
-        {mode === 'pomodoro' && (
-          <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px' }}>
-            <IconButton
+        {/* Top right: full-screen + (pomodoro only) BGM */}
+        <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px' }}>
+          <IconButton
+            variant="ghost"
+            size="sm"
+            aria-label={lang === 'ja' ? '全画面でフォーカス' : 'Full screen focus'}
+            icon={<span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>fullscreen</span>}
+            onClick={onOpenZenMode}
+          />
+          {mode === 'pomodoro' && (
+            <BgmControl
+              lang={lang}
+              bgmOn={bgmOn}
+              track={bgmTrack}
+              onChange={onBgmChange}
+              onMenuOpenChange={onBgmMenuOpenChange}
               variant="ghost"
-              size="sm"
-              aria-label={lang === 'ja' ? '全画面でフォーカス' : 'Full screen focus'}
-              icon={<span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>fullscreen</span>}
-              onClick={onOpenZenMode}
             />
-            <BgmControl lang={lang} bgmOn={bgmOn} track={bgmTrack} onChange={onBgmChange} onMenuOpenChange={onBgmMenuOpenChange} variant="ghost" />
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Mode chips */}
         <div

@@ -343,16 +343,26 @@ function AppContent() {
     stopBgm();
 
     if (m === 'pomodoro') {
+      // Count completed pomodoros; after 4 pomodoro-shortBreak cycles, trigger longBreak
+      // on the SHORT BREAK end (not immediately after the 4th pomodoro end).
       const nextCount = (focusCountRef.current + 1) % 4;
       setFocusPomodoroCount(nextCount);
-      const nextMode = nextCount === 0 ? 'longBreak' : 'shortBreak';
-      setFocusMode(nextMode);
-      const nextMin = nextMode === 'longBreak' ? 15 : 5;
-      setFocusMinutes(nextMin);
-      focusTimerRef.current?.reset(nextMin * 60);
+      setFocusMode('shortBreak');
+      setFocusMinutes(5);
+      focusTimerRef.current?.reset(5 * 60);
       return;
     }
 
+    if (m === 'shortBreak') {
+      if (focusCountRef.current === 0) {
+        setFocusMode('longBreak');
+        setFocusMinutes(15);
+        focusTimerRef.current?.reset(15 * 60);
+        return;
+      }
+    }
+
+    // longBreak or remaining short breaks -> next pomodoro
     setFocusMode('pomodoro');
     setFocusMinutes(25);
     focusTimerRef.current?.reset(25 * 60);
