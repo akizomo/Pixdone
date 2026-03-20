@@ -115,8 +115,6 @@ export function FocusZenMode({
   const isPaused = timerState === 'paused';
   const isBreakMode = mode === 'shortBreak' || mode === 'longBreak';
 
-  const header = null;
-
   const body = (
     <div
       style={{
