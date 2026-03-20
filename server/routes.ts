@@ -149,6 +149,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ---- Theme entitlements (Stripe) ----
+  // OPTIONS for CORS preflight (must not require auth).
+  app.options('/api/billing/entitlements', (_req, res) => res.sendStatus(204));
   app.get('/api/billing/entitlements', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
@@ -162,6 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.options('/api/billing/synthwave/create-checkout-session', (_req, res) => res.sendStatus(204));
   app.post('/api/billing/synthwave/create-checkout-session', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
@@ -197,6 +200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Webhook: no auth; verifies Stripe signature and updates DB entitlement.
+  app.options('/api/billing/stripe-webhook', (_req, res) => res.sendStatus(204));
   app.post('/api/billing/stripe-webhook', async (req: any, res) => {
     try {
       const signatureHeader = req.header?.('stripe-signature');

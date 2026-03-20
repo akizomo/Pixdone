@@ -34,6 +34,13 @@ app.use(express.urlencoded({ extended: true }));
 
 export default async (req: VercelRequest, res: VercelResponse) => {
   try {
+    // Preflight (CORS) が Vercel/ルーティング側で弾かれることがあるため、
+    // Express に流す前に OPTIONS は即返す。
+    if (req.method === 'OPTIONS') {
+      res.status(204).end();
+      return;
+    }
+
     const httpServer = await registerRoutes(app);
     // Vercel handles the request by passing it to the express app
     // We don't call httpServer.listen() here as Vercel manages the execution
