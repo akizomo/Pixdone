@@ -1,8 +1,22 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import express from 'express';
+import cors from 'cors';
 import { registerRoutes } from '../server/routes.js';
 
 const app = express();
+
+// CORS: allow browser requests (including preflight) for /api/* on Vercel.
+app.use(cors({
+  origin: (_origin, callback) => callback(null, true),
+  credentials: true,
+}));
+
+// Preflight handler for endpoints that only define POST/GET.
+app.options('*', cors({
+  origin: (_origin, callback) => callback(null, true),
+  credentials: true,
+}), (_req, res) => res.sendStatus(204));
+
 // Keep raw request body for Stripe webhook signature verification.
 app.use(express.json({
   verify: (req, _res, buf) => {
