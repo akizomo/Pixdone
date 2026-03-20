@@ -2,7 +2,7 @@
   "version": 2,
   "rewrites": [
     { "source": "/api/link-preview", "destination": "/api/link-preview" },
-    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/api/(?!billing/)(.*)", "destination": "/api/index" },
     { "source": "/health", "destination": "/api/index" },
     { "source": "/app", "destination": "/api/index" },
     { "source": "/((?!api/|public/).*)", "destination": "/public/$1" },
