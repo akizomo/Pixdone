@@ -523,3 +523,7 @@ export function setBgmOn(on: boolean): void {
   try { localStorage.setItem(BGM_ENABLED_KEY, on ? 'true' : 'false'); } catch { /* ignore */ }
   // Playback start/stop is controlled solely by App.tsx (timer state + bgmOn).
 }
+
+export function isBgmContextSuspended(): boolean {
+  try { return bgmCtx?.state === 'suspended'; } catch { return false; }
+}

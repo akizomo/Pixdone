@@ -35,6 +35,8 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   passwordHash: varchar("password_hash"),
   themeKey: varchar("theme_key").default('arcade'),
+  // Premium entitlement for the Synthwave visual theme (Stripe one-time unlock).
+  synthwavePremium: boolean("synthwave_premium").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

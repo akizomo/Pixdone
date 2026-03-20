@@ -3,7 +3,12 @@ import express from 'express';
 import { registerRoutes } from '../server/routes.js';
 
 const app = express();
-app.use(express.json());
+// Keep raw request body for Stripe webhook signature verification.
+app.use(express.json({
+  verify: (req, _res, buf) => {
+    (req as any).rawBody = buf;
+  },
+}));
 app.use(express.urlencoded({ extended: true }));
 
 export default async (req: VercelRequest, res: VercelResponse) => {

@@ -11,7 +11,7 @@ if (!process.env.REPLIT_DOMAINS) {
 const getOidcConfig = memoize(async () => {
     return await client.discovery(new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"), process.env.REPL_ID);
 }, { maxAge: 3600 * 1000 });
-export function getSession() {
+function getSession() {
     const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
     const pgStore = connectPg(session);
     const sessionStore = new pgStore({

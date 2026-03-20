@@ -34,3 +34,22 @@ html.task-effect-playing {
   from { opacity: 0; transform: translateX(16px); }
   to { opacity: 1; transform: translateX(0); }
 }
+
+/* Directional list switch animation (used for mobile swipe) */
+.pd-list-enter--from-left {
+  animation: pdListSlideInFromLeft 0.18s ease-out;
+}
+
+.pd-list-enter--from-right {
+  animation: pdListSlideInFromRight 0.18s ease-out;
+}
+
+@keyframes pdListSlideInFromLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pdListSlideInFromRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}

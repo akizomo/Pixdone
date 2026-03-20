@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { useUserTheme } from '../hooks/useUserTheme';
 import { themeList } from '../design-system';
 import type { ThemeKey } from '../design-system';
 import { playSound } from '../services/sound';
+import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 
 interface ThemeSelectorProps {
   onClose?: () => void;
@@ -9,9 +11,35 @@ interface ThemeSelectorProps {
 
 export function ThemeSelector({ onClose }: ThemeSelectorProps) {
   const { visualTheme, changeTheme } = useUserTheme();
+  const { synthwavePremium } = useThemeEntitlements();
+  const [unlocking, setUnlocking] = useState(false);
 
-  const handleSelect = (key: ThemeKey, isPremium: boolean) => {
-    if (isPremium) return; // locked – will hook into payment flow later
+  const handleSelect = async (key: ThemeKey, isLocked: boolean) => {
+    // Premium locked path -> start checkout.
+    if (isLocked) {
+      if (key !== 'synthwave') return;
+      setUnlocking(true);
+      try {
+        playSound('buttonClick');
+        const resp = await fetch('/api/billing/synthwave/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ themeKey: 'synthwave' }),
+        });
+        if (!resp.ok) throw new Error('checkout_session_failed');
+        const data = (await resp.json()) as { checkoutUrl?: string };
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+          return;
+        }
+      } catch {
+        // Keep selection locked; show nothing for now.
+      } finally {
+        setUnlocking(false);
+      }
+      return;
+    }
     playSound('taskComplete');
     changeTheme(key);
     onClose?.();
@@ -40,7 +68,7 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {themeList.map((theme) => {
           const isActive = theme.key === visualTheme;
-          const isLocked = theme.isPremium;
+          const isLocked = theme.isPremium && theme.key === 'synthwave' ? !synthwavePremium : theme.isPremium;
 
           return (
             <button
@@ -57,7 +85,7 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
                   : 'var(--pd-color-background-elevated)',
                 border: `2px solid ${isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
                 borderRadius: '0',
-                cursor: isLocked ? 'not-allowed' : 'pointer',
+                cursor: isLocked ? (unlocking ? 'progress' : 'pointer') : 'pointer',
                 opacity: isLocked ? 0.65 : 1,
                 fontFamily: 'var(--pd-font-body)',
                 textAlign: 'left',

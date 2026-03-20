@@ -21,6 +21,7 @@ interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserTheme(userId: string, themeKey: string): Promise<User>;
+  updateUserSynthwavePremium(userId: string, premium: boolean): Promise<User>;
 
   // Task operations
   getUserTasks(userId: string): Promise<Task[]>;
@@ -74,6 +75,15 @@ class DatabaseStorage implements IStorage {
     const [user] = await db
       .update(users)
       .set({ themeKey, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updateUserSynthwavePremium(userId: string, premium: boolean): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ synthwavePremium: premium, updatedAt: new Date() })
       .where(eq(users.id, userId))
       .returning();
     return user;

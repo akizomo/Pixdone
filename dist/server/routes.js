@@ -5,6 +5,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth.js";
 import { setupGoogleAuth } from "./googleAuth.js";
 import { setupEmailAuth } from "./emailAuth.js";
 import { db } from "./db.js";
+import { createCheckoutSession, verifyStripeWebhook } from "./billing/stripe.js";
 export async function registerRoutes(app) {
     // Validate database connection on startup
     console.log("🔍 Testing database connection...");
@@ -123,6 +124,98 @@ export async function registerRoutes(app) {
             res.status(500).json({ message: "Failed to fetch user" });
         }
     });
+    app.patch('/api/user/theme', isAuthenticated, async (req, res) => {
+        try {
+            const userId = req.user.claims.sub;
+            const { themeKey } = req.body;
+            const validThemes = ['arcade', 'synthwave'];
+            if (!themeKey || !validThemes.includes(themeKey)) {
+                return res.status(400).json({ message: "Invalid themeKey" });
+            }
+            const user = await storage.updateUserTheme(userId, themeKey);
+            res.json(user);
+        }
+        catch (error) {
+            console.error("Error updating user theme:", error);
+            res.status(500).json({ message: "Failed to update theme" });
+        }
+    });
+    // ---- Theme entitlements (Stripe) ----
+    app.get('/api/billing/entitlements', isAuthenticated, async (req, res) => {
+        try {
+            const userId = req.user.claims.sub;
+            const user = await storage.getUser(userId);
+            res.json({
+                synthwavePremium: !!user?.synthwavePremium,
+            });
+        }
+        catch (error) {
+            console.error("Error fetching entitlements:", error);
+            res.status(500).json({ message: "Failed to fetch entitlements" });
+        }
+    });
+    app.post('/api/billing/synthwave/create-checkout-session', isAuthenticated, async (req, res) => {
+        try {
+            const userId = req.user.claims.sub;
+            const user = await storage.getUser(userId);
+            if (user?.synthwavePremium) {
+                return res.status(409).json({ message: "Already unlocked" });
+            }
+            const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+            const priceId = process.env.STRIPE_PRICE_SYNTHWAVE_ONETIME;
+            if (!stripeSecretKey || !priceId) {
+                return res.status(500).json({ message: "Stripe is not configured (missing env)" });
+            }
+            const baseUrl = `${req.protocol}://${req.get('host')}`;
+            const successUrl = `${baseUrl}/?purchase=synthwave_success`;
+            const cancelUrl = `${baseUrl}/?purchase=synthwave_cancelled`;
+            const { checkoutUrl } = await createCheckoutSession({
+                stripeSecretKey,
+                priceId,
+                userId,
+                successUrl,
+                cancelUrl,
+                themeKey: 'synthwave',
+            });
+            res.json({ checkoutUrl });
+        }
+        catch (error) {
+            console.error("Error creating synthwave checkout session:", error);
+            res.status(500).json({ message: "Failed to create checkout session" });
+        }
+    });
+    // Webhook: no auth; verifies Stripe signature and updates DB entitlement.
+    app.post('/api/billing/stripe-webhook', async (req, res) => {
+        try {
+            const signatureHeader = req.header?.('stripe-signature');
+            const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+            if (!webhookSecret)
+                return res.status(500).send('Missing STRIPE_WEBHOOK_SECRET');
+            const rawBody = req.rawBody;
+            if (!rawBody)
+                return res.status(400).send('Missing rawBody');
+            const event = verifyStripeWebhook({
+                rawBody,
+                signatureHeader,
+                webhookSecret,
+            });
+            if (event?.type === 'checkout.session.completed') {
+                const metadata = event?.data?.object?.metadata ?? {};
+                const userId = metadata.userId;
+                if (userId) {
+                    await storage.updateUserSynthwavePremium(userId, true);
+                }
+                else {
+                    console.warn('[stripe-webhook] Missing metadata.userId');
+                }
+            }
+            res.status(200).json({ received: true });
+        }
+        catch (error) {
+            console.error("Stripe webhook error:", error);
+            res.status(400).send('Webhook signature verification failed');
+        }
+    });
     // Task routes
     app.get('/api/tasks', isAuthenticated, async (req, res) => {
         try {
@@ -227,6 +320,63 @@ export async function registerRoutes(app) {
         catch (error) {
             console.error("Error fetching tasks for list:", error);
             res.status(500).json({ message: "Failed to fetch tasks for list" });
+        }
+    });
+    // Link preview: fetch URL and return og:title, og:image (no auth required for unfurl)
+    app.get('/api/link-preview', async (req, res) => {
+        const url = typeof req.query.url === 'string' ? req.query.url.trim() : '';
+        if (!url || !/^https?:\/\//i.test(url)) {
+            return res.status(400).json({ error: 'Missing or invalid url' });
+        }
+        try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 8000);
+            const response = await fetch(url, {
+                signal: controller.signal,
+                headers: { 'User-Agent': 'PixDone-LinkPreview/1.0 (https://pixdone.vercel.app)' },
+                redirect: 'follow',
+            });
+            clearTimeout(timeout);
+            if (!response.ok) {
+                return res.status(502).json({ error: 'Failed to fetch URL' });
+            }
+            const html = await response.text();
+            const headEnd = html.indexOf('</head>');
+            const slice = headEnd > 0 ? html.slice(0, headEnd + 7) : html.slice(0, 60000);
+            const getMeta = (name) => {
+                const prop = name.startsWith('og:') ? `property=["']${name.replace(/:/g, '\\:')}["']` : `name=["']${name}["']`;
+                const re = new RegExp(`<meta[^>]+${prop}[^>]+content=["']([^"']+)["']`, 'i');
+                const m = slice.match(re);
+                if (m)
+                    return m[1];
+                const re2 = new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+${prop}`, 'i');
+                const m2 = slice.match(re2);
+                return m2 ? m2[1] : null;
+            };
+            let title = getMeta('og:title') || getMeta('twitter:title') || null;
+            let image = getMeta('og:image') || getMeta('twitter:image') || null;
+            const description = getMeta('og:description') || getMeta('twitter:description') || null;
+            if (!title) {
+                const titleMatch = slice.match(/<title[^>]*>([^<]+)<\/title>/i);
+                title = titleMatch ? titleMatch[1].trim() : null;
+            }
+            if (image && image.startsWith('//'))
+                image = 'https:' + image;
+            if (image && image.startsWith('/')) {
+                try {
+                    const base = new URL(url);
+                    image = base.origin + image;
+                }
+                catch (_) { }
+            }
+            res.setHeader('Cache-Control', 'public, max-age=3600');
+            res.json({ title: title || url, description, image, url });
+        }
+        catch (e) {
+            if (e.name === 'AbortError')
+                return res.status(504).json({ error: 'Timeout' });
+            console.error('Link preview error:', e);
+            res.status(502).json({ error: 'Failed to fetch URL' });
         }
     });
     // Serve the frontend application

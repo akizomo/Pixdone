@@ -66,7 +66,12 @@ app.use(cors({
 }));
 
 // Body parsing
-app.use(express.json());
+// Keep raw request body for Stripe webhook signature verification.
+app.use(express.json({
+  verify: (req, _res, buf) => {
+    (req as any).rawBody = buf;
+  },
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from the public directory

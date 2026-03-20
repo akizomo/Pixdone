@@ -6,6 +6,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth.js";
 import { setupGoogleAuth } from "./googleAuth.js";
 import { setupEmailAuth } from "./emailAuth.js";
 import { db } from "./db.js";
+import { createCheckoutSession, verifyStripeWebhook } from "./billing/stripe.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Validate database connection on startup
@@ -144,6 +145,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating user theme:", error);
       res.status(500).json({ message: "Failed to update theme" });
+    }
+  });
+
+  // ---- Theme entitlements (Stripe) ----
+  app.get('/api/billing/entitlements', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json({
+        synthwavePremium: !!user?.synthwavePremium,
+      });
+    } catch (error) {
+      console.error("Error fetching entitlements:", error);
+      res.status(500).json({ message: "Failed to fetch entitlements" });
+    }
+  });
+
+  app.post('/api/billing/synthwave/create-checkout-session', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (user?.synthwavePremium) {
+        return res.status(409).json({ message: "Already unlocked" });
+      }
+
+      const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+      const priceId = process.env.STRIPE_PRICE_SYNTHWAVE_ONETIME;
+      if (!stripeSecretKey || !priceId) {
+        return res.status(500).json({ message: "Stripe is not configured (missing env)" });
+      }
+
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const successUrl = `${baseUrl}/?purchase=synthwave_success`;
+      const cancelUrl = `${baseUrl}/?purchase=synthwave_cancelled`;
+
+      const { checkoutUrl } = await createCheckoutSession({
+        stripeSecretKey,
+        priceId,
+        userId,
+        successUrl,
+        cancelUrl,
+        themeKey: 'synthwave',
+      });
+
+      res.json({ checkoutUrl });
+    } catch (error: any) {
+      console.error("Error creating synthwave checkout session:", error);
+      res.status(500).json({ message: "Failed to create checkout session" });
+    }
+  });
+
+  // Webhook: no auth; verifies Stripe signature and updates DB entitlement.
+  app.post('/api/billing/stripe-webhook', async (req: any, res) => {
+    try {
+      const signatureHeader = req.header?.('stripe-signature');
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      if (!webhookSecret) return res.status(500).send('Missing STRIPE_WEBHOOK_SECRET');
+
+      const rawBody = req.rawBody as Buffer | undefined;
+      if (!rawBody) return res.status(400).send('Missing rawBody');
+
+      const event = verifyStripeWebhook({
+        rawBody,
+        signatureHeader,
+        webhookSecret,
+      });
+
+      if (event?.type === 'checkout.session.completed') {
+        const metadata = event?.data?.object?.metadata ?? {};
+        const userId = metadata.userId as string | undefined;
+
+        if (userId) {
+          await storage.updateUserSynthwavePremium(userId, true);
+        } else {
+          console.warn('[stripe-webhook] Missing metadata.userId');
+        }
+      }
+
+      res.status(200).json({ received: true });
+    } catch (error) {
+      console.error("Stripe webhook error:", error);
+      res.status(400).send('Webhook signature verification failed');
     }
   });
 

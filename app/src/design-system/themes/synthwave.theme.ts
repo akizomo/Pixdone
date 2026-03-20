@@ -24,7 +24,7 @@ export const synthwaveTheme: VisualTheme = {
   key: 'synthwave',
   name: 'Synthwave',
   icon: '🌆',
-  isPremium: false,
+  isPremium: true,
   fontImportUrl:
     'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap',
   cssVariables: {

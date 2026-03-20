@@ -9,10 +9,11 @@ import { useLists } from './features/useLists';
 import { SMASH_TITLES } from './features/useLists';
 import { useKeyboardNav } from './hooks/useKeyboardNav';
 import { useMidnightRefresh } from './hooks/useMidnightRefresh';
+import { useTaskListSwipe } from './hooks/useTaskListSwipe';
 import { playSound, getSoundEnabled } from './services/sound';
 import { initSoundEngine } from './services/soundEngine';
 import { useFocusTimer } from './hooks/useFocusTimer';
-import { stopBgm, startBgm, isBgmOn, getBgmTrack } from './services/bgm';
+import { stopBgm, startBgm, isBgmOn, getBgmTrack, isBgmContextSuspended } from './services/bgm';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
@@ -55,6 +56,9 @@ function AppContent() {
 
   // Completed section
   const [completedExpanded, setCompletedExpanded] = useState(false);
+
+  // Swipe list-enter direction (applied only to a specific next activeListId)
+  const [listSlide, setListSlide] = useState<{ listId: string; from: 'left' | 'right' } | null>(null);
 
   // List modal state
   const [listModal, setListModal] = useState<{ mode: ListModalMode; listId?: string } | null>(null);
@@ -153,7 +157,7 @@ function AppContent() {
   useKeyboardNav({
     lists: listTabsOrder,
     activeListId,
-    onSelect: (id) => { setActiveList(id); setTaskFormMode(null); },
+    onSelect: (id) => { setListSlide(null); setActiveList(id); setTaskFormMode(null); },
     onSound: () => playSound('buttonClick'),
   });
 
@@ -322,6 +326,48 @@ function AppContent() {
   const anyModalOpen = signupOpen || themeModalOpen || listModal !== null || mobileSheetOpen || deleteTaskConfirm !== null || focusZenOpen;
   const isFocusScreen = activeScreen === 'focus';
 
+  const handleSwipe = useCallback((dir: 'left' | 'right') => {
+    const currentIdx = listTabsOrder.findIndex((l) => l.id === activeListId);
+    if (currentIdx < 0) return;
+
+    const nextIdx = dir === 'left' ? currentIdx + 1 : currentIdx - 1;
+    if (nextIdx < 0 || nextIdx >= listTabsOrder.length) return;
+
+    const nextId = listTabsOrder[nextIdx]?.id;
+    if (!nextId) return;
+
+    // Swipe left => next list, new list should enter from the right.
+    const from = dir === 'left' ? 'right' : 'left';
+    setListSlide({ listId: nextId, from });
+
+    setActiveList(nextId);
+    setTaskFormMode(null);
+    setMobileSheetOpen(false);
+    setMobileEditTaskId(null);
+    setCompletedExpanded(false);
+    playSound('buttonClick');
+  }, [
+    activeListId,
+    listTabsOrder,
+    setActiveList,
+    setTaskFormMode,
+    setMobileSheetOpen,
+    setMobileEditTaskId,
+    setCompletedExpanded,
+  ]);
+
+  const swipeRef = useTaskListSwipe({
+    enabled: !isDesktop && !anyModalOpen && !isFocusScreen,
+    onSwipe: handleSwipe,
+  });
+
+  const listSlideClass =
+    listSlide && listSlide.listId === activeListId
+      ? listSlide.from === 'left'
+        ? 'pd-list-enter--from-left'
+        : 'pd-list-enter--from-right'
+      : '';
+
   /* ---- Focus timer state (persist across navigation) ---- */
   const [focusMode, setFocusMode] = useState<'pomodoro' | 'shortBreak' | 'longBreak'>('pomodoro');
   const [focusMinutes, setFocusMinutes] = useState(25);
@@ -367,7 +413,9 @@ function AppContent() {
     setFocusMinutes(25);
     focusTimerRef.current?.reset(25 * 60);
   });
-  const focusTimerRef = useRef(focusTimer);
+  // Store the latest focusTimer instance for onTimerEnd callback usage.
+  // (Initialize with null to satisfy lint immutability constraints.)
+  const focusTimerRef = useRef<ReturnType<typeof useFocusTimer> | null>(null);
   useEffect(() => { focusTimerRef.current = focusTimer; }, [focusTimer]);
 
   // Safety: ensure BGM is stopped on timer reaching 0
@@ -395,6 +443,19 @@ function AppContent() {
 
     if (!shouldPlay) {
       stopBgm();
+      prevBgmShouldPlayRef.current = shouldPlay;
+      prevBgmTrackRef.current = bgmTrack;
+      return;
+    }
+
+    // Extra safety: if AudioContext is suspended (some PWA background flows),
+    // re-start the track from scratch.
+    if (shouldPlay && isBgmContextSuspended()) {
+      stopBgm();
+      startBgm(bgmTrack);
+      prevBgmShouldPlayRef.current = true;
+      prevBgmTrackRef.current = bgmTrack;
+      return;
     } else if (!wasPlaying) {
       startBgm(bgmTrack);
     } else if (prevTrack !== bgmTrack) {
@@ -577,7 +638,7 @@ function AppContent() {
           <ListTabs
             lists={listTabsOrder}
             activeListId={activeListId}
-            onSelect={(id) => { setActiveList(id); setTaskFormMode(null); playSound('buttonClick'); }}
+            onSelect={(id) => { setListSlide(null); setActiveList(id); setTaskFormMode(null); playSound('buttonClick'); }}
             onAddList={() => { playSound('buttonClick'); setListModal({ mode: 'add' }); }}
             getTabLabel={getTabLabel}
             getTabCount={getTabCount}
@@ -788,7 +849,12 @@ function AppContent() {
               </div>
             )}
 
-            <div key={activeListId} className="pd-list-enter" style={{ flex: 1, overflowY: 'auto' }}>
+            <div
+              ref={swipeRef}
+              key={activeListId}
+              className={['pd-list-enter', listSlideClass].filter(Boolean).join(' ')}
+              style={{ flex: 1, overflowY: 'auto' }}
+            >
               {isSmash ? (
                 <SmashListPanel
                   subtitle={t('smashListSubtitle', lang)}

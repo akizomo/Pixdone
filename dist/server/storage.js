@@ -1,7 +1,7 @@
 import { users, tasks, taskLists, } from "../shared/schema.js";
 import { db } from "./db.js";
 import { eq, and, desc } from "drizzle-orm";
-export class DatabaseStorage {
+class DatabaseStorage {
     // User operations
     // (IMPORTANT) these user operations are mandatory for Replit Auth.
     async getUser(id) {
@@ -25,6 +25,22 @@ export class DatabaseStorage {
             .returning();
         // Create default "My Tasks" list if it doesn't exist
         await this.ensureDefaultTaskList(user.id);
+        return user;
+    }
+    async updateUserTheme(userId, themeKey) {
+        const [user] = await db
+            .update(users)
+            .set({ themeKey, updatedAt: new Date() })
+            .where(eq(users.id, userId))
+            .returning();
+        return user;
+    }
+    async updateUserSynthwavePremium(userId, premium) {
+        const [user] = await db
+            .update(users)
+            .set({ synthwavePremium: premium, updatedAt: new Date() })
+            .where(eq(users.id, userId))
+            .returning();
         return user;
     }
     async ensureDefaultTaskList(userId) {
