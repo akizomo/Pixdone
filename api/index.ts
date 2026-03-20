@@ -11,7 +11,14 @@ app.use(cors({
   credentials: true,
 }));
 
-// Preflight handler for endpoints that only define POST/GET.
+// Preflight: Express で OPTIONS が弾かれて 405 になるケースを潰す。
+// まず上の `cors(...)` で CORS ヘッダーを付与し、その後 OPTIONS だけ即終了する。
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  next();
+});
+
+// 念のため、OPTIONS をハンドラとしても用意（経路差異の保険）。
 app.options('*', cors({
   origin: (_origin, callback) => callback(null, true),
   credentials: true,

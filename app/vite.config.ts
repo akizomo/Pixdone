@@ -13,6 +13,17 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    // Local dev: proxy `/api/*` requests to the Express backend.
+    // This keeps `fetch('/api/...')` working from the Vite dev server.
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:5000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   test: {
     projects: [
       {
