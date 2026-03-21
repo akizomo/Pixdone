@@ -11,6 +11,21 @@ import {
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
+/** Firebase ログイン後、API 用の Passport セッション（Cookie）を発行する */
+async function syncServerSessionFromFirebase(user: User): Promise<void> {
+  const idToken = await user.getIdToken();
+  const resp = await fetch('/api/auth/firebase-session', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken }),
+  });
+  if (!resp.ok) {
+    const text = await resp.text();
+    console.warn('syncServerSessionFromFirebase failed', resp.status, text);
+  }
+}
+
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
@@ -35,12 +50,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return unsub;
   }, []);
 
+  /** ログイン済み Firebase ユーザーをサーバー・セッションに同期（課金 API 等に必須） */
+  useEffect(() => {
+    if (!user) return;
+    void syncServerSessionFromFirebase(user);
+  }, [user?.uid]);
+
   const login = async (email: string, password: string) => {
     const cred = await signInWithEmailAndPassword(auth, email, password);
     if (!cred.user.emailVerified) {
       await signOut(auth);
       throw new Error('email_not_verified');
     }
+    await syncServerSessionFromFirebase(cred.user);
   };
 
   const register = async (email: string, password: string) => {

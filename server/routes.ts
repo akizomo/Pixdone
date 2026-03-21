@@ -10,6 +10,7 @@ import { db } from "./db.js";
 import { createCheckoutSession, verifyStripeWebhook } from "./billing/stripe.js";
 import { StartupError } from "./startupError.js";
 import { assertDeploymentEnv } from "./validateDeploymentEnv.js";
+import { setupFirebaseSessionRoute } from "./firebaseSessionRoute.js";
 
 /** Passport session user id: Replit OIDC uses `claims.sub`; Google OAuth stores DB user with `id`. */
 function getSessionUserId(req: any): string | undefined {
@@ -131,6 +132,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error("❌ Email Auth setup failed:", error);
     // Email auth is optional, don't fail the server startup
     console.warn("⚠️ Email Auth unavailable, continuing without it");
+  }
+
+  // Firebase（クライアント）→ Passport セッション（API）の橋渡し（serializeUser は Email 側に依存）
+  try {
+    setupFirebaseSessionRoute(app);
+    console.log("✅ Firebase session bridge route registered");
+  } catch (e) {
+    console.warn("⚠️ Firebase session route failed to register:", e);
   }
 
   // Auth routes
