@@ -44,21 +44,49 @@ function ensureRoutesRegistered() {
     }
     return routesInit;
 }
+/**
+ * Vercel Serverless では、ハンドラの Promise が先に解決すると Express のレスポンス送信前に
+ * 実行環境が終了し、FUNCTION_INVOCATION_FAILED になることがある。
+ * res が finish/close するまで await する。
+ */
+function waitForResponseEnd(res) {
+    return new Promise((resolve, reject) => {
+        let settled = false;
+        const done = () => {
+            if (settled)
+                return;
+            settled = true;
+            resolve();
+        };
+        res.once('finish', done);
+        res.once('close', done);
+        res.once('error', (err) => {
+            if (settled)
+                return;
+            settled = true;
+            reject(err);
+        });
+    });
+}
 export default async (req, res) => {
+    const responseDone = waitForResponseEnd(res);
     try {
         // Preflight (CORS) が Vercel/ルーティング側で弾かれることがあるため、
         // Express に流す前に OPTIONS は即返す。
         if (req.method === 'OPTIONS') {
             res.status(204).end();
+            await responseDone;
             return;
         }
         await ensureRoutesRegistered();
         app(req, res);
+        await responseDone;
     }
     catch (error) {
         console.error('Failed to register routes:', error);
         if (!res.headersSent) {
             res.status(500).send('Internal Server Error');
         }
+        await responseDone.catch(() => { });
     }
 };
