@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rm -rf dist && tsc",
+    "check:api-import": "npm run build && node scripts/check-api-import.mjs",
     "start": "node dist/server/index.js",
     "dev": "tsx server/index.ts",
     "db:push": "drizzle-kit push",

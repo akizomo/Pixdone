@@ -52,16 +52,12 @@ app.use(cors({
     credentials: true,
 }));
 // Preflight handler for endpoints that only define GET/POST.
+// Express 5 / path-to-regexp v8 では `app.options('*', ...)` が無効なパターンになるため使わない。
 app.use((req, res, next) => {
     if (req.method === 'OPTIONS')
         return res.status(204).end();
     next();
 });
-// Preflight handler for endpoints that only define GET/POST.
-app.options('*', cors({
-    origin: (_origin, callback) => callback(null, true),
-    credentials: true,
-}), (_req, res) => res.sendStatus(204));
 // Body parsing
 // Keep raw request body for Stripe webhook signature verification.
 app.use(express.json({

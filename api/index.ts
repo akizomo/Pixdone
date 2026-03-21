@@ -1,4 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import express from 'express';
 import cors from 'cors';
 import { registerRoutes } from '../server/routes.js';
@@ -17,17 +16,11 @@ app.use(cors({
 }));
 
 // Preflight: Express で OPTIONS が弾かれて 405 になるケースを潰す。
-// まず上の `cors(...)` で CORS ヘッダーを付与し、その後 OPTIONS だけ即終了する。
+// 注意: Express 5 の path-to-regexp v8 では `app.options('*', ...)` が構文エラーになるため使わない。
 app.use((req, res, next) => {
   if (req.method === 'OPTIONS') return res.status(204).end();
   next();
 });
-
-// 念のため、OPTIONS をハンドラとしても用意（経路差異の保険）。
-app.options('*', cors({
-  origin: (_origin, callback) => callback(null, true),
-  credentials: true,
-}), (_req, res) => res.sendStatus(204));
 
 // Keep raw request body for Stripe webhook signature verification.
 app.use(express.json({
@@ -37,72 +30,27 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: true }));
 
-// registerRoutes はルートを登録するだけなので、同一インスタンスに毎リクエスト呼ぶとハンドラが二重登録される。
-// コールドスタート後1回だけ初期化する。
-let routesInit: Promise<void> | null = null;
-function ensureRoutesRegistered(): Promise<void> {
-  if (!routesInit) {
-    routesInit = registerRoutes(app)
-      .then(() => {})
-      .catch((err) => {
-        routesInit = null;
-        throw err;
-      });
-  }
-  return routesInit;
-}
-
 /**
- * Vercel Serverless では、ハンドラの Promise が先に解決すると Express のレスポンス送信前に
- * 実行環境が終了し、FUNCTION_INVOCATION_FAILED になることがある。
- * res が finish/close するまで await する。
+ * Vercel の Express 統合は `export default app` を想定している。
+ * 手動で `(req, res) => app(req, res)` するとレスポンス完了前にランタイムが終わり
+ * FUNCTION_INVOCATION_FAILED になることがある。
+ *
+ * コールドスタート時に1回だけルート登録（DB 接続確認・セッション含む）。
  */
-function waitForResponseEnd(res: VercelResponse): Promise<void> {
-  return new Promise((resolve, reject) => {
-    let settled = false;
-    const done = () => {
-      if (settled) return;
-      settled = true;
-      resolve();
-    };
-    res.once('finish', done);
-    res.once('close', done);
-    res.once('error', (err) => {
-      if (settled) return;
-      settled = true;
-      reject(err);
+try {
+  await registerRoutes(app);
+} catch (error) {
+  console.error('registerRoutes failed at startup:', error);
+  const detail = error instanceof Error ? error.message : String(error);
+  const isProd = process.env.NODE_ENV === 'production';
+  app.use((_req, res) => {
+    res.status(500).json({
+      error: 'SERVER_INIT_FAILED',
+      message: isProd
+        ? 'API failed to initialize. Check Vercel env: DATABASE_URL, SESSION_SECRET; Postgres reachable; schema applied. See docs/SUPABASE_DB_SETUP.md.'
+        : detail,
     });
   });
 }
 
-export default async (req: VercelRequest, res: VercelResponse) => {
-  const responseDone = waitForResponseEnd(res);
-  try {
-    // Preflight (CORS) が Vercel/ルーティング側で弾かれることがあるため、
-    // Express に流す前に OPTIONS は即返す。
-    if (req.method === 'OPTIONS') {
-      res.status(204).end();
-      await responseDone;
-      return;
-    }
-
-    await ensureRoutesRegistered();
-    app(req, res);
-    await responseDone;
-  } catch (error) {
-    console.error('Failed to register routes:', error);
-    if (!res.headersSent) {
-      const isProd = process.env.NODE_ENV === 'production';
-      const detail =
-        error instanceof Error ? error.message : String(error);
-      // 本番ではメッセージを伏せ、運用向けの固定文言のみ（デバッグは Vercel ログで）
-      res.status(500).json({
-        error: 'SERVER_INIT_FAILED',
-        message: isProd
-          ? 'API failed to initialize. Set DATABASE_URL and SESSION_SECRET on Vercel; ensure Postgres is reachable and the sessions/users schema exists. See docs/vercel-deployment.md.'
-          : detail,
-      });
-    }
-    await responseDone.catch(() => {});
-  }
-};
+export default app;
