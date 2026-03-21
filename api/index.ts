@@ -32,6 +32,16 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: true }));
 
+// registerRoutes はルートを登録するだけなので、同一インスタンスに毎リクエスト呼ぶとハンドラが二重登録される。
+// コールドスタート後1回だけ初期化する。
+let routesInit: Promise<void> | null = null;
+function ensureRoutesRegistered(): Promise<void> {
+  if (!routesInit) {
+    routesInit = registerRoutes(app).then(() => {});
+  }
+  return routesInit;
+}
+
 export default async (req: VercelRequest, res: VercelResponse) => {
   try {
     // Preflight (CORS) が Vercel/ルーティング側で弾かれることがあるため、
@@ -41,12 +51,12 @@ export default async (req: VercelRequest, res: VercelResponse) => {
       return;
     }
 
-    const httpServer = await registerRoutes(app);
-    // Vercel handles the request by passing it to the express app
-    // We don't call httpServer.listen() here as Vercel manages the execution
+    await ensureRoutesRegistered();
     app(req, res);
   } catch (error) {
     console.error('Failed to register routes:', error);
-    res.status(500).send('Internal Server Error');
+    if (!res.headersSent) {
+      res.status(500).send('Internal Server Error');
+    }
   }
 };
