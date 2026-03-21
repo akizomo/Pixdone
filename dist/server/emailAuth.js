@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import bcrypt from "bcrypt";
+import { compare, hash } from "bcryptjs";
 import { storage } from "./storage.js";
 import { users, tasks, taskLists } from "../shared/schema.js";
 import { db } from "./db.js";
@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import crypto from "crypto";
 // Store for email verification tokens (simplified for development)
 const verificationTokens = new Map();
+/** 純 JS の bcryptjs（ネイティブ `bcrypt` は Vercel 等でロード失敗し得る） */
 export function setupEmailAuth(app) {
     // Local strategy for login
     passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
@@ -20,7 +21,7 @@ export function setupEmailAuth(app) {
             if (!user.emailVerified) {
                 return done(null, false);
             }
-            const isValidPassword = await bcrypt.compare(password, user.password);
+            const isValidPassword = await compare(password, user.password);
             if (!isValidPassword) {
                 return done(null, false);
             }
@@ -56,7 +57,7 @@ export function setupEmailAuth(app) {
                 return res.status(400).json({ message: 'User already exists' });
             }
             // Hash password
-            const hashedPassword = await bcrypt.hash(password, 10);
+            const hashedPassword = await hash(password, 10);
             // Generate verification token
             const verificationToken = crypto.randomUUID();
             const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours

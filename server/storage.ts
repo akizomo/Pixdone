@@ -11,7 +11,6 @@ import {
 } from "../shared/schema.js";
 import { db } from "./db.js";
 import { eq, and, desc } from "drizzle-orm";
-import bcrypt from "bcrypt";
 
 // Interface for storage operations
 interface IStorage {

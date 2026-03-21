@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import bcrypt from "bcrypt";
+import { compare, hash } from "bcryptjs";
 import type { Express } from "express";
 import { storage } from "./storage.js";
 import { users, tasks, taskLists } from "../shared/schema.js";
@@ -10,6 +10,8 @@ import crypto from "crypto";
 
 // Store for email verification tokens (simplified for development)
 const verificationTokens = new Map<string, { email: string, password: string, expires: Date }>();
+
+/** 純 JS の bcryptjs（ネイティブ `bcrypt` は Vercel 等でロード失敗し得る） */
 
 export function setupEmailAuth(app: Express) {
     // Local strategy for login
@@ -27,7 +29,7 @@ export function setupEmailAuth(app: Express) {
                     return done(null, false);
                 }
 
-                const isValidPassword = await bcrypt.compare(password, user.password);
+                const isValidPassword = await compare(password, user.password);
                 if (!isValidPassword) {
                     return done(null, false);
                 }
@@ -69,7 +71,7 @@ export function setupEmailAuth(app: Express) {
             }
 
             // Hash password
-            const hashedPassword = await bcrypt.hash(password, 10);
+            const hashedPassword = await hash(password, 10);
 
             // Generate verification token
             const verificationToken = crypto.randomUUID();

@@ -910,6 +910,7 @@ html.task-effect-playing {
     border-bottom: 2px solid transparent;
     flex-shrink: 0;
     white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Context Menu */
@@ -995,9 +996,16 @@ html.task-effect-playing {
     color: white;
 }
 
-.list-tab:hover {
-    background-color: var(--bg-hover);
-    color: var(--text-primary);
+@media (hover: hover) {
+    .list-tab:hover {
+        background-color: var(--bg-hover);
+        color: var(--text-primary);
+    }
+
+    .add-list-tab-btn:hover {
+        background-color: var(--bg-hover);
+        color: var(--text-primary);
+    }
 }
 
 .list-tab.active {
@@ -1044,11 +1052,7 @@ html.task-effect-playing {
     cursor: pointer;
     transition: all 0.2s ease;
     image-rendering: pixelated;
-}
-
-.add-list-tab-btn:hover {
-    background-color: var(--bg-hover);
-    color: var(--text-primary);
+    -webkit-tap-highlight-color: transparent;
 }
 
 .add-list-tab-btn i {
@@ -2045,10 +2049,6 @@ html.task-effect-playing {
     -ms-user-select: none;
 }
 
-.task-item:not(.completed):hover {
-    cursor: grab;
-}
-
 .task-item:not(.completed):active,
 .task-item.dragging {
     cursor: grabbing !important;
@@ -2114,12 +2114,49 @@ html.task-effect-playing {
     image-rendering: pixelated;
     font-family: 'Inter', sans-serif;
     position: relative;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.task-item:hover {
-    background-color: var(--bg-hover);
-    transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0px var(--shadow-color);
+/* Hover / lift only when the device has real hover (avoids sticky :hover after tap on touch) */
+@media (hover: hover) {
+    .task-item:not(.completed):hover {
+        cursor: grab;
+    }
+
+    .task-item:hover {
+        background-color: var(--bg-hover);
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0px var(--shadow-color);
+    }
+
+    .task-item:hover .task-actions {
+        opacity: 1;
+    }
+
+    .task-checkbox:hover {
+        border-color: var(--accent-color);
+        background-color: var(--bg-hover);
+    }
+
+    .task-link:hover {
+        color: #1557B0 !important;
+        text-decoration: none !important;
+        text-shadow: 0 0 4px rgba(26, 115, 232, 0.3);
+    }
+
+    .task-item.completed .task-link:hover {
+        color: var(--text-primary) !important;
+        opacity: 1;
+    }
+
+    .subtask-more:hover {
+        color: var(--text-primary);
+    }
+
+    .subtask-preview-checkbox:hover {
+        border-color: var(--accent-color);
+        background-color: var(--bg-hover);
+    }
 }
 
 .task-item.editing {
@@ -2143,11 +2180,16 @@ html.task-effect-playing {
     position: relative;
     flex-shrink: 0;
     box-shadow: 2px 2px 0px var(--shadow-color);
+    -webkit-tap-highlight-color: transparent;
 }
 
-.task-checkbox:hover {
-    border-color: var(--accent-color);
-    background-color: var(--bg-hover);
+.task-checkbox:focus {
+    outline: none;
+}
+
+.task-checkbox:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
 }
 
 .task-checkbox.completed {
@@ -2332,11 +2374,7 @@ html.task-effect-playing {
     box-shadow: 1px 1px 0 var(--shadow-color);
     image-rendering: pixelated;
     box-sizing: border-box;
-}
-
-.subtask-preview-checkbox:hover {
-    border-color: var(--accent-color);
-    background-color: var(--bg-hover);
+    -webkit-tap-highlight-color: transparent;
 }
 
 .subtask-preview-checkbox:checked {
@@ -2358,10 +2396,6 @@ html.task-effect-playing {
     font-family: 'Inter', sans-serif;
 }
 
-.subtask-more:hover {
-    color: var(--text-primary);
-}
-
 /* Task Actions */
 .task-actions {
     display: flex;
@@ -2371,10 +2405,6 @@ html.task-effect-playing {
     margin-left: 8px;
 }
 
-.task-item:hover .task-actions {
-    opacity: 1;
-}
-
 /* Task link styling */
 .task-link {
     color: #1A73E8 !important;
@@ -2382,12 +2412,7 @@ html.task-effect-playing {
     cursor: pointer !important;
     transition: all 0.2s ease;
     font-weight: 500 !important;
-}
-
-.task-link:hover {
-    color: #1557B0 !important;
-    text-decoration: none !important;
-    text-shadow: 0 0 4px rgba(26, 115, 232, 0.3);
+    -webkit-tap-highlight-color: transparent;
 }
 
 .task-link:active {
@@ -2398,11 +2423,6 @@ html.task-effect-playing {
 .task-item.completed .task-link {
     color: var(--text-secondary) !important;
     opacity: 0.7;
-}
-
-.task-item.completed .task-link:hover {
-    color: var(--text-primary) !important;
-    opacity: 1;
 }
 
 /* Markdown link styling in input fields */

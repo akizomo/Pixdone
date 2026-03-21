@@ -44,6 +44,8 @@ npm run db:push
 
 **必須**: `SESSION_SECRET`（ランダム文字列）と `DATABASE_URL` が無いと `registerRoutes` 時点で失敗し、API が 500 になります。
 
+**Vercel**: パスワードハッシュはネイティブアドオン付きの `bcrypt` ではなく、純 JS の **`bcryptjs`** を使っています（`FUNCTION_INVOCATION_FAILED` の原因になりやすいため）。既存の bcrypt ハッシュとも互換です。
+
 ## 4. 確認
 
 Supabase → **Table Editor** に `users`, `tasks`, `task_lists`, `sessions` が出ていれば OK です。

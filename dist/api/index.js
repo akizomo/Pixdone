@@ -85,7 +85,15 @@ export default async (req, res) => {
     catch (error) {
         console.error('Failed to register routes:', error);
         if (!res.headersSent) {
-            res.status(500).send('Internal Server Error');
+            const isProd = process.env.NODE_ENV === 'production';
+            const detail = error instanceof Error ? error.message : String(error);
+            // 本番ではメッセージを伏せ、運用向けの固定文言のみ（デバッグは Vercel ログで）
+            res.status(500).json({
+                error: 'SERVER_INIT_FAILED',
+                message: isProd
+                    ? 'API failed to initialize. Set DATABASE_URL and SESSION_SECRET on Vercel; ensure Postgres is reachable and the sessions/users schema exists. See docs/vercel-deployment.md.'
+                    : detail,
+            });
         }
         await responseDone.catch(() => { });
     }
