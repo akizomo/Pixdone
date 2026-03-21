@@ -7,18 +7,88 @@ import admin from "firebase-admin";
 import { storage } from "./storage.js";
 
 let firebaseReady = false;
+/** サービスアカウント JSON の project_id（トークン aud と突き合わせ用） */
+let serviceAccountProjectId: string | null = null;
+
+function loadServiceAccountJson(): string {
+  const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
+  if (json) return json;
+  const b64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64?.trim();
+  if (b64) {
+    try {
+      return Buffer.from(b64, "base64").toString("utf8");
+    } catch {
+      throw new Error("FIREBASE_SERVICE_ACCOUNT_BASE64 is invalid base64");
+    }
+  }
+  throw new Error(
+    "Set FIREBASE_SERVICE_ACCOUNT_JSON or FIREBASE_SERVICE_ACCOUNT_BASE64",
+  );
+}
+
+/**
+ * Vercel で値が `"..."` のように二重に JSON 文字列化されていることがある。
+ * BOM や先頭末尾の余計な引用符も除去を試みる。
+ */
+function parseServiceAccount(rawInput: string): admin.ServiceAccount {
+  let raw = rawInput.replace(/^\uFEFF/, "").trim();
+  // 全体が1つの JSON 文字列として貼られた場合（"{\n  \"type\"..."）
+  if (raw.startsWith('"') && raw.endsWith('"')) {
+    try {
+      const inner = JSON.parse(raw) as unknown;
+      if (typeof inner === "string") raw = inner;
+    } catch {
+      /* そのまま下で parse */
+    }
+  }
+  let parsed: unknown = JSON.parse(raw);
+  if (typeof parsed === "string") {
+    parsed = JSON.parse(parsed);
+  }
+  return parsed as admin.ServiceAccount;
+}
 
 function ensureFirebaseAdmin(): void {
   if (firebaseReady) return;
-  const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON?.trim();
-  if (!raw) {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON is not set");
-  }
-  const cred = JSON.parse(raw) as admin.ServiceAccount;
+  const raw = loadServiceAccountJson();
+  const cred = parseServiceAccount(raw);
+  const projectId =
+    (cred as { project_id?: string }).project_id ?? cred.projectId ?? null;
+  serviceAccountProjectId = projectId;
   if (!admin.apps.length) {
-    admin.initializeApp({ credential: admin.credential.cert(cred) });
+    admin.initializeApp({
+      credential: admin.credential.cert(cred),
+      ...(projectId ? { projectId } : {}),
+    });
+    console.info(
+      "[firebase-session] Firebase Admin initialized for project_id:",
+      projectId ?? "(unknown)",
+    );
   }
   firebaseReady = true;
+}
+
+/** JWT ペイロードを検証なしで読む（aud=プロジェクトIDの突き合わせ用） */
+function decodeJwtPayloadUnsafe(
+  idToken: string,
+): Record<string, unknown> | null {
+  try {
+    const parts = idToken.split(".");
+    if (parts.length !== 3) return null;
+    let b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const pad = b64.length % 4;
+    if (pad) b64 += "=".repeat(4 - pad);
+    const json = Buffer.from(b64, "base64").toString("utf8");
+    return JSON.parse(json) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+/** Firebase ID トークンは通常 3 つの Base64 部分（JWT） */
+function looksLikeJwt(idToken: string): boolean {
+  const parts = idToken.split(".");
+  return parts.length === 3 && parts.every((p) => p.length > 0);
 }
 
 export function setupFirebaseSessionRoute(app: Express): void {
@@ -36,7 +106,7 @@ async function handleFirebaseSession(req: Request, res: Response): Promise<void>
     console.warn("Firebase Admin not configured:", e);
     res.status(503).json({
       message:
-        "Server session bridge not configured. Set FIREBASE_SERVICE_ACCOUNT_JSON on Vercel. See docs/FIREBASE_SERVER_SESSION.md",
+        "Server session bridge not configured. Set FIREBASE_SERVICE_ACCOUNT_JSON (or FIREBASE_SERVICE_ACCOUNT_BASE64) on Vercel. See docs/FIREBASE_SERVER_SESSION.md",
     });
     return;
   }
@@ -51,6 +121,18 @@ async function handleFirebaseSession(req: Request, res: Response): Promise<void>
 
   if (!idToken) {
     res.status(400).json({ message: "idToken required in JSON body" });
+    return;
+  }
+
+  if (!looksLikeJwt(idToken)) {
+    console.warn(
+      "firebase-session: idToken does not look like a JWT (length=%s)",
+      idToken.length,
+    );
+    res.status(400).json({
+      message:
+        "idToken is not a valid Firebase ID token (expected JWT shape). Check request body JSON.",
+    });
     return;
   }
 
@@ -82,7 +164,32 @@ async function handleFirebaseSession(req: Request, res: Response): Promise<void>
       res.json({ ok: true, userId: uid });
     });
   } catch (e) {
-    console.error("verifyIdToken failed:", e);
-    res.status(401).json({ message: "Invalid or expired Firebase token" });
+    const code =
+      e && typeof e === "object" && "code" in e
+        ? String((e as { code?: unknown }).code)
+        : "";
+    console.error("verifyIdToken failed:", code || e);
+    const payload = decodeJwtPayloadUnsafe(idToken);
+    const aud =
+      payload && typeof payload["aud"] === "string"
+        ? payload["aud"]
+        : undefined;
+    const body: {
+      message: string;
+      firebaseCode?: string;
+      tokenProjectId?: string;
+      serviceAccountProjectId?: string;
+      hint?: string;
+    } = {
+      message: "Invalid or expired Firebase token",
+    };
+    if (code) body.firebaseCode = code;
+    if (aud) body.tokenProjectId = aud;
+    if (serviceAccountProjectId) body.serviceAccountProjectId = serviceAccountProjectId;
+    if (aud && serviceAccountProjectId && aud !== serviceAccountProjectId) {
+      body.hint =
+        "ID token is for a different Firebase project than the service account on the server. Regenerate the key for this project and set FIREBASE_SERVICE_ACCOUNT_JSON again (or fix client firebase.ts projectId).";
+    }
+    res.status(401).json(body);
   }
 }

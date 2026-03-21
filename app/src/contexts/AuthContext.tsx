@@ -18,7 +18,8 @@ export type ServerSessionSyncResult =
 /** Firebase ログイン後、API 用の Passport セッション（Cookie）を発行する */
 async function syncServerSessionFromFirebase(user: User): Promise<ServerSessionSyncResult> {
   try {
-    const idToken = await user.getIdToken();
+    // 強制リフレッシュで期限切れ・キャッシュずれによる 401 を減らす
+    const idToken = await user.getIdToken(true);
     const resp = await fetch('/api/auth/firebase-session', {
       method: 'POST',
       credentials: 'include',
@@ -29,8 +30,19 @@ async function syncServerSessionFromFirebase(user: User): Promise<ServerSessionS
     if (!resp.ok) {
       let message = text;
       try {
-        const j = JSON.parse(text) as { message?: string };
+        const j = JSON.parse(text) as {
+          message?: string;
+          firebaseCode?: string;
+          hint?: string;
+          tokenProjectId?: string;
+          serviceAccountProjectId?: string;
+        };
         if (j.message) message = j.message;
+        if (j.firebaseCode) message = `${message} (${j.firebaseCode})`;
+        if (j.tokenProjectId && j.serviceAccountProjectId && j.tokenProjectId !== j.serviceAccountProjectId) {
+          message = `${message} — token project: ${j.tokenProjectId}, server key project: ${j.serviceAccountProjectId}`;
+        }
+        if (j.hint) console.warn('firebase-session hint:', j.hint);
       } catch {
         /* raw text */
       }
