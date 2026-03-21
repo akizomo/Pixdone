@@ -4884,6 +4884,24 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     box-shadow: 3px 3px 0px var(--shadow-color);
 }
 
+/*
+ * Mobile task sheet footer actions: match design-system Button size "lg"
+ * (app/src/design-system/components/Button/Button.css → .pxd-button--lg)
+ * — body.lg type, 44px min tap target, spacing from 8px scale (02-foundations.md).
+ */
+@media (max-width: 768px) {
+    .task-sheet-footer {
+        /* space.lg (16px) × 2 + Button lg min-height 44px = 76px */
+        min-height: 76px;
+    }
+
+    .task-sheet-btn {
+        min-height: 44px;
+        font-size: var(--md-body-large);
+        font-weight: 600;
+    }
+}
+
 /* Desktop: 他ボトムシートと同じ全幅・下寄せスライドアップ */
 @media (min-width: 769px) {
     .task-bottom-sheet {
