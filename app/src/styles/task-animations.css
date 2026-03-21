@@ -53,3 +53,15 @@ html.task-effect-playing {
   from { opacity: 0; transform: translateX(16px); }
   to { opacity: 1; transform: translateX(0); }
 }
+
+/*
+ * Mobile list swipe: without explicit pan-x, iOS Safari often reserves horizontal drags
+ * (especially swipe-left / "forward") and our pointer handlers never win.
+ * pan-x pan-y + overscroll-behavior-x keeps vertical scroll while allowing horizontal capture.
+ */
+@media (max-width: 768px) {
+  .pd-list-swipe {
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: none;
+  }
+}
