@@ -1,10 +1,50 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "../shared/schema.js";
-neonConfig.webSocketConstructor = ws;
-if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
+let _pool = null;
+let _db = null;
+/** Supabase / hosted Postgres on Vercel: use TLS (often needs relaxed chain verify). */
+function poolConfig(connectionString) {
+    const cfg = { connectionString };
+    let host = "";
+    try {
+        host = new URL(connectionString).hostname;
+    }
+    catch {
+        // ignore parse errors; pg will surface bad URL
+    }
+    const isLocal = host === "localhost" ||
+        host === "127.0.0.1" ||
+        /^127\./.test(host) ||
+        connectionString.includes("@localhost");
+    const hostedSsl = !isLocal &&
+        (/\.supabase\.co$/i.test(host) ||
+            /sslmode=require/i.test(connectionString) ||
+            process.env.DATABASE_SSL === "1" ||
+            process.env.DATABASE_SSL === "true");
+    if (hostedSsl) {
+        cfg.ssl = { rejectUnauthorized: false };
+    }
+    return cfg;
 }
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+function getOrCreateDb() {
+    if (!process.env.DATABASE_URL) {
+        throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
+    }
+    if (!_db) {
+        _pool = new Pool(poolConfig(process.env.DATABASE_URL));
+        _db = drizzle(_pool, { schema });
+    }
+    return _db;
+}
+/**
+ * Lazy DB: モジュール読み込み時に throw しない（Vercel で env 未注入だと import だけで FUNCTION_INVOCATION_FAILED になるのを防ぐ）。
+ * 初回クエリ時に `DATABASE_URL` が無ければエラー。
+ */
+export const db = new Proxy({}, {
+    get(_, prop) {
+        const d = getOrCreateDb();
+        const v = d[prop];
+        return typeof v === "function" ? v.bind(d) : v;
+    },
+});

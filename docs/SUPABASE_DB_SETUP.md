@@ -36,6 +36,8 @@ npm run db:push
 
 本番では引き続き **Pooler（6543）** の `DATABASE_URL` を Vercel の環境変数に入れて問題ありません（アプリのクエリ用）。
 
+サーバー側の DB 接続は **`pg`（node-postgres）+ Drizzle** です。ホスト名が `*.supabase.co` / `*.supabase.com`、または URL に `sslmode=require` がある場合は **TLS** を有効にします（必要なら `DATABASE_SSL=1` でも強制できます）。
+
 ## 4. 確認
 
 Supabase → **Table Editor** に `users`, `tasks`, `task_lists`, `sessions` が出ていれば OK です。

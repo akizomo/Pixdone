@@ -1,14 +1,39 @@
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
-import ws from "ws";
+import { Pool, type PoolConfig } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "../shared/schema.js";
-
-neonConfig.webSocketConstructor = ws;
 
 type Db = ReturnType<typeof drizzle<typeof schema>>;
 
-let _pool: InstanceType<typeof Pool> | null = null;
+let _pool: Pool | null = null;
 let _db: Db | null = null;
+
+/** Supabase / hosted Postgres on Vercel: use TLS (often needs relaxed chain verify). */
+function poolConfig(connectionString: string): PoolConfig {
+  const cfg: PoolConfig = { connectionString };
+  let host = "";
+  try {
+    host = new URL(connectionString).hostname;
+  } catch {
+    // ignore parse errors; pg will surface bad URL
+  }
+  const isLocal =
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    /^127\./.test(host) ||
+    connectionString.includes("@localhost");
+
+  const hostedSsl =
+    !isLocal &&
+    (/supabase\.(co|com)$/i.test(host) ||
+      /sslmode=require/i.test(connectionString) ||
+      process.env.DATABASE_SSL === "1" ||
+      process.env.DATABASE_SSL === "true");
+
+  if (hostedSsl) {
+    cfg.ssl = { rejectUnauthorized: false };
+  }
+  return cfg;
+}
 
 function getOrCreateDb(): Db {
   if (!process.env.DATABASE_URL) {
@@ -17,8 +42,8 @@ function getOrCreateDb(): Db {
     );
   }
   if (!_db) {
-    _pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    _db = drizzle({ client: _pool, schema });
+    _pool = new Pool(poolConfig(process.env.DATABASE_URL));
+    _db = drizzle(_pool, { schema });
   }
   return _db;
 }
