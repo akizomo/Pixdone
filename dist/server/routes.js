@@ -6,6 +6,17 @@ import { setupGoogleAuth } from "./googleAuth.js";
 import { setupEmailAuth } from "./emailAuth.js";
 import { db } from "./db.js";
 import { createCheckoutSession, verifyStripeWebhook } from "./billing/stripe.js";
+/** Passport session user id: Replit OIDC uses `claims.sub`; Google OAuth stores DB user with `id`. */
+function getSessionUserId(req) {
+    const u = req.user;
+    if (!u)
+        return undefined;
+    if (u.claims?.sub)
+        return String(u.claims.sub);
+    if (u.id)
+        return String(u.id);
+    return undefined;
+}
 export async function registerRoutes(app) {
     // Validate database connection on startup
     console.log("🔍 Testing database connection...");
@@ -115,7 +126,9 @@ export async function registerRoutes(app) {
     // Auth routes
     app.get('/api/auth/user', isAuthenticated, async (req, res) => {
         try {
-            const userId = req.user.claims.sub;
+            const userId = getSessionUserId(req);
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
             const user = await storage.getUser(userId);
             res.json(user);
         }
@@ -126,7 +139,9 @@ export async function registerRoutes(app) {
     });
     app.patch('/api/user/theme', isAuthenticated, async (req, res) => {
         try {
-            const userId = req.user.claims.sub;
+            const userId = getSessionUserId(req);
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
             const { themeKey } = req.body;
             const validThemes = ['arcade', 'synthwave'];
             if (!themeKey || !validThemes.includes(themeKey)) {
@@ -141,9 +156,13 @@ export async function registerRoutes(app) {
         }
     });
     // ---- Theme entitlements (Stripe) ----
+    // OPTIONS for CORS preflight (must not require auth).
+    app.options('/api/billing/entitlements', (_req, res) => res.sendStatus(204));
     app.get('/api/billing/entitlements', isAuthenticated, async (req, res) => {
         try {
-            const userId = req.user.claims.sub;
+            const userId = getSessionUserId(req);
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
             const user = await storage.getUser(userId);
             res.json({
                 synthwavePremium: !!user?.synthwavePremium,
@@ -154,9 +173,12 @@ export async function registerRoutes(app) {
             res.status(500).json({ message: "Failed to fetch entitlements" });
         }
     });
+    app.options('/api/billing/synthwave/create-checkout-session', (_req, res) => res.sendStatus(204));
     app.post('/api/billing/synthwave/create-checkout-session', isAuthenticated, async (req, res) => {
         try {
-            const userId = req.user.claims.sub;
+            const userId = getSessionUserId(req);
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
             const user = await storage.getUser(userId);
             if (user?.synthwavePremium) {
                 return res.status(409).json({ message: "Already unlocked" });
@@ -185,6 +207,7 @@ export async function registerRoutes(app) {
         }
     });
     // Webhook: no auth; verifies Stripe signature and updates DB entitlement.
+    app.options('/api/billing/stripe-webhook', (_req, res) => res.sendStatus(204));
     app.post('/api/billing/stripe-webhook', async (req, res) => {
         try {
             const signatureHeader = req.header?.('stripe-signature');
@@ -219,7 +242,9 @@ export async function registerRoutes(app) {
     // Task routes
     app.get('/api/tasks', isAuthenticated, async (req, res) => {
         try {
-            const userId = req.user.claims.sub;
+            const userId = getSessionUserId(req);
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
             const tasks = await storage.getUserTasks(userId);
             res.json(tasks);
         }
@@ -230,7 +255,9 @@ export async function registerRoutes(app) {
     });
     app.post('/api/tasks', isAuthenticated, async (req, res) => {
         try {
-            const userId = req.user.claims.sub;
+            const userId = getSessionUserId(req);
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
             const taskData = { ...req.body, userId };
             const task = await storage.createTask(taskData);
             res.json(task);
@@ -266,7 +293,9 @@ export async function registerRoutes(app) {
     // TaskList routes
     app.get('/api/lists', isAuthenticated, async (req, res) => {
         try {
-            const userId = req.user.claims.sub;
+            const userId = getSessionUserId(req);
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
             const lists = await storage.getUserTaskLists(userId);
             res.json(lists);
         }
@@ -277,7 +306,9 @@ export async function registerRoutes(app) {
     });
     app.post('/api/lists', isAuthenticated, async (req, res) => {
         try {
-            const userId = req.user.claims.sub;
+            const userId = getSessionUserId(req);
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
             const listData = { ...req.body, userId };
             const list = await storage.createTaskList(listData);
             res.json(list);
@@ -313,7 +344,9 @@ export async function registerRoutes(app) {
     app.get('/api/lists/:id/tasks', isAuthenticated, async (req, res) => {
         try {
             const listId = parseInt(req.params.id);
-            const userId = req.user.claims.sub;
+            const userId = getSessionUserId(req);
+            if (!userId)
+                return res.status(401).json({ message: "Unauthorized" });
             const tasks = await storage.getTasksByListId(listId, userId);
             res.json(tasks);
         }

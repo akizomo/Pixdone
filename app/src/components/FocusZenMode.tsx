@@ -128,17 +128,19 @@ export function FocusZenMode({
         background: 'var(--pd-color-background-default)',
       }}
     >
-      {/* BGM menu above timer (always) */}
-      <div style={{ marginBottom: '8px' }}>
-        <BgmControl
-          lang={lang}
-          bgmOn={bgmOn}
-          track={bgmTrack}
-          onChange={onBgmChange}
-          onMenuOpenChange={onBgmMenuOpenChange}
-          variant="zen"
-        />
-      </div>
+      {/* BGM: pomodoro only (breaks are completion-sound only, same as FocusScreen) */}
+      {!isBreakMode && (
+        <div style={{ marginBottom: '8px' }}>
+          <BgmControl
+            lang={lang}
+            bgmOn={bgmOn}
+            track={bgmTrack}
+            onChange={onBgmChange}
+            onMenuOpenChange={onBgmMenuOpenChange}
+            variant="zen"
+          />
+        </div>
+      )}
 
       <div
         className="pd-focus-timer-display"

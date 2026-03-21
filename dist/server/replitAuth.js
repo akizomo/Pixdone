@@ -5,9 +5,6 @@ import session from "express-session";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage.js";
-if (!process.env.REPLIT_DOMAINS) {
-    throw new Error("Environment variable REPLIT_DOMAINS not provided");
-}
 const getOidcConfig = memoize(async () => {
     return await client.discovery(new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"), process.env.REPL_ID);
 }, { maxAge: 3600 * 1000 });
@@ -52,6 +49,11 @@ export async function setupAuth(app) {
     app.use(getSession());
     app.use(passport.initialize());
     app.use(passport.session());
+    // Vercel など Replit 以外では REPLIT_DOMAINS / REPL_ID が無い。モジュール読み込みで落とさず OIDC だけスキップする。
+    if (!process.env.REPLIT_DOMAINS || !process.env.REPL_ID) {
+        console.warn("⚠️ Replit OIDC skipped (REPLIT_DOMAINS / REPL_ID not set). Email/Google auth may still apply.");
+        return;
+    }
     const config = await getOidcConfig();
     const verify = async (tokens, verified) => {
         const user = {};
@@ -98,7 +100,11 @@ export const isAuthenticated = async (req, res, next) => {
         return res.status(401).json({ message: "Unauthorized" });
     }
     // For Google OAuth users, just check if they're authenticated
-    if (user.id && user.id.startsWith('google_')) {
+    if (user.id && String(user.id).startsWith("google_")) {
+        return next();
+    }
+    // Local email/password users (DB user, no OIDC `claims`)
+    if (!user.claims) {
         return next();
     }
     // For Replit OAuth users, check token expiration

@@ -433,11 +433,15 @@ function AppContent() {
   }, [focusTimer.timerState]);
 
   // Single playback authority with explicit switch semantics:
-  // - running + BGM ON + remaining>0: play
+  // - running + BGM ON + remaining>0 + pomodoro mode only: play (no BGM during breaks)
   // - track change while playing: always stop old -> start new
   // - otherwise: stop
   useEffect(() => {
-    const shouldPlay = bgmOn && focusTimer.timerState === 'running' && focusTimer.remaining > 0;
+    const shouldPlay =
+      bgmOn &&
+      focusMode === 'pomodoro' &&
+      focusTimer.timerState === 'running' &&
+      focusTimer.remaining > 0;
     const wasPlaying = prevBgmShouldPlayRef.current;
     const prevTrack = prevBgmTrackRef.current;
 
@@ -465,7 +469,7 @@ function AppContent() {
 
     prevBgmShouldPlayRef.current = shouldPlay;
     prevBgmTrackRef.current = bgmTrack;
-  }, [bgmOn, bgmTrack, focusTimer.timerState, focusTimer.remaining]);
+  }, [bgmOn, bgmTrack, focusMode, focusTimer.timerState, focusTimer.remaining]);
 
   /* ---- Render ---- */
   return (

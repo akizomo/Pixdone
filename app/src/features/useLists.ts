@@ -269,6 +269,20 @@ export function useLists() {
     }
   }, [activeId, user]);
 
+  /**
+   * After reload or Firestore sync, activeId may point at a deleted / optimistic id that no longer
+   * exists in `lists`. Then no tab matches, swipe findIndex is -1, and UI looks broken.
+   * Snap to the first available list (Smash is prepended by ensureVirtualSmashList).
+   */
+  useEffect(() => {
+    if (lists.length === 0) return;
+    if (lists.some((l) => l.id === activeId)) return;
+    const fallback = lists[0]?.id;
+    if (fallback) {
+      setActiveList(fallback);
+    }
+  }, [lists, activeId, setActiveList]);
+
   /* ---- Firestore sync when authenticated ---- */
   useEffect(() => {
     if (!user) return;
