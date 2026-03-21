@@ -39,3 +39,45 @@ npm run db:push
 ## 4. 確認
 
 Supabase → **Table Editor** に `users`, `tasks`, `task_lists`, `sessions` が出ていれば OK です。
+
+---
+
+## トラブル: `ECONNREFUSED 127.0.0.1:5432`
+
+**パスワードに `?` `&` `#` `@` などが含まれる**と、接続文字列の解釈が壊れ、**ローカル Postgres（127.0.0.1）** に繋ぎに行きます。
+
+### 対処
+
+パスワード部分だけ **URL エンコード**してから URI に埋め込む（例）:
+
+| 文字 | エンコード後 |
+|------|----------------|
+| `?` | `%3F` |
+| `&` | `%26` |
+| `@` | `%40` |
+| `,` | `%2C` |
+
+ターミナルで一発エンコードする例（Node）:
+
+```bash
+node -e "console.log(encodeURIComponent('あなたの生パスワード'))"
+```
+
+出てきた文字列を、`postgresql://postgres.xxx:` の **直後**〜**`@` の直前**に入れる。
+
+### `export` は必ず1行
+
+悪い例（改行で URL が切れる）:
+
+```bash
+export DATABASE_URL='postgresql://...
+'
+```
+
+良い例:
+
+```bash
+export DATABASE_URL='postgresql://postgres.xxx:エンコード済みパスワード@aws-....pooler.supabase.com:5432/postgres?sslmode=require'
+```
+
+末尾に `?sslmode=require` を付けると Supabase で繋がりやすいです。
