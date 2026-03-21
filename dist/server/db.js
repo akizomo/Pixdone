@@ -1,6 +1,7 @@
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "../shared/schema.js";
+import { resolveDatabaseUrl } from "./databaseUrl.js";
 let _pool = null;
 let _db = null;
 /**
@@ -53,11 +54,9 @@ export function buildPgPoolConfig(connectionString) {
     return cfg;
 }
 function getOrCreateDb() {
-    if (!process.env.DATABASE_URL) {
-        throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
-    }
     if (!_db) {
-        _pool = new Pool(buildPgPoolConfig(process.env.DATABASE_URL));
+        const connectionString = resolveDatabaseUrl();
+        _pool = new Pool(buildPgPoolConfig(connectionString));
         _db = drizzle(_pool, { schema });
     }
     return _db;

@@ -85,3 +85,11 @@ node -e "import('./dist/api/index.js').then(() => console.log('OK')).catch(e => 
 
 - **ローカル / 手元**: `npm run check:api-import`（`package.json` の scripts）
 - **継続確認（CI）**: GitHub に push / PR 時に **`.github/workflows/api-import-check.yml`** が同じチェックを実行する
+
+---
+
+## 別問題: HTTP 500 + `application/json` + 約 183 バイト（以前）
+
+起動に成功すると **`x-powered-by: Express`** と JSON 本文が返ります。  
+本文が **`{"error":"SERVER_INIT_FAILED",...}` と一致する長さ**だった場合は、**`registerRoutes` が Vercel 上で失敗**しており、原因は **DB 接続**か **セッション（`SESSION_SECRET` / `sessions`）**のことが多いです。  
+詳細は **`docs/VERCEL_SERVER_INIT_FAILED.md`** と、レスポンスの **`code` フィールド**（`DB_CONNECT` / `AUTH_SETUP`）を参照してください。

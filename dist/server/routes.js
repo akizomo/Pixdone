@@ -7,6 +7,8 @@ import { setupEmailAuth } from "./emailAuth.js";
 import { sql } from "drizzle-orm";
 import { db } from "./db.js";
 import { createCheckoutSession, verifyStripeWebhook } from "./billing/stripe.js";
+import { StartupError } from "./startupError.js";
+import { assertDeploymentEnv } from "./validateDeploymentEnv.js";
 /** Passport session user id: Replit OIDC uses `claims.sub`; Google OAuth stores DB user with `id`. */
 function getSessionUserId(req) {
     const u = req.user;
@@ -19,17 +21,10 @@ function getSessionUserId(req) {
     return undefined;
 }
 export async function registerRoutes(app) {
-    // Validate database connection on startup
-    console.log("🔍 Testing database connection...");
-    try {
-        await db.execute(sql `SELECT 1 as test`);
-        console.log("✅ Database connection successful");
-    }
-    catch (error) {
-        console.error("❌ Database connection failed:", error);
-        const msg = error instanceof Error ? error.message : String(error);
-        throw new Error(`Database connection failed: ${msg}`);
-    }
+    assertDeploymentEnv();
+    // 起動時に SELECT 1 を必須にしない（1回失敗で全 API が SERVER_INIT_FAILED になるのを防ぐ）。
+    // 接続確認は GET /api/health / GET /health で行う。
+    console.log("📗 Routes registering (DB check deferred to /api/health)");
     // Legacy URL redirect middleware
     app.use((req, res, next) => {
         const host = req.get('host');
@@ -102,7 +97,7 @@ export async function registerRoutes(app) {
     catch (error) {
         console.error("❌ Replit Auth setup failed:", error);
         const msg = error instanceof Error ? error.message : String(error);
-        throw new Error(`Replit Auth setup failed: ${msg}`);
+        throw new StartupError("AUTH_SETUP", `Replit Auth setup failed: ${msg}`, { cause: error });
     }
     // Google Auth setup with error handling
     try {

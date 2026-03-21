@@ -52,6 +52,20 @@ Supabase → **Table Editor** に `users`, `tasks`, `task_lists`, `sessions` が
 
 ---
 
+## トラブル: `Cannot read properties of undefined (reading 'searchParams')`（pg-connection-string）
+
+**原因**: `DATABASE_URL` が **URL として解釈できない**とき、`pg` 内部の `parse()` が失敗し、このエラーになることがあります（Drizzle の `SELECT 1` の `cause` に出る）。
+
+**よくある要因**:
+
+- Vercel の値に **先頭・末尾の改行**や **余計な `"` 引用符** が付いている  
+- パスワードに `@ ? &` などがあり **未エンコード**  
+- 値が **途中で改行**している（コピペミス）
+
+アプリ側では `server/databaseUrl.ts` で **正規化・事前検証**し、分かりやすい `ENV_CONFIG` / メッセージに寄せています。**Vercel の Environment Variables で `DATABASE_URL` を1行・引用符なしで貼り直し**、パスワードは上表どおりエンコードしてください。
+
+---
+
 ## トラブル: `ECONNREFUSED 127.0.0.1:5432`
 
 **パスワードに `?` `&` `#` `@` などが含まれる**と、接続文字列の解釈が壊れ、**ローカル Postgres（127.0.0.1）** に繋ぎに行きます。

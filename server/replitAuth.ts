@@ -8,6 +8,7 @@ import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage.js";
 import { buildPgPoolConfig } from "./db.js";
+import { resolveDatabaseUrl } from "./databaseUrl.js";
 
 const getOidcConfig = memoize(
   async () => {
@@ -20,9 +21,6 @@ const getOidcConfig = memoize(
 );
 
 function getSession() {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is required for Postgres session store (Vercel / production).");
-  }
   if (!process.env.SESSION_SECRET) {
     throw new Error("SESSION_SECRET is required for signed session cookies.");
   }
@@ -31,7 +29,7 @@ function getSession() {
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     // Drizzle と同じ SSL / タイムアウト設定（conString だけだと TLS が効かない環境がある）
-    conObject: buildPgPoolConfig(process.env.DATABASE_URL),
+    conObject: buildPgPoolConfig(resolveDatabaseUrl()),
     createTableIfMissing: false,
     ttl: sessionTtl,
     tableName: "sessions",
