@@ -5,14 +5,22 @@ import session from "express-session";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage.js";
+import { buildPgPoolConfig } from "./db.js";
 const getOidcConfig = memoize(async () => {
     return await client.discovery(new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"), process.env.REPL_ID);
 }, { maxAge: 3600 * 1000 });
 function getSession() {
+    if (!process.env.DATABASE_URL) {
+        throw new Error("DATABASE_URL is required for Postgres session store (Vercel / production).");
+    }
+    if (!process.env.SESSION_SECRET) {
+        throw new Error("SESSION_SECRET is required for signed session cookies.");
+    }
     const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
     const pgStore = connectPg(session);
     const sessionStore = new pgStore({
-        conString: process.env.DATABASE_URL,
+        // Drizzle と同じ SSL / タイムアウト設定（conString だけだと TLS が効かない環境がある）
+        conObject: buildPgPoolConfig(process.env.DATABASE_URL),
         createTableIfMissing: false,
         ttl: sessionTtl,
         tableName: "sessions",

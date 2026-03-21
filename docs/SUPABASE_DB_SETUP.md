@@ -36,7 +36,13 @@ npm run db:push
 
 本番では引き続き **Pooler（6543）** の `DATABASE_URL` を Vercel の環境変数に入れて問題ありません（アプリのクエリ用）。
 
-サーバー側の DB 接続は **`pg`（node-postgres）+ Drizzle** です。ホスト名が `*.supabase.co` / `*.supabase.com`、または URL に `sslmode=require` がある場合は **TLS** を有効にします（必要なら `DATABASE_SSL=1` でも強制できます）。
+サーバー側の DB 接続は **`pg`（node-postgres）+ Drizzle** です。`VERCEL=1` のとき、または Supabase / Neon ホスト、`sslmode=require` などのとき **TLS** を有効にします（`DATABASE_SSL=0` でオフ、`DATABASE_SSL=1` で強制）。
+
+セッションストア（`connect-pg-simple`）も **同じプール設定**（`buildPgPoolConfig`）を使うため、Drizzle だけ繋がってセッションだけ失敗、という差を減らしています。
+
+接続がタイムアウトする場合は Vercel の環境変数に **`PG_USE_IPV4=1`** を試してください（IPv6 経路の問題の回避用）。
+
+**必須**: `SESSION_SECRET`（ランダム文字列）と `DATABASE_URL` が無いと `registerRoutes` 時点で失敗し、API が 500 になります。
 
 ## 4. 確認
 

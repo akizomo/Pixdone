@@ -3,12 +3,24 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "../shared/schema.js";
 let _pool = null;
 let _db = null;
-/** Supabase / hosted Postgres on Vercel: use TLS (often needs relaxed chain verify). */
-function poolConfig(connectionString) {
-    const cfg = { connectionString };
+/**
+ * Shared Pool options for Drizzle and connect-pg-simple (session store).
+ * - Serverless: keep pool tiny; avoid holding many connections.
+ * - Remote Postgres (Supabase, Neon, RDS, …): TLS with relaxed verify is common on PaaS.
+ */
+export function buildPgPoolConfig(connectionString) {
+    const cfg = {
+        connectionString,
+        max: 1,
+        idleTimeoutMillis: 20_000,
+        connectionTimeoutMillis: 20_000,
+    };
     let host = "";
+    let sslMode = null;
     try {
-        host = new URL(connectionString).hostname;
+        const u = new URL(connectionString);
+        host = u.hostname;
+        sslMode = u.searchParams.get("sslmode");
     }
     catch {
         // ignore parse errors; pg will surface bad URL
@@ -17,13 +29,26 @@ function poolConfig(connectionString) {
         host === "127.0.0.1" ||
         /^127\./.test(host) ||
         connectionString.includes("@localhost");
-    const hostedSsl = !isLocal &&
-        (/\.supabase\.co$/i.test(host) ||
-            /sslmode=require/i.test(connectionString) ||
-            process.env.DATABASE_SSL === "1" ||
-            process.env.DATABASE_SSL === "true");
-    if (hostedSsl) {
+    const sslDisabled = sslMode === "disable" ||
+        sslMode === "allow" ||
+        process.env.DATABASE_SSL === "0" ||
+        process.env.DATABASE_SSL === "false";
+    const needsSsl = !isLocal &&
+        !sslDisabled &&
+        (process.env.DATABASE_SSL === "1" ||
+            process.env.DATABASE_SSL === "true" ||
+            sslMode === "require" ||
+            sslMode === "verify-full" ||
+            /supabase\.(co|com)$/i.test(host) ||
+            /\.neon\.tech$/i.test(host) ||
+            process.env.VERCEL === "1");
+    if (needsSsl) {
         cfg.ssl = { rejectUnauthorized: false };
+    }
+    // Vercel ↔ Supabase で IPv6 経路が不安定なときの回避（必要なら Vercel で PG_USE_IPV4=1）
+    if (process.env.PG_USE_IPV4 === "1" &&
+        (/supabase\.(co|com)$/i.test(host) || host.includes("pooler"))) {
+        cfg.family = 4;
     }
     return cfg;
 }
@@ -32,7 +57,7 @@ function getOrCreateDb() {
         throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
     }
     if (!_db) {
-        _pool = new Pool(poolConfig(process.env.DATABASE_URL));
+        _pool = new Pool(buildPgPoolConfig(process.env.DATABASE_URL));
         _db = drizzle(_pool, { schema });
     }
     return _db;

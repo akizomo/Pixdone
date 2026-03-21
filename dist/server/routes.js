@@ -4,6 +4,7 @@ import { storage } from "./storage.js";
 import { setupAuth, isAuthenticated } from "./replitAuth.js";
 import { setupGoogleAuth } from "./googleAuth.js";
 import { setupEmailAuth } from "./emailAuth.js";
+import { sql } from "drizzle-orm";
 import { db } from "./db.js";
 import { createCheckoutSession, verifyStripeWebhook } from "./billing/stripe.js";
 /** Passport session user id: Replit OIDC uses `claims.sub`; Google OAuth stores DB user with `id`. */
@@ -21,12 +22,13 @@ export async function registerRoutes(app) {
     // Validate database connection on startup
     console.log("🔍 Testing database connection...");
     try {
-        await db.execute('SELECT 1 as test');
+        await db.execute(sql `SELECT 1 as test`);
         console.log("✅ Database connection successful");
     }
     catch (error) {
         console.error("❌ Database connection failed:", error);
-        throw new Error(`Database connection failed: ${error.message}`);
+        const msg = error instanceof Error ? error.message : String(error);
+        throw new Error(`Database connection failed: ${msg}`);
     }
     // Legacy URL redirect middleware
     app.use((req, res, next) => {
@@ -44,7 +46,7 @@ export async function registerRoutes(app) {
     app.get('/api/health', async (req, res) => {
         try {
             // Test database connection as part of health check
-            await db.execute('SELECT 1 as test');
+            await db.execute(sql `SELECT 1 as test`);
             res.status(200).json({
                 status: 'healthy',
                 message: 'PixDone server is running',
@@ -58,7 +60,7 @@ export async function registerRoutes(app) {
             res.status(500).json({
                 status: 'unhealthy',
                 message: 'Database connection failed',
-                error: error.message,
+                error: error instanceof Error ? error.message : String(error),
                 timestamp: new Date().toISOString()
             });
         }
@@ -67,7 +69,7 @@ export async function registerRoutes(app) {
     app.get('/health', async (req, res) => {
         try {
             // Test database connection
-            await db.execute('SELECT 1 as test');
+            await db.execute(sql `SELECT 1 as test`);
             // Test basic storage functionality
             const healthCheck = {
                 status: 'healthy',
@@ -86,7 +88,7 @@ export async function registerRoutes(app) {
                 status: 'unhealthy',
                 message: 'Health check failed',
                 database: 'disconnected',
-                error: error.message,
+                error: error instanceof Error ? error.message : String(error),
                 timestamp: new Date().toISOString()
             });
         }
@@ -99,7 +101,8 @@ export async function registerRoutes(app) {
     }
     catch (error) {
         console.error("❌ Replit Auth setup failed:", error);
-        throw new Error(`Replit Auth setup failed: ${error.message}`);
+        const msg = error instanceof Error ? error.message : String(error);
+        throw new Error(`Replit Auth setup failed: ${msg}`);
     }
     // Google Auth setup with error handling
     try {

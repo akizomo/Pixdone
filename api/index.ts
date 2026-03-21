@@ -3,6 +3,11 @@ import express from 'express';
 import cors from 'cors';
 import { registerRoutes } from '../server/routes.js';
 
+/** Stripe webhook など長めの処理向け（デプロイ先の上限に合わせて調整可） */
+export const config = {
+  maxDuration: 30,
+};
+
 const app = express();
 
 // CORS: allow browser requests (including preflight) for /api/* on Vercel.
@@ -37,7 +42,12 @@ app.use(express.urlencoded({ extended: true }));
 let routesInit: Promise<void> | null = null;
 function ensureRoutesRegistered(): Promise<void> {
   if (!routesInit) {
-    routesInit = registerRoutes(app).then(() => {});
+    routesInit = registerRoutes(app)
+      .then(() => {})
+      .catch((err) => {
+        routesInit = null;
+        throw err;
+      });
   }
   return routesInit;
 }
