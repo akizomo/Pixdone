@@ -5087,8 +5087,12 @@ class PixDoneApp {
             }
         });
 
-        // Mobile touch events - simplified approach
+        // Mobile touch events — tap-to-edit uses touchend; synthetic click follows (~300ms).
+        // Only set lastTouchTime when we actually handle the gesture, so a "missed" touchend
+        // (finger moved > slop) can fall through to click — otherwise both paths were blocked
+        // and users had to tap twice.
         let touchStartData = null;
+        const TAP_MOVE_MAX_PX = 40;
 
         document.addEventListener('touchstart', (e) => {
             if (e.target.closest('.task-item')) {
@@ -5102,9 +5106,6 @@ class PixDoneApp {
         });
 
         document.addEventListener('touchend', (e) => {
-            // Record touch time to prevent duplicate click events
-            this.lastTouchTime = Date.now();
-
             // Parent task checkbox fallback: environments without PointerEvents / PerfectTiming
             // (e.g. some mobile browsers) should still toggle completion + play effects on tap.
             if (e.target.closest('.task-checkbox')) {
@@ -5118,6 +5119,7 @@ class PixDoneApp {
                         e.stopPropagation();
                         e.preventDefault();
                         this.toggleTaskCompletion(taskId, taskItem);
+                        this.lastTouchTime = Date.now();
                         return;
                     }
                 }
@@ -5130,7 +5132,10 @@ class PixDoneApp {
                 const cb = e.target.closest('.subtask-preview-checkbox');
                 const taskId = cb && cb.dataset.taskId;
                 const subtaskId = cb && cb.dataset.subtaskId;
-                if (taskId && subtaskId) this.toggleSubtaskInList(taskId, subtaskId);
+                if (taskId && subtaskId) {
+                    this.toggleSubtaskInList(taskId, subtaskId);
+                    this.lastTouchTime = Date.now();
+                }
                 return;
             }
             // Subtask row touch -> open parent task edit with focus on subtasks
@@ -5143,9 +5148,10 @@ class PixDoneApp {
                     const deltaX = Math.abs(touch.clientX - touchStartData.x);
                     const deltaY = Math.abs(touch.clientY - touchStartData.y);
                     const timeDiff = Date.now() - touchStartData.time;
-                    if (timeDiff < 500 && deltaX < 20 && deltaY < 20) {
+                    if (timeDiff < 500 && deltaX < TAP_MOVE_MAX_PX && deltaY < TAP_MOVE_MAX_PX) {
                         if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
                         this.editTask(parentId, { focusSubtasks: true });
+                        this.lastTouchTime = Date.now();
                     }
                 }
                 touchStartData = null;
@@ -5161,9 +5167,10 @@ class PixDoneApp {
                     const deltaX = Math.abs(touch.clientX - touchStartData.x);
                     const deltaY = Math.abs(touch.clientY - touchStartData.y);
                     const timeDiff = Date.now() - touchStartData.time;
-                    if (timeDiff < 500 && deltaX < 20 && deltaY < 20) {
+                    if (timeDiff < 500 && deltaX < TAP_MOVE_MAX_PX && deltaY < TAP_MOVE_MAX_PX) {
                         if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
                         this.editTask(taskId, { focusSubtasks: true });
+                        this.lastTouchTime = Date.now();
                     }
                 }
                 touchStartData = null;
@@ -5189,13 +5196,14 @@ class PixDoneApp {
                     const deltaY = Math.abs(touch.clientY - touchStartData.y);
                     const timeDiff = Date.now() - touchStartData.time;
 
-                    // Simple tap detection: under 500ms and minimal movement
-                    if (timeDiff < 500 && deltaX < 20 && deltaY < 20) {
+                    // Simple tap detection: under 500ms and movement within slop (scroll/tremor tolerant)
+                    if (timeDiff < 500 && deltaX < TAP_MOVE_MAX_PX && deltaY < TAP_MOVE_MAX_PX) {
                         console.log('Mobile tap edit for task:', taskId);
                         if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
                             this.comicEffects.playSound('taskEdit');
                         }
                         this.editTask(taskId);
+                        this.lastTouchTime = Date.now();
                     }
 
                     touchStartData = null;
