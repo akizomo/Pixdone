@@ -8,6 +8,16 @@ import type { SoundKey } from '../design-system';
 
 let muted = false;
 
+/**
+ * Vanilla `ComicEffectsManager.playSound` (animations.js) has no cases for these keys
+ * and hits `default: return` — so we must use the React sound engine instead.
+ */
+const REACT_ONLY_SOUND_KEYS = new Set<SoundKey>([
+  'focusAlarm',
+  'focusPomodoroComplete',
+  'focusBreakComplete',
+]);
+
 export function setSoundMuted(m: boolean) {
   muted = m;
 }
@@ -38,7 +48,7 @@ export function playSound(key: SoundKey): void {
   if (useVanillaSound() && w.taskAnimationEffects?.comicEffects) {
     const ce = w.taskAnimationEffects.comicEffects;
     if (!ce.getSoundEnabled()) return;
-    if (key !== 'subtaskComplete') {
+    if (key !== 'subtaskComplete' && !REACT_ONLY_SOUND_KEYS.has(key)) {
       try {
         ce.playSound(key);
         return;
