@@ -25,6 +25,11 @@ export function useThemeEntitlements(): ThemeEntitlements {
           method: 'GET',
           credentials: 'include',
         });
+        if (resp.status === 401 && import.meta.env.DEV) {
+          console.debug(
+            '[useThemeEntitlements] 401 — Passport セッション未同期の可能性。AuthContext の firebase-session 同期を確認。',
+          );
+        }
         if (!resp.ok) return;
         const data = (await resp.json()) as Partial<ThemeEntitlements>;
         if (cancelled) return;

@@ -4,6 +4,7 @@ import { themeList } from '../design-system';
 import type { ThemeKey } from '../design-system';
 import { playSound } from '../services/sound';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ThemeSelectorProps {
   onClose?: () => void;
@@ -12,14 +13,30 @@ interface ThemeSelectorProps {
 export function ThemeSelector({ onClose }: ThemeSelectorProps) {
   const { visualTheme, changeTheme } = useUserTheme();
   const { synthwavePremium } = useThemeEntitlements();
+  const { user, syncServerSession, serverSessionError } = useAuth();
   const [unlocking, setUnlocking] = useState(false);
 
   const handleSelect = async (key: ThemeKey, isLocked: boolean) => {
     // Premium locked path -> start checkout.
     if (isLocked) {
       if (key !== 'synthwave') return;
+      if (!user) {
+        playSound('taskCancel');
+        window.alert('ログインが必要です。');
+        return;
+      }
       setUnlocking(true);
       try {
+        const sync = await syncServerSession();
+        if (!sync.ok) {
+          playSound('taskCancel');
+          window.alert(
+            sync.message ||
+              serverSessionError ||
+              'サーバーへのログイン同期に失敗しました。Vercel に FIREBASE_SERVICE_ACCOUNT_JSON を設定し、docs/FIREBASE_SERVER_SESSION.md を確認してください。',
+          );
+          return;
+        }
         playSound('buttonClick');
         const resp = await fetch('/api/billing/synthwave/create-checkout-session', {
           method: 'POST',
@@ -27,14 +44,33 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
           credentials: 'include',
           body: JSON.stringify({ themeKey: 'synthwave' }),
         });
-        if (!resp.ok) throw new Error('checkout_session_failed');
+        if (resp.status === 401) {
+          playSound('taskCancel');
+          window.alert(
+            'サーバーにログインできていません（セッション未同期）。ページを再読み込みしてから、もう一度 Unlock を試してください。',
+          );
+          return;
+        }
+        if (!resp.ok) {
+          playSound('taskCancel');
+          let msg = `Checkout に失敗しました (${resp.status})`;
+          try {
+            const errBody = (await resp.json()) as { message?: string };
+            if (errBody.message) msg = errBody.message;
+          } catch {
+            /* ignore */
+          }
+          window.alert(msg);
+          return;
+        }
         const data = (await resp.json()) as { checkoutUrl?: string };
         if (data.checkoutUrl) {
           window.location.href = data.checkoutUrl;
           return;
         }
       } catch {
-        // Keep selection locked; show nothing for now.
+        playSound('taskCancel');
+        window.alert('通信に失敗しました。ネットワークを確認してください。');
       } finally {
         setUnlocking(false);
       }

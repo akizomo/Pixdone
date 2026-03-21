@@ -27,7 +27,15 @@ Firebase Console → プロジェクトの設定 → **サービス アカウン
 
 未設定の場合、`POST /api/auth/firebase-session` は **503** と説明メッセージを返す。
 
-## 確認手順
+## 確認手順（運用チェックリスト）
+
+1. **Vercel** → Project → Settings → Environment Variables → Production に **`FIREBASE_SERVICE_ACCOUNT_JSON`** がある（サービスアカウント JSON を1行で貼り付け）。
+2. 本番 URL でログインする。
+3. DevTools → **Network** → フィルタ `firebase-session` → **`POST /api/auth/firebase-session` が 200** か確認（503 なら env 未設定または JSON 壊れ）。
+4. DevTools → **Application** → **Cookies** → 自サイトに **`connect.sid`** があるか。
+5. 続けて Synthwave の Unlock → **`create-checkout-session` が 401 ではない**こと（Stripe 未設定なら 500 とメッセージの可能性はあるが、**401 だけは避けたい**）。
+
+## 確認手順（簡易）
 
 1. 本番でログインする  
 2. DevTools → Application → Cookies → 自サイトに **`connect.sid`** が付いているか  
