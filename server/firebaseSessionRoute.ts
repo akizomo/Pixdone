@@ -146,33 +146,10 @@ async function handleFirebaseSession(req: Request, res: Response): Promise<void>
     return;
   }
 
+  // Step 1: verify Firebase token (401 on failure)
+  let decoded: admin.auth.DecodedIdToken;
   try {
-    const decoded = await admin.auth().verifyIdToken(idToken);
-    const uid = decoded.uid;
-    const email = decoded.email ?? "";
-
-    await storage.upsertUser({
-      id: uid,
-      email: email || undefined,
-      emailVerified: decoded.email_verified ?? false,
-      firstName: decoded.name?.split(/\s+/)[0] || undefined,
-      lastName: decoded.name?.split(/\s+/).slice(1).join(" ") || undefined,
-    });
-
-    const user = await storage.getUser(uid);
-    if (!user) {
-      res.status(500).json({ message: "User upsert failed" });
-      return;
-    }
-
-    req.login(user, (err) => {
-      if (err) {
-        console.error("req.login after Firebase:", err);
-        res.status(500).json({ message: "Failed to create session" });
-        return;
-      }
-      res.json({ ok: true, userId: uid });
-    });
+    decoded = await admin.auth().verifyIdToken(idToken);
   } catch (e) {
     const code =
       e && typeof e === "object" && "code" in e
@@ -201,5 +178,38 @@ async function handleFirebaseSession(req: Request, res: Response): Promise<void>
         "ID token is for a different Firebase project than the service account on the server. Regenerate the key for this project and set FIREBASE_SERVICE_ACCOUNT_JSON again (or fix client firebase.ts projectId).";
     }
     res.status(401).json(body);
+    return;
   }
+
+  // Step 2: upsert user in DB (500 on failure)
+  const uid = decoded.uid;
+  const email = decoded.email ?? "";
+  try {
+    await storage.upsertUser({
+      id: uid,
+      email: email || undefined,
+      emailVerified: decoded.email_verified ?? false,
+      firstName: decoded.name?.split(/\s+/)[0] || undefined,
+      lastName: decoded.name?.split(/\s+/).slice(1).join(" ") || undefined,
+    });
+  } catch (e) {
+    console.error("upsertUser failed for uid=%s:", uid, e);
+    res.status(500).json({ message: "Failed to save user to database" });
+    return;
+  }
+
+  const user = await storage.getUser(uid);
+  if (!user) {
+    res.status(500).json({ message: "User upsert failed" });
+    return;
+  }
+
+  req.login(user, (err) => {
+    if (err) {
+      console.error("req.login after Firebase:", err);
+      res.status(500).json({ message: "Failed to create session" });
+      return;
+    }
+    res.json({ ok: true, userId: uid });
+  });
 }
