@@ -97,6 +97,16 @@ export function setupFirebaseSessionRoute(app: Express): void {
   app.post("/api/auth/firebase-session", (req: Request, res: Response) => {
     void handleFirebaseSession(req, res);
   });
+
+  /** 診断用: サーバーが認識している Firebase project_id を返す（認証不要） */
+  app.get("/api/auth/firebase-status", (_req: Request, res: Response) => {
+    try {
+      ensureFirebaseAdmin();
+      res.json({ configured: true, projectId: serviceAccountProjectId });
+    } catch {
+      res.json({ configured: false, projectId: null });
+    }
+  });
 }
 
 async function handleFirebaseSession(req: Request, res: Response): Promise<void> {

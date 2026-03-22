@@ -42,7 +42,7 @@ async function syncServerSessionFromFirebase(user: User): Promise<ServerSessionS
         if (j.tokenProjectId && j.serviceAccountProjectId && j.tokenProjectId !== j.serviceAccountProjectId) {
           message = `${message} — token project: ${j.tokenProjectId}, server key project: ${j.serviceAccountProjectId}`;
         }
-        if (j.hint) console.warn('firebase-session hint:', j.hint);
+        if (j.hint) message = `${message} — ${j.hint}`;
       } catch {
         /* raw text */
       }
