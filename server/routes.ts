@@ -58,10 +58,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("API Health check failed:", error);
+      const cause = error instanceof Error && (error as NodeJS.ErrnoException & { cause?: unknown }).cause;
+      const causeMsg = cause instanceof Error ? cause.message : cause ? String(cause) : undefined;
+      let dbHost: string | undefined;
+      try { dbHost = new URL(process.env.DATABASE_URL ?? "").hostname; } catch { /* ignore */ }
       res.status(500).json({
         status: 'unhealthy',
         message: 'Database connection failed',
         error: error instanceof Error ? error.message : String(error),
+        cause: causeMsg,
+        dbHost,
         timestamp: new Date().toISOString()
       });
     }
