@@ -2403,15 +2403,17 @@ class PixDoneApp {
             track.style.transform = `translateX(${offsetPx}px)`;
         };
 
-        // タスク行上ではリスト切替スワイプを開始しない（タップ／長押しD&D／チェックと競合するため）
+        // Swipe start blocked on: inputs, task controls, tabs. タスク行の余白やカード外では横スワイプ可
         const shouldBlockSwipeStart = (target) => {
             if (!target || !target.closest) return true;
             if (target.closest('#taskInputContainer')) return true;
             if (target.closest('input, textarea, select')) return true;
             if (target.closest('[contenteditable="true"]')) return true;
-            if (target.closest('.task-item')) return true;
+            if (target.closest('.task-checkbox, .task-actions, .task-action-btn, .task-link, .task-action-link')) return true;
             if (target.closest('button')) return true;
             if (target.closest('.list-tab, .add-list-tab-btn')) return true;
+            if (target.closest('.task-item.dragging')) return true;
+            if (target.closest('.task-item.completed')) return true;
             return false;
         };
 
@@ -2505,8 +2507,8 @@ class PixDoneApp {
 
         /*
          * 動作確認の観点:
-         * - PC/モバイル: #contentBelowTabs 内の空白・ヘッダ・カード外で横スワイプ → リスト切り替え
-         * - 縦スクロール: 縦方向のドラッグは body の自然なスクロールに委譲（引っかかりなし）
+         * - PC/モバイル: #contentBelowTabs 内で横スワイプ → リスト切替（タスク行のチェック／リンク等は除外）
+         * - 縦スクロール: 縦方向のドラッグは body の自然なスクロールに委譲
          * - 入力中: #taskInputContainer 内・input/textarea/contenteditable 上ではスワイプ開始しない
          * - タブ横スクロール: .list-tabs は header 内で、#contentBelowTabs 外 → 影響なし
          * - モーダル表示中: canSwipe でモーダルオープン時はスワイプ無効

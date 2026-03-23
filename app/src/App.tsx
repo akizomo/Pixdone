@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo, type MutableRefObject } from 'react';
 import { ThemeProvider, Button, Chip, ModalDialog, BottomSheet } from './design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
@@ -10,6 +10,7 @@ import { SMASH_TITLES } from './features/useLists';
 import { useKeyboardNav } from './hooks/useKeyboardNav';
 import { useMidnightRefresh } from './hooks/useMidnightRefresh';
 import { useTaskListSwipe } from './hooks/useTaskListSwipe';
+import { useActiveTaskLongPressReorder } from './hooks/useActiveTaskLongPressReorder';
 import { playSound, getSoundEnabled } from './services/sound';
 import { initSoundEngine } from './services/soundEngine';
 import { useFocusTimer } from './hooks/useFocusTimer';
@@ -28,6 +29,7 @@ function AppContent() {
     lists, activeListId, setActiveList, currentList,
     addList, renameList, deleteList,
     addTask, updateTask, deleteTask, completeTask, uncompleteTask,
+    reorderActiveTasks,
   } = useLists();
 
   const { user, logout } = useAuth();
@@ -360,6 +362,39 @@ function AppContent() {
     enabled: !isDesktop && !anyModalOpen && !isFocusScreen,
     onSwipe: handleSwipe,
   });
+
+  const suppressRowClickUntilRef = useRef(0);
+
+  const handleReorderActive = useCallback(
+    (from: number, to: number) => {
+      const lid = currentList?.id;
+      if (!lid || from === to) return;
+      reorderActiveTasks(lid, from, to);
+      playSound('buttonClick');
+    },
+    [currentList?.id, reorderActiveTasks],
+  );
+
+  const { containerRef: activeReorderContainerRef, onRowPointerDown } = useActiveTaskLongPressReorder({
+    enabled:
+      !isDesktop &&
+      !anyModalOpen &&
+      !isFocusScreen &&
+      !isSmash &&
+      activeTasks.length >= 2 &&
+      activeScreen === 'tasks',
+    slotCount: activeTasks.length,
+    onReorder: handleReorderActive,
+    suppressRowClickUntilRef,
+  });
+
+  const setMainScrollRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      (swipeRef as MutableRefObject<HTMLDivElement | null>).current = el;
+      activeReorderContainerRef.current = el;
+    },
+    [swipeRef, activeReorderContainerRef],
+  );
 
   const listSlideClass =
     listSlide && listSlide.listId === activeListId
@@ -854,7 +889,7 @@ function AppContent() {
             )}
 
             <div
-              ref={swipeRef}
+              ref={setMainScrollRef}
               key={activeListId}
               className={['pd-list-enter', 'pd-list-swipe', listSlideClass].filter(Boolean).join(' ')}
               style={{ flex: 1, overflowY: 'auto' }}
@@ -981,8 +1016,8 @@ function AppContent() {
                     />
                   </div>
                 )}
-                {activeTasks.map((task) => (
-                  <div key={task.id}>
+                {activeTasks.map((task, activeIndex) => (
+                  <div key={task.id} data-active-reorder-slot>
                     {taskFormMode === task.id && editingTask ? (
                       <div style={{ paddingTop: '16px', paddingBottom: '16px' }}>
                         <TaskForm
@@ -1001,6 +1036,8 @@ function AppContent() {
                         onComplete={handleComplete}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
+                        suppressOpenEdit={() => Date.now() < suppressRowClickUntilRef.current}
+                        onReorderPointerDown={onRowPointerDown(activeIndex)}
                       />
                     )}
                   </div>

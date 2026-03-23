@@ -18,4 +18,6 @@ export interface Task {
   subtasks?: Subtask[];
   listId: string;
   smashIdx?: number;
+  /** Active-task order; set when user reorders or syncs from Firestore */
+  sortOrder?: number;
 }

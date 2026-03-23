@@ -1,3 +1,4 @@
+import type { PointerEvent } from 'react';
 import type { Task } from '../types/task';
 import { formatDueDate, getDueStatus } from '../lib/date';
 import { t } from '../lib/i18n';
@@ -10,6 +11,10 @@ export interface TaskItemProps {
   onComplete: (taskId: string) => void;
   onEdit: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
+  /** When true, row click does not open edit (e.g. after long-press reorder). */
+  suppressOpenEdit?: () => boolean;
+  /** Long-press reorder (touch/pen); attach to row pointerdown. */
+  onReorderPointerDown?: (e: PointerEvent<HTMLDivElement>) => void;
 }
 
 const repeatShort: Record<NonNullable<Task['repeat']>, { en: string; ja: string }> = {
@@ -26,7 +31,16 @@ const TUTORIAL_KEYS: Record<string, string> = {
   'tutorial-3': 'tutorialTask3',
 };
 
-export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdit, onDelete }: TaskItemProps) {
+export function TaskItem({
+  task,
+  isSmash = false,
+  lang = 'en',
+  onComplete,
+  onEdit,
+  onDelete,
+  suppressOpenEdit,
+  onReorderPointerDown,
+}: TaskItemProps) {
   const dueLabel = formatDueDate(task.dueDate, lang);
   const repeatLabel = task.repeat && task.repeat !== 'none' ? (repeatShort[task.repeat]?.[lang] ?? '') : '';
   const subtasks = task.subtasks ?? [];
@@ -60,10 +74,17 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
         imageRendering: 'pixelated',
         fontFamily: 'var(--pd-font-body)',
         opacity: task.completed ? 0.7 : 1,
+        touchAction: 'pan-y',
       }}
       className="task-item-row"
       data-task-id={task.id}
-      onClick={() => !isSmash && onEdit(task.id)}
+      onPointerDown={onReorderPointerDown}
+      onClick={(e) => {
+        if (isSmash) return;
+        if (suppressOpenEdit?.()) return;
+        if ((e.target as HTMLElement).closest('a')) return;
+        onEdit(task.id);
+      }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLDivElement;
         el.style.transform = 'translate(-1px, -1px)';
@@ -127,7 +148,7 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
             fontSize: '0.875rem',
           }}
         >
-          <span onClick={(e) => e.stopPropagation()}>{renderTextWithLinks(displayTitle)}</span>
+          {renderTextWithLinks(displayTitle)}
         </span>
 
         {details && (
@@ -145,7 +166,7 @@ export function TaskItem({ task, isSmash = false, lang = 'en', onComplete, onEdi
               wordBreak: 'break-word',
             }}
           >
-            <span onClick={(e) => e.stopPropagation()}>{renderTextWithLinks(details)}</span>
+            {renderTextWithLinks(details)}
           </div>
         )}
 

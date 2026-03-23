@@ -9,6 +9,7 @@ import {
   updateDoc,
   deleteDoc,
   addDoc,
+  writeBatch,
   Timestamp,
 } from 'firebase/firestore';
 import type { List } from '../types/list';
@@ -18,6 +19,18 @@ import { useAuth } from '../contexts/AuthContext';
 
 const STORAGE_KEY = 'pixdone_lists_v1';
 const ACTIVE_KEY = 'pixdone_active_v1';
+
+function orderTasksForList(tasks: Task[]): Task[] {
+  const active = tasks.filter((t) => !t.completed);
+  const completed = tasks.filter((t) => t.completed);
+  const useSort = active.some((t) => typeof t.sortOrder === 'number');
+  const sortedActive = useSort
+    ? [...active].sort(
+        (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.id.localeCompare(b.id),
+      )
+    : active;
+  return [...sortedActive, ...completed];
+}
 
 // Smash list dummy tasks – mirror vanilla `public/script.js` smashListTasks / smashListTasksJa
 export const SMASH_TITLES = {
@@ -341,6 +354,7 @@ export function useLists() {
           repeat: data.repeat ?? 'none',
           subtasks: data.subtasks ?? [],
           listId,
+          sortOrder: typeof data.sortOrder === 'number' ? data.sortOrder : undefined,
         };
         if (!tasksByList[listId]) tasksByList[listId] = [];
         tasksByList[listId].push(task);
@@ -349,7 +363,8 @@ export function useLists() {
       setListsState((prev) =>
         prev.map((l) => {
           if (l.id === 'smash-list') return l; // keep local-only
-          return { ...l, tasks: tasksByList[l.id] ?? l.tasks };
+          const raw = tasksByList[l.id] ?? l.tasks;
+          return { ...l, tasks: orderTasksForList(raw) };
         }),
       );
     });
@@ -439,6 +454,9 @@ export function useLists() {
       listId,
     };
 
+    let created: Task = base;
+    let sortOrderForDb = 0;
+
     // まずローカルを更新（ログイン・未ログイン共通）
     setLists((prev) =>
       prev.map((l) => {
@@ -446,7 +464,11 @@ export function useLists() {
         if (listId === 'smash-list') {
           return { ...l, tasks: replenishSmashList([...(l.tasks ?? []), base], 'smash-list') };
         }
-        return { ...l, tasks: [...l.tasks, base] };
+        const active = l.tasks.filter((t) => !t.completed);
+        const maxSort = active.reduce((m, t) => Math.max(m, t.sortOrder ?? -1), -1);
+        sortOrderForDb = maxSort + 1;
+        created = { ...base, sortOrder: sortOrderForDb };
+        return { ...l, tasks: [...l.tasks, created] };
       }),
     );
 
@@ -464,11 +486,12 @@ export function useLists() {
           subtasks: base.subtasks ?? [],
           completed: base.completed,
           createdAt: Timestamp.now(),
+          sortOrder: sortOrderForDb,
         });
       })();
     }
 
-    return base;
+    return created;
   }, [setLists, user]);
 
   const updateTask = useCallback((taskId: string, fields: Partial<Task>) => {
@@ -548,19 +571,32 @@ export function useLists() {
     const task = lists.flatMap((l) => l.tasks).find((t) => t.id === taskId);
     const isSmashTask = task?.listId === 'smash-list';
 
+    let nextSortForDb = 0;
+    let didUncomplete = false;
+
     setLists((prev) =>
-      prev.map((l) => ({
-        ...l,
-        tasks: l.tasks.map((t) =>
-          t.id === taskId ? { ...t, completed: false, completedAt: undefined } : t,
-        ),
-      })),
+      prev.map((l) => {
+        const hit = l.tasks.find((t) => t.id === taskId);
+        if (!hit || !hit.completed) return l;
+        const activeOthers = l.tasks.filter((t) => !t.completed && t.id !== taskId);
+        const maxSort = activeOthers.reduce((m, t) => Math.max(m, t.sortOrder ?? -1), -1);
+        nextSortForDb = maxSort + 1;
+        didUncomplete = true;
+        return {
+          ...l,
+          tasks: l.tasks.map((t) =>
+            t.id === taskId
+              ? { ...t, completed: false, completedAt: undefined, sortOrder: nextSortForDb }
+              : t,
+          ),
+        };
+      }),
     );
 
-    if (user && !isSmashTask) {
+    if (user && !isSmashTask && didUncomplete) {
       (async () => {
         const ref = doc(db, 'tasks', taskId);
-        await updateDoc(ref, { completed: false });
+        await updateDoc(ref, { completed: false, sortOrder: nextSortForDb });
       })();
     }
   }, [setLists, user, lists]);
@@ -611,6 +647,48 @@ export function useLists() {
     );
   }, [setLists]);
 
+  const reorderActiveTasks = useCallback(
+    (listId: string, fromIndex: number, toIndex: number) => {
+      if (listId === 'smash-list' || fromIndex === toIndex) return;
+
+      setLists((prev) => {
+        const list = prev.find((l) => l.id === listId);
+        if (!list) return prev;
+        const active = list.tasks.filter((t) => !t.completed);
+        const completed = list.tasks.filter((t) => t.completed);
+        if (
+          fromIndex < 0 ||
+          fromIndex >= active.length ||
+          toIndex < 0 ||
+          toIndex >= active.length
+        ) {
+          return prev;
+        }
+        const nextActive = [...active];
+        const [moved] = nextActive.splice(fromIndex, 1);
+        nextActive.splice(toIndex, 0, moved);
+        const withOrder = nextActive.map((t, i) => ({ ...t, sortOrder: i }));
+
+        if (user) {
+          queueMicrotask(() => {
+            const batch = writeBatch(db);
+            withOrder.forEach((t, i) => {
+              batch.update(doc(db, 'tasks', t.id), { sortOrder: i });
+            });
+            batch.commit().catch(() => {
+              /* ignore */
+            });
+          });
+        }
+
+        return prev.map((l) =>
+          l.id === listId ? { ...l, tasks: [...withOrder, ...completed] } : l,
+        );
+      });
+    },
+    [setLists, user],
+  );
+
   const currentList = lists.find((l) => l.id === activeId) ?? lists[0];
 
   return {
@@ -630,5 +708,6 @@ export function useLists() {
     addSubtask,
     toggleSubtask,
     deleteSubtask,
+    reorderActiveTasks,
   };
 }

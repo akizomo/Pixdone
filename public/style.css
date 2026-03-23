@@ -2206,10 +2206,11 @@ html.task-effect-playing {
             0% 55%);
 }
 
-/* Task Content */
+/* Task Content — テキストノード直タップのブレを減らす（イベントは .task-content / .task-row 側で受ける） */
 .task-content {
     flex: 1;
     min-width: 0;
+    position: relative;
 }
 
 .task-title {
@@ -2219,6 +2220,7 @@ html.task-effect-playing {
     color: var(--text-primary);
     word-wrap: break-word;
     margin-bottom: 2px;
+    pointer-events: none;
 }
 
 /* Task card: vertical stack, left-aligned (override .task-item row/center) */
@@ -2254,6 +2256,7 @@ html.task-effect-playing {
     color: var(--text-secondary);
     margin-top: 4px;
     font-weight: 400;
+    pointer-events: none;
 }
 
 .task-meta-text.today {
@@ -2312,6 +2315,7 @@ html.task-effect-playing {
     color: var(--text-secondary);
     margin-bottom: 4px;
     word-wrap: break-word;
+    pointer-events: none;
 }
 
 /* Subtasks block under parent (vertical hierarchy), full width, indent via margin */
@@ -2407,6 +2411,7 @@ html.task-effect-playing {
     transition: all 0.2s ease;
     font-weight: 500 !important;
     -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
 }
 
 .task-link:active {
