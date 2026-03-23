@@ -227,7 +227,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ checkoutUrl });
     } catch (error: any) {
       console.error("Error creating synthwave checkout session:", error);
-      res.status(500).json({ message: "Failed to create checkout session" });
+      res.status(500).json({
+        message: "Failed to create checkout session",
+        detail: error?.message ?? String(error),
+        stripeCode: error?.code,
+        stripeType: error?.type,
+      });
     }
   });
 
