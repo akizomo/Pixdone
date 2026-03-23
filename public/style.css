@@ -2090,7 +2090,7 @@ html.task-effect-playing {
     margin-bottom: 8px;
 }
 
-/* Task Item */
+/* Task Item — 長押しテキスト選択をカード単位で抑止（子に重ねないとタップと両立しやすい） */
 .task-item {
     display: flex;
     align-items: center;
@@ -2106,6 +2106,9 @@ html.task-effect-playing {
     font-family: 'Inter', sans-serif;
     position: relative;
     -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 /* Hover / lift only when the device has real hover (avoids sticky :hover after tap on touch) */

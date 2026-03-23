@@ -2403,17 +2403,15 @@ class PixDoneApp {
             track.style.transform = `translateX(${offsetPx}px)`;
         };
 
-        // Swipe start blocked on: inputs, task interactions, buttons. #contentBelowTabs 全域でスワイプ開始可（上記以外）
+        // タスク行上ではリスト切替スワイプを開始しない（タップ／長押しD&D／チェックと競合するため）
         const shouldBlockSwipeStart = (target) => {
             if (!target || !target.closest) return true;
             if (target.closest('#taskInputContainer')) return true;
             if (target.closest('input, textarea, select')) return true;
             if (target.closest('[contenteditable="true"]')) return true;
-            if (target.closest('.task-checkbox, .task-actions, .task-action-btn, .task-link, .task-action-link')) return true;
+            if (target.closest('.task-item')) return true;
             if (target.closest('button')) return true;
             if (target.closest('.list-tab, .add-list-tab-btn')) return true;
-            if (target.closest('.task-item.dragging')) return true;
-            if (target.closest('.task-item.completed')) return true;
             return false;
         };
 
@@ -5010,6 +5008,22 @@ class PixDoneApp {
         existingListeners.forEach(listener => {
             listener.remove();
         });
+
+        // リスト上の長押しテキスト選択を抑止（iOS で D&D 長押しと競合する）
+        if (!this._taskListSelectStartBound) {
+            this._taskListSelectStartBound = true;
+            document.addEventListener(
+                'selectstart',
+                (e) => {
+                    const n = e.target;
+                    const el = n && n.nodeType === Node.TEXT_NODE ? n.parentElement : n;
+                    if (el && el.closest && el.closest('.task-item')) {
+                        e.preventDefault();
+                    }
+                },
+                true
+            );
+        }
 
         /** Safari/iOS: tap target can be a Text node — Text has no .closest() */
         const eventTargetElement = (ev) => {
