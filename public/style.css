@@ -2216,6 +2216,9 @@ html.task-effect-playing {
 .task-content {
     flex: 1;
     min-width: 0;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .task-title {
@@ -2225,6 +2228,9 @@ html.task-effect-playing {
     color: var(--text-primary);
     word-wrap: break-word;
     margin-bottom: 2px;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 /* Task card: vertical stack, left-aligned (override .task-item row/center) */
@@ -2318,6 +2324,9 @@ html.task-effect-playing {
     color: var(--text-secondary);
     margin-bottom: 4px;
     word-wrap: break-word;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 
 /* Subtasks block under parent (vertical hierarchy), full width, indent via margin */

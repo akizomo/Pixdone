@@ -4957,7 +4957,7 @@ class PixDoneApp {
         const subtasksBlockHtml = subtasks.length > 0 ? `<div class="subtasks" data-task-id="${this.escapeHtml(task.id)}">${subtaskRowsHtml}</div>` : '';
         const ptResult = task.perfectTimingResult ? ` data-perfect-timing-result="${this.escapeHtml(task.perfectTimingResult)}"` : '';
         return `
-            <div class="task-card task-item ${task.completed ? 'completed' : ''}" data-task-id="${this.escapeHtml(task.id)}"${ptResult} draggable="${!task.completed}">
+            <div class="task-card task-item ${task.completed ? 'completed' : ''}" data-task-id="${this.escapeHtml(task.id)}"${ptResult} draggable="false">
                 <div class="task-main">
                     <div class="task-row" data-type="task" data-id="${this.escapeHtml(task.id)}">
                         <div class="task-checkbox ${task.completed ? 'completed' : ''}" tabindex="0" role="checkbox" aria-checked="${task.completed}"></div>
@@ -5011,6 +5011,13 @@ class PixDoneApp {
             listener.remove();
         });
 
+        /** Safari/iOS: tap target can be a Text node — Text has no .closest() */
+        const eventTargetElement = (ev) => {
+            const n = ev.target;
+            if (!n) return null;
+            return n.nodeType === Node.TEXT_NODE ? n.parentElement : n;
+        };
+
         // Single click handler for all task interactions
         document.addEventListener('click', (e) => {
             // Prevent click events immediately after touch events
@@ -5019,20 +5026,23 @@ class PixDoneApp {
                 return;
             }
 
+            const t = eventTargetElement(e);
+            if (!t || typeof t.closest !== 'function') return;
+
             // Subtask checkbox: toggle only (do NOT open sheet)
-            if (e.target.closest('.subtask-preview-checkbox')) {
+            if (t.closest('.subtask-preview-checkbox')) {
                 e.stopPropagation();
                 e.preventDefault();
-                const cb = e.target.closest('.subtask-preview-checkbox');
+                const cb = t.closest('.subtask-preview-checkbox');
                 const taskId = cb.dataset.taskId;
                 const subtaskId = cb.dataset.subtaskId;
                 if (taskId && subtaskId) this.toggleSubtaskInList(taskId, subtaskId);
                 return;
             }
             // Subtask row click -> open parent task edit with focus on subtasks
-            if (e.target.closest('.subtask-row')) {
+            if (t.closest('.subtask-row')) {
                 e.stopPropagation();
-                const row = e.target.closest('.subtask-row');
+                const row = t.closest('.subtask-row');
                 const parentId = row.dataset.parentId;
                 if (parentId != null) {
                     if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
@@ -5041,9 +5051,9 @@ class PixDoneApp {
                 return;
             }
             // "+N" click -> open parent task edit focused on subtasks
-            if (e.target.closest('.subtask-more')) {
+            if (t.closest('.subtask-more')) {
                 e.stopPropagation();
-                const more = e.target.closest('.subtask-more');
+                const more = t.closest('.subtask-more');
                 const taskId = more.dataset.taskId;
                 if (taskId) {
                     if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
@@ -5054,9 +5064,9 @@ class PixDoneApp {
             // Parent task checkbox: handled by PerfectTiming (pointer events)
             // (no click handler here - PerfectTimingManager handles via pointerdown/pointerup)
 
-            if (e.target.closest('.edit-btn')) {
+            if (t.closest('.edit-btn')) {
                 e.stopPropagation();
-                const taskId = e.target.closest('.task-action-btn').dataset.taskId;
+                const taskId = t.closest('.task-action-btn').dataset.taskId;
                 if (taskId) {
                     if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
                     this.editTask(taskId);
@@ -5064,20 +5074,20 @@ class PixDoneApp {
                 return;
             }
 
-            if (e.target.closest('.delete-btn')) {
+            if (t.closest('.delete-btn')) {
                 e.stopPropagation();
-                const taskId = e.target.closest('.task-action-btn').dataset.taskId;
+                const taskId = t.closest('.task-action-btn').dataset.taskId;
                 if (taskId) this.deleteTask(taskId);
                 return;
             }
 
             // Parent task row click -> open task edit (not checkbox, not actions, not links)
-            if (e.target.closest('.task-row') &&
-                !e.target.closest('.task-checkbox') &&
-                !e.target.closest('.task-actions') &&
-                !e.target.closest('a.task-link') &&
-                !e.target.closest('a.task-action-link')) {
-                const row = e.target.closest('.task-row');
+            if (t.closest('.task-row') &&
+                !t.closest('.task-checkbox') &&
+                !t.closest('.task-actions') &&
+                !t.closest('a.task-link') &&
+                !t.closest('a.task-action-link')) {
+                const row = t.closest('.task-row');
                 const taskId = row.dataset.id;
                 if (taskId) {
                     if (this.comicEffects && typeof this.comicEffects.playSound === 'function') this.comicEffects.playSound('taskEdit');
@@ -5095,7 +5105,8 @@ class PixDoneApp {
         const TAP_MOVE_MAX_PX = 40;
 
         document.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.task-item')) {
+            const t = eventTargetElement(e);
+            if (t && t.closest && t.closest('.task-item')) {
                 const touch = e.touches[0];
                 touchStartData = {
                     x: touch.clientX,
@@ -5106,13 +5117,16 @@ class PixDoneApp {
         });
 
         document.addEventListener('touchend', (e) => {
+            const t = eventTargetElement(e);
+            if (!t || typeof t.closest !== 'function') return;
+
             // Parent task checkbox fallback: environments without PointerEvents / PerfectTiming
             // (e.g. some mobile browsers) should still toggle completion + play effects on tap.
-            if (e.target.closest('.task-checkbox')) {
+            if (t.closest('.task-checkbox')) {
                 const hasPointerEvents = typeof window.PointerEvent !== 'undefined';
                 const hasPerfectTiming = typeof window.PerfectTimingManager !== 'undefined';
                 if (!hasPointerEvents || !hasPerfectTiming) {
-                    const cb = e.target.closest('.task-checkbox');
+                    const cb = t.closest('.task-checkbox');
                     const taskItem = cb && cb.closest('.task-item');
                     const taskId = taskItem && taskItem.dataset ? taskItem.dataset.taskId : null;
                     if (taskId && taskItem) {
@@ -5126,10 +5140,10 @@ class PixDoneApp {
             }
 
             // Subtask preview checkbox
-            if (e.target.closest('.subtask-preview-checkbox')) {
+            if (t.closest('.subtask-preview-checkbox')) {
                 e.stopPropagation();
                 e.preventDefault();
-                const cb = e.target.closest('.subtask-preview-checkbox');
+                const cb = t.closest('.subtask-preview-checkbox');
                 const taskId = cb && cb.dataset.taskId;
                 const subtaskId = cb && cb.dataset.subtaskId;
                 if (taskId && subtaskId) {
@@ -5139,9 +5153,9 @@ class PixDoneApp {
                 return;
             }
             // Subtask row touch -> open parent task edit with focus on subtasks
-            if (e.target.closest('.subtask-row')) {
+            if (t.closest('.subtask-row')) {
                 e.stopPropagation();
-                const row = e.target.closest('.subtask-row');
+                const row = t.closest('.subtask-row');
                 const parentId = row && row.dataset.parentId;
                 if (parentId != null && touchStartData) {
                     const touch = e.changedTouches[0];
@@ -5158,9 +5172,9 @@ class PixDoneApp {
                 return;
             }
             // +N touch -> open parent task edit focused on subtasks
-            if (e.target.closest('.subtask-more')) {
+            if (t.closest('.subtask-more')) {
                 e.stopPropagation();
-                const more = e.target.closest('.subtask-more');
+                const more = t.closest('.subtask-more');
                 const taskId = more && more.dataset.taskId;
                 if (taskId && touchStartData) {
                     const touch = e.changedTouches[0];
@@ -5180,14 +5194,14 @@ class PixDoneApp {
             // (no touchend handler here - PerfectTimingManager handles via pointerdown/pointerup)
 
             // Handle task item touches for editing — 添付リンク押下時は編集モーダルを開かない
-            if (e.target.closest('.task-item') &&
-                !e.target.closest('.task-checkbox') &&
-                !e.target.closest('.task-actions') &&
-                !e.target.closest('.task-action-btn') &&
-                !e.target.closest('a.task-link') &&
-                !e.target.closest('a.task-action-link')) {
+            if (t.closest('.task-item') &&
+                !t.closest('.task-checkbox') &&
+                !t.closest('.task-actions') &&
+                !t.closest('.task-action-btn') &&
+                !t.closest('a.task-link') &&
+                !t.closest('a.task-action-link')) {
 
-                const taskItem = e.target.closest('.task-item');
+                const taskItem = t.closest('.task-item');
                 const taskId = taskItem.dataset.taskId;
 
                 if (touchStartData) {
@@ -5400,6 +5414,36 @@ class PixDoneApp {
         // this.saveTasks();
     }
 
+    /**
+     * ポインタ Y と未完了タスク行 DOM から、並べ替え元・先を求める。
+     * ドラッグ中の行も含めて数える（:not(.dragging) だけだと drop インデックスと from が一致しない）。
+     */
+    computeTaskReorderFromPointerY(clientY, draggedElement) {
+        const taskList = document.getElementById('taskList');
+        if (!taskList || !draggedElement) return null;
+        const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.completed)'));
+        const fromIndex = tasks.indexOf(draggedElement);
+        if (fromIndex < 0) return null;
+
+        let dropIndex = tasks.length;
+        for (let i = 0; i < tasks.length; i++) {
+            const rect = tasks[i].getBoundingClientRect();
+            const mid = rect.top + rect.height / 2;
+            if (clientY < mid) {
+                dropIndex = i;
+                break;
+            }
+        }
+
+        let toIndex = dropIndex;
+        if (fromIndex < dropIndex) {
+            toIndex = dropIndex - 1;
+        }
+        if (toIndex === fromIndex) return null;
+
+        return { fromIndex, toIndex, dropIndex, tasks };
+    }
+
     setupDragAndDrop() {
         console.log('Setting up drag and drop functionality');
 
@@ -5419,69 +5463,92 @@ class PixDoneApp {
             document.querySelectorAll('.task-item:not(.completed)').forEach((taskItem, index) => {
                 console.log('Adding listeners to task:', taskItem.dataset.taskId);
 
-                // マウスイベント（PC用）
+                // マウス: mousedown 後は document で move/up を取る（taskItem 外に出ると move が取れないのを防ぐ）
                 taskItem.addEventListener('mousedown', (e) => {
-                    if (isTouchDevice) return; // タッチデバイスでは無効化
+                    if (isTouchDevice) return;
 
-                    // Don't start drag on interactive elements
-                    if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn')) {
+                    const mel = e.target && e.target.nodeType === Node.TEXT_NODE ? e.target.parentElement : e.target;
+                    if (mel && mel.closest && mel.closest('.task-checkbox, .task-actions, .task-action-btn')) {
                         return;
                     }
+                    if (e.button !== 0) return;
 
                     isMouseDown = true;
-                    isDraggingNow = false; // 追加: ドラッグ開始前にリセット
+                    isDraggingNow = false;
                     startY = e.clientY;
                     startX = e.clientX;
                     draggedElement = taskItem;
                     draggedIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
 
+                    const onMove = (e2) => {
+                        if (!isMouseDown || !draggedElement) return;
+                        const deltaY = Math.abs(e2.clientY - startY);
+                        const deltaX = Math.abs(e2.clientX - startX);
+
+                        if (!isDraggingNow) {
+                            if (deltaY <= dragThreshold && deltaX <= dragThreshold) return;
+                            isDraggingNow = true;
+                            draggedElement.classList.add('dragging');
+                            draggedElement.style.opacity = '0.5';
+                            if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                                this.comicEffects.playSound('taskAdd');
+                            }
+                            floatingClone = draggedElement.cloneNode(true);
+                            floatingClone.classList.add('floating-clone');
+                            floatingClone.style.position = 'fixed';
+                            floatingClone.style.pointerEvents = 'none';
+                            floatingClone.style.opacity = '0.85';
+                            floatingClone.style.left = `${e2.clientX - draggedElement.offsetWidth / 2}px`;
+                            floatingClone.style.top = `${e2.clientY - draggedElement.offsetHeight / 2}px`;
+                            floatingClone.style.width = `${draggedElement.offsetWidth}px`;
+                            floatingClone.style.height = `${draggedElement.offsetHeight}px`;
+                            document.body.appendChild(floatingClone);
+                        }
+                        if (floatingClone) {
+                            floatingClone.style.left = `${e2.clientX - floatingClone.offsetWidth / 2}px`;
+                            floatingClone.style.top = `${e2.clientY - floatingClone.offsetHeight / 2}px`;
+                        }
+                        const r = this.computeTaskReorderFromPointerY(e2.clientY, draggedElement);
+                        if (r) this.showSimpleDropIndicator(r.dropIndex, r.tasks);
+                    };
+
+                    const onUp = (e2) => {
+                        document.removeEventListener('mousemove', onMove);
+                        document.removeEventListener('mouseup', onUp);
+                        if (!isMouseDown || !draggedElement) return;
+                        if (!isDraggingNow) {
+                            isMouseDown = false;
+                            draggedElement = null;
+                            draggedIndex = -1;
+                            return;
+                        }
+                        const r = this.computeTaskReorderFromPointerY(e2.clientY, draggedElement);
+                        draggedElement.classList.remove('dragging');
+                        draggedElement.style.opacity = '';
+                        this.removeDropIndicators();
+                        if (floatingClone && floatingClone.parentNode) {
+                            floatingClone.parentNode.removeChild(floatingClone);
+                        }
+                        floatingClone = null;
+                        if (r) {
+                            this.reorderTasksWithAnimation(r.fromIndex, r.toIndex);
+                            if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                                this.comicEffects.playSound('taskAdd');
+                            }
+                        }
+                        isMouseDown = false;
+                        isDraggingNow = false;
+                        draggedElement = null;
+                        draggedIndex = -1;
+                    };
+
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onUp);
                     e.preventDefault();
                 });
 
-                taskItem.addEventListener('mousemove', (e) => {
-                    if (isTouchDevice) return; // タッチデバイスでは無効化
-                    if (!isMouseDown || !draggedElement || isDraggingNow) return;
-
-                    const deltaY = Math.abs(e.clientY - startY);
-                    const deltaX = Math.abs(e.clientX - startX);
-
-                    if (deltaY > dragThreshold || deltaX > dragThreshold) {
-                        // ドラッグ開始
-                        isDraggingNow = true;
-                        draggedElement.classList.add('dragging');
-                        draggedElement.style.opacity = '0.5';
-
-                        // サウンドは一度だけ
-                        if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
-                            this.comicEffects.playSound('taskAdd');
-                        }
-
-                        // フローティングクローン生成
-                        floatingClone = draggedElement.cloneNode(true);
-                        floatingClone.classList.add('floating-clone');
-                        floatingClone.style.position = 'fixed';
-                        floatingClone.style.pointerEvents = 'none';
-                        floatingClone.style.opacity = '0.85';
-                        floatingClone.style.left = `${e.clientX - draggedElement.offsetWidth / 2}px`;
-                        floatingClone.style.top = `${e.clientY - draggedElement.offsetHeight / 2}px`;
-                        floatingClone.style.width = `${draggedElement.offsetWidth}px`;
-                        floatingClone.style.height = `${draggedElement.offsetHeight}px`;
-                        document.body.appendChild(floatingClone);
-
-                        // ドキュメント全体で追従
-                        document.addEventListener('mousemove', handleDocumentMouseMove);
-                        document.addEventListener('mouseup', handleDocumentMouseUp);
-                    }
-                });
-
-                taskItem.addEventListener('mouseup', () => {
-                    if (isTouchDevice) return; // タッチデバイスでは無効化
-                    if (isMouseDown && draggedElement && !draggedElement.classList.contains('dragging')) {
-                        // This was a click, not a drag
-                        isMouseDown = false;
-                        draggedElement = null;
-                        draggedIndex = -1;
-                    }
+                taskItem.addEventListener('dragstart', (e) => {
+                    e.preventDefault();
                 });
 
                 // Touch events for mobile - 300ms long press implementation
@@ -5490,7 +5557,8 @@ class PixDoneApp {
                 let touchMoved = false;
 
                 taskItem.addEventListener('touchstart', (e) => {
-                    if (e.target.closest('.task-checkbox, .task-actions, .task-action-btn')) {
+                    const tel = e.target && e.target.nodeType === Node.TEXT_NODE ? e.target.parentElement : e.target;
+                    if (tel && tel.closest && tel.closest('.task-checkbox, .task-actions, .task-action-btn')) {
                         return;
                     }
 
@@ -5511,11 +5579,22 @@ class PixDoneApp {
                             isDraggingNow = true;
                             isMouseDown = true;
                             draggedElement.classList.add('dragging');
+                            draggedElement.style.opacity = '0.5';
 
-                            // Add sound feedback for successful long press
                             if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
                                 this.comicEffects.playSound('taskAdd');
                             }
+
+                            floatingClone = draggedElement.cloneNode(true);
+                            floatingClone.classList.add('floating-clone');
+                            floatingClone.style.position = 'fixed';
+                            floatingClone.style.pointerEvents = 'none';
+                            floatingClone.style.opacity = '0.85';
+                            floatingClone.style.left = `${startX - draggedElement.offsetWidth / 2}px`;
+                            floatingClone.style.top = `${startY - draggedElement.offsetHeight / 2}px`;
+                            floatingClone.style.width = `${draggedElement.offsetWidth}px`;
+                            floatingClone.style.height = `${draggedElement.offsetHeight}px`;
+                            document.body.appendChild(floatingClone);
 
                             document.addEventListener('touchmove', handleDocumentTouchMove, { passive: false });
                             document.addEventListener('touchend', handleDocumentTouchEnd, { passive: false });
@@ -5573,118 +5652,17 @@ class PixDoneApp {
             });
         };
 
-        const handleDocumentMouseMove = (e) => {
-            if (!draggedElement || !isDraggingNow) return;
-            // フローティングクローンをマウスに追従
-            if (floatingClone) {
-                floatingClone.style.left = `${e.clientX - floatingClone.offsetWidth / 2}px`;
-                floatingClone.style.top = `${e.clientY - floatingClone.offsetHeight / 2}px`;
-            }
-            const taskList = document.getElementById('taskList');
-            const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.completed):not(.dragging)'));
-            let dropIndex = -1;
-            let minDistance = Infinity;
-            tasks.forEach((task, index) => {
-                const rect = task.getBoundingClientRect();
-                const taskCenterY = rect.top + rect.height / 2;
-                const distance = Math.abs(e.clientY - taskCenterY);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    dropIndex = index;
-                }
-            });
-            // If mouse is below all tasks, drop at the end
-            if (tasks.length > 0) {
-                const lastTask = tasks[tasks.length - 1];
-                const lastRect = lastTask.getBoundingClientRect();
-                if (e.clientY > lastRect.bottom) {
-                    dropIndex = tasks.length;
-                }
-            }
-            // Show drop indicator
-            this.showSimpleDropIndicator(dropIndex, tasks);
-        };
-
-        const handleDocumentMouseUp = (e) => {
-            if (!draggedElement || !isDraggingNow) return;
-            const taskList = document.getElementById('taskList');
-            const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.completed):not(.dragging)'));
-            let dropIndex = -1;
-            let minDistance = Infinity;
-            tasks.forEach((task, index) => {
-                const rect = task.getBoundingClientRect();
-                const taskCenterY = rect.top + rect.height / 2;
-                const distance = Math.abs(e.clientY - taskCenterY);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    dropIndex = index;
-                }
-            });
-            if (tasks.length > 0) {
-                const lastTask = tasks[tasks.length - 1];
-                const lastRect = lastTask.getBoundingClientRect();
-                if (e.clientY > lastRect.bottom) {
-                    dropIndex = tasks.length;
-                }
-            }
-            // Cleanup
-            draggedElement.classList.remove('dragging');
-            draggedElement.style.opacity = '';
-            this.removeDropIndicators();
-            // フローティングクローン削除
-            if (floatingClone && floatingClone.parentNode) {
-                floatingClone.parentNode.removeChild(floatingClone);
-            }
-            floatingClone = null;
-            // Reorder tasks if needed
-            if (dropIndex >= 0 && dropIndex !== draggedIndex) {
-                this.reorderTasksWithAnimation(draggedIndex, dropIndex);
-                if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
-                    this.comicEffects.playSound('taskAdd');
-                }
-            }
-            // Reset state
-            isMouseDown = false;
-            isDraggingNow = false;
-            draggedElement = null;
-            draggedIndex = -1;
-            // Remove document listeners
-            document.removeEventListener('mousemove', handleDocumentMouseMove);
-            document.removeEventListener('mouseup', handleDocumentMouseUp);
-        };
-
-        // タッチイベント用のハンドラー
+        // タッチ: document 上の move/end（長押し後に登録）
         const handleDocumentTouchMove = (e) => {
             if (!draggedElement || !isDraggingNow) return;
             const touch = e.touches[0];
-            // フローティングクローンをタッチに追従
+            if (!touch) return;
             if (floatingClone) {
                 floatingClone.style.left = `${touch.clientX - floatingClone.offsetWidth / 2}px`;
                 floatingClone.style.top = `${touch.clientY - floatingClone.offsetHeight / 2}px`;
             }
-            const taskList = document.getElementById('taskList');
-            const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.completed):not(.dragging)'));
-            let dropIndex = -1;
-            let minDistance = Infinity;
-            tasks.forEach((task, index) => {
-                const rect = task.getBoundingClientRect();
-                const taskCenterY = rect.top + rect.height / 2;
-                const distance = Math.abs(touch.clientY - taskCenterY);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    dropIndex = index;
-                }
-            });
-            // If touch is below all tasks, drop at the end
-            if (tasks.length > 0) {
-                const lastTask = tasks[tasks.length - 1];
-                const lastRect = lastTask.getBoundingClientRect();
-                if (touch.clientY > lastRect.bottom) {
-                    dropIndex = tasks.length;
-                }
-            }
-            // Show drop indicator
-            this.showSimpleDropIndicator(dropIndex, tasks);
+            const r = this.computeTaskReorderFromPointerY(touch.clientY, draggedElement);
+            if (r) this.showSimpleDropIndicator(r.dropIndex, r.tasks);
         };
 
         const handleDocumentTouchEnd = (e) => {
@@ -5696,61 +5674,32 @@ class PixDoneApp {
 
             e.preventDefault();
             const touch = e.changedTouches[0];
-            const taskList = document.getElementById('taskList');
-            const tasks = Array.from(taskList.querySelectorAll('.task-item:not(.completed):not(.dragging)'));
-            let dropIndex = -1;
-            let minDistance = Infinity;
+            if (!touch) return;
 
-            // Find drop position
-            tasks.forEach((task, index) => {
-                const rect = task.getBoundingClientRect();
-                const taskCenterY = rect.top + rect.height / 2;
-                const distance = Math.abs(touch.clientY - taskCenterY);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    dropIndex = index;
-                }
-            });
+            const r = this.computeTaskReorderFromPointerY(touch.clientY, draggedElement);
 
-            // Handle drop at end
-            if (tasks.length > 0) {
-                const lastTask = tasks[tasks.length - 1];
-                const lastRect = lastTask.getBoundingClientRect();
-                if (touch.clientY > lastRect.bottom) {
-                    dropIndex = tasks.length;
-                }
-            }
-
-            console.log('Touch end - draggedIndex:', draggedIndex, 'dropIndex:', dropIndex);
-
-            // Cleanup dragging styles
             draggedElement.classList.remove('dragging');
             draggedElement.style.opacity = '';
             this.removeDropIndicators();
 
-            // Remove floating clone if exists
             if (floatingClone && floatingClone.parentNode) {
                 floatingClone.parentNode.removeChild(floatingClone);
             }
             floatingClone = null;
 
-            // Reorder tasks if position changed
-            if (dropIndex >= 0 && dropIndex !== draggedIndex) {
-                console.log('Reordering tasks from', draggedIndex, 'to', dropIndex);
-                this.reorderTasksWithAnimation(draggedIndex, dropIndex);
-
+            if (r) {
+                console.log('Touch end reorder', r.fromIndex, '->', r.toIndex);
+                this.reorderTasksWithAnimation(r.fromIndex, r.toIndex);
                 if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
                     this.comicEffects.playSound('taskAdd');
                 }
             }
 
-            // Reset drag state
             isMouseDown = false;
             isDraggingNow = false;
             draggedElement = null;
             draggedIndex = -1;
 
-            // Remove document listeners
             document.removeEventListener('touchmove', handleDocumentTouchMove);
             document.removeEventListener('touchend', handleDocumentTouchEnd);
             console.log('Document touch listeners removed');
