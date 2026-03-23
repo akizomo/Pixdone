@@ -1968,15 +1968,13 @@ html.task-effect-playing {
 
 /* タッチデバイス向けのドラッグ&ドロップスタイル */
 @media (hover: none) and (pointer: coarse) {
+    /*
+     * user-select: none / touch-action: pan-y は iOS Safari でタップが効かない・遅れる原因になりやすい。
+     * テキスト選択は多少ついてもよい前提で、タップで編集を優先する。
+     */
     .task-item:not(.completed) {
         cursor: grab;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        touch-action: pan-y;
+        touch-action: manipulation;
     }
 
     .task-item:not(.completed):active,
@@ -2040,13 +2038,6 @@ html.task-effect-playing {
 
 .task-item.reordering {
     transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-}
-
-.task-item {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
 }
 
 .task-item:not(.completed):active,
@@ -2216,9 +2207,6 @@ html.task-effect-playing {
 .task-content {
     flex: 1;
     min-width: 0;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
 }
 
 .task-title {
@@ -2228,9 +2216,6 @@ html.task-effect-playing {
     color: var(--text-primary);
     word-wrap: break-word;
     margin-bottom: 2px;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
 }
 
 /* Task card: vertical stack, left-aligned (override .task-item row/center) */
@@ -2324,9 +2309,6 @@ html.task-effect-playing {
     color: var(--text-secondary);
     margin-bottom: 4px;
     word-wrap: break-word;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
 }
 
 /* Subtasks block under parent (vertical hierarchy), full width, indent via margin */
