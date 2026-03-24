@@ -508,13 +508,21 @@ export function useLists() {
     if (user && !isSmashTask) {
       (async () => {
         const ref = doc(db, 'tasks', taskId);
-        await updateDoc(ref, {
-          title: fields.title,
-          details: fields.details,
-          dueDate: fields.dueDate,
-          repeat: fields.repeat,
-          subtasks: fields.subtasks,
-        });
+        // Firestore rejects undefined in update payloads — silent failure loses edits on reload.
+        const patch: Record<string, unknown> = {};
+        if ('title' in fields && fields.title !== undefined) patch.title = fields.title;
+        if ('details' in fields) patch.details = fields.details ?? '';
+        if ('dueDate' in fields) patch.dueDate = fields.dueDate;
+        if ('repeat' in fields) patch.repeat = fields.repeat ?? 'none';
+        if ('subtasks' in fields) patch.subtasks = fields.subtasks ?? [];
+        if ('completed' in fields && fields.completed !== undefined) patch.completed = fields.completed;
+        if ('sortOrder' in fields && fields.sortOrder !== undefined) patch.sortOrder = fields.sortOrder;
+        if (Object.keys(patch).length === 0) return;
+        try {
+          await updateDoc(ref, patch as Record<string, string | boolean | null | Subtask[] | number>);
+        } catch {
+          /* ignore — optimistic UI already applied */
+        }
       })();
     }
   }, [setLists, user]);

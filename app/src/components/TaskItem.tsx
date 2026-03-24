@@ -1,4 +1,4 @@
-import type { PointerEvent } from 'react';
+import type { PointerEvent, TouchEvent } from 'react';
 import type { Task } from '../types/task';
 import { formatDueDate, getDueStatus } from '../lib/date';
 import { t } from '../lib/i18n';
@@ -13,8 +13,10 @@ export interface TaskItemProps {
   onDelete?: (taskId: string) => void;
   /** When true, row click does not open edit (e.g. after long-press reorder). */
   suppressOpenEdit?: () => boolean;
-  /** Long-press reorder (touch/pen); attach to row pointerdown. */
+  /** Long-press reorder: pointer path (mouse / pen). */
   onReorderPointerDown?: (e: PointerEvent<HTMLDivElement>) => void;
+  /** Long-press reorder: touch path (iOS / coarse pointers). */
+  onReorderTouchStart?: (e: TouchEvent<HTMLDivElement>) => void;
 }
 
 const repeatShort: Record<NonNullable<Task['repeat']>, { en: string; ja: string }> = {
@@ -40,6 +42,7 @@ export function TaskItem({
   onDelete,
   suppressOpenEdit,
   onReorderPointerDown,
+  onReorderTouchStart,
 }: TaskItemProps) {
   const dueLabel = formatDueDate(task.dueDate, lang);
   const repeatLabel = task.repeat && task.repeat !== 'none' ? (repeatShort[task.repeat]?.[lang] ?? '') : '';
@@ -75,10 +78,12 @@ export function TaskItem({
         fontFamily: 'var(--pd-font-body)',
         opacity: task.completed ? 0.7 : 1,
         touchAction: 'pan-y',
+        WebkitTouchCallout: 'none',
       }}
       className="task-item-row"
       data-task-id={task.id}
       onPointerDown={onReorderPointerDown}
+      onTouchStart={onReorderTouchStart}
       onClick={(e) => {
         if (isSmash) return;
         if (suppressOpenEdit?.()) return;

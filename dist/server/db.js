@@ -45,6 +45,17 @@ export function buildPgPoolConfig(connectionString) {
             process.env.VERCEL === "1");
     if (needsSsl) {
         cfg.ssl = { rejectUnauthorized: false };
+        // sslmode=require in the URL causes pg to apply its own TLS verification
+        // independently of our ssl config, resulting in certificate errors.
+        // Strip sslmode from the URL so our ssl object is the sole TLS authority.
+        try {
+            const u = new URL(connectionString);
+            if (u.searchParams.has("sslmode")) {
+                u.searchParams.delete("sslmode");
+                cfg.connectionString = u.toString();
+            }
+        }
+        catch { /* ignore */ }
     }
     // Vercel ↔ Supabase で IPv6 経路が不安定なときの回避（必要なら Vercel で PG_USE_IPV4=1）
     if (process.env.PG_USE_IPV4 === "1" &&

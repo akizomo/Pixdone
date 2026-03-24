@@ -3,6 +3,7 @@ import { ThemeProvider, Button, Chip, ModalDialog, BottomSheet } from './design-
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
   TaskForm, ListModal, AuthModal, BottomNav, FocusScreen,
+  WhatsNewDialog, hasSeenWhatsNew,
 } from './components';
 import type { ListModalMode, ActiveScreen } from './components';
 import { useLists } from './features/useLists';
@@ -67,6 +68,9 @@ function AppContent() {
 
   // Delete task confirmation
   const [deleteTaskConfirm, setDeleteTaskConfirm] = useState<string | null>(null); // taskId
+
+  // What's New dialog — show once per version
+  const [whatsNewOpen, setWhatsNewOpen] = useState(() => !hasSeenWhatsNew());
 
   /* ---- Screen navigation ---- */
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
@@ -325,7 +329,7 @@ function AppContent() {
     setListModal(null);
   }, [listModal, addList, renameList, deleteList, lists]);
 
-  const anyModalOpen = signupOpen || themeModalOpen || listModal !== null || mobileSheetOpen || deleteTaskConfirm !== null || focusZenOpen;
+  const anyModalOpen = signupOpen || themeModalOpen || listModal !== null || mobileSheetOpen || deleteTaskConfirm !== null || focusZenOpen || whatsNewOpen;
   const isFocusScreen = activeScreen === 'focus';
 
   const handleSwipe = useCallback((dir: 'left' | 'right') => {
@@ -375,18 +379,18 @@ function AppContent() {
     [currentList?.id, reorderActiveTasks],
   );
 
-  const { containerRef: activeReorderContainerRef, onRowPointerDown } = useActiveTaskLongPressReorder({
-    enabled:
-      !isDesktop &&
-      !anyModalOpen &&
-      !isFocusScreen &&
-      !isSmash &&
-      activeTasks.length >= 2 &&
-      activeScreen === 'tasks',
-    slotCount: activeTasks.length,
-    onReorder: handleReorderActive,
-    suppressRowClickUntilRef,
-  });
+  const { containerRef: activeReorderContainerRef, onRowPointerDown, onRowTouchStart } =
+    useActiveTaskLongPressReorder({
+      enabled:
+        !anyModalOpen &&
+        !isFocusScreen &&
+        !isSmash &&
+        activeTasks.length >= 2 &&
+        activeScreen === 'tasks',
+      slotCount: activeTasks.length,
+      onReorder: handleReorderActive,
+      suppressRowClickUntilRef,
+    });
 
   const setMainScrollRef = useCallback(
     (el: HTMLDivElement | null) => {
@@ -1038,6 +1042,7 @@ function AppContent() {
                         onDelete={handleDelete}
                         suppressOpenEdit={() => Date.now() < suppressRowClickUntilRef.current}
                         onReorderPointerDown={onRowPointerDown(activeIndex)}
+                        onReorderTouchStart={onRowTouchStart(activeIndex)}
                       />
                     )}
                   </div>
@@ -1239,6 +1244,13 @@ function AppContent() {
           {t('deleteTaskConfirm', lang)}
         </p>
       </ModalDialog>
+
+      {/* What's New dialog */}
+      <WhatsNewDialog
+        open={whatsNewOpen}
+        onClose={() => setWhatsNewOpen(false)}
+        lang={lang}
+      />
     </div>
   );
 }

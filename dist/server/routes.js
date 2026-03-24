@@ -53,10 +53,19 @@ export async function registerRoutes(app) {
         }
         catch (error) {
             console.error("API Health check failed:", error);
+            const cause = error instanceof Error && error.cause;
+            const causeMsg = cause instanceof Error ? cause.message : cause ? String(cause) : undefined;
+            let dbHost;
+            try {
+                dbHost = new URL(process.env.DATABASE_URL ?? "").hostname;
+            }
+            catch { /* ignore */ }
             res.status(500).json({
                 status: 'unhealthy',
                 message: 'Database connection failed',
                 error: error instanceof Error ? error.message : String(error),
+                cause: causeMsg,
+                dbHost,
                 timestamp: new Date().toISOString()
             });
         }
@@ -210,7 +219,12 @@ export async function registerRoutes(app) {
         }
         catch (error) {
             console.error("Error creating synthwave checkout session:", error);
-            res.status(500).json({ message: "Failed to create checkout session" });
+            res.status(500).json({
+                message: "Failed to create checkout session",
+                detail: error?.message ?? String(error),
+                stripeCode: error?.code,
+                stripeType: error?.type,
+            });
         }
     });
     // Webhook: no auth; verifies Stripe signature and updates DB entitlement.
