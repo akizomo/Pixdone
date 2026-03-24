@@ -21,12 +21,10 @@ export function markWhatsNewSeen(): void {
 
 const IMPROVEMENTS = {
   en: [
-    'Drag & drop task reorder on desktop and mobile',
     'Faster, smoother UI rebuilt in React',
     'More reliable cloud sync across devices',
   ],
   ja: [
-    'デスクトップ・モバイル両対応のドラッグ＆ドロップ並び替え',
     'React で作り直した、より速くなめらかな UI',
     'デバイス間のクラウド同期をさらに安定化',
   ],
@@ -70,7 +68,7 @@ export function WhatsNewDialog({ open, onClose, lang = 'en' }: WhatsNewDialogPro
           marginBottom: '16px',
         }}
       >
-        <span style={{ fontSize: '2rem', lineHeight: 1, flexShrink: 0 }}>🍅</span>
+        <span style={{ fontSize: '1.75rem', lineHeight: 1, flexShrink: 0 }}>⏱️</span>
         <div>
           <div
             style={{
@@ -94,8 +92,8 @@ export function WhatsNewDialog({ open, onClose, lang = 'en' }: WhatsNewDialogPro
             }}
           >
             {isJa
-              ? '25分フォーカス → 休憩のサイクルで集中力を持続。フォーカスタブから使えるよ。'
-              : '25-minute focus sessions followed by breaks to keep you in flow. Find it in the Focus tab.'}
+              ? '25分フォーカス → 休憩のサイクルで集中力アップ。ピクセル世界観のBGM・サウンドと組み合わせて、さらに没入できるよ。フォーカスタブから試してみて。'
+              : '25-minute focus sessions with breaks to keep you in flow. Pair it with pixel-style BGM and chiptune sound effects for full immersion. Check the Focus tab.'}
           </div>
         </div>
       </div>
