@@ -3061,7 +3061,7 @@ class ComicEffectsManager {
             textStyle: "font",
             pixelSize: 6,
             showPenguin: true,
-            penguinImageUrl: "assets/penguin.svg",
+            penguinImageUrl: "/assets/penguin.svg",
             showCracks: true,
             particles: 60,
             zIndex: 9999,

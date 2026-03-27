@@ -520,7 +520,9 @@ function AppContent() {
           flexDirection: 'column',
           flexShrink: 0,
           gap: 'var(--pd-layout-header-gap, 16px)',
-          marginBottom: 'var(--pd-layout-header-marginBottom, 24px)',
+          marginBottom: isFocusScreen
+            ? 'var(--pd-layout-header-marginBottom-focus, 12px)'
+            : 'var(--pd-layout-header-marginBottom, 24px)',
           paddingTop: 'var(--pd-layout-header-paddingVertical, 16px)',
           paddingBottom: 'var(--pd-layout-header-paddingVertical, 16px)',
         }}
