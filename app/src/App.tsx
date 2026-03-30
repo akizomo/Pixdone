@@ -598,6 +598,9 @@ function AppContent() {
     <div
       className="pd-app-container"
       style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
         paddingBottom: focusZenOpen ? 0 : '80px',
       }}
     >
@@ -808,7 +811,7 @@ function AppContent() {
       </header>
       )}
 
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, paddingBottom: '48px' }}>
         {isFocusScreen ? (
           user ? (
             <FocusScreen
@@ -1402,6 +1405,7 @@ function AppContent() {
         justifyContent: 'center',
         gap: '16px',
         flexShrink: 0,
+        marginTop: 'auto',
       }}>
         <a
           href="/tokushoho.html"
