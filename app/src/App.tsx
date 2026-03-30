@@ -372,7 +372,16 @@ function AppContent() {
     setListModal(null);
   }, [listModal, addList, renameList, deleteList, lists]);
 
-  const anyModalOpen = signupOpen || themeModalOpen || listModal !== null || mobileSheetOpen || deleteTaskConfirm !== null || focusZenOpen || whatsNewOpen;
+  const inlineTaskFormOpen = preferInlineTaskUi && taskFormMode !== null;
+  const anyModalOpen =
+    signupOpen ||
+    themeModalOpen ||
+    listModal !== null ||
+    mobileSheetOpen ||
+    deleteTaskConfirm !== null ||
+    focusZenOpen ||
+    whatsNewOpen ||
+    inlineTaskFormOpen;
 
   const handleSwipe = useCallback((dir: 'left' | 'right') => {
     const currentIdx = listTabsOrder.findIndex((l) => l.id === activeListId);
@@ -410,6 +419,28 @@ function AppContent() {
   });
 
   const suppressRowClickUntilRef = useRef(0);
+  const inlineTaskFormRef = useRef<HTMLDivElement>(null);
+
+  /* Desktop inline TaskForm: dismiss on outside tap (overlay-style UX) */
+  useEffect(() => {
+    if (!inlineTaskFormOpen) return;
+    let downHandler: ((e: MouseEvent) => void) | null = null;
+    const tid = window.setTimeout(() => {
+      downHandler = (e: MouseEvent) => {
+        const panel = inlineTaskFormRef.current;
+        const t = e.target as Node;
+        if (!panel || panel.contains(t)) return;
+        const addSection = document.querySelector('.pd-add-task-section');
+        if (taskFormMode === 'add' && addSection?.contains(t)) return;
+        handleTaskFormCancel();
+      };
+      document.addEventListener('mousedown', downHandler, true);
+    }, 0);
+    return () => {
+      window.clearTimeout(tid);
+      if (downHandler) document.removeEventListener('mousedown', downHandler, true);
+    };
+  }, [inlineTaskFormOpen, taskFormMode, handleTaskFormCancel]);
 
   const handleReorderActive = useCallback(
     (from: number, to: number) => {
@@ -1098,7 +1129,7 @@ function AppContent() {
               {/* Active tasks */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {taskFormMode === 'add' && (
-                  <div style={{ paddingTop: '16px', paddingBottom: '16px' }}>
+                  <div ref={inlineTaskFormRef} style={{ paddingTop: '16px', paddingBottom: '16px' }}>
                     <TaskForm
                       lang={lang}
                       listId={currentList?.id ?? ''}
@@ -1125,7 +1156,7 @@ function AppContent() {
                       />
                     )}
                     {taskFormMode === task.id && editingTask ? (
-                      <div style={{ paddingTop: '16px', paddingBottom: '16px' }}>
+                      <div ref={inlineTaskFormRef} style={{ paddingTop: '16px', paddingBottom: '16px' }}>
                         <TaskForm
                           lang={lang}
                           listId={currentList?.id ?? ''}

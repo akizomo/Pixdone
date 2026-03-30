@@ -3780,7 +3780,7 @@ class PixDoneApp {
         if (editForm) {
             // Clean up outside click handler
             if (editForm._outsideClickHandler) {
-                document.removeEventListener('click', editForm._outsideClickHandler);
+                document.removeEventListener('pointerdown', editForm._outsideClickHandler, true);
             }
             editForm.remove();
         }
@@ -3988,26 +3988,27 @@ class PixDoneApp {
 
     // Set up click-outside-to-close behavior for inline edit
     setupInlineEditClickOutside(editForm, taskId) {
-        const handleOutsideClick = (event) => {
-            // Check if click is outside the edit form
+        const handleOutsidePointer = (event) => {
+            // Check if pointer is outside the edit form
             if (!editForm.contains(event.target)) {
-                // Also check if click is not on the original task element (to avoid closing when clicking to edit)
+                // Also check if pointer is not on the original task element (to avoid closing when clicking to edit)
                 const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
                 if (!taskElement || !taskElement.contains(event.target)) {
                     console.log('Click outside detected, closing inline edit');
                     this.cancelInlineEdit(taskId);
-                    document.removeEventListener('click', handleOutsideClick);
+                    document.removeEventListener('pointerdown', handleOutsidePointer, true);
                 }
             }
         };
 
-        // Add the listener after a short delay to avoid immediate closure
+        // Capture phase so the handler runs even if inner handlers call stopPropagation on bubble.
+        // Short delay avoids closing from the same gesture that opened the editor.
         setTimeout(() => {
-            document.addEventListener('click', handleOutsideClick);
+            document.addEventListener('pointerdown', handleOutsidePointer, true);
         }, 100);
 
         // Store the listener for cleanup
-        editForm._outsideClickHandler = handleOutsideClick;
+        editForm._outsideClickHandler = handleOutsidePointer;
     }
 
     // Inline edit date and repeat functions
