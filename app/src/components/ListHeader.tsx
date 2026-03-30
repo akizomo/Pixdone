@@ -27,6 +27,7 @@ export function ListHeader({ title, showMenu, lang = 'en', onRename, onDelete }:
 
   return (
     <div
+      className="pd-list-header"
       style={{
         display: 'flex',
         justifyContent: 'space-between',

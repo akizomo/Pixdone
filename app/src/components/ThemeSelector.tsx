@@ -11,7 +11,7 @@ interface ThemeSelectorProps {
 }
 
 export function ThemeSelector({ onClose }: ThemeSelectorProps) {
-  const { visualTheme, changeTheme } = useUserTheme();
+  const { visualTheme, changeTheme, colorMode, toggleColorMode } = useUserTheme();
   const { synthwavePremium } = useThemeEntitlements();
   const { user, syncServerSession, serverSessionError } = useAuth();
   const [unlocking, setUnlocking] = useState(false);
@@ -90,17 +90,44 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
         padding: '4px 0',
       }}
     >
-      <p
-        style={{
-          fontFamily: 'var(--pd-font-brand)',
-          fontSize: '0.75rem',
-          color: 'var(--pd-color-text-secondary)',
-          letterSpacing: '1px',
-          margin: 0,
-        }}
-      >
-        SELECT THEME
-      </p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <p
+          style={{
+            fontFamily: 'var(--pd-font-brand)',
+            fontSize: '0.75rem',
+            color: 'var(--pd-color-text-secondary)',
+            letterSpacing: '1px',
+            margin: 0,
+          }}
+        >
+          SELECT THEME
+        </p>
+        <button
+          type="button"
+          onClick={() => { playSound('buttonClick'); toggleColorMode(); }}
+          aria-label={colorMode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 10px',
+            background: 'var(--pd-color-background-elevated)',
+            border: '2px solid var(--pd-color-border-default)',
+            borderRadius: 0,
+            cursor: 'pointer',
+            fontFamily: 'var(--pd-font-brand)',
+            fontSize: '0.7rem',
+            color: 'var(--pd-color-text-primary)',
+            letterSpacing: '1px',
+            transition: 'background 0.15s, border-color 0.15s',
+          }}
+        >
+          <span style={{ fontSize: '1rem', lineHeight: 1 }}>
+            {colorMode === 'dark' ? '☀' : '🌙'}
+          </span>
+          {colorMode === 'dark' ? 'LIGHT' : 'DARK'}
+        </button>
+      </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {themeList.map((theme) => {
           const isActive = theme.key === visualTheme;

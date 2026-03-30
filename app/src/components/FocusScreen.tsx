@@ -9,6 +9,7 @@ import { playSound } from '../services/sound';
 import type { List } from '../types/list';
 import type { Task } from '../types/task';
 import type { FocusTimerState } from '../hooks/useFocusTimer';
+import { useWakeLock } from '../hooks/useWakeLock';
 import type { BgmTrack } from '../services/bgm';
 
 export type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak';
@@ -88,6 +89,7 @@ export function FocusScreen({
   onSkipBreak,
   onCompleteFocus,
 }: FocusScreenProps) {
+  useWakeLock(timerState === 'running');
   const [taskPanelMode, setTaskPanelMode] = useState<'today' | 'lists'>('today');
   const [selectedListId, setSelectedListId] = useState<string>(() => lists[0]?.id ?? '');
   const SMALL_STEPS = [1, 3, 5] as const;

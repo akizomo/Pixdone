@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プライバシーポリシー / Privacy Policy — PixDone</title>
+  <link rel="icon" type="image/svg+xml" href="/PixDone.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design-system primitives (subset of tokens.css) ── */
+    :root {
+      --pxd-gray-50:  #F7F7F8;
+      --pxd-gray-100: #EFEFF1;
+      --pxd-gray-300: #C7C9D1;
+      --pxd-gray-600: #666C7A;
+      --pxd-gray-700: #4C5160;
+      --pxd-gray-900: #191D24;
+      --pxd-white:    #FFFFFF;
+      --pxd-ink-50:  #E8EBF4;
+      --pxd-ink-100: #9DA3B4;
+      --pxd-ink-200: #5E6478;
+      --pxd-ink-500: #354262;
+      --pxd-ink-700: #252D40;
+      --pxd-ink-800: #1E2435;
+      --pxd-ink-900: #1A1F2C;
+      --pxd-ink-950: #12151C;
+      --pxd-purple-400: #A590FF;
+      --pxd-purple-500: #7B61FF;
+      --pxd-font-body:  "Inter", system-ui, sans-serif;
+      --pxd-font-brand: "VT323", monospace;
+
+      /* Semantic – light mode */
+      --pxd-color-surface-page:      var(--pxd-gray-50);
+      --pxd-color-surface-secondary: var(--pxd-gray-100);
+      --pxd-color-surface-primary:   var(--pxd-white);
+      --pxd-color-text-primary:      var(--pxd-gray-900);
+      --pxd-color-text-secondary:    var(--pxd-gray-700);
+      --pxd-color-text-tertiary:     var(--pxd-gray-600);
+      --pxd-color-border-outline:    var(--pxd-gray-300);
+      --pxd-color-action-primary:    var(--pxd-purple-500);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --pxd-color-surface-page:      var(--pxd-ink-950);
+        --pxd-color-surface-secondary: var(--pxd-ink-900);
+        --pxd-color-surface-primary:   var(--pxd-ink-800);
+        --pxd-color-text-primary:      var(--pxd-ink-50);
+        --pxd-color-text-secondary:    var(--pxd-ink-100);
+        --pxd-color-text-tertiary:     var(--pxd-ink-200);
+        --pxd-color-border-outline:    var(--pxd-ink-500);
+        --pxd-color-action-primary:    var(--pxd-purple-400);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--pxd-color-surface-page);
+      color: var(--pxd-color-text-primary);
+      font-family: var(--pxd-font-body);
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    .page-header {
+      background: var(--pxd-color-surface-primary);
+      border-bottom: 1px solid var(--pxd-color-border-outline);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      font-family: var(--pxd-font-brand);
+      font-size: 1.5rem;
+      color: var(--pxd-color-text-primary);
+      text-decoration: none;
+    }
+    .page-header-sep { color: var(--pxd-color-text-tertiary); }
+    .page-header-label { font-size: 0.875rem; color: var(--pxd-color-text-secondary); }
+    .lang-toggle {
+      margin-left: auto;
+      display: flex;
+      gap: 4px;
+    }
+    .lang-btn {
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-family: var(--pxd-font-body);
+      background: none;
+      border: 1px solid var(--pxd-color-border-outline);
+      color: var(--pxd-color-text-secondary);
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: var(--pxd-color-action-primary);
+      border-color: var(--pxd-color-action-primary);
+      color: #fff;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      border-bottom: 2px solid var(--pxd-color-action-primary);
+      padding-bottom: 12px;
+    }
+    .updated {
+      color: var(--pxd-color-text-tertiary);
+      font-size: 0.8125rem;
+      margin-bottom: 36px;
+    }
+    h2 { font-size: 1.0625rem; font-weight: 600; margin: 32px 0 10px; }
+    p { margin-bottom: 12px; }
+    ul { margin: 8px 0 12px 20px; }
+    ul li { margin-bottom: 4px; }
+    a { color: var(--pxd-color-action-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    footer {
+      text-align: center;
+      padding: 24px 20px;
+      border-top: 1px solid var(--pxd-color-border-outline);
+      color: var(--pxd-color-text-tertiary);
+      font-size: 0.8125rem;
+    }
+    footer a { color: var(--pxd-color-text-tertiary); text-decoration: underline; }
+    footer a:hover { color: var(--pxd-color-text-secondary); }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <a href="/" class="logo">PixDone</a>
+    <span class="page-header-sep">/</span>
+    <span class="page-header-label" id="header-label"></span>
+    <div class="lang-toggle">
+      <button class="lang-btn" id="btn-ja" onclick="setLang('ja')">Ja</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">En</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Japanese -->
+    <div id="content-ja">
+      <h1>プライバシーポリシー</h1>
+      <p class="updated">最終更新: <span class="updated-year"></span></p>
+      <p>PixDone（以下「当サービス」）は、お客様のプライバシーを尊重し、個人情報の保護に努めます。</p>
+
+      <h2>1. 収集する情報</h2>
+      <ul>
+        <li><strong>アカウント情報</strong>: メールアドレス（登録・ログイン時）</li>
+        <li><strong>利用データ</strong>: タスク内容・リスト名・完了状態</li>
+        <li><strong>設定情報</strong>: 言語・サウンド・テーマ設定</li>
+        <li><strong>決済情報</strong>: カード情報はStripeが管理し、当サービスのサーバーには保存されません</li>
+      </ul>
+
+      <h2>2. 情報の利用目的</h2>
+      <ul>
+        <li>サービスの提供・維持・改善</li>
+        <li>アカウント管理とデータの同期</li>
+        <li>有料機能（プレミアムテーマ等）の提供</li>
+        <li>サポートへの対応</li>
+      </ul>
+
+      <h2>3. 第三者サービス</h2>
+      <ul>
+        <li><strong>Firebase（Google）</strong>: 認証・DB — <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">プライバシーポリシー</a></li>
+        <li><strong>Stripe</strong>: 決済処理 — <a href="https://stripe.com/jp/privacy" target="_blank" rel="noopener">プライバシーポリシー</a></li>
+        <li><strong>Vercel</strong>: ホスティング — <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">プライバシーポリシー</a></li>
+      </ul>
+      <p>法令に基づく場合を除き、個人情報を第三者に販売・貸与することはありません。</p>
+
+      <h2>4. Cookieとローカルストレージ</h2>
+      <p>サービス機能のためにブラウザのローカルストレージを使用します。Firebase認証にはCookieが使用される場合があります。</p>
+
+      <h2>5. データの削除</h2>
+      <p>アカウントを削除すると、Firestoreに保存されたデータは削除されます。アカウント削除はアプリ内のユーザーメニューから行えます。</p>
+
+      <h2>6. 未成年者について</h2>
+      <p>当サービスは13歳未満の方を対象としていません。</p>
+
+      <h2>7. ポリシーの変更</h2>
+      <p>重要な変更がある場合はサービス上でお知らせします。</p>
+
+      <h2>8. お問い合わせ</h2>
+      <p>アプリ内のサポートリンクまたは公開連絡先までご連絡ください。</p>
+    </div>
+
+    <!-- English -->
+    <div id="content-en">
+      <h1>Privacy Policy</h1>
+      <p class="updated">Last updated: <span class="updated-year"></span></p>
+      <p>PixDone ("the Service") is committed to protecting your privacy. This policy explains what information we collect and how we use it.</p>
+
+      <h2>1. Information We Collect</h2>
+      <ul>
+        <li><strong>Account information</strong>: Email address (when you sign up or log in)</li>
+        <li><strong>Usage data</strong>: Task content, list names, completion status</li>
+        <li><strong>Preferences</strong>: Language, sound, and theme settings</li>
+        <li><strong>Payment information</strong>: Card details are handled by Stripe and never stored on our servers</li>
+      </ul>
+
+      <h2>2. How We Use Your Information</h2>
+      <ul>
+        <li>Providing, maintaining, and improving the Service</li>
+        <li>Managing your account and syncing data across devices</li>
+        <li>Delivering paid features (e.g. premium themes)</li>
+        <li>Responding to support requests</li>
+      </ul>
+
+      <h2>3. Third-Party Services</h2>
+      <ul>
+        <li><strong>Firebase (Google)</strong>: Auth &amp; database — <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Privacy Policy</a></li>
+        <li><strong>Stripe</strong>: Payment processing — <a href="https://stripe.com/privacy" target="_blank" rel="noopener">Privacy Policy</a></li>
+        <li><strong>Vercel</strong>: Hosting — <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a></li>
+      </ul>
+      <p>We do not sell or rent your personal information to third parties, except as required by law.</p>
+
+      <h2>4. Cookies &amp; Local Storage</h2>
+      <p>We use browser local storage to save tasks locally and persist your settings. Firebase authentication may use cookies for session management.</p>
+
+      <h2>5. Data Deletion</h2>
+      <p>Deleting your account removes all associated data from Firestore. You can delete your account from the user menu inside the app.</p>
+
+      <h2>6. Children</h2>
+      <p>The Service is not intended for children under 13 years of age.</p>
+
+      <h2>7. Changes to This Policy</h2>
+      <p>We will notify you of significant changes through the Service.</p>
+
+      <h2>8. Contact</h2>
+      <p>For privacy-related questions, please use the support link in the app or our public contact.</p>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">PixDone</a> &nbsp;|&nbsp;
+    <a href="/tokushoho.html" id="footer-commerce-link"></a>
+  </footer>
+
+  <script>
+    const i18n = {
+      ja: { headerLabel: 'プライバシーポリシー', commerceLink: '特定商取引法に基づく表示' },
+      en: { headerLabel: 'Privacy Policy',       commerceLink: 'Commerce Disclosure' },
+    };
+
+    function setLang(lang) {
+      document.getElementById('content-ja').style.display = lang === 'ja' ? '' : 'none';
+      document.getElementById('content-en').style.display = lang === 'en' ? '' : 'none';
+      document.getElementById('btn-ja').classList.toggle('active', lang === 'ja');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.getElementById('header-label').textContent = i18n[lang].headerLabel;
+      document.getElementById('footer-commerce-link').textContent = i18n[lang].commerceLink;
+      document.documentElement.lang = lang;
+      try { localStorage.setItem('pixdone-lang', lang); } catch(e) {}
+    }
+
+    document.querySelectorAll('.updated-year').forEach(el => {
+      el.textContent = new Date().getFullYear();
+    });
+
+    const saved = (() => { try { return localStorage.getItem('pixdone-lang'); } catch(e) { return null; } })();
+    setLang(saved === 'en' ? 'en' : 'ja');
+  </script>
+</body>
+</html>

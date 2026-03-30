@@ -5,6 +5,10 @@ export type FocusTimerState = 'idle' | 'running' | 'paused';
 export function useFocusTimer(onTimerEnd?: () => void) {
   const [timerState, setTimerState] = useState<FocusTimerState>('idle');
   const [remaining, setRemaining] = useState(25 * 60);
+  // Mirror remaining in a ref for synchronous access (avoids stale closure in startTick).
+  const remainingRef = useRef(25 * 60);
+  // Unix ms when the timer should reach 0. null when not running.
+  const deadlineRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const onTimerEndRef = useRef(onTimerEnd);
   onTimerEndRef.current = onTimerEnd;
@@ -15,48 +19,72 @@ export function useFocusTimer(onTimerEnd?: () => void) {
     };
   }, []);
 
-  const clearTick = () => {
+  const updateRemaining = (secs: number) => {
+    remainingRef.current = secs;
+    setRemaining(secs);
+  };
+
+  const clearTick = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-  };
-
-  const startTick = useCallback(() => {
-    clearTick();
-    intervalRef.current = setInterval(() => {
-      setRemaining((prev) => {
-        if (prev <= 1) {
-          clearTick();
-          setTimerState('idle');
-          onTimerEndRef.current?.();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
   }, []);
+
+  const syncRemaining = useCallback(() => {
+    if (deadlineRef.current === null) return;
+    const newRemaining = Math.ceil((deadlineRef.current - Date.now()) / 1000);
+    if (newRemaining <= 0) {
+      clearTick();
+      deadlineRef.current = null;
+      updateRemaining(0);
+      setTimerState('idle');
+      onTimerEndRef.current?.();
+    } else {
+      updateRemaining(newRemaining);
+    }
+  }, [clearTick]);
+
+  const startTick = useCallback((remainingSeconds: number) => {
+    clearTick();
+    deadlineRef.current = Date.now() + remainingSeconds * 1000;
+    // 500ms interval: more responsive than 1s, still deadline-based so no drift.
+    intervalRef.current = setInterval(syncRemaining, 500);
+  }, [clearTick, syncRemaining]);
+
+  // Sync timer when iOS wakes from sleep.
+  useEffect(() => {
+    const handler = () => {
+      if (document.visibilityState === 'visible' && deadlineRef.current !== null) {
+        syncRemaining();
+      }
+    };
+    document.addEventListener('visibilitychange', handler);
+    return () => document.removeEventListener('visibilitychange', handler);
+  }, [syncRemaining]);
 
   const start = useCallback(() => {
     setTimerState('running');
-    startTick();
+    startTick(remainingRef.current);
   }, [startTick]);
 
   const pause = useCallback(() => {
     clearTick();
+    deadlineRef.current = null;
     setTimerState('paused');
-  }, []);
+  }, [clearTick]);
 
   const resume = useCallback(() => {
     setTimerState('running');
-    startTick();
+    startTick(remainingRef.current);
   }, [startTick]);
 
   const reset = useCallback((seconds: number) => {
     clearTick();
+    deadlineRef.current = null;
     setTimerState('idle');
-    setRemaining(seconds);
-  }, []);
+    updateRemaining(seconds);
+  }, [clearTick]);
 
   return { timerState, remaining, start, pause, resume, reset };
 }

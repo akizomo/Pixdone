@@ -1,4 +1,6 @@
-import { useState, useCallback, useEffect, useRef, useMemo, type MutableRefObject } from 'react';
+import {
+  useState, useCallback, useEffect, useRef, useMemo, useSyncExternalStore, type MutableRefObject,
+} from 'react';
 import { ThemeProvider, Button, Chip, ModalDialog, BottomSheet } from './design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
@@ -24,6 +26,35 @@ import type { List } from './types/list';
 import type { Task } from './types/task';
 import type { BgmTrack } from './services/bgm';
 import { FocusZenMode } from './components/FocusZenMode';
+
+/**
+ * Desktop UI: at least one fine pointer (mouse/trackpad). No viewport width involved —
+ * touch-only devices use phone chrome at any width. Keep in sync with pixel.css.
+ */
+const FINE_POINTER_MQ = '(any-pointer: fine)';
+
+function subscribeFinePointer(onStoreChange: () => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const mq = window.matchMedia(FINE_POINTER_MQ);
+  const schedule = () => onStoreChange();
+  if (typeof mq.addEventListener === 'function') {
+    mq.addEventListener('change', schedule);
+  } else {
+    mq.addListener(schedule);
+  }
+  return () => {
+    if (typeof mq.removeEventListener === 'function') {
+      mq.removeEventListener('change', schedule);
+    } else {
+      mq.removeListener(schedule);
+    }
+  };
+}
+
+function getFinePointerSnapshot(): boolean {
+  if (typeof window === 'undefined') return true;
+  return window.matchMedia(FINE_POINTER_MQ).matches;
+}
 
 function AppContent() {
   const {
@@ -74,19 +105,9 @@ function AppContent() {
 
   /* ---- Screen navigation ---- */
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
-  const [isDesktop, setIsDesktop] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    return window.matchMedia('(min-width: 769px)').matches;
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia('(min-width: 769px)');
-    const apply = () => setIsDesktop(mq.matches);
-    apply();
-    mq.addEventListener?.('change', apply);
-    return () => mq.removeEventListener?.('change', apply);
-  }, []);
+  const hasFinePointer = useSyncExternalStore(subscribeFinePointer, getFinePointerSnapshot, () => true);
+  const isDesktop = hasFinePointer;
+  const preferInlineTaskUi = hasFinePointer;
 
   /* ---- Sound state (vanilla parity: pixdone-sound-enabled, ComicEffectsManager when loaded) ---- */
   const [soundMuted, setSoundMuted] = useState(() => !getSoundEnabled());
@@ -96,6 +117,22 @@ function AppContent() {
     initSoundEngine();
     setSoundMuted(!getSoundEnabled());
   }, []);
+
+  /* ---- Touch-first UI: viewport narrow while inline was open → BottomSheet ---- */
+  useEffect(() => {
+    if (preferInlineTaskUi) return;
+    if (taskFormMode === 'add') {
+      setMobileSheetOpen(true);
+      setMobileEditTaskId(null);
+      setTaskFormMode(null);
+      return;
+    }
+    if (taskFormMode) {
+      setMobileEditTaskId(taskFormMode);
+      setMobileSheetOpen(true);
+      setTaskFormMode(null);
+    }
+  }, [preferInlineTaskUi, taskFormMode]);
 
   /* ---- Sync document language for font rules ([lang=\"ja\"] selectors) ---- */
   useEffect(() => {
@@ -138,8 +175,13 @@ function AppContent() {
   }, [user, lists, renameList]);
 
   /* ---- Derived ---- */
-  const isSmash = currentList?.id === 'smash-list' || currentList?.name === '💥 Smash List';
+  const isSmash =
+    activeListId === 'smash-list' ||
+    currentList?.id === 'smash-list' ||
+    currentList?.name === '💥 Smash List';
   const isTutorial = currentList?.id === 'default';
+
+  const isFocusScreen = activeScreen === 'focus';
 
   const allTasks = currentList?.tasks ?? [];
   const activeTasks = allTasks.filter((t) => !t.completed);
@@ -204,24 +246,22 @@ function AppContent() {
   }, [uncompleteTask]);
 
   const handleEdit = useCallback((taskId: string) => {
-    if (isDesktop) {
-      // Desktop: vanilla parity – inline editor at top
+    if (preferInlineTaskUi) {
+      // Inline editor (mouse / fine pointer — any viewport width)
       setTaskFormMode(taskId);
       setMobileSheetOpen(false);
       setMobileEditTaskId(null);
-      // Improve perceived responsiveness: scroll the selected row into view
       requestAnimationFrame(() => {
         const el = document.querySelector(`[data-task-id="${taskId}"]`);
         el?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
       });
     } else {
-      // Mobile: BottomSheet
       setTaskFormMode(null);
       setMobileEditTaskId(taskId);
       setMobileSheetOpen(true);
     }
     playSound('taskEdit');
-  }, [isDesktop]);
+  }, [preferInlineTaskUi]);
 
   const doDelete = useCallback((taskId: string) => {
     deleteTask(taskId);
@@ -287,7 +327,7 @@ function AppContent() {
     }
     // Other lists: open task add UI
     playSound('buttonClick');
-    if (isDesktop) {
+    if (preferInlineTaskUi) {
       setTaskFormMode('add');
       setMobileSheetOpen(false);
       setMobileEditTaskId(null);
@@ -296,7 +336,7 @@ function AppContent() {
       setMobileEditTaskId(null);
       setMobileSheetOpen(true);
     }
-  }, [isSmash, currentList, handleSmash, isDesktop]);
+  }, [isSmash, currentList, handleSmash, preferInlineTaskUi]);
 
   /* ---- Sound toggle (vanilla: sync ComicEffectsManager.setSoundEnabled so effect sounds match) ---- */
   const toggleSound = () => {
@@ -330,7 +370,6 @@ function AppContent() {
   }, [listModal, addList, renameList, deleteList, lists]);
 
   const anyModalOpen = signupOpen || themeModalOpen || listModal !== null || mobileSheetOpen || deleteTaskConfirm !== null || focusZenOpen || whatsNewOpen;
-  const isFocusScreen = activeScreen === 'focus';
 
   const handleSwipe = useCallback((dir: 'left' | 'right') => {
     const currentIdx = listTabsOrder.findIndex((l) => l.id === activeListId);
@@ -379,7 +418,15 @@ function AppContent() {
     [currentList?.id, reorderActiveTasks],
   );
 
-  const { containerRef: activeReorderContainerRef, onRowPointerDown, onRowTouchStart } =
+  const onReorderModeStart = useCallback(() => {
+    playSound('taskEdit');
+  }, []);
+
+  const onReorderHoverSlotChange = useCallback(() => {
+    playSound('buttonClick');
+  }, []);
+
+  const { containerRef: activeReorderContainerRef, onRowPointerDown, onRowTouchStart, dragState: activeReorderDrag } =
     useActiveTaskLongPressReorder({
       enabled:
         !anyModalOpen &&
@@ -390,6 +437,8 @@ function AppContent() {
       slotCount: activeTasks.length,
       onReorder: handleReorderActive,
       suppressRowClickUntilRef,
+      onReorderModeStart,
+      onHoverSlotChange: onReorderHoverSlotChange,
     });
 
   const setMainScrollRef = useCallback(
@@ -512,7 +561,12 @@ function AppContent() {
 
   /* ---- Render ---- */
   return (
-    <div className="pd-app-container" style={{ paddingBottom: focusZenOpen ? 0 : '80px' }}>
+    <div
+      className="pd-app-container"
+      style={{
+        paddingBottom: focusZenOpen ? 0 : '80px',
+      }}
+    >
       {!focusZenOpen && (
       <header
         style={{
@@ -648,6 +702,33 @@ function AppContent() {
                       <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>favorite</span>
                       {lang === 'ja' ? 'Support PixDone' : 'Support PixDone'}
                     </button>
+                    {/* Legal links */}
+                    <div style={{
+                      padding: '8px 14px',
+                      borderBottom: '1px solid var(--pd-color-border-default)',
+                      display: 'flex', gap: '12px',
+                    }}>
+                      <a
+                        href="/tokushoho.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--pd-color-text-secondary)', fontSize: '0.75rem', textDecoration: 'none' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+                      >
+                        {lang === 'ja' ? '特定商取引法' : 'Commerce Disclosure'}
+                      </a>
+                      <a
+                        href="/privacy.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--pd-color-text-secondary)', fontSize: '0.75rem', textDecoration: 'none' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+                      >
+                        {lang === 'ja' ? 'プライバシー' : 'Privacy'}
+                      </a>
+                    </div>
                     {/* Log out */}
                     <button
                       type="button"
@@ -1024,6 +1105,21 @@ function AppContent() {
                 )}
                 {activeTasks.map((task, activeIndex) => (
                   <div key={task.id} data-active-reorder-slot>
+                    {activeReorderDrag.active && activeReorderDrag.hoverIndex === activeIndex && (
+                      <div
+                        aria-hidden
+                        className="pd-active-reorder-insert-line"
+                        style={{
+                          height: '4px',
+                          background: 'var(--pd-color-accent-default)',
+                          marginBottom: '6px',
+                          boxShadow: '0 0 0 1px var(--pd-color-border-default)',
+                          flexShrink: 0,
+                          borderRadius: 0,
+                          imageRendering: 'pixelated',
+                        }}
+                      />
+                    )}
                     {taskFormMode === task.id && editingTask ? (
                       <div style={{ paddingTop: '16px', paddingBottom: '16px' }}>
                         <TaskForm
@@ -1045,6 +1141,9 @@ function AppContent() {
                         suppressOpenEdit={() => Date.now() < suppressRowClickUntilRef.current}
                         onReorderPointerDown={onRowPointerDown(activeIndex)}
                         onReorderTouchStart={onRowTouchStart(activeIndex)}
+                        reorderSource={
+                          activeReorderDrag.active && activeReorderDrag.fromIndex === activeIndex
+                        }
                       />
                     )}
                   </div>
@@ -1102,7 +1201,11 @@ function AppContent() {
           type="button"
           onClick={openAddTask}
           aria-label={lang === 'ja' ? 'タスクを追加' : 'Add a task'}
-          className={isSmash ? 'pd-mobile-fab pd-mobile-fab--smash' : 'pd-mobile-fab'}
+          className={
+            isSmash
+              ? 'pd-mobile-fab pd-mobile-fab--smash'
+              : 'pd-mobile-fab'
+          }
           style={{
             width: '56px',
             height: '56px',
@@ -1130,7 +1233,7 @@ function AppContent() {
 
       {/* Mobile BottomSheet for task add/edit */}
       <BottomSheet
-        open={mobileSheetOpen && !isDesktop}
+        open={mobileSheetOpen && !preferInlineTaskUi}
         onClose={handleTaskFormCancel}
         title={mobileEditTaskId
           ? (lang === 'ja' ? 'タスクを編集' : 'Edit task')
@@ -1253,6 +1356,40 @@ function AppContent() {
         onClose={() => setWhatsNewOpen(false)}
         lang={lang}
       />
+
+      {/* Legal footer */}
+      <footer style={{
+        textAlign: 'center',
+        padding: '10px 16px',
+        fontSize: '0.6875rem',
+        color: 'var(--pd-color-text-muted)',
+        borderTop: '1px solid var(--pd-color-border-default)',
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '16px',
+        flexShrink: 0,
+      }}>
+        <a
+          href="/tokushoho.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'inherit', textDecoration: 'none' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+        >
+          {lang === 'ja' ? '特定商取引法に基づく表示' : 'Commerce Disclosure'}
+        </a>
+        <a
+          href="/privacy.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'inherit', textDecoration: 'none' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+        >
+          {lang === 'ja' ? 'プライバシーポリシー' : 'Privacy Policy'}
+        </a>
+      </footer>
     </div>
   );
 }

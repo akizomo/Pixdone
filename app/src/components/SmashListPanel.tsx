@@ -11,7 +11,13 @@ export interface SmashListPanelProps {
   getDisplayTitle: (task: Task) => string;
 }
 
-export function SmashListPanel({ subtitle, hint, tasks, onSmash, getDisplayTitle }: SmashListPanelProps) {
+export function SmashListPanel({
+  subtitle,
+  hint,
+  tasks,
+  onSmash,
+  getDisplayTitle,
+}: SmashListPanelProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.isComposing || isEditingText()) return;

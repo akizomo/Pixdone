@@ -50,6 +50,18 @@
   min-height: 44px;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  .pxd-button--sm,
+  .pxd-button--md {
+    min-height: 44px;
+  }
+
+  .pxd-button--icon {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
 /* ---- Variants ---- */
 
 .pxd-button--primary {
@@ -59,11 +71,13 @@
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
 
-.pxd-button--primary:hover:not(:disabled) {
-  background-color: var(--pd-color-accent-hover);
-  border-color: var(--pd-color-accent-hover);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+@media (hover: hover) {
+  .pxd-button--primary:hover:not(:disabled) {
+    background-color: var(--pd-color-accent-hover);
+    border-color: var(--pd-color-accent-hover);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+  }
 }
 
 .pxd-button--primary:active:not(:disabled) {
@@ -78,11 +92,13 @@
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
 
-.pxd-button--secondary:hover:not(:disabled) {
-  background-color: var(--pd-color-background-hover);
-  color: var(--pd-color-text-primary);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+@media (hover: hover) {
+  .pxd-button--secondary:hover:not(:disabled) {
+    background-color: var(--pd-color-background-hover);
+    color: var(--pd-color-text-primary);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+  }
 }
 
 .pxd-button--secondary:active:not(:disabled) {
@@ -97,8 +113,10 @@
   box-shadow: none;
 }
 
-.pxd-button--ghost:hover:not(:disabled) {
-  background-color: var(--pd-color-background-hover);
+@media (hover: hover) {
+  .pxd-button--ghost:hover:not(:disabled) {
+    background-color: var(--pd-color-background-hover);
+  }
 }
 
 .pxd-button--ghost:active:not(:disabled) {
@@ -112,10 +130,12 @@
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
 
-.pxd-button--danger:hover:not(:disabled) {
-  filter: brightness(0.9);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+@media (hover: hover) {
+  .pxd-button--danger:hover:not(:disabled) {
+    filter: brightness(0.9);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+  }
 }
 
 .pxd-button--danger:active:not(:disabled) {
@@ -130,10 +150,12 @@
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
 
-.pxd-button--danger-outline:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--pd-color-semantic-danger) 12%, transparent);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+@media (hover: hover) {
+  .pxd-button--danger-outline:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--pd-color-semantic-danger) 12%, transparent);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+  }
 }
 
 .pxd-button--danger-outline:active:not(:disabled) {
@@ -148,10 +170,12 @@
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
 
-.pxd-button--reward:hover:not(:disabled) {
-  filter: brightness(0.9);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+@media (hover: hover) {
+  .pxd-button--reward:hover:not(:disabled) {
+    filter: brightness(0.9);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+  }
 }
 
 /* Signup: green, matches .signup-btn in style.css */
@@ -162,11 +186,13 @@
   box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
 }
 
-.pxd-button--signup:hover:not(:disabled) {
-  background-color: var(--pd-color-semantic-successHover, #2e7d32);
-  border-color: var(--pd-color-semantic-successHover, #2e7d32);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+@media (hover: hover) {
+  .pxd-button--signup:hover:not(:disabled) {
+    background-color: var(--pd-color-semantic-successHover, #2e7d32);
+    border-color: var(--pd-color-semantic-successHover, #2e7d32);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .pxd-button--signup:active:not(:disabled) {
@@ -184,9 +210,11 @@
   padding: 4px;
 }
 
-.pxd-button--icon:hover:not(:disabled) {
-  color: var(--pd-color-text-primary);
-  background-color: var(--pd-color-background-hover);
+@media (hover: hover) {
+  .pxd-button--icon:hover:not(:disabled) {
+    color: var(--pd-color-text-primary);
+    background-color: var(--pd-color-background-hover);
+  }
 }
 
 .pxd-button--full-width {

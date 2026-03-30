@@ -1997,10 +1997,10 @@ html.task-effect-playing {
     }
 
     .drop-indicator {
-        height: 4px !important;
+        height: 5px !important;
         background-color: var(--accent-color) !important;
-        border-radius: 2px !important;
-        box-shadow: 0 0 8px rgba(66, 133, 244, 0.4) !important;
+        border-radius: 0 !important;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), 0 0 10px rgba(66, 133, 244, 0.45) !important;
     }
 }
 
@@ -2024,16 +2024,29 @@ html.task-effect-playing {
     border-color: inherit !important;
 }
 
+@keyframes pdDropIndicatorPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.72;
+    }
+}
+
 .drop-indicator {
     position: fixed !important;
-    height: 3px !important;
+    height: 5px !important;
     background-color: var(--accent-color) !important;
-    border-radius: 2px !important;
+    border-radius: 0 !important;
     pointer-events: none !important;
     z-index: 99999 !important;
-    opacity: 0.8 !important;
-    box-shadow: none !important;
-    animation: none !important;
+    opacity: 1 !important;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), 0 0 10px rgba(66, 133, 244, 0.45) !important;
+    animation: pdDropIndicatorPulse 0.85s ease-in-out infinite !important;
+    image-rendering: pixelated;
 }
 
 .task-item.reordering {
@@ -3190,22 +3203,22 @@ div[id="newTaskDetails"] a:hover {
     display: none;
 }
 
-@media (hover: hover) and (pointer: fine) {
+@media (hover: hover) and (any-pointer: fine) {
     .desktop-only {
         display: block;
     }
 }
 
-/* Smash list Space hint: show on desktop viewport so it's visible even with touch/coarse pointer */
-@media (min-width: 769px) {
+/* Smash list Space hint: show when a fine pointer exists (width-independent) */
+@media (any-pointer: fine) {
     .smash-list-message .smash-list-hint,
     .smash-list-message .desktop-only.smash-list-hint {
         display: block !important;
     }
 }
 
-/* Mobile-specific styling for Smash List Message */
-@media (max-width: 768px) {
+/* Touch-only: Smash list message layout (width-independent) */
+@media not (any-pointer: fine) {
     .smash-list-message {
         padding: 10px 12px;
         margin-bottom: 16px;
@@ -3620,8 +3633,8 @@ body.list-dialog-open {
     transform: translateY(0);
 }
 
-/* デスクトップ: ログイン関連モーダルはフルスクリーンにせず中央ダイアログで表示 */
-@media (min-width: 769px) {
+/* デスクトップ: ログイン関連モーダルはフルスクリーンにせず中央ダイアログで表示（幅に依存しない） */
+@media (any-pointer: fine) {
     .modal-overlay.modal-fullscreen {
         align-items: center;
         justify-content: center;
@@ -3642,8 +3655,8 @@ body.list-dialog-open {
     }
 }
 
-/* Mobile: modal styles by type (confirm / fullscreen / bottom-sheet) */
-@media (max-width: 768px) {
+/* Touch-only: modal styles by type (confirm / fullscreen / bottom-sheet) */
+@media not (any-pointer: fine) {
     /* ボトムシート: モバイルサイズで明示的に全幅 */
     .modal-overlay.modal-bottom-sheet .modal-content,
     .modal-overlay.modal-bottom-sheet .pixel-modal {
@@ -3871,7 +3884,7 @@ body.list-dialog-open {
 }
 
 /* Additional keyboard handling for various mobile browsers */
-@media screen and (max-width: 768px) {
+@media not (any-pointer: fine) {
 
     /* Preserve button layout on mobile */
     .mobile-modal-buttons-container {
@@ -4341,8 +4354,8 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     }
 }
 
-/* Hide on desktop, show on mobile */
-@media (min-width: 769px) {
+/* Hide FAB when a fine pointer exists (width-independent) */
+@media (any-pointer: fine) {
     .mobile-fab {
         display: none !important;
     }
@@ -4357,7 +4370,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     }
 }
 
-@media (max-width: 768px) {
+@media not (any-pointer: fine) {
     .mobile-fab {
         display: flex;
         /* Will be toggled by JS but this ensures layout */
@@ -4908,7 +4921,7 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
  * (app/src/design-system/components/Button/Button.css → .pxd-button--lg)
  * — body.lg type, 44px min tap target, spacing from 8px scale (02-foundations.md).
  */
-@media (max-width: 768px) {
+@media not (any-pointer: fine) {
     .task-sheet-footer {
         /* space.lg (16px) × 2 + Button lg min-height 44px = 76px */
         min-height: 76px;
@@ -4921,8 +4934,8 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     }
 }
 
-/* Desktop: 他ボトムシートと同じ全幅・下寄せスライドアップ */
-@media (min-width: 769px) {
+/* Fine pointer: 他ボトムシートと同じ全幅・下寄せスライドアップ（幅に依存しない） */
+@media (any-pointer: fine) {
     .task-bottom-sheet {
         max-height: 90vh;
         /* transform は base の translateY(100%) を使用（他ボトムシートと同様） */
@@ -5056,4 +5069,29 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
 @keyframes perfectTimingCardPerfect {
     0% { background: rgba(255,215,0,0.5); }
     100% { background: var(--completed-color, #34a853); }
+}
+
+/* Legal footer */
+.legal-footer {
+    text-align: center;
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+
+.legal-footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.legal-footer a:hover {
+    color: var(--text-secondary);
+    text-decoration: underline;
+}
+
+.legal-footer-sep {
+    margin: 0 8px;
+    color: var(--border-color);
 }

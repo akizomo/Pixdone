@@ -9,7 +9,11 @@ import type { ThemeKey } from '../design-system/themes/themeRegistry';
  * - When a user is authenticated, syncs the choice to the server via PATCH /api/user/theme.
  */
 export function useUserTheme() {
-  const { visualTheme, setVisualTheme } = useContext(ThemeContext);
+  const { visualTheme, setVisualTheme, theme: colorMode, setTheme } = useContext(ThemeContext);
+
+  const toggleColorMode = useCallback(() => {
+    setTheme(colorMode === 'dark' ? 'light' : 'dark');
+  }, [colorMode, setTheme]);
 
   const changeTheme = useCallback(
     async (key: ThemeKey) => {
@@ -31,5 +35,7 @@ export function useUserTheme() {
     currentTheme: themes[visualTheme],
     changeTheme,
     themes,
+    colorMode,
+    toggleColorMode,
   };
 }

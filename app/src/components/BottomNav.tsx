@@ -17,6 +17,7 @@ export function BottomNav({ activeScreen, onSelect, lang }: BottomNavProps) {
   return (
     <nav
       role="tablist"
+      className="pd-bottom-nav"
       aria-label={lang === 'ja' ? 'メインナビゲーション' : 'Main navigation'}
       style={{
         position: 'fixed',

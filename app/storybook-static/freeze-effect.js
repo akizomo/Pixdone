@@ -25,7 +25,7 @@
  *   penguinImageUrl - If set, use this image for penguin (e.g. same as "Are you frozen?" idle asset)
  *   showCracks  - Show crack lines (default: true)
  *   particles   - Number of frost particles (default: 60)
- *   zIndex      - Base z-index for overlay layers (default: 9999)
+ *   zIndex      - Base z-index for overlay layers (default: 100000; above task-effect-clone at 99999)
  *   onStart     - Callback when animation starts
  *   onComplete  - Callback when animation finishes
  */
@@ -344,7 +344,7 @@
     this.penguinImageUrl = opts.penguinImageUrl || null
     this.showCracks = opts.showCracks !== undefined ? opts.showCracks : true
     this.particleCount = opts.particles || 60
-    this.zIndex = opts.zIndex || 9999
+    this.zIndex = opts.zIndex || 100000
     this.onStart = opts.onStart || null
     this.onComplete = opts.onComplete || null
 

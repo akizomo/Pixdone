@@ -17,6 +17,8 @@ export interface TaskItemProps {
   onReorderPointerDown?: (e: PointerEvent<HTMLDivElement>) => void;
   /** Long-press reorder: touch path (iOS / coarse pointers). */
   onReorderTouchStart?: (e: TouchEvent<HTMLDivElement>) => void;
+  /** True while this row is the source of an in-progress long-press reorder. */
+  reorderSource?: boolean;
 }
 
 const repeatShort: Record<NonNullable<Task['repeat']>, { en: string; ja: string }> = {
@@ -43,6 +45,7 @@ export function TaskItem({
   suppressOpenEdit,
   onReorderPointerDown,
   onReorderTouchStart,
+  reorderSource = false,
 }: TaskItemProps) {
   const dueLabel = formatDueDate(task.dueDate, lang);
   const repeatLabel = task.repeat && task.repeat !== 'none' ? (repeatShort[task.repeat]?.[lang] ?? '') : '';
@@ -66,23 +69,35 @@ export function TaskItem({
       style={{
         display: 'flex',
         alignItems: 'flex-start',
-        background: 'var(--pd-color-background-default)',
-        border: '2px solid var(--pd-color-border-default)',
+        background: reorderSource
+          ? 'var(--pd-color-background-hover)'
+          : 'var(--pd-color-background-default)',
+        border: reorderSource
+          ? '2px solid var(--pd-color-accent-default)'
+          : '2px solid var(--pd-color-border-default)',
         borderRadius: 0,
         padding: '10px 12px',
         marginBottom: '8px',
-        cursor: 'pointer',
+        cursor: reorderSource ? 'grabbing' : 'pointer',
         transition: 'all 0.2s ease',
         boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
         imageRendering: 'pixelated',
         fontFamily: 'var(--pd-font-body)',
-        opacity: task.completed ? 0.7 : 1,
+        opacity: task.completed ? 0.7 : reorderSource ? 0.88 : 1,
+        transform: reorderSource ? 'scale(0.985)' : undefined,
         touchAction: 'pan-y',
         WebkitTouchCallout: 'none',
       }}
       className="task-item-row"
       data-task-id={task.id}
-      onPointerDown={onReorderPointerDown}
+      onPointerDown={(e) => {
+        // Mouse/pen only: list swipe listens on the scroll parent; without stopPropagation,
+        // pointer capture + preventDefault on move can eat the click that should open edit (touch was OK).
+        if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
+          e.stopPropagation();
+        }
+        onReorderPointerDown?.(e);
+      }}
       onTouchStart={onReorderTouchStart}
       onClick={(e) => {
         if (isSmash) return;
@@ -91,12 +106,14 @@ export function TaskItem({
         onEdit(task.id);
       }}
       onMouseEnter={(e) => {
+        if (reorderSource) return;
         const el = e.currentTarget as HTMLDivElement;
         el.style.transform = 'translate(-1px, -1px)';
         el.style.boxShadow = '3px 3px 0px var(--pd-color-shadow-default)';
         el.style.backgroundColor = 'var(--pd-color-background-hover)';
       }}
       onMouseLeave={(e) => {
+        if (reorderSource) return;
         const el = e.currentTarget as HTMLDivElement;
         el.style.transform = '';
         el.style.boxShadow = '2px 2px 0px var(--pd-color-shadow-default)';

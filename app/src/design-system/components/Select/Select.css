@@ -28,7 +28,7 @@
   min-height: var(--pxd-tap-target-min);
   padding: var(--pxd-space-2) var(--pxd-space-8) var(--pxd-space-2) var(--pxd-space-3);
   font-family: var(--pxd-font-body);
-  font-size: var(--pxd-font-size-sm);
+  font-size: var(--pxd-font-size-md);
   line-height: var(--pxd-line-height-normal);
   color: var(--pxd-color-text-primary);
   background-color: var(--pxd-color-surface-primary);
@@ -59,7 +59,7 @@
 .pxd-select--sm .pxd-select__input {
   min-height: 32px;
   padding: var(--pxd-space-1) var(--pxd-space-6) var(--pxd-space-1) var(--pxd-space-2);
-  font-size: var(--pxd-font-size-xs);
+  font-size: var(--pxd-font-size-md);
 }
 
 .pxd-select--sm .pxd-select__chevron {

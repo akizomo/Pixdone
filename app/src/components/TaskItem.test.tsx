@@ -347,5 +347,18 @@ describe('TaskItem', () => {
         render(<TaskItem task={makeTask()} onComplete={vi.fn()} onEdit={vi.fn()} />),
       ).not.toThrow();
     });
+
+    it('renders with reorderSource without crashing', () => {
+      expect(() =>
+        render(
+          <TaskItem
+            task={makeTask()}
+            onComplete={vi.fn()}
+            onEdit={vi.fn()}
+            reorderSource
+          />,
+        ),
+      ).not.toThrow();
+    });
   });
 });

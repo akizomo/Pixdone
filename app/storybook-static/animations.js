@@ -408,7 +408,7 @@ class ComicEffectsManager {
             }
             
             .rainbow-smash-effect {
-                animation: rainbowSmashCard 3s ease-out forwards;
+                animation: rainbowSmashCard 1.5s ease-out forwards;
             }
             
             @keyframes rainbowSmashCard {
@@ -2919,13 +2919,13 @@ class ComicEffectsManager {
         rainbowText.style.zIndex = "9999";
         rainbowText.style.pointerEvents = "none";
         rainbowText.style.transform = "scale(0)";
-        rainbowText.style.transition = "all 0.8s ease-out";
+        rainbowText.style.transition = "all 0.4s ease-out";
         rainbowText.style.imageRendering = "pixelated";
         rainbowText.style.background =
             "linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff)";
         rainbowText.style.backgroundSize = "400% 400%";
         rainbowText.style.animation =
-            "rainbowTextGradient 2s ease-in-out infinite";
+            "rainbowTextGradient 1s ease-in-out infinite";
         rainbowText.style.webkitBackgroundClip = "text";
         rainbowText.style.webkitTextFillColor = "transparent";
 
@@ -2945,12 +2945,12 @@ class ComicEffectsManager {
         // Create soft background glow effect
         this.createSoftGlow();
 
-        // Clean up after 3 seconds and release effect lock
+        // Clean up after 1.5s and release effect lock
         setTimeout(() => {
             taskElement.classList.remove("rainbow-smash-effect");
             rainbowText.remove();
             this.effectLock = false;
-        }, 3000);
+        }, 1500);
     }
 
     createFreezeEffect(taskElement, optionalRect) {
@@ -2980,7 +2980,7 @@ class ComicEffectsManager {
             penguinImageUrl: "assets/penguin.svg",
             showCracks: true,
             particles: 60,
-            zIndex: 9999,
+            zIndex: 100000,
             onComplete() {
                 if (isTaskCard) {
                     taskElement.classList.remove("freeze-task-frozen");
@@ -3031,7 +3031,7 @@ class ComicEffectsManager {
         const maxRadius = Math.min(window.innerWidth, window.innerHeight) * 0.4;
 
         let animationFrame = 0;
-        const totalFrames = 120; // 2 seconds at 60fps
+        const totalFrames = 60; // ~1 second at 60fps
 
         const animateRainbow = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -3095,9 +3095,9 @@ class ComicEffectsManager {
                 // Fade out
                 setTimeout(() => {
                     canvas.style.opacity = "0";
-                    canvas.style.transition = "opacity 1s ease-out";
-                    setTimeout(() => canvas.remove(), 1000);
-                }, 500);
+                    canvas.style.transition = "opacity 0.5s ease-out";
+                    setTimeout(() => canvas.remove(), 500);
+                }, 250);
             }
         };
 
@@ -3128,7 +3128,7 @@ class ComicEffectsManager {
             sparkle.style.left = x + "px";
             sparkle.style.top = y + "px";
             sparkle.style.transform = "scale(0)";
-            sparkle.style.transition = "all 2s ease-out";
+            sparkle.style.transition = "all 1s ease-out";
 
             document.body.appendChild(sparkle);
             sparkles.push(sparkle);
@@ -3137,12 +3137,12 @@ class ComicEffectsManager {
             setTimeout(() => {
                 sparkle.style.transform = "scale(1) translateY(-20px)";
                 sparkle.style.opacity = "0.8";
-            }, i * 100);
+            }, i * 50);
 
             // Remove after animation
             setTimeout(() => {
                 sparkle.remove();
-            }, 2500);
+            }, 1250);
         }
     }
 
@@ -3159,7 +3159,7 @@ class ComicEffectsManager {
         glow.style.zIndex = "9996";
         glow.style.pointerEvents = "none";
         glow.style.opacity = "0";
-        glow.style.transition = "opacity 1s ease-in-out";
+        glow.style.transition = "opacity 0.5s ease-in-out";
 
         document.body.appendChild(glow);
 
@@ -3167,8 +3167,8 @@ class ComicEffectsManager {
         setTimeout(() => (glow.style.opacity = "1"), 100);
         setTimeout(() => {
             glow.style.opacity = "0";
-            setTimeout(() => glow.remove(), 1000);
-        }, 2000);
+            setTimeout(() => glow.remove(), 500);
+        }, 1000);
     }
 
     playRainbowSmashSound() {

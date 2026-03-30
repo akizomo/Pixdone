@@ -126,6 +126,10 @@ export function AuthModal({ open, onClose, lang, initialMode = 'signup' }: AuthM
             placeholder={lang === 'ja' ? 'example@email.com' : 'your.email@example.com'}
             className="pxd-text-field__input"
             onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+            autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
           />
         </div>
 
@@ -146,6 +150,10 @@ export function AuthModal({ open, onClose, lang, initialMode = 'signup' }: AuthM
               placeholder={lang === 'ja' ? 'パスワード' : 'Password'}
               className="pxd-text-field__input"
               onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+              autoComplete="current-password"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
             />
             <button
               type="button"

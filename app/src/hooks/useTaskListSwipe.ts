@@ -157,6 +157,8 @@ export function useTaskListSwipe({ enabled, onSwipe }: UseTaskListSwipeOptions) 
     let startTime = 0;
     let locked = false;
     let fired = false;
+    /** Only set after horizontal swipe locks — capturing on every pointerdown breaks click on task rows. */
+    let pointerCaptureHeld = false;
 
     const onPointerDown = (e: PointerEvent) => {
       if (pointerId !== null) return;
@@ -171,12 +173,8 @@ export function useTaskListSwipe({ enabled, onSwipe }: UseTaskListSwipeOptions) 
       startTime = performance.now();
       locked = false;
       fired = false;
-
-      try {
-        el.setPointerCapture(e.pointerId);
-      } catch {
-        // ignore
-      }
+      pointerCaptureHeld = false;
+      // Intentionally do NOT setPointerCapture here — it prevents click on nested .task-item-row.
     };
 
     const onPointerMove = (e: PointerEvent) => {
@@ -191,6 +189,14 @@ export function useTaskListSwipe({ enabled, onSwipe }: UseTaskListSwipeOptions) 
       if (!locked) {
         if (absDx > 6 && absDx > absDy * 1.1) {
           locked = true;
+          if (!pointerCaptureHeld) {
+            try {
+              el.setPointerCapture(e.pointerId);
+              pointerCaptureHeld = true;
+            } catch {
+              // ignore
+            }
+          }
         }
       }
 
@@ -222,10 +228,13 @@ export function useTaskListSwipe({ enabled, onSwipe }: UseTaskListSwipeOptions) 
       pointerId = null;
       locked = false;
       fired = false;
-      try {
-        el.releasePointerCapture(captureId);
-      } catch {
-        // ignore
+      if (pointerCaptureHeld) {
+        pointerCaptureHeld = false;
+        try {
+          el.releasePointerCapture(captureId);
+        } catch {
+          // ignore
+        }
       }
     };
 

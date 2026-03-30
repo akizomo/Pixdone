@@ -16,8 +16,14 @@ export const ThemeContext = createContext<ThemeContextValue>({
   setVisualTheme: () => {},
 });
 
+const COLOR_MODE_KEY = 'pd-color-mode';
+
 function getInitialTheme(): ThemeMode {
   if (typeof window === 'undefined') return 'dark';
+  try {
+    const stored = localStorage.getItem(COLOR_MODE_KEY) as ThemeMode | null;
+    if (stored === 'light' || stored === 'dark') return stored;
+  } catch (_) {}
   const mq = window.matchMedia('(prefers-color-scheme: light)');
   return mq.matches ? 'light' : 'dark';
 }
@@ -102,7 +108,10 @@ export function ThemeProvider({
     }
   }, [theme, visualTheme]);
 
-  const setTheme = useCallback((t: ThemeMode) => setThemeState(t), []);
+  const setTheme = useCallback((t: ThemeMode) => {
+    setThemeState(t);
+    try { localStorage.setItem(COLOR_MODE_KEY, t); } catch (_) {}
+  }, []);
 
   const setVisualTheme = useCallback((key: ThemeKey) => {
     setVisualThemeState(key);

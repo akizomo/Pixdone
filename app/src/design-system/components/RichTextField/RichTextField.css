@@ -22,7 +22,7 @@
   min-height: var(--pxd-tap-target-min);
   padding: var(--pxd-space-2) var(--pxd-space-3);
   font-family: var(--pxd-font-body);
-  font-size: var(--pxd-font-size-sm);
+  font-size: var(--pxd-font-size-md);
   line-height: var(--pxd-line-height-normal);
   color: var(--pxd-color-text-primary);
   background-color: var(--pxd-color-surface-primary);
@@ -42,7 +42,7 @@
 .pxd-rich-text-field--sm .pxd-rich-text-field__input {
   min-height: 32px;
   padding: var(--pxd-space-1) var(--pxd-space-2);
-  font-size: var(--pxd-font-size-xs);
+  font-size: var(--pxd-font-size-md);
 }
 
 .pxd-rich-text-field--md .pxd-rich-text-field__input {

@@ -3,6 +3,15 @@
  * Features celebration animations and encouraging messages
  */
 
+/** Touch-only UI (no fine pointer). Width-independent — matches app/src FINE_POINTER_MQ. */
+function isCoarseMobileViewport() {
+    try {
+        return !window.matchMedia('(any-pointer: fine)').matches;
+    } catch {
+        return true;
+    }
+}
+
 class PixDoneApp {
     constructor() {
         this.lists = [];
@@ -768,11 +777,7 @@ class PixDoneApp {
 
         // Setup keyboard avoidance using visualViewport API - positions footer above keyboard
         this.setupKeyboardAvoidance = (sheet) => {
-            // Only apply on mobile devices (not desktop)
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            const isDesktop = window.matchMedia('(min-width: 769px)').matches;
-            
-            if (!isMobile || isDesktop) {
+            if (window.matchMedia('(any-pointer: fine)').matches) {
                 return;
             }
 
@@ -2864,7 +2869,7 @@ class PixDoneApp {
         // モバイルキーボード対応
         document.getElementById('taskTitle').addEventListener('input', (e) => {
             // モバイルでの入力体験を向上
-            if (window.innerWidth <= 768) {
+            if (isCoarseMobileViewport()) {
                 e.target.style.borderColor = 'var(--accent-color)';
                 setTimeout(() => {
                     e.target.style.borderColor = '';
@@ -3269,7 +3274,7 @@ class PixDoneApp {
         }
 
         // Desktop task input functionality
-        if (window.innerWidth <= 768) {
+        if (isCoarseMobileViewport()) {
             // Mobile devices use modal
             // Ensure "new task" never inherits previous edit state
             this.currentTask = null;
@@ -4626,7 +4631,7 @@ class PixDoneApp {
         }
         this.focusSubtasksWhenSheetOpen = !!(options && options.focusSubtasks);
 
-        if (window.innerWidth <= 768) {
+        if (isCoarseMobileViewport()) {
             this.showMobileModal();
             // Bottom sheet will populate data via populateBottomSheetData()
         } else {
@@ -4661,7 +4666,7 @@ class PixDoneApp {
         }
 
         // Set up rich text editing for desktop only (mobile is handled in setTimeout above)
-        if (window.innerWidth > 768) {
+        if (!isCoarseMobileViewport()) {
             const taskTitleEl = document.getElementById('taskTitle');
             const taskDetailsEl = document.getElementById('taskDetails');
 
@@ -4685,7 +4690,7 @@ class PixDoneApp {
         }
 
         // Update date and repeat buttons for desktop only (mobile is handled in setTimeout above)
-        if (window.innerWidth > 768) {
+        if (!isCoarseMobileViewport()) {
             // Update date buttons
             document.querySelectorAll('.date-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -5473,6 +5478,8 @@ class PixDoneApp {
         let dragThreshold = 15;
         let floatingClone = null;
         let isTouchDevice = false;
+        /** Drop slot index during drag; used to play sound only when the insertion line moves. */
+        let lastDropIndexForSound = null;
 
         const setupTaskDragListeners = () => {
             console.log('Setting up task drag listeners');
@@ -5504,10 +5511,11 @@ class PixDoneApp {
                         if (!isDraggingNow) {
                             if (deltaY <= dragThreshold && deltaX <= dragThreshold) return;
                             isDraggingNow = true;
+                            lastDropIndexForSound = null;
                             draggedElement.classList.add('dragging');
                             draggedElement.style.opacity = '0.5';
                             if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
-                                this.comicEffects.playSound('taskAdd');
+                                this.comicEffects.playSound('taskEdit');
                             }
                             floatingClone = draggedElement.cloneNode(true);
                             floatingClone.classList.add('floating-clone');
@@ -5525,7 +5533,15 @@ class PixDoneApp {
                             floatingClone.style.top = `${e2.clientY - floatingClone.offsetHeight / 2}px`;
                         }
                         const r = this.computeTaskReorderFromPointerY(e2.clientY, draggedElement);
-                        if (r) this.showSimpleDropIndicator(r.dropIndex, r.tasks);
+                        if (r) {
+                            if (lastDropIndexForSound !== null && r.dropIndex !== lastDropIndexForSound) {
+                                if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                                    this.comicEffects.playSound('buttonClick');
+                                }
+                            }
+                            lastDropIndexForSound = r.dropIndex;
+                            this.showSimpleDropIndicator(r.dropIndex, r.tasks);
+                        }
                     };
 
                     const onUp = (e2) => {
@@ -5549,9 +5565,10 @@ class PixDoneApp {
                         if (r) {
                             this.reorderTasksWithAnimation(r.fromIndex, r.toIndex);
                             if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
-                                this.comicEffects.playSound('taskAdd');
+                                this.comicEffects.playSound('buttonClick');
                             }
                         }
+                        lastDropIndexForSound = null;
                         isMouseDown = false;
                         isDraggingNow = false;
                         draggedElement = null;
@@ -5567,7 +5584,7 @@ class PixDoneApp {
                     e.preventDefault();
                 });
 
-                // Touch events for mobile - 300ms long press implementation
+                // Touch events for mobile - long press to drag reorder
                 let longPressTimer = null;
                 let touchStartTime = 0;
                 let touchMoved = false;
@@ -5588,17 +5605,18 @@ class PixDoneApp {
                     draggedElement = taskItem;
                     draggedIndex = Array.from(taskItem.parentNode.children).indexOf(taskItem);
 
-                    // Start 300ms timer for long press detection
+                    // Start 200ms timer for long press detection
                     longPressTimer = setTimeout(() => {
                         if (!touchMoved && draggedElement) {
                             console.log('Long press detected, starting drag for task:', taskItem.dataset.taskId);
                             isDraggingNow = true;
                             isMouseDown = true;
+                            lastDropIndexForSound = null;
                             draggedElement.classList.add('dragging');
                             draggedElement.style.opacity = '0.5';
 
                             if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
-                                this.comicEffects.playSound('taskAdd');
+                                this.comicEffects.playSound('taskEdit');
                             }
 
                             floatingClone = draggedElement.cloneNode(true);
@@ -5616,7 +5634,7 @@ class PixDoneApp {
                             document.addEventListener('touchend', handleDocumentTouchEnd, { passive: false });
                             console.log('Document touch listeners added for long press drag');
                         }
-                    }, 300);
+                    }, 200);
 
                     // Don't prevent default to allow normal scrolling
                 }, { passive: true });
@@ -5678,7 +5696,15 @@ class PixDoneApp {
                 floatingClone.style.top = `${touch.clientY - floatingClone.offsetHeight / 2}px`;
             }
             const r = this.computeTaskReorderFromPointerY(touch.clientY, draggedElement);
-            if (r) this.showSimpleDropIndicator(r.dropIndex, r.tasks);
+            if (r) {
+                if (lastDropIndexForSound !== null && r.dropIndex !== lastDropIndexForSound) {
+                    if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
+                        this.comicEffects.playSound('buttonClick');
+                    }
+                }
+                lastDropIndexForSound = r.dropIndex;
+                this.showSimpleDropIndicator(r.dropIndex, r.tasks);
+            }
         };
 
         const handleDocumentTouchEnd = (e) => {
@@ -5707,10 +5733,11 @@ class PixDoneApp {
                 console.log('Touch end reorder', r.fromIndex, '->', r.toIndex);
                 this.reorderTasksWithAnimation(r.fromIndex, r.toIndex);
                 if (this.comicEffects && typeof this.comicEffects.playSound === 'function') {
-                    this.comicEffects.playSound('taskAdd');
+                    this.comicEffects.playSound('buttonClick');
                 }
             }
 
+            lastDropIndexForSound = null;
             isMouseDown = false;
             isDraggingNow = false;
             draggedElement = null;
@@ -5736,12 +5763,13 @@ class PixDoneApp {
         const indicator = document.createElement('div');
         indicator.className = 'drop-indicator';
         indicator.style.position = 'fixed';
-        indicator.style.height = '3px';
+        indicator.style.height = '5px';
         indicator.style.backgroundColor = '#4285f4';
-        indicator.style.borderRadius = '2px';
+        indicator.style.borderRadius = '0';
         indicator.style.pointerEvents = 'none';
         indicator.style.zIndex = '99999';
-        indicator.style.opacity = '0.8';
+        indicator.style.opacity = '1';
+        indicator.style.boxShadow = '0 0 0 1px rgba(0,0,0,0.25), 0 0 10px rgba(66, 133, 244, 0.45)';
 
         if (index === 0) {
             // Insert at the beginning
@@ -6846,8 +6874,7 @@ class PixDoneApp {
      */
     _scrollListDialogInputIntoView(input) {
         if (!input) return;
-        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-        if (!isMobile) return;
+        if (!isCoarseMobileViewport()) return;
         const scrollIntoView = () => {
             input.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };

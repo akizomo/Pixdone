@@ -1,10 +1,23 @@
-import { useCallback, useRef, type MutableRefObject } from 'react';
+import { useCallback, useRef, useState, type MutableRefObject } from 'react';
 
-const LONG_PRESS_MS = 450;
+/** Long-press to arm reorder. */
+const LONG_PRESS_MS = 200;
 /** Mouse / pen: cancel long-press if pointer moves beyond this before it arms. */
 const MOVE_CANCEL_PX = 14;
 /** Touch: slightly larger slop — finger jitter should not cancel before long-press. */
 const MOVE_CANCEL_TOUCH_PX = 32;
+
+export type ActiveReorderDragState = {
+  active: boolean;
+  fromIndex: number | null;
+  hoverIndex: number | null;
+};
+
+const INACTIVE_DRAG_STATE: ActiveReorderDragState = {
+  active: false,
+  fromIndex: null,
+  hoverIndex: null,
+};
 
 function findActiveDropIndex(container: Element, clientY: number, slotCount: number): number {
   const slots = container.querySelectorAll('[data-active-reorder-slot]');
@@ -43,14 +56,35 @@ export function useActiveTaskLongPressReorder(opts: {
   slotCount: number;
   onReorder: (fromIndex: number, toIndex: number) => void;
   suppressRowClickUntilRef: MutableRefObject<number>;
+  /** Fired once when long-press arms (reorder mode). */
+  onReorderModeStart?: () => void;
+  /** Fired when hover drop index changes after armed (not on the initial arm). */
+  onHoverSlotChange?: () => void;
 }) {
-  const { enabled, slotCount, onReorder, suppressRowClickUntilRef } = opts;
+  const {
+    enabled,
+    slotCount,
+    onReorder,
+    suppressRowClickUntilRef,
+    onReorderModeStart,
+    onHoverSlotChange,
+  } = opts;
+
+  const [dragState, setDragState] = useState<ActiveReorderDragState>(INACTIVE_DRAG_STATE);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const onReorderModeStartRef = useRef(onReorderModeStart);
+  const onHoverSlotChangeRef = useRef(onHoverSlotChange);
+  onReorderModeStartRef.current = onReorderModeStart;
+  onHoverSlotChangeRef.current = onHoverSlotChange;
 
   const onRowPointerDown = useCallback(
     (index: number) => (e: React.PointerEvent<HTMLDivElement>) => {
       if (!enabled || slotCount < 2) return;
       if (e.pointerType === 'mouse' && e.button !== 0) return;
+      // Mouse/pen: do not attach window pointer listeners — they interfere with plain click → edit.
+      // Reorder on touch only (onRowTouchStart + touch path below).
+      if (e.pointerType === 'mouse' || e.pointerType === 'pen') return;
       // Finger touch on phones: Touch handlers own the gesture (iOS PointerEvent is unreliable).
       if (e.pointerType === 'touch' && shouldUseTouchGesturePath()) return;
       if ((e.target as HTMLElement).closest('button, a, input, textarea, select, label')) return;
@@ -77,6 +111,10 @@ export function useActiveTaskLongPressReorder(opts: {
         window.removeEventListener('pointercancel', onWinUp);
       };
 
+      const resetDragUi = () => {
+        setDragState(INACTIVE_DRAG_STATE);
+      };
+
       const finish = () => {
         clearTimer();
         detachWindowListeners();
@@ -101,7 +139,14 @@ export function useActiveTaskLongPressReorder(opts: {
         ev.preventDefault();
         const root = containerRef.current;
         if (root) {
-          hoverIndexRef.current = findActiveDropIndex(root, ev.clientY, slotCount);
+          const next = findActiveDropIndex(root, ev.clientY, slotCount);
+          if (next !== hoverIndexRef.current) {
+            hoverIndexRef.current = next;
+            setDragState((prev) =>
+              prev.active ? { ...prev, hoverIndex: next } : prev,
+            );
+            onHoverSlotChangeRef.current?.();
+          }
         }
       };
 
@@ -112,12 +157,17 @@ export function useActiveTaskLongPressReorder(opts: {
           return;
         }
         const from = index;
+        const root = containerRef.current;
+        if (root) {
+          hoverIndexRef.current = findActiveDropIndex(root, ev.clientY, slotCount);
+        }
         const to = hoverIndexRef.current;
         suppressRowClickUntilRef.current = Date.now() + 450;
         if (from !== to) {
           onReorder(from, to);
         }
         longPressFired = false;
+        resetDragUi();
         finish();
       };
 
@@ -127,6 +177,8 @@ export function useActiveTaskLongPressReorder(opts: {
         rowEl.style.userSelect = 'none';
         suppressRowClickUntilRef.current = Date.now() + 600;
         hoverIndexRef.current = index;
+        setDragState({ active: true, fromIndex: index, hoverIndex: index });
+        onReorderModeStartRef.current?.();
         try {
           rowEl.setPointerCapture(pointerId);
         } catch {
@@ -174,6 +226,10 @@ export function useActiveTaskLongPressReorder(opts: {
         window.removeEventListener('touchcancel', onWinEnd);
       };
 
+      const resetDragUi = () => {
+        setDragState(INACTIVE_DRAG_STATE);
+      };
+
       const finish = () => {
         clearTimer();
         detachWindowListeners();
@@ -194,7 +250,14 @@ export function useActiveTaskLongPressReorder(opts: {
         ev.preventDefault();
         const root = containerRef.current;
         if (root) {
-          hoverIndexRef.current = findActiveDropIndex(root, t.clientY, slotCount);
+          const next = findActiveDropIndex(root, t.clientY, slotCount);
+          if (next !== hoverIndexRef.current) {
+            hoverIndexRef.current = next;
+            setDragState((prev) =>
+              prev.active ? { ...prev, hoverIndex: next } : prev,
+            );
+            onHoverSlotChangeRef.current?.();
+          }
         }
       };
 
@@ -216,6 +279,7 @@ export function useActiveTaskLongPressReorder(opts: {
           onReorder(from, to);
         }
         longPressFired = false;
+        resetDragUi();
         finish();
       };
 
@@ -225,6 +289,8 @@ export function useActiveTaskLongPressReorder(opts: {
         rowEl.style.userSelect = 'none';
         suppressRowClickUntilRef.current = Date.now() + 600;
         hoverIndexRef.current = index;
+        setDragState({ active: true, fromIndex: index, hoverIndex: index });
+        onReorderModeStartRef.current?.();
       }, LONG_PRESS_MS);
 
       window.addEventListener('touchmove', onWinMove, { passive: false });
@@ -234,5 +300,5 @@ export function useActiveTaskLongPressReorder(opts: {
     [enabled, slotCount, onReorder, suppressRowClickUntilRef],
   );
 
-  return { containerRef, onRowPointerDown, onRowTouchStart };
+  return { containerRef, onRowPointerDown, onRowTouchStart, dragState };
 }

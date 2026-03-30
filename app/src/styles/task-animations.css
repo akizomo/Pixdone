@@ -54,12 +54,35 @@ html.task-effect-playing {
   to { opacity: 1; transform: translateX(0); }
 }
 
+/* === Smash Combo Focus Mode ===
+ * コンボ判定中: ヘッダー・リストヘッダー・BottomNav を薄くして
+ * エフェクトとタスクリストに集中させる
+ */
+.pd-app-container header,
+.pd-app-container .pd-list-header,
+.pd-app-container .pd-bottom-nav {
+  transition: opacity 0.4s ease;
+}
+
+.pd-app-container.smash-combo-active header,
+.pd-app-container.smash-combo-active .pd-list-header,
+.pd-app-container.smash-combo-active .pd-bottom-nav {
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+/* FAB は常にアクティブ */
+.pd-app-container.smash-combo-active .pd-mobile-fab {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
 /*
  * Mobile list swipe: without explicit pan-x, iOS Safari often reserves horizontal drags
  * (especially swipe-left / "forward") and our pointer handlers never win.
  * pan-x pan-y + overscroll-behavior-x keeps vertical scroll while allowing horizontal capture.
  */
-@media (max-width: 768px) {
+@media not (any-pointer: fine) {
   .pd-list-swipe {
     touch-action: pan-x pan-y;
     overscroll-behavior-x: none;

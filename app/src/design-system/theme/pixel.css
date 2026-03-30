@@ -158,7 +158,8 @@
   }
 }
 
-@media (max-width: 768px) {
+/* Touch-only: phone chrome; width-independent (see App.tsx). */
+@media not (any-pointer: fine) {
   .pd-mobile-fab {
     display: flex !important;
   }
@@ -174,8 +175,8 @@
   }
 }
 
-@media (min-width: 769px) {
-  /* Remove extra bottom padding on desktop */
+/* Mouse/trackpad: default bottom padding (not the mobile FAB inset) */
+@media (any-pointer: fine) {
   .pd-app-container {
     padding-bottom: 20px;
   }
@@ -186,7 +187,7 @@
   font-size: clamp(3rem, 14vw, 4.8rem) !important;
 }
 
-@media (max-width: 768px) {
+@media not (any-pointer: fine) {
   [data-visual-theme="synthwave"] .pd-focus-timer-block {
     padding: 14px 14px 14px;
     min-height: min(260px, 34vh);
