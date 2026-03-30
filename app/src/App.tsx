@@ -1079,7 +1079,7 @@ function AppContent() {
                 </div>
               )}
             </div>
-          ) : allTasks.length === 0 ? (
+          ) : allTasks.length === 0 && taskFormMode !== 'add' ? (
             /* AC 14.1: No tasks at all – "READY?" (vanilla parity: game-start-empty) */
             <div className="game-start-empty">
               <div className="game-start-content">
@@ -1087,7 +1087,7 @@ function AppContent() {
                 <div className="start-instruction">{t('emptyReadySub', lang)}</div>
               </div>
             </div>
-          ) : activeTasks.length === 0 && completedTasks.length > 0 ? (
+          ) : activeTasks.length === 0 && completedTasks.length > 0 && taskFormMode !== 'add' ? (
             /* AC 14.2: All done – sleeping pixel character (vanilla parity: empty-state) */
             <div className="empty-state">
               <div className="empty-illustration">
