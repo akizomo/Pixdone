@@ -38,6 +38,10 @@
       --pxd-color-text-tertiary:     var(--pxd-gray-600);
       --pxd-color-border-outline:    var(--pxd-gray-300);
       --pxd-color-action-primary:    var(--pxd-purple-500);
+
+      /* App design-system aliases (keep in sync with app/src/design-system/theme/global.css) */
+      --pd-color-accent-default: var(--pxd-color-action-primary);
+      --pd-color-accent-hover:   var(--pxd-color-action-primary);
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -49,6 +53,9 @@
         --pxd-color-text-tertiary:     var(--pxd-ink-200);
         --pxd-color-border-outline:    var(--pxd-ink-500);
         --pxd-color-action-primary:    var(--pxd-purple-400);
+
+        --pd-color-accent-default: var(--pxd-color-action-primary);
+        --pd-color-accent-hover:   var(--pxd-color-action-primary);
       }
     }
 
@@ -61,6 +68,8 @@
       line-height: 1.7;
       min-height: 100vh;
     }
+    a { color: var(--pd-color-accent-default); text-decoration: none; }
+    a:hover { color: var(--pd-color-accent-hover); text-decoration: underline; }
     .page-header {
       background: var(--pxd-color-surface-primary);
       border-bottom: 1px solid var(--pxd-color-border-outline);
@@ -174,7 +183,7 @@
         <tr><th>代表者名</th><td>Akihiro Uezono</td></tr>
         <tr><th>所在地</th><td>請求があれば遅滞なく開示いたします。</td></tr>
         <tr><th>電話番号</th><td>請求があれば遅滞なく開示いたします。</td></tr>
-        <tr><th>メールアドレス</th><td>アプリ内のサポートリンクまたは公開連絡先までご連絡ください。</td></tr>
+        <tr><th>メールアドレス</th><td>contact@akizony.com</td></tr>
         <tr><th>販売URL</th><td>https://pixdone.vercel.app</td></tr>
         <tr><th>販売価格</th><td>各商品・サービスの購入ページに表示される価格（税込）。</td></tr>
         <tr><th>販売価格以外の費用</th><td>インターネット通信料はお客様のご負担となります。</td></tr>
@@ -205,7 +214,7 @@
         <tr><th>Representative</th><td>Akihiro Uezono</td></tr>
         <tr><th>Address</th><td>Available upon request.</td></tr>
         <tr><th>Phone</th><td>Available upon request.</td></tr>
-        <tr><th>Email</th><td>Please use the support link in the app or the public contact.</td></tr>
+        <tr><th>Email</th><td>contact@akizony.com</td></tr>
         <tr><th>Website</th><td>https://pixdone.vercel.app</td></tr>
         <tr><th>Pricing</th><td>Prices are shown (tax-inclusive) on each product's purchase page.</td></tr>
         <tr><th>Additional costs</th><td>Internet connection fees are the customer's responsibility.</td></tr>
@@ -223,7 +232,7 @@
       </table>
       <div class="note">
         <strong>Contact</strong><br>
-        For any questions regarding the above, please use the support link in the app or reach out via our public contact.
+        For any questions regarding the above, please use the support link in the app or email us at <a href="mailto:contact@akizony.com">contact@akizony.com</a>.
       </div>
     </div>
   </div>

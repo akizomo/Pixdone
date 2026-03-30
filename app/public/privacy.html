@@ -38,6 +38,10 @@
       --pxd-color-text-tertiary:     var(--pxd-gray-600);
       --pxd-color-border-outline:    var(--pxd-gray-300);
       --pxd-color-action-primary:    var(--pxd-purple-500);
+
+      /* App design-system aliases (keep in sync with app/src/design-system/theme/global.css) */
+      --pd-color-accent-default: var(--pxd-color-action-primary);
+      --pd-color-accent-hover:   var(--pxd-color-action-primary);
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -49,6 +53,9 @@
         --pxd-color-text-tertiary:     var(--pxd-ink-200);
         --pxd-color-border-outline:    var(--pxd-ink-500);
         --pxd-color-action-primary:    var(--pxd-purple-400);
+
+        --pd-color-accent-default: var(--pxd-color-action-primary);
+        --pd-color-accent-hover:   var(--pxd-color-action-primary);
       }
     }
 
@@ -117,7 +124,9 @@
     p { margin-bottom: 12px; }
     ul { margin: 8px 0 12px 20px; }
     ul li { margin-bottom: 4px; }
-    a { color: var(--pxd-color-action-primary); text-decoration: none; }
+    /* Links: match app design-system (accent color, underline on hover) */
+    a { color: var(--pd-color-accent-default); text-decoration: none; }
+    a:hover { color: var(--pd-color-accent-hover); text-decoration: underline; }
     a:hover { text-decoration: underline; }
     footer {
       text-align: center;
@@ -185,7 +194,7 @@
       <p>重要な変更がある場合はサービス上でお知らせします。</p>
 
       <h2>8. お問い合わせ</h2>
-      <p>アプリ内のサポートリンクまたは公開連絡先までご連絡ください。</p>
+      <p>アプリ内のサポートリンク、または <a href="mailto:contact@akizony.com">contact@akizony.com</a> までご連絡ください。</p>
     </div>
 
     <!-- English -->
@@ -231,7 +240,7 @@
       <p>We will notify you of significant changes through the Service.</p>
 
       <h2>8. Contact</h2>
-      <p>For privacy-related questions, please use the support link in the app or our public contact.</p>
+      <p>For privacy-related questions, please use the support link in the app or email us at <a href="mailto:contact@akizony.com">contact@akizony.com</a>.</p>
     </div>
   </div>
 

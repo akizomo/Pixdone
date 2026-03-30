@@ -33,8 +33,8 @@ import { FocusZenMode } from './components/FocusZenMode';
  */
 const FINE_POINTER_MQ = '(any-pointer: fine)';
 
-/** Temporarily hide privacy / 特定商取引 links in the app shell (user menu + footer). Set `true` to show again. */
-const SHOW_LEGAL_LINKS = false;
+/** Legal links visibility control (menu vs footer can differ). */
+const SHOW_LEGAL_LINKS_IN_MENU = false;
 
 function subscribeFinePointer(onStoreChange: () => void): () => void {
   if (typeof window === 'undefined') return () => {};
@@ -736,7 +736,7 @@ function AppContent() {
                       <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>favorite</span>
                       {lang === 'ja' ? 'Support PixDone' : 'Support PixDone'}
                     </button>
-                    {SHOW_LEGAL_LINKS && (
+                    {SHOW_LEGAL_LINKS_IN_MENU && (
                     <div style={{
                       padding: '8px 14px',
                       borderBottom: '1px solid var(--pd-color-border-default)',
@@ -1392,7 +1392,6 @@ function AppContent() {
         lang={lang}
       />
 
-      {SHOW_LEGAL_LINKS && (
       <footer style={{
         textAlign: 'center',
         padding: '10px 16px',
@@ -1425,7 +1424,7 @@ function AppContent() {
           {lang === 'ja' ? 'プライバシーポリシー' : 'Privacy Policy'}
         </a>
       </footer>
-      )}
+      {/* Footer legal links intentionally shown even when menu hides them. */}
     </div>
   );
 }
