@@ -33,6 +33,7 @@ export function SmashListPanel({
   return (
     <div style={{ padding: '8px 0 16px' }}>
       <div
+        className="pd-smash-card"
         style={{
           padding: '10px 12px',
           marginBottom: '16px',

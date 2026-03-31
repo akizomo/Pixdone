@@ -706,8 +706,8 @@ class ComicEffectsManager {
 
         const timeSinceLastEffect = currentTime - this.lastEffectTime;
 
-        if (timeSinceLastEffect < 5000) {
-            // 5秒以内なら連続コンボ
+        if (timeSinceLastEffect < 3000) {
+            // 3秒以内なら連続コンボ
             this.comboCount++;
             this.showComboEffect(this.comboCount);
         } else {
@@ -721,10 +721,13 @@ class ComicEffectsManager {
             clearTimeout(this.comboTimeout);
         }
 
-        // コンボ中: 余計なUI要素を薄くしてエフェクトに集中させる
-        const smashContainer = document.querySelector('.pd-app-container') || document.querySelector('.app-container');
-        if (smashContainer) {
-            smashContainer.classList.add('smash-combo-active');
+        // 5コンボ以上: 余計なUI要素を薄くしてエフェクトに集中させる
+        if (this.comboCount >= 5) {
+            const smashContainer = document.querySelector('.pd-app-container') || document.querySelector('.app-container');
+            if (smashContainer) {
+                smashContainer.classList.add('smash-combo-active');
+            }
+            document.body.classList.add('smash-combo-active');
         }
 
         this.comboTimeout = setTimeout(() => {
@@ -733,7 +736,8 @@ class ComicEffectsManager {
             if (smashContainer) {
                 smashContainer.classList.remove('smash-combo-active');
             }
-        }, 5000);
+            document.body.classList.remove('smash-combo-active');
+        }, 3000);
 
         this.playEffect(selectedEffect, taskElement, effectRect);
     }

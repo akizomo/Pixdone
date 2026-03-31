@@ -1024,7 +1024,7 @@ function AppContent() {
             <div
               ref={setMainScrollRef}
               key={activeListId}
-              className={['pd-list-enter', 'pd-list-swipe', listSlideClass].filter(Boolean).join(' ')}
+              className={['pd-task-area', 'pd-list-enter', 'pd-list-swipe', listSlideClass].filter(Boolean).join(' ')}
               style={{ flex: 1, overflowY: 'auto' }}
             >
               {isSmash ? (

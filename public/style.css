@@ -5095,3 +5095,22 @@ div#newMobileModal>div.mobile-modal-buttons>div.mobile-modal-buttons-container>d
     margin: 0 8px;
     color: var(--border-color);
 }
+
+/* Smash combo (5コンボ以上): 説明カードとフッターを薄くしてエフェクトに集中させる */
+.smash-combo-active .smash-list-message {
+    opacity: 0.15;
+    transition: opacity 0.4s ease;
+}
+
+body.smash-combo-active .legal-footer {
+    opacity: 0.15;
+    transition: opacity 0.4s ease;
+}
+
+.smash-list-message {
+    transition: opacity 0.4s ease;
+}
+
+.legal-footer {
+    transition: opacity 0.4s ease;
+}
