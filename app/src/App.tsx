@@ -696,35 +696,73 @@ function AppContent() {
                     boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
                     minWidth: '200px',
                   }}>
-                    {/* Email */}
+                    {/* Email + plan badge */}
                     <div style={{
                       padding: '10px 14px',
-                      fontSize: '0.75rem',
-                      color: 'var(--pd-color-text-secondary)',
-                      fontFamily: 'var(--pd-font-body)',
                       borderBottom: '1px solid var(--pd-color-border-default)',
-                      wordBreak: 'break-all',
                     }}>
-                      {user.email}
+                      <div style={{
+                        fontSize: '0.75rem',
+                        color: 'var(--pd-color-text-secondary)',
+                        fontFamily: 'var(--pd-font-body)',
+                        wordBreak: 'break-all',
+                        marginBottom: '8px',
+                      }}>
+                        {user.email}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {/* Plan badge */}
+                        <span style={{
+                          fontFamily: 'var(--pd-font-brand)',
+                          fontSize: '0.6rem',
+                          letterSpacing: '1px',
+                          padding: '2px 7px',
+                          border: `1px solid ${userPlan === 'plus' ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
+                          color: userPlan === 'plus' ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-muted)',
+                          background: userPlan === 'plus' ? 'var(--pd-color-accent-subtle)' : 'transparent',
+                        }}>
+                          {userPlan === 'plus' ? 'PIXDONE+' : 'FREE'}
+                        </span>
+                        {/* Upgrade CTA (free only) */}
+                        {userPlan !== 'plus' && (
+                          <button
+                            type="button"
+                            onClick={() => { setUserMenuOpen(false); playSound('buttonClick'); navigate('/pricing'); }}
+                            style={{
+                              fontFamily: 'var(--pd-font-brand)',
+                              fontSize: '0.6rem',
+                              letterSpacing: '1px',
+                              padding: '2px 8px',
+                              background: 'var(--pd-color-accent-default)',
+                              border: 'none',
+                              color: 'var(--pd-color-background-default)',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {lang === 'ja' ? 'アップグレード →' : 'UPGRADE →'}
+                          </button>
+                        )}
+                        {/* Manage account (plus only) */}
+                        {userPlan === 'plus' && (
+                          <button
+                            type="button"
+                            onClick={() => { setUserMenuOpen(false); playSound('buttonClick'); navigate('/account'); }}
+                            style={{
+                              fontFamily: 'var(--pd-font-brand)',
+                              fontSize: '0.6rem',
+                              letterSpacing: '1px',
+                              padding: '2px 8px',
+                              background: 'transparent',
+                              border: '1px solid var(--pd-color-border-default)',
+                              color: 'var(--pd-color-text-secondary)',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {lang === 'ja' ? '管理 →' : 'MANAGE →'}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    {/* Account */}
-                    <button
-                      type="button"
-                      onClick={() => { setUserMenuOpen(false); playSound('buttonClick'); navigate('/account'); }}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '8px',
-                        width: '100%', textAlign: 'left',
-                        padding: '10px 14px', background: 'none',
-                        border: 'none', borderBottom: '1px solid var(--pd-color-border-default)',
-                        color: 'var(--pd-color-text-primary)',
-                        fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem', cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
-                    >
-                      <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>manage_accounts</span>
-                      {lang === 'ja' ? 'アカウント' : 'Account'}
-                    </button>
                     {/* Language */}
                     <div style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -1480,10 +1518,22 @@ function AppContent() {
           <span style={{ color: 'var(--pd-color-semantic-success)', fontSize: '1.25rem', lineHeight: 1, flexShrink: 0 }}>✓</span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.75rem', letterSpacing: '1px', color: 'var(--pd-color-semantic-success)' }}>
-              PIXDONE+ UNLOCKED
+              {lang === 'ja' ? 'PIXDONE+ へようこそ！' : 'WELCOME TO PIXDONE+'}
             </div>
-            <div style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', marginTop: '2px' }}>
-              {lang === 'ja' ? 'PixDone+ へようこそ！' : 'Welcome to PixDone+!'}
+            <div style={{ fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)', marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              {lang === 'ja' ? (
+                <>
+                  <span>✦ リストが無制限に作れます</span>
+                  <span>✦ Synthwave テーマが解放されました</span>
+                  <span>✦ レアエフェクト（Rainbow Smash / Freeze）が発動します</span>
+                </>
+              ) : (
+                <>
+                  <span>✦ Unlimited task lists unlocked</span>
+                  <span>✦ Synthwave theme unlocked</span>
+                  <span>✦ Rare effects enabled (Rainbow Smash / Freeze)</span>
+                </>
+              )}
             </div>
           </div>
           <button
