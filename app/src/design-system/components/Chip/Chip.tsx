@@ -5,6 +5,7 @@ import './Chip.css';
 const sizeMap = { sm: 'pxd-chip--sm', md: 'pxd-chip--md' } as const;
 const variantMap = {
   neutral: 'pxd-chip--neutral',
+  ghost: 'pxd-chip--ghost',
   accent: 'pxd-chip--accent',
   success: 'pxd-chip--success',
   warning: 'pxd-chip--warning',

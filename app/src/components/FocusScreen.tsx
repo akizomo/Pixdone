@@ -143,102 +143,109 @@ export function FocusScreen({
   return (
     <div style={containerStyle}>
       {/* Timer panel */}
-      <div style={{ ...timerBlockStyle, position: 'relative' }} className="pd-focus-timer-block">
-        {/* Top right: full-screen + (pomodoro only) BGM */}
-        <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px' }}>
-          <IconButton
-            variant="ghost"
-            size="sm"
-            aria-label={lang === 'ja' ? '全画面でフォーカス' : 'Full screen focus'}
-            icon={<span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>fullscreen</span>}
-            onClick={onOpenZenMode}
-          />
-          {mode === 'pomodoro' && (
-            <BgmControl
-              lang={lang}
-              bgmOn={bgmOn}
-              track={bgmTrack}
-              onChange={onBgmChange}
-              onMenuOpenChange={onBgmMenuOpenChange}
+      <div style={timerBlockStyle} className="pd-focus-timer-block">
+        {/* Row 1: action buttons — right-aligned, always visible */}
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', padding: '0 10px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <IconButton
               variant="ghost"
+              size="sm"
+              aria-label={lang === 'ja' ? '全画面でフォーカス' : 'Full screen focus'}
+              icon={<span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>fullscreen</span>}
+              onClick={onOpenZenMode}
             />
-          )}
-        </div>
-
-        {/* Mode chips */}
-        <div
-          aria-hidden={timerState !== 'idle'}
-          className="pd-focus-mode-chips"
-          style={{
-            display: 'flex',
-            gap: '8px',
-            marginBottom: '20px',
-            flexWrap: 'wrap',
-            visibility: timerState === 'idle' ? 'visible' : 'hidden',
-            pointerEvents: timerState === 'idle' ? 'auto' : 'none',
-          }}
-        >
-          {MODES.map((m) => (
-            <Chip
-              key={m}
-              selected={mode === m}
-              onClick={() => onSwitchMode(m)}
-            >
-              {t(m, lang)}
-            </Chip>
-          ))}
-        </div>
-
-        {/* Time display with adjust arrows (idle only) */}
-        {timerState === 'idle' ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <AdjustButton
-                direction="down"
-                onClick={() => {
-                const next = nextMinutesByArrow(minutes, -1);
-                onAdjustMinutes(next - minutes);
-              }}
+            {mode === 'pomodoro' && (
+              <BgmControl
+                lang={lang}
+                bgmOn={bgmOn}
+                track={bgmTrack}
+                onChange={onBgmChange}
+                onMenuOpenChange={onBgmMenuOpenChange}
+                variant="ghost"
               />
-              <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>
-              <AdjustButton
-                direction="up"
-                onClick={() => {
-                const next = nextMinutesByArrow(minutes, 1);
-                onAdjustMinutes(next - minutes);
-              }}
-              />
-            </div>
+            )}
           </div>
-        ) : (
-          <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>
-        )}
+        </div>
 
-        {/* CTA buttons */}
-        <div style={{ marginTop: '20px' }}>
-          {timerState === 'idle' ? (
-            <Button onClick={onStart} style={{ minWidth: '120px' }}>Start</Button>
-          ) : (
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <Button
-                variant="secondary"
-                onClick={isRunning ? onPause : onResume}
+        {/* Row 2+: chips + timer + CTA — vertically centered in remaining space */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '8px 0' }}>
+          {/* Mode chips */}
+          <div
+            aria-hidden={timerState !== 'idle'}
+            className="pd-focus-mode-chips"
+            style={{
+              display: 'flex',
+              gap: '8px',
+              marginBottom: '20px',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              visibility: timerState === 'idle' ? 'visible' : 'hidden',
+              pointerEvents: timerState === 'idle' ? 'auto' : 'none',
+              minHeight: '28px',
+            }}
+          >
+            {MODES.map((m) => (
+              <Chip
+                key={m}
+                selected={mode === m}
+                onClick={() => onSwitchMode(m)}
               >
-                {isRunning
-                  ? (lang === 'ja' ? '一時停止' : 'Pause')
-                  : (lang === 'ja' ? '再開' : 'Resume')}
-              </Button>
-              {isBreakMode ? (
-                <Button variant="secondary" onClick={onSkipBreak}>
-                  {t('skipBreak', lang)}
-                </Button>
-              ) : (
-                <Button onClick={onCompleteFocus}>
-                  {lang === 'ja' ? '完了' : 'Complete'}
-                </Button>
-              )}
+                {t(m, lang)}
+              </Chip>
+            ))}
+          </div>
+
+          {/* Time display with adjust arrows (idle only) */}
+          {timerState === 'idle' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AdjustButton
+                  direction="down"
+                  onClick={() => {
+                  const next = nextMinutesByArrow(minutes, -1);
+                  onAdjustMinutes(next - minutes);
+                }}
+                />
+                <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>
+                <AdjustButton
+                  direction="up"
+                  onClick={() => {
+                  const next = nextMinutesByArrow(minutes, 1);
+                  onAdjustMinutes(next - minutes);
+                }}
+                />
+              </div>
             </div>
+          ) : (
+            <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>
           )}
+
+          {/* CTA buttons */}
+          <div style={{ marginTop: '20px' }}>
+            {timerState === 'idle' ? (
+              <Button onClick={onStart} style={{ minWidth: '120px' }}>Start</Button>
+            ) : (
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <Button
+                  variant="secondary"
+                  onClick={isRunning ? onPause : onResume}
+                >
+                  {isRunning
+                    ? (lang === 'ja' ? '一時停止' : 'Pause')
+                    : (lang === 'ja' ? '再開' : 'Resume')}
+                </Button>
+                {isBreakMode ? (
+                  <Button variant="secondary" onClick={onSkipBreak}>
+                    {t('skipBreak', lang)}
+                  </Button>
+                ) : (
+                  <Button onClick={onCompleteFocus}>
+                    {lang === 'ja' ? '完了' : 'Complete'}
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
       </div>
@@ -403,13 +410,12 @@ const timerBlockStyle: React.CSSProperties = {
   flexDirection: 'column',
   alignItems: 'center',
   marginBottom: '24px',
-  padding: '20px 0 16px',
+  padding: '10px 0 16px',
   background: 'var(--pd-color-background-elevated)',
   border: '2px solid var(--pd-color-border-default)',
   boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
   // Mobile UX: reserve ~40% viewport so controls don't sit too high
   minHeight: 'min(360px, 40vh)',
-  justifyContent: 'center',
 };
 
 const timerDisplayStyle: React.CSSProperties = {

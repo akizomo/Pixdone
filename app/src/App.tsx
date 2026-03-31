@@ -1,7 +1,7 @@
 import {
   useState, useCallback, useEffect, useRef, useMemo, useSyncExternalStore, type MutableRefObject,
 } from 'react';
-import { ThemeProvider, Button, Chip, ModalDialog, BottomSheet } from './design-system';
+import { ThemeProvider, Button, Chip, IconButton, ModalDialog, BottomSheet } from './design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
   TaskForm, ListModal, AuthModal, BottomNav, FocusScreen,
@@ -106,6 +106,9 @@ function AppContent() {
   // What's New dialog — show once per version
   const [whatsNewOpen, setWhatsNewOpen] = useState(() => !hasSeenWhatsNew());
 
+  // Stripe purchase redirect banner
+  const [purchaseBanner, setPurchaseBanner] = useState<'synthwave_success' | null>(null);
+
   /* ---- Screen navigation ---- */
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
   const hasFinePointer = useSyncExternalStore(subscribeFinePointer, getFinePointerSnapshot, () => true);
@@ -158,6 +161,25 @@ function AppContent() {
 
   /* ---- Midnight refresh ---- */
   useMidnightRefresh();
+
+  /* ---- Stripe purchase redirect ---- */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const purchase = params.get('purchase');
+    const url = new URL(window.location.href);
+    url.searchParams.delete('purchase');
+    window.history.replaceState({}, '', url.toString());
+    if (purchase === 'synthwave_success') {
+      setPurchaseBanner('synthwave_success');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (purchaseBanner !== 'synthwave_success') return;
+    playSound('taskComplete');
+    const tid = window.setTimeout(() => setPurchaseBanner(null), 5000);
+    return () => window.clearTimeout(tid);
+  }, [purchaseBanner]);
 
   /* ---- 未ログイン時: default リスト名を 'Tutorial' に正規化 ---- */
   useEffect(() => {
@@ -622,55 +644,32 @@ function AppContent() {
           <h1 className="pd-app-title">PixDone</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {/* Theme button */}
-            <button
-              type="button"
+            <IconButton
+              variant="ghost"
+              size="sm"
+              aria-label={user ? (lang === 'ja' ? 'テーマを変更' : 'Change theme') : (lang === 'ja' ? 'サインアップしてテーマ変更' : 'Sign up to change theme')}
               title={user ? (lang === 'ja' ? 'テーマを変更' : 'Change theme') : (lang === 'ja' ? 'サインアップしてテーマ変更' : 'Sign up to change theme')}
+              icon={<span className="material-icons">palette</span>}
               onClick={() => {
-                playSound('buttonClick');
                 if (!user) {
                   setSignupOpen(true);
                 } else {
                   setThemeModalOpen(true);
                 }
               }}
-              style={{
-                background: 'var(--pd-color-background-elevated)',
-                border: '2px solid var(--pd-color-border-default)',
-                color: 'var(--pd-color-text-secondary)',
-                fontFamily: 'var(--pd-font-brand)',
-                fontSize: '1rem',
-                padding: '4px 8px',
-                cursor: 'pointer',
-                lineHeight: 1,
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <span className="material-icons" style={{ fontSize: '20px', lineHeight: 1 }}>palette</span>
-            </button>
+            />
 
             {user ? (
               /* Logged-in: person avatar + dropdown */
               <div ref={userMenuRef} style={{ position: 'relative' }}>
-                <button
-                  type="button"
-                  onClick={() => { playSound('buttonClick'); setUserMenuOpen((v) => !v); }}
+                <IconButton
+                  variant="ghost"
+                  size="sm"
+                  aria-label={user.email ?? 'Account'}
                   title={user.email ?? 'Account'}
-                  style={{
-                    background: 'var(--pd-color-background-elevated)',
-                    border: '2px solid var(--pd-color-border-default)',
-                    color: 'var(--pd-color-text-secondary)',
-                    padding: '4px 8px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    lineHeight: 1,
-                    fontFamily: 'var(--pd-font-brand)',
-                    fontSize: '1rem',
-                  }}
-                >
-                  <span className="material-icons" style={{ fontSize: '20px', lineHeight: 1 }}>person</span>
-                </button>
+                  icon={<span className="material-icons">person</span>}
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                />
                 {userMenuOpen && (
                   <div style={{
                     position: 'absolute',
@@ -693,10 +692,19 @@ function AppContent() {
                     }}>
                       {user.email}
                     </div>
-                    {/* Divider */}
-                    <div style={{ padding: '8px 14px', borderBottom: '1px solid var(--pd-color-border-default)', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <Chip selected={lang === 'en'} onClick={() => { changeLang('en'); playSound('buttonClick'); }}>En</Chip>
-                      <Chip selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
+                    {/* Language */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '10px 14px', borderBottom: '1px solid var(--pd-color-border-default)',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--pd-color-text-primary)', fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem' }}>
+                        <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>language</span>
+                        {lang === 'ja' ? '言語' : 'Language'}
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <Chip variant="ghost" selected={lang === 'en'} onClick={() => { changeLang('en'); playSound('buttonClick'); }}>En</Chip>
+                        <Chip variant="ghost" selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
+                      </div>
                     </div>
                     {/* Sound toggle */}
                     <button
@@ -791,8 +799,8 @@ function AppContent() {
             ) : (
               /* Not logged-in: lang chips + sign up */
               <>
-                <Chip selected={lang === 'en'} onClick={() => { changeLang('en'); playSound('buttonClick'); }}>En</Chip>
-                <Chip selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
+                <Chip variant="ghost" selected={lang === 'en'} onClick={() => { changeLang('en'); playSound('buttonClick'); }}>En</Chip>
+                <Chip variant="ghost" selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
                 <Button variant="primary" onClick={() => { playSound('buttonClick'); setSignupOpen(true); }}>Sign up</Button>
               </>
             )}
@@ -1394,6 +1402,58 @@ function AppContent() {
         onClose={() => setWhatsNewOpen(false)}
         lang={lang}
       />
+
+      {/* Stripe purchase success banner */}
+      {purchaseBanner === 'synthwave_success' && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'fixed',
+            bottom: '96px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px 16px',
+            background: 'var(--pd-color-background-elevated)',
+            border: '2px solid var(--pd-color-semantic-success)',
+            boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
+            maxWidth: 'min(400px, calc(100vw - 32px))',
+            width: 'max-content',
+            fontFamily: 'var(--pd-font-body)',
+          }}
+        >
+          <span style={{ color: 'var(--pd-color-semantic-success)', fontSize: '1.25rem', lineHeight: 1, flexShrink: 0 }}>✓</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.75rem', letterSpacing: '1px', color: 'var(--pd-color-semantic-success)' }}>
+              SYNTHWAVE UNLOCKED
+            </div>
+            <div style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', marginTop: '2px' }}>
+              {lang === 'ja' ? 'テーマセレクターから選択できます' : 'Select it from the theme menu'}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setPurchaseBanner(null)}
+            aria-label={lang === 'ja' ? '閉じる' : 'Dismiss'}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--pd-color-text-muted)',
+              padding: '4px',
+              flexShrink: 0,
+              fontSize: '1rem',
+              lineHeight: 1,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       <footer style={{
         textAlign: 'center',

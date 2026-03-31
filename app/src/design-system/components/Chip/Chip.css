@@ -42,6 +42,26 @@
   color: var(--pd-color-text-primary);
 }
 
+/* Ghost variant (use with selected state) */
+.pxd-chip--ghost {
+  background-color: transparent;
+  color: var(--pd-color-text-secondary);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pxd-chip--ghost:hover {
+  background-color: var(--pd-color-background-hover);
+  color: var(--pd-color-text-primary);
+}
+
+.pxd-chip--ghost.pxd-chip--selected {
+  background-color: transparent;
+  color: var(--pd-color-accent-default);
+  border-color: transparent;
+  box-shadow: none;
+}
+
 /* Selected */
 .pxd-chip--selected,
 .pxd-chip--neutral.pxd-chip--selected {
