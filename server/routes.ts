@@ -216,8 +216,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? process.env.STRIPE_PRICE_PLUS_YEARLY
         : process.env.STRIPE_PRICE_PLUS_MONTHLY;
 
-      console.log('[checkout] stripeKey:', stripeSecretKey ? `set(${stripeSecretKey.slice(0,7)}...)` : 'MISSING');
-      console.log('[checkout] priceId:', priceId ?? 'MISSING');
       if (!stripeSecretKey || !priceId) {
         return res.status(500).json({ message: "Stripe is not configured (missing env)" });
       }

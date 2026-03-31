@@ -113,7 +113,7 @@ function AppContent() {
   const [whatsNewOpen, setWhatsNewOpen] = useState(() => !hasSeenWhatsNew());
 
   // Stripe purchase redirect banner
-  const [purchaseBanner, setPurchaseBanner] = useState<'synthwave_success' | null>(null);
+  const [purchaseBanner, setPurchaseBanner] = useState<'plus_success' | null>(null);
 
   /* ---- Screen navigation ---- */
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
@@ -184,13 +184,13 @@ function AppContent() {
     const url = new URL(window.location.href);
     url.searchParams.delete('purchase');
     window.history.replaceState({}, '', url.toString());
-    if (purchase === 'synthwave_success') {
-      setPurchaseBanner('synthwave_success');
+    if (purchase === 'plus_success') {
+      setPurchaseBanner('plus_success');
     }
   }, []);
 
   useEffect(() => {
-    if (purchaseBanner !== 'synthwave_success') return;
+    if (purchaseBanner !== 'plus_success') return;
     playSound('taskComplete');
     const tid = window.setTimeout(() => setPurchaseBanner(null), 5000);
     return () => window.clearTimeout(tid);
@@ -1455,7 +1455,7 @@ function AppContent() {
       />
 
       {/* Stripe purchase success banner */}
-      {purchaseBanner === 'synthwave_success' && (
+      {purchaseBanner === 'plus_success' && (
         <div
           role="status"
           aria-live="polite"
@@ -1480,10 +1480,10 @@ function AppContent() {
           <span style={{ color: 'var(--pd-color-semantic-success)', fontSize: '1.25rem', lineHeight: 1, flexShrink: 0 }}>✓</span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.75rem', letterSpacing: '1px', color: 'var(--pd-color-semantic-success)' }}>
-              SYNTHWAVE UNLOCKED
+              PIXDONE+ UNLOCKED
             </div>
             <div style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', marginTop: '2px' }}>
-              {lang === 'ja' ? 'テーマセレクターから選択できます' : 'Select it from the theme menu'}
+              {lang === 'ja' ? 'PixDone+ へようこそ！' : 'Welcome to PixDone+!'}
             </div>
           </div>
           <button
