@@ -216,6 +216,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? process.env.STRIPE_PRICE_PLUS_YEARLY
         : process.env.STRIPE_PRICE_PLUS_MONTHLY;
 
+      console.log('[checkout] stripeKey:', stripeSecretKey ? `set(${stripeSecretKey.slice(0,7)}...)` : 'MISSING');
+      console.log('[checkout] priceId:', priceId ?? 'MISSING');
       if (!stripeSecretKey || !priceId) {
         return res.status(500).json({ message: "Stripe is not configured (missing env)" });
       }
@@ -231,8 +233,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({ checkoutUrl });
     } catch (error: any) {
-      console.error("Error creating checkout session:", error);
-      res.status(500).json({ message: "Failed to create checkout session", detail: error?.message });
+      console.error("Error creating checkout session:", error?.message, error?.type, error?.code);
+      res.status(500).json({ message: error?.message ?? "Failed to create checkout session", detail: error?.type });
     }
   });
 
