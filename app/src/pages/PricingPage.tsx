@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
 
+const BILLING_LIVE = import.meta.env.VITE_BILLING_LIVE === 'true';
+
 const FREE_FEATURES = [
   { en: 'Up to 3 task lists', ja: 'タスクリスト 3 件まで' },
   { en: 'Smash List', ja: 'Smash List' },
@@ -324,27 +326,46 @@ export function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={handleUpgrade}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: loading ? 'var(--pd-color-border-default)' : 'var(--pd-color-accent-default)',
-                  border: 'none',
-                  borderRadius: 0,
-                  cursor: loading ? 'progress' : 'pointer',
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.75rem',
-                  color: 'var(--pd-color-background-default)',
-                  letterSpacing: '1px',
-                }}
-              >
-                {loading
-                  ? (isJa ? '処理中...' : 'LOADING...')
-                  : (isJa ? 'アップグレード' : 'UPGRADE TO PIXDONE+')}
-              </button>
+              {BILLING_LIVE ? (
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={handleUpgrade}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: loading ? 'var(--pd-color-border-default)' : 'var(--pd-color-accent-default)',
+                    border: 'none',
+                    borderRadius: 0,
+                    cursor: loading ? 'progress' : 'pointer',
+                    fontFamily: 'var(--pd-font-brand)',
+                    fontSize: '0.75rem',
+                    color: 'var(--pd-color-background-default)',
+                    letterSpacing: '1px',
+                  }}
+                >
+                  {loading
+                    ? (isJa ? '処理中...' : 'LOADING...')
+                    : (isJa ? 'アップグレード' : 'UPGRADE TO PIXDONE+')}
+                </button>
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: 'var(--pd-color-background-default)',
+                    border: '2px solid var(--pd-color-border-default)',
+                    fontFamily: 'var(--pd-font-brand)',
+                    fontSize: '0.75rem',
+                    color: 'var(--pd-color-text-muted)',
+                    letterSpacing: '1px',
+                    textAlign: 'center',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  {isJa ? '近日公開' : 'COMING SOON'}
+                </div>
+              )}
             </div>
           </div>
         )}
