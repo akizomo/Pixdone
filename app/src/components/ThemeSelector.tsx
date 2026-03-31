@@ -76,7 +76,7 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {themeList.map((theme) => {
           const isActive = theme.key === visualTheme;
-          const isComingSoon = theme.key === 'synthwave';
+          const isComingSoon = theme.key === 'synthwave' && !isPremium;
           const isLocked = !isComingSoon && (theme.isPremium ? !isPremium : false);
 
           return (
