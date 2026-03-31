@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUserTheme } from '../hooks/useUserTheme';
 import { themeList } from '../design-system';
 import type { ThemeKey } from '../design-system';
 import { playSound } from '../services/sound';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
-import { useAuth } from '../contexts/AuthContext';
 
 interface ThemeSelectorProps {
   onClose?: () => void;
@@ -12,68 +11,14 @@ interface ThemeSelectorProps {
 
 export function ThemeSelector({ onClose }: ThemeSelectorProps) {
   const { visualTheme, changeTheme, colorMode, toggleColorMode } = useUserTheme();
-  const { synthwavePremium } = useThemeEntitlements();
-  const { user, syncServerSession, serverSessionError } = useAuth();
-  const [unlocking, setUnlocking] = useState(false);
+  const { isPremium } = useThemeEntitlements();
+  const navigate = useNavigate();
 
-  const handleSelect = async (key: ThemeKey, isLocked: boolean) => {
-    // Premium locked path -> start checkout.
+  const handleSelect = (key: ThemeKey, isLocked: boolean) => {
     if (isLocked) {
-      if (key !== 'synthwave') return;
-      if (!user) {
-        playSound('taskCancel');
-        window.alert('ログインが必要です。');
-        return;
-      }
-      setUnlocking(true);
-      try {
-        const sync = await syncServerSession();
-        if (!sync.ok) {
-          playSound('taskCancel');
-          window.alert(
-            sync.message ||
-              serverSessionError ||
-              'サーバーへのログイン同期に失敗しました。Vercel に FIREBASE_SERVICE_ACCOUNT_JSON を設定し、docs/FIREBASE_SERVER_SESSION.md を確認してください。',
-          );
-          return;
-        }
-        playSound('buttonClick');
-        const resp = await fetch('/api/billing/synthwave/create-checkout-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ themeKey: 'synthwave' }),
-        });
-        if (resp.status === 401) {
-          playSound('taskCancel');
-          window.alert(
-            'サーバーにログインできていません（セッション未同期）。ページを再読み込みしてから、もう一度 Unlock を試してください。',
-          );
-          return;
-        }
-        if (!resp.ok) {
-          playSound('taskCancel');
-          let msg = `Checkout に失敗しました (${resp.status})`;
-          try {
-            const errBody = (await resp.json()) as { message?: string };
-            if (errBody.message) msg = errBody.message;
-          } catch {
-            /* ignore */
-          }
-          window.alert(msg);
-          return;
-        }
-        const data = (await resp.json()) as { checkoutUrl?: string };
-        if (data.checkoutUrl) {
-          window.location.href = data.checkoutUrl;
-          return;
-        }
-      } catch {
-        playSound('taskCancel');
-        window.alert('通信に失敗しました。ネットワークを確認してください。');
-      } finally {
-        setUnlocking(false);
-      }
+      playSound('buttonClick');
+      onClose?.();
+      navigate('/pricing');
       return;
     }
     playSound('taskComplete');
@@ -132,7 +77,7 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
         {themeList.map((theme) => {
           const isActive = theme.key === visualTheme;
           const isComingSoon = theme.key === 'synthwave';
-          const isLocked = !isComingSoon && (theme.isPremium ? !synthwavePremium : false);
+          const isLocked = !isComingSoon && (theme.isPremium ? !isPremium : false);
 
           return (
             <button
@@ -150,7 +95,7 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
                   : 'var(--pd-color-background-elevated)',
                 border: `2px solid ${isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
                 borderRadius: '0',
-                cursor: isComingSoon ? 'default' : isLocked ? (unlocking ? 'progress' : 'pointer') : 'pointer',
+                cursor: isComingSoon ? 'default' : 'pointer',
                 opacity: isComingSoon ? 0.5 : isLocked ? 0.65 : 1,
                 fontFamily: 'var(--pd-font-body)',
                 textAlign: 'left',

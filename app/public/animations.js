@@ -66,6 +66,7 @@ class ComicEffectsManager {
         this.synthwaveSuperRareEffects = ["neonBigBang"];
         this.epicChance = 0.05; // 5% chance (shared by rainbow and freeze)
         this.rainbowSmashChance = this.epicChance;
+        this.userPlan = 'free';
         this.effectLock = false;
         this.audioContext = null;
         this.audioContextReady = false;
@@ -82,6 +83,10 @@ class ComicEffectsManager {
         this._worldShutdownScanline = null;
         this._worldShutdownText = null;
         this._worldShutdownNoise = null;
+    }
+
+    setUserPlan(plan) {
+        this.userPlan = plan;
     }
 
     setSoundEnabled(enabled) {
@@ -671,7 +676,11 @@ class ComicEffectsManager {
         const visualTheme = this.getVisualTheme();
         const isSynthwave = visualTheme === "synthwave";
         const normalPool = isSynthwave ? this.synthwaveEffects : this.effects;
-        const superRarePool = isSynthwave ? this.synthwaveSuperRareEffects : this.superRareEffects;
+        const isPlusUser = this.userPlan === 'plus';
+        const superRarePool = isPlusUser
+            ? (isSynthwave ? this.synthwaveSuperRareEffects : this.superRareEffects)
+            : [];
+        const epicChance = superRarePool.length > 0 ? this.epicChance : 0;
 
         if (forceFreeze) {
             console.log("❄️ Epic Freeze effect (forced by ?effect=freeze)");
@@ -682,7 +691,7 @@ class ComicEffectsManager {
         } else if (forceNeonBigBang) {
             console.log("💥 Neon Big Bang (forced by ?effect=neonBigBang)");
             selectedEffect = "neonBigBang";
-        } else if (random < this.epicChance) {
+        } else if (random < epicChance) {
             selectedEffect = superRarePool[Math.floor(Math.random() * superRarePool.length)];
             console.log(`✨ Super rare effect triggered! [${visualTheme}]:`, selectedEffect);
         } else {

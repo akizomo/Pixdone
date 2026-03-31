@@ -1,22 +1,40 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
+export type PremiumEntitlements = {
+  plan: 'free' | 'plus';
+  billingCycle: 'monthly' | 'yearly' | null;
+  currentPeriodEnd: string | null;
+  unlockedThemes: string[];
+  isPremium: boolean;
+};
+
+/** @deprecated Use PremiumEntitlements instead */
 export type ThemeEntitlements = {
   synthwavePremium: boolean;
 };
 
+const DEFAULT_ENTITLEMENTS: PremiumEntitlements = {
+  plan: 'free',
+  billingCycle: null,
+  currentPeriodEnd: null,
+  unlockedThemes: [],
+  isPremium: false,
+};
+
 /**
- * Theme entitlements are stored on the server (Postgres) and guarded by the
- * server session cookie (isAuthenticated).
- *
- * If the server cookie isn't present, this hook falls back to "locked".
+ * Fetches PixDone+ subscription entitlements from the server.
+ * Falls back to free-tier defaults when unauthenticated or on error.
  */
-export function useThemeEntitlements(): ThemeEntitlements {
+export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements {
   const { user } = useAuth();
-  const [entitlements, setEntitlements] = useState<ThemeEntitlements>({ synthwavePremium: false });
+  const [entitlements, setEntitlements] = useState<PremiumEntitlements>(DEFAULT_ENTITLEMENTS);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setEntitlements(DEFAULT_ENTITLEMENTS);
+      return;
+    }
 
     let cancelled = false;
     (async () => {
@@ -31,9 +49,15 @@ export function useThemeEntitlements(): ThemeEntitlements {
           );
         }
         if (!resp.ok) return;
-        const data = (await resp.json()) as Partial<ThemeEntitlements>;
+        const data = await resp.json();
         if (cancelled) return;
-        setEntitlements({ synthwavePremium: !!data.synthwavePremium });
+        setEntitlements({
+          plan: data.plan ?? 'free',
+          billingCycle: data.billingCycle ?? null,
+          currentPeriodEnd: data.currentPeriodEnd ?? null,
+          unlockedThemes: data.unlockedThemes ?? [],
+          isPremium: data.isPremium === true,
+        });
       } catch {
         // Ignore network/auth failures – default remains locked.
       }
@@ -44,6 +68,6 @@ export function useThemeEntitlements(): ThemeEntitlements {
     };
   }, [user]);
 
-  return entitlements;
+  // synthwavePremium は isPremium と同義（後方互換）
+  return { ...entitlements, synthwavePremium: entitlements.isPremium };
 }
-

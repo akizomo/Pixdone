@@ -7,7 +7,7 @@ import { setupGoogleAuth } from "./googleAuth.js";
 import { setupEmailAuth } from "./emailAuth.js";
 import { sql } from "drizzle-orm";
 import { db } from "./db.js";
-import { createCheckoutSession, verifyStripeWebhook } from "./billing/stripe.js";
+import { createPlusCheckoutSession, cancelPlusSubscription, verifyStripeWebhook } from "./billing/stripe.js";
 import { StartupError } from "./startupError.js";
 import { assertDeploymentEnv } from "./validateDeploymentEnv.js";
 import { setupFirebaseSessionRoute } from "./firebaseSessionRoute.js";
@@ -178,16 +178,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // ---- Theme entitlements (Stripe) ----
-  // OPTIONS for CORS preflight (must not require auth).
+  // ---- PixDone+ billing ----
+
   app.options('/api/billing/entitlements', (_req, res) => res.sendStatus(204));
   app.get('/api/billing/entitlements', isAuthenticated, async (req: any, res) => {
     try {
       const userId = getSessionUserId(req);
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
-      const user = await storage.getUser(userId);
+      const sub = await storage.getSubscription(userId);
       res.json({
-        synthwavePremium: !!user?.synthwavePremium,
+        plan: sub?.plan ?? 'free',
+        billingCycle: sub?.billingCycle ?? null,
+        currentPeriodEnd: sub?.currentPeriodEnd ?? null,
+        unlockedThemes: [],
+        isPremium: sub?.plan === 'plus',
       });
     } catch (error) {
       console.error("Error fetching entitlements:", error);
@@ -195,48 +199,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.options('/api/billing/synthwave/create-checkout-session', (_req, res) => res.sendStatus(204));
-  app.post('/api/billing/synthwave/create-checkout-session', isAuthenticated, async (req: any, res) => {
+  // POST /api/billing/create-checkout-session — PixDone+ サブスクリプション開始
+  app.options('/api/billing/create-checkout-session', (_req, res) => res.sendStatus(204));
+  app.post('/api/billing/create-checkout-session', isAuthenticated, async (req: any, res) => {
     try {
       const userId = getSessionUserId(req);
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
-      const user = await storage.getUser(userId);
-      if (user?.synthwavePremium) {
-        return res.status(409).json({ message: "Already unlocked" });
+
+      const { billingCycle } = req.body as { billingCycle?: string };
+      if (billingCycle !== 'monthly' && billingCycle !== 'yearly') {
+        return res.status(400).json({ message: "billingCycle must be 'monthly' or 'yearly'" });
       }
 
       const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-      const priceId = process.env.STRIPE_PRICE_SYNTHWAVE_ONETIME;
+      const priceId = billingCycle === 'yearly'
+        ? process.env.STRIPE_PRICE_PLUS_YEARLY
+        : process.env.STRIPE_PRICE_PLUS_MONTHLY;
+
       if (!stripeSecretKey || !priceId) {
         return res.status(500).json({ message: "Stripe is not configured (missing env)" });
       }
 
       const baseUrl = `${req.protocol}://${req.get('host')}`;
-      const successUrl = `${baseUrl}/?purchase=synthwave_success`;
-      const cancelUrl = `${baseUrl}/?purchase=synthwave_cancelled`;
-
-      const { checkoutUrl } = await createCheckoutSession({
+      const { checkoutUrl } = await createPlusCheckoutSession({
         stripeSecretKey,
         priceId,
         userId,
-        successUrl,
-        cancelUrl,
-        themeKey: 'synthwave',
+        successUrl: `${baseUrl}/?purchase=plus_success`,
+        cancelUrl: `${baseUrl}/pricing`,
       });
 
       res.json({ checkoutUrl });
     } catch (error: any) {
-      console.error("Error creating synthwave checkout session:", error);
-      res.status(500).json({
-        message: "Failed to create checkout session",
-        detail: error?.message ?? String(error),
-        stripeCode: error?.code,
-        stripeType: error?.type,
-      });
+      console.error("Error creating checkout session:", error);
+      res.status(500).json({ message: "Failed to create checkout session", detail: error?.message });
     }
   });
 
-  // Webhook: no auth; verifies Stripe signature and updates DB entitlement.
+  // POST /api/billing/cancel — 期間末キャンセル
+  app.options('/api/billing/cancel', (_req, res) => res.sendStatus(204));
+  app.post('/api/billing/cancel', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getSessionUserId(req);
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+      const sub = await storage.getSubscription(userId);
+      if (!sub?.stripeSubscriptionId) {
+        return res.status(404).json({ message: "No active subscription found" });
+      }
+
+      const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+      if (!stripeSecretKey) return res.status(500).json({ message: "Stripe not configured" });
+
+      const { cancelAt } = await cancelPlusSubscription({
+        stripeSecretKey,
+        stripeSubscriptionId: sub.stripeSubscriptionId,
+      });
+
+      res.json({ cancelAt });
+    } catch (error: any) {
+      console.error("Error cancelling subscription:", error);
+      res.status(500).json({ message: "Failed to cancel subscription", detail: error?.message });
+    }
+  });
+
+  // Webhook: no auth; verifies Stripe signature and updates subscription state.
   app.options('/api/billing/stripe-webhook', (_req, res) => res.sendStatus(204));
   app.post('/api/billing/stripe-webhook', async (req: any, res) => {
     try {
@@ -247,20 +274,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const rawBody = req.rawBody as Buffer | undefined;
       if (!rawBody) return res.status(400).send('Missing rawBody');
 
-      const event = verifyStripeWebhook({
-        rawBody,
-        signatureHeader,
-        webhookSecret,
-      });
+      const event = verifyStripeWebhook({ rawBody, signatureHeader, webhookSecret });
+      const obj = (event.data as any).object;
 
-      if (event?.type === 'checkout.session.completed') {
-        const metadata = event?.data?.object?.metadata ?? {};
-        const userId = metadata.userId as string | undefined;
-
-        if (userId) {
-          await storage.updateUserSynthwavePremium(userId, true);
-        } else {
-          console.warn('[stripe-webhook] Missing metadata.userId');
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const userId = obj?.metadata?.userId as string | undefined;
+          if (!userId) { console.warn('[stripe-webhook] Missing metadata.userId'); break; }
+          const subscriptionId = obj?.subscription as string | undefined;
+          const customerId = obj?.customer as string | undefined;
+          // billingCycle はサブスクリプションオブジェクトから取得できないので metadata から渡す場合は
+          // create-checkout-session 側で metadata に追加する。ここでは subscription.updated で補完。
+          await storage.updateSubscription(userId, {
+            plan: 'plus',
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: subscriptionId,
+          });
+          break;
+        }
+        case 'customer.subscription.updated': {
+          // billing_cycle_anchor や current_period_end を同期する
+          const customerId = obj?.customer as string | undefined;
+          if (!customerId) break;
+          const user = await storage.getUser(customerId);
+          const userId = user?.id;
+          if (!userId) break;
+          const periodEnd = obj?.current_period_end
+            ? new Date(obj.current_period_end * 1000)
+            : null;
+          const interval = obj?.items?.data?.[0]?.price?.recurring?.interval as string | undefined;
+          const billingCycle = interval === 'year' ? 'yearly' : interval === 'month' ? 'monthly' : null;
+          await storage.updateSubscription(userId, {
+            plan: 'plus',
+            billingCycle,
+            currentPeriodEnd: periodEnd,
+          });
+          break;
+        }
+        case 'customer.subscription.deleted':
+        case 'invoice.payment_failed': {
+          const customerId = obj?.customer as string | undefined;
+          if (!customerId) break;
+          // stripeCustomerId で検索して plan を free に戻す
+          const { db } = await import('./db.js');
+          const { users } = await import('../shared/schema.js');
+          const { eq } = await import('drizzle-orm');
+          const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, customerId));
+          if (user) {
+            await storage.updateSubscription(user.id, { plan: 'free', billingCycle: null, currentPeriodEnd: null });
+          }
+          break;
         }
       }
 
@@ -337,6 +400,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = getSessionUserId(req);
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+      // Free プラン: 3 リストまで (Smash List は仮想リストなので除外)
+      const isPremium = await storage.isPremium(userId);
+      if (!isPremium) {
+        const existingLists = await storage.getUserTaskLists(userId);
+        if (existingLists.length >= 3) {
+          return res.status(403).json({
+            error: "LIST_LIMIT_REACHED",
+            message: "Upgrade to PixDone+ for unlimited lists",
+          });
+        }
+      }
+
       const listData = { ...req.body, userId };
       const list = await storage.createTaskList(listData);
       res.json(list);

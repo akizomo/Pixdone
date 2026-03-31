@@ -16,6 +16,7 @@ import type { List } from '../types/list';
 import type { Task, Subtask } from '../types/task';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 
 const STORAGE_KEY = 'pixdone_lists_v1';
 const ACTIVE_KEY = 'pixdone_active_v1';
@@ -252,8 +253,10 @@ function loadActiveId(lists: List[]): string {
 
 export function useLists() {
   const { user } = useAuth();
+  const { isPremium } = useThemeEntitlements();
 
   const [lists, setListsState] = useState<List[]>(() => loadLists());
+  const [listLimitUpsellOpen, setListLimitUpsellOpen] = useState(false);
   const [activeId, setActiveId] = useState<string>(() => {
     const initial = loadLists();
     return loadActiveId(initial);
@@ -384,6 +387,15 @@ export function useLists() {
       return;
     }
 
+    // Free plan: max 3 normal lists (Smash List not counted)
+    if (!isPremium) {
+      const normalListCount = lists.filter((l) => l.id !== 'smash-list').length;
+      if (normalListCount >= 3) {
+        setListLimitUpsellOpen(true);
+        return;
+      }
+    }
+
     const optimisticId = `list-${Date.now()}`;
 
     if (user) {
@@ -404,7 +416,7 @@ export function useLists() {
       setLists((prev) => [...prev, { id, name, tasks: [] as Task[] }]);
       setActiveList(id);
     }
-  }, [setLists, setActiveList, user]);
+  }, [setLists, setActiveList, user, isPremium, lists]);
 
   const renameList = useCallback((listId: string, name: string) => {
     if (user) {
@@ -717,5 +729,7 @@ export function useLists() {
     toggleSubtask,
     deleteSubtask,
     reorderActiveTasks,
+    listLimitUpsellOpen,
+    closeListLimitUpsell: () => setListLimitUpsellOpen(false),
   };
 }

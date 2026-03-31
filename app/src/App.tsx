@@ -1,11 +1,12 @@
 import {
   useState, useCallback, useEffect, useRef, useMemo, useSyncExternalStore, type MutableRefObject,
 } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider, Button, Chip, IconButton, ModalDialog, BottomSheet } from './design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
   TaskForm, ListModal, AuthModal, BottomNav, FocusScreen,
-  WhatsNewDialog, hasSeenWhatsNew,
+  WhatsNewDialog, hasSeenWhatsNew, UpsellModal,
 } from './components';
 import type { ListModalMode, ActiveScreen } from './components';
 import { useLists } from './features/useLists';
@@ -19,6 +20,7 @@ import { initSoundEngine } from './services/soundEngine';
 import { useFocusTimer } from './hooks/useFocusTimer';
 import { stopBgm, startBgm, isBgmOn, getBgmTrack, isBgmContextSuspended } from './services/bgm';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useThemeEntitlements } from './hooks/useThemeEntitlements';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
 import './styles/task-animations.css';
@@ -26,6 +28,8 @@ import type { List } from './types/list';
 import type { Task } from './types/task';
 import type { BgmTrack } from './services/bgm';
 import { FocusZenMode } from './components/FocusZenMode';
+import { PricingPage } from './pages/PricingPage';
+import { AccountPage } from './pages/AccountPage';
 
 /**
  * Desktop UI: at least one fine pointer (mouse/trackpad). No viewport width involved —
@@ -65,9 +69,11 @@ function AppContent() {
     addList, renameList, deleteList,
     addTask, updateTask, deleteTask, completeTask, uncompleteTask,
     reorderActiveTasks,
+    listLimitUpsellOpen, closeListLimitUpsell,
   } = useLists();
 
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [lang, setLang] = useState<'en' | 'ja'>(() => {
     try { return (localStorage.getItem('pixdone-lang') as 'en' | 'ja') ?? 'en'; } catch { return 'en'; }
@@ -123,6 +129,15 @@ function AppContent() {
     initSoundEngine();
     setSoundMuted(!getSoundEnabled());
   }, []);
+
+  /* ---- Sync user plan to vanilla effect engine ---- */
+  const { plan: userPlan } = useThemeEntitlements();
+  useEffect(() => {
+    const w = window as unknown as {
+      taskAnimationEffects?: { comicEffects?: { setUserPlan: (plan: string) => void } };
+    };
+    w.taskAnimationEffects?.comicEffects?.setUserPlan(userPlan);
+  }, [userPlan]);
 
   /* ---- Touch-first UI: viewport narrow while inline was open → BottomSheet ---- */
   useEffect(() => {
@@ -692,6 +707,24 @@ function AppContent() {
                     }}>
                       {user.email}
                     </div>
+                    {/* Account */}
+                    <button
+                      type="button"
+                      onClick={() => { setUserMenuOpen(false); playSound('buttonClick'); navigate('/account'); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '8px',
+                        width: '100%', textAlign: 'left',
+                        padding: '10px 14px', background: 'none',
+                        border: 'none', borderBottom: '1px solid var(--pd-color-border-default)',
+                        color: 'var(--pd-color-text-primary)',
+                        fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem', cursor: 'pointer',
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
+                    >
+                      <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>manage_accounts</span>
+                      {lang === 'ja' ? 'アカウント' : 'Account'}
+                    </button>
                     {/* Language */}
                     <div style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -772,6 +805,16 @@ function AppContent() {
                         onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
                       >
                         {lang === 'ja' ? 'プライバシー' : 'Privacy'}
+                      </a>
+                      <a
+                        href="/terms.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--pd-color-text-secondary)', fontSize: '0.75rem', textDecoration: 'none' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+                      >
+                        {lang === 'ja' ? '利用規約' : 'Terms'}
                       </a>
                     </div>
                     )}
@@ -1403,6 +1446,14 @@ function AppContent() {
         lang={lang}
       />
 
+      {/* List limit upsell */}
+      <UpsellModal
+        open={listLimitUpsellOpen}
+        onClose={closeListLimitUpsell}
+        reason="list-limit"
+        lang={lang}
+      />
+
       {/* Stripe purchase success banner */}
       {purchaseBanner === 'synthwave_success' && (
         <div
@@ -1487,6 +1538,16 @@ function AppContent() {
         >
           {lang === 'ja' ? 'プライバシーポリシー' : 'Privacy Policy'}
         </a>
+        <a
+          href="/terms.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'inherit', textDecoration: 'none' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+        >
+          {lang === 'ja' ? '利用規約' : 'Terms of Service'}
+        </a>
       </footer>
       {/* Footer legal links intentionally shown even when menu hides them. */}
     </div>
@@ -1497,7 +1558,11 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppContent />
+        <Routes>
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="*" element={<AppContent />} />
+        </Routes>
       </AuthProvider>
     </ThemeProvider>
   );

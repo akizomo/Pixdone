@@ -1,4 +1,5 @@
 import { t } from '../lib/i18n';
+import './BottomNav.css';
 
 export type ActiveScreen = 'tasks' | 'focus';
 
@@ -19,19 +20,6 @@ export function BottomNav({ activeScreen, onSelect, lang }: BottomNavProps) {
       role="tablist"
       className="pd-bottom-nav"
       aria-label={lang === 'ja' ? 'メインナビゲーション' : 'Main navigation'}
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: 'calc(56px + env(safe-area-inset-bottom))',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        background: 'var(--pd-color-background-elevated)',
-        borderTop: '2px solid var(--pd-color-border-default)',
-        display: 'flex',
-        alignItems: 'stretch',
-        zIndex: 200,
-      }}
     >
       {tabs.map((tab) => {
         const isActive = activeScreen === tab.id;

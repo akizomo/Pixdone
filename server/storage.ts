@@ -20,7 +20,15 @@ interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserTheme(userId: string, themeKey: string): Promise<User>;
-  updateUserSynthwavePremium(userId: string, premium: boolean): Promise<User>;
+  isPremium(userId: string): Promise<boolean>;
+  updateSubscription(userId: string, data: {
+    plan: string;
+    billingCycle?: string | null;
+    stripeCustomerId?: string | null;
+    stripeSubscriptionId?: string | null;
+    currentPeriodEnd?: Date | null;
+  }): Promise<User>;
+  getSubscription(userId: string): Promise<{ plan: string; billingCycle: string | null; currentPeriodEnd: Date | null; stripeSubscriptionId: string | null } | undefined>;
 
   // Task operations
   getUserTasks(userId: string): Promise<Task[]>;
@@ -79,13 +87,42 @@ class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async updateUserSynthwavePremium(userId: string, premium: boolean): Promise<User> {
+  async isPremium(userId: string): Promise<boolean> {
+    const user = await this.getUser(userId);
+    return user?.subscriptionPlan === 'plus';
+  }
+
+  async updateSubscription(userId: string, data: {
+    plan: string;
+    billingCycle?: string | null;
+    stripeCustomerId?: string | null;
+    stripeSubscriptionId?: string | null;
+    currentPeriodEnd?: Date | null;
+  }): Promise<User> {
     const [user] = await db
       .update(users)
-      .set({ synthwavePremium: premium, updatedAt: new Date() })
+      .set({
+        subscriptionPlan: data.plan,
+        billingCycle: data.billingCycle ?? null,
+        stripeCustomerId: data.stripeCustomerId ?? undefined,
+        stripeSubscriptionId: data.stripeSubscriptionId ?? undefined,
+        subscriptionCurrentPeriodEnd: data.currentPeriodEnd ?? null,
+        updatedAt: new Date(),
+      })
       .where(eq(users.id, userId))
       .returning();
     return user;
+  }
+
+  async getSubscription(userId: string): Promise<{ plan: string; billingCycle: string | null; currentPeriodEnd: Date | null; stripeSubscriptionId: string | null } | undefined> {
+    const user = await this.getUser(userId);
+    if (!user) return undefined;
+    return {
+      plan: user.subscriptionPlan ?? 'free',
+      billingCycle: user.billingCycle ?? null,
+      currentPeriodEnd: user.subscriptionCurrentPeriodEnd ?? null,
+      stripeSubscriptionId: user.stripeSubscriptionId ?? null,
+    };
   }
 
   async ensureDefaultTaskList(userId: string): Promise<void> {

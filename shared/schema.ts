@@ -35,8 +35,14 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   passwordHash: varchar("password_hash"),
   themeKey: varchar("theme_key").default('arcade'),
-  // Premium entitlement for the Synthwave visual theme (Stripe one-time unlock).
-  synthwavePremium: boolean("synthwave_premium").default(false),
+  // PixDone+ subscription
+  subscriptionPlan: varchar("subscription_plan").default('free'),         // 'free' | 'plus'
+  billingCycle: varchar("billing_cycle"),                                  // 'monthly' | 'yearly' | null
+  stripeCustomerId: varchar("stripe_customer_id"),
+  stripeSubscriptionId: varchar("stripe_subscription_id"),
+  subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
+  unlockedThemes: jsonb("unlocked_themes").default([]),                   // AI生成テーマID配列 (将来用)
+  customSoundEffect: varchar("custom_sound_effect"),                      // カスタムSE (データモデルのみ)
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
