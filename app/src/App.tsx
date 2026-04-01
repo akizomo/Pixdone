@@ -86,6 +86,7 @@ function AppContent() {
 
   // UI state
   const [signupOpen, setSignupOpen] = useState(false);
+  const [plusIntroOpen, setPlusIntroOpen] = useState(false);
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -1414,7 +1415,75 @@ function AppContent() {
         open={signupOpen}
         onClose={() => { playSound('taskCancel'); setSignupOpen(false); }}
         lang={lang}
+        onSignupSuccess={() => setPlusIntroOpen(true)}
       />
+
+      {/* PixDone+ intro modal (post-signup) */}
+      <ModalDialog
+        open={plusIntroOpen}
+        onClose={() => { playSound('taskCancel'); setPlusIntroOpen(false); }}
+        closeOnOverlayClick
+        aria-label="PixDone+"
+        actions={
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => { playSound('taskCancel'); setPlusIntroOpen(false); }}
+              style={{
+                padding: '8px 16px', background: 'transparent',
+                border: '2px solid var(--pd-color-border-default)', borderRadius: 0,
+                cursor: 'pointer', fontFamily: 'var(--pd-font-brand)',
+                fontSize: '0.7rem', color: 'var(--pd-color-text-secondary)', letterSpacing: '1px',
+              }}
+            >
+              {lang === 'ja' ? 'あとで' : 'LATER'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { playSound('buttonClick'); setPlusIntroOpen(false); navigate('/pricing'); }}
+              style={{
+                padding: '8px 20px', background: 'var(--pd-color-accent-default)',
+                border: '2px solid var(--pd-color-accent-default)', borderRadius: 0,
+                cursor: 'pointer', fontFamily: 'var(--pd-font-brand)',
+                fontSize: '0.7rem', color: 'var(--pd-color-background-default)', letterSpacing: '1px',
+              }}
+            >
+              {lang === 'ja' ? 'PixDone+ を見る' : 'VIEW PIXDONE+'}
+            </button>
+          </div>
+        }
+      >
+        <div style={{ padding: '4px 0 8px' }}>
+          <p style={{
+            fontFamily: 'var(--pd-font-brand)', fontSize: '0.875rem',
+            color: 'var(--pd-color-accent-default)', letterSpacing: '1px', margin: '0 0 12px',
+          }}>
+            PIXDONE+
+          </p>
+          <p style={{
+            fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem',
+            color: 'var(--pd-color-text-secondary)', margin: '0 0 12px', lineHeight: 1.6,
+          }}>
+            {lang === 'ja'
+              ? 'アップグレードするとできること：'
+              : 'Unlock more with PixDone+:'}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {[
+              { ja: '✦ リストが無制限に作れる', en: '✦ Unlimited task lists' },
+              { ja: '✦ Synthwave テーマが使える', en: '✦ Synthwave theme' },
+              { ja: '✦ レアエフェクトが発動する（Rainbow Smash / Freeze）', en: '✦ Rare effects (Rainbow Smash / Freeze)' },
+            ].map((f) => (
+              <p key={f.en} style={{
+                fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+                color: 'var(--pd-color-text-primary)', margin: 0,
+              }}>
+                {lang === 'ja' ? f.ja : f.en}
+              </p>
+            ))}
+          </div>
+        </div>
+      </ModalDialog>
 
       {/* Bottom navigation */}
       {!focusZenOpen && (

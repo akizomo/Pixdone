@@ -26,9 +26,10 @@ export interface AuthModalProps {
   onClose: () => void;
   lang: 'en' | 'ja';
   initialMode?: 'signup' | 'login';
+  onSignupSuccess?: () => void;
 }
 
-export function AuthModal({ open, onClose, lang, initialMode = 'signup' }: AuthModalProps) {
+export function AuthModal({ open, onClose, lang, initialMode = 'signup', onSignupSuccess }: AuthModalProps) {
   const { login, register, resetPassword } = useAuth();
   const [mode, setMode] = useState<'signup' | 'login' | 'reset'>(initialMode);
   const [email, setEmail] = useState('');
@@ -66,6 +67,7 @@ export function AuthModal({ open, onClose, lang, initialMode = 'signup' }: AuthM
         setSuccessMsg(lang === 'ja' ? 'メール確認リンクを送信しました。メールをご確認ください。' : 'Verification email sent. Please check your inbox.');
         setEmail('');
         setPassword('');
+        onSignupSuccess?.();
       } else if (mode === 'reset') {
         await resetPassword(email);
         playSound('taskComplete');
