@@ -177,15 +177,20 @@ function AppContent() {
   /* ---- Midnight refresh ---- */
   useMidnightRefresh();
 
-  /* ---- Stripe purchase redirect ---- */
+  /* ---- Stripe purchase redirect + auth open ---- */
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const purchase = params.get('purchase');
+    const authOpen = params.get('auth');
     const url = new URL(window.location.href);
     url.searchParams.delete('purchase');
+    url.searchParams.delete('auth');
     window.history.replaceState({}, '', url.toString());
     if (purchase === 'plus_success') {
       setPurchaseBanner('plus_success');
+    }
+    if (authOpen === '1') {
+      setSignupOpen(true);
     }
   }, []);
 
