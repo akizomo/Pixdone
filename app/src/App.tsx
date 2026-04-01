@@ -1124,14 +1124,16 @@ function AppContent() {
               ) : !user && isTutorial && activeTasks.length === 0 ? (
                 <div>
                   <TutorialPanel
-                    headline={"You've completed the tutorial!"}
+                    headline={lang === 'ja' ? 'チュートリアル完了！' : "You've completed the tutorial!"}
                     subtext={
                       lang === 'ja'
-                        ? 'サインアップしてタスクを保存し、端末間で同期＆テーマ変更を楽しもう。'
-                        : 'Sign up to save your own tasks, sync across devices, and unlock theme customization.'
+                        ? 'サインアップしてタスクを保存・端末間同期。PixDone+ なら無制限リスト・プレミアムテーマも。'
+                        : 'Sign up to save tasks and sync across devices. Upgrade to PixDone+ for unlimited lists and premium themes.'
                     }
-                    buttonLabel={lang === 'ja' ? 'サインアップ' : 'Sign up'}
+                    buttonLabel={lang === 'ja' ? 'サインアップ（無料）' : 'Sign up — free'}
                     onSignUp={() => setSignupOpen(true)}
+                    pricingLabel={lang === 'ja' ? 'PixDone+ を見る →' : 'View PixDone+ →'}
+                    onViewPricing={() => navigate('/pricing')}
                   />
               {completedTasks.length > 0 && (
                 <div style={{ marginTop: '24px' }}>
