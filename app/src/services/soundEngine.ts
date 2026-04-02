@@ -6,7 +6,7 @@
 
 let audioCtx: AudioContext | null = null;
 let unlocked = false;
-let currentPack = 'retro'; // 'retro' | 'synth' | 'synthwave'
+let currentPack = 'retro'; // 'retro' | 'synth' | 'synthwave' | 'forest'
 
 function getCtx(): AudioContext | null {
   if (audioCtx) return audioCtx;
@@ -85,6 +85,42 @@ function blip(freq: number, dur: number, vol = 0.05, delay = 0) {
     gain.gain.setValueAtTime(0, now);
     gain.gain.linearRampToValueAtTime(vol, now + 0.008);
     gain.gain.linearRampToValueAtTime(0, now + dur);
+    osc.start(now);
+    osc.stop(now + dur + 0.01);
+  };
+
+  if (ctx.state === 'suspended') {
+    ctx.resume().then(schedule);
+  } else {
+    schedule();
+  }
+}
+
+/**
+ * Forest chirp: sine wave with a smooth pitch glide (bird-like).
+ * @param freq    start frequency in Hz
+ * @param endFreq end frequency in Hz (glide target)
+ * @param dur     duration in seconds
+ * @param vol     peak volume (kept low, ~0.04-0.06)
+ * @param delay   start delay from now in seconds
+ */
+function chirp(freq: number, endFreq: number, dur: number, vol = 0.05, delay = 0) {
+  const ctx = getCtx();
+  if (!ctx) return;
+
+  const schedule = () => {
+    const now = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.linearRampToValueAtTime(endFreq, now + dur * 0.55);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(vol, now + 0.008);
+    gain.gain.setValueAtTime(vol, now + dur * 0.25);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
     osc.start(now);
     osc.stop(now + dur + 0.01);
   };
@@ -285,6 +321,77 @@ const soundsSynth: Record<string, () => void> = {
   },
 };
 
+// Forest Bit: sine-based chirps with pitch glides (bird / nature motifs)
+const soundsForest: Record<string, () => void> = {
+  buttonClick: () => chirp(880, 1046, 0.06, 0.04),              // quick ascending chirp
+
+  taskAdd: () => {
+    chirp(587, 740, 0.08, 0.050, 0);                            // D5→F#5
+    chirp(740, 880, 0.08, 0.050, 0.10);                         // F#5→A5
+  },
+
+  taskEdit: () => chirp(523, 587, 0.08, 0.040),                  // C5→D5 (gentle nudge)
+
+  taskDelete: () => {
+    chirp(440, 370, 0.09, 0.045, 0);                            // A4→F#4 descending (leaf falls)
+    chirp(370, 294, 0.10, 0.038, 0.10);                         // F#4→D4
+  },
+
+  taskCancel: () => chirp(392, 349, 0.08, 0.038),                // G4→F4 (soft decline)
+
+  taskComplete: () => {
+    // 3-note bird call: G4→B4→D5→G5
+    chirp(392, 494, 0.09, 0.055, 0);
+    chirp(494, 587, 0.09, 0.055, 0.10);
+    chirp(587, 784, 0.14, 0.060, 0.20);
+  },
+
+  focusAlarm: () => {
+    // Cricket pattern: alternating high/low chirps
+    const ring = (start: number) => {
+      chirp(880, 880, 0.08, 0.055, start + 0.00);
+      chirp(660, 660, 0.08, 0.048, start + 0.12);
+      chirp(880, 880, 0.08, 0.055, start + 0.24);
+      chirp(660, 660, 0.10, 0.048, start + 0.36);
+    };
+    ring(0.00);
+    ring(0.70);
+  },
+
+  focusPomodoroComplete: () => {
+    // Full bird chorus — two ascending phrases
+    const phrase = (start: number) => {
+      chirp(392, 494,  0.08, 0.055, start + 0.00);
+      chirp(494, 587,  0.08, 0.055, start + 0.09);
+      chirp(587, 784,  0.10, 0.055, start + 0.18);
+      chirp(784, 988,  0.14, 0.050, start + 0.30);
+    };
+    phrase(0.00);
+    phrase(0.52);
+    chirp(784,  784,  0.50, 0.045, 1.06);
+    chirp(988,  988,  0.65, 0.040, 1.06);
+  },
+
+  focusBreakComplete: () => {
+    const ring = (start: number) => {
+      chirp(523, 659, 0.08, 0.048, start + 0.00);
+      chirp(659, 784, 0.10, 0.048, start + 0.10);
+      chirp(784, 880, 0.13, 0.044, start + 0.22);
+    };
+    ring(0.00);
+    ring(0.52);
+    chirp(659, 659, 0.26, 0.038, 1.04);
+  },
+
+  perfectTimingGreat: () => {
+    chirp(659,  784, 0.07, 0.058, 0);
+    chirp(784,  988, 0.07, 0.058, 0.09);
+    chirp(988, 1175, 0.11, 0.058, 0.18);
+  },
+
+  subtaskComplete: () => chirp(523, 659, 0.07, 0.044),           // C5→E5 (soft chirp)
+};
+
 const soundsSynthwave: Record<string, () => void> = {
   ...sounds,
   buttonClick: () => neon(740, 0.05, 0.035, 0, 'triangle'),
@@ -350,11 +457,10 @@ const soundsSynthwave: Record<string, () => void> = {
 function playSound(key: string) {
   if (!isSoundEnabled()) return;
   const pack =
-    currentPack === 'synthwave'
-      ? soundsSynthwave
-      : currentPack === 'synth'
-        ? soundsSynth
-        : sounds;
+    currentPack === 'synthwave' ? soundsSynthwave
+    : currentPack === 'synth'  ? soundsSynth
+    : currentPack === 'forest' ? soundsForest
+    : sounds;
   pack[key]?.();
 }
 
@@ -370,13 +476,13 @@ export function initSoundEngine() {
   };
   w.__pixdonePlaySound = playSound;
   w.__pixdoneSetSoundPack = (pack: string) => {
-    if (pack === 'retro' || pack === 'synth' || pack === 'synthwave') currentPack = pack;
+    if (pack === 'retro' || pack === 'synth' || pack === 'synthwave' || pack === 'forest') currentPack = pack;
   };
   w.__pixdoneGetSoundPack = () => currentPack;
 
   // Apply desired pack if ThemeProvider ran first.
   const desired = w.__pixdoneDesiredSoundPack;
-  if (desired === 'retro' || desired === 'synth' || desired === 'synthwave') {
+  if (desired === 'retro' || desired === 'synth' || desired === 'synthwave' || desired === 'forest') {
     currentPack = desired;
   }
 }

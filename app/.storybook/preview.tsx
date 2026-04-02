@@ -56,6 +56,7 @@ const preview: Preview = {
         items: [
           { value: 'arcade', title: '🕹️ Arcade' },
           { value: 'synthwave', title: '🌆 Synthwave' },
+          { value: 'forestbit', title: '🌲 Forest Bit' },
         ],
         dynamicTitle: true,
       },

@@ -4,7 +4,7 @@
  * independently of the light/dark ThemeMode.
  */
 
-export type ThemeKey = 'arcade' | 'synthwave';
+export type ThemeKey = 'arcade' | 'synthwave' | 'forestbit';
 
 /**
  * Per-mode CSS variable overrides for a visual theme.
@@ -38,15 +38,17 @@ export interface VisualTheme {
   /** Effect style: pixel art bursts or glow/beam effects */
   effectsStyle: 'pixel' | 'glow';
   /** Sound pack to use */
-  soundPackKey: 'retro' | 'synth' | 'synthwave';
+  soundPackKey: 'retro' | 'synth' | 'synthwave' | 'forest';
 }
 
 import { arcadeTheme } from './arcade.theme';
 import { synthwaveTheme } from './synthwave.theme';
+import { forestbitTheme } from './forestbit.theme';
 
 export const themes: Record<ThemeKey, VisualTheme> = {
   arcade: arcadeTheme,
   synthwave: synthwaveTheme,
+  forestbit: forestbitTheme,
 };
 
 export const themeList: VisualTheme[] = Object.values(themes);

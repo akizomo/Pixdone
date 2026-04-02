@@ -41,16 +41,12 @@ const WORLD_SHUTDOWN_CRT_CONFIG = {
 
 class ComicEffectsManager {
     constructor() {
-        // Arcade theme effect pool (original)
-        this.effects = [
+        // Common effects — shared across all themes (85%)
+        this.commonEffects = [
             "explode",
             "flyAway",
-            "crumpleThrow",
-            "shatter",
             "vanish",
-            "spinOff",
             "melt",
-            "tornado",
             "bounce",
             "slideLeft",
             "slideRight",
@@ -60,11 +56,14 @@ class ComicEffectsManager {
             "wobble",
             "fadeOut",
         ];
+        // Rare effects — theme-specific (10%)
+        this.arcadeRareEffects = ["tornado", "shatter", "spinOff", "crumpleThrow"];
+        this.synthwaveRareEffects = ["glitchSlide", "neonWarp"];
+        // Epic effects — Plus only (5%)
         this.superRareEffects = ["rainbowSmash", "freeze"];
-        // Synthwave theme effect pool
-        this.synthwaveEffects = ["glitchSlide", "neonWarp"];
         this.synthwaveSuperRareEffects = ["neonBigBang"];
-        this.epicChance = 0.05; // 5% chance (shared by rainbow and freeze)
+        this.epicChance = 0.05;  // 5%
+        this.rareChance = 0.15;  // next 10% (0.05–0.15)
         this.rainbowSmashChance = this.epicChance;
         this.effectLock = false;
         this.audioContext = null;
@@ -670,8 +669,8 @@ class ComicEffectsManager {
 
         const visualTheme = this.getVisualTheme();
         const isSynthwave = visualTheme === "synthwave";
-        const normalPool = isSynthwave ? this.synthwaveEffects : this.effects;
-        const superRarePool = isSynthwave ? this.synthwaveSuperRareEffects : this.superRareEffects;
+        const epicPool = isSynthwave ? this.synthwaveSuperRareEffects : this.superRareEffects;
+        const rarePool = isSynthwave ? this.synthwaveRareEffects : this.arcadeRareEffects;
 
         if (forceFreeze) {
             console.log("❄️ Epic Freeze effect (forced by ?effect=freeze)");
@@ -683,10 +682,13 @@ class ComicEffectsManager {
             console.log("💥 Neon Big Bang (forced by ?effect=neonBigBang)");
             selectedEffect = "neonBigBang";
         } else if (random < this.epicChance) {
-            selectedEffect = superRarePool[Math.floor(Math.random() * superRarePool.length)];
-            console.log(`✨ Super rare effect triggered! [${visualTheme}]:`, selectedEffect);
+            selectedEffect = epicPool[Math.floor(Math.random() * epicPool.length)];
+            console.log(`✨ Epic effect triggered! [${visualTheme}]:`, selectedEffect);
+        } else if (random < this.rareChance) {
+            selectedEffect = rarePool[Math.floor(Math.random() * rarePool.length)];
+            console.log(`⭐ Rare effect triggered! [${visualTheme}]:`, selectedEffect);
         } else {
-            selectedEffect = normalPool[Math.floor(Math.random() * normalPool.length)];
+            selectedEffect = this.commonEffects[Math.floor(Math.random() * this.commonEffects.length)];
         }
 
         console.log(
@@ -1428,6 +1430,16 @@ class ComicEffectsManager {
         }, 2000);
     }
 
+    getParticleColors() {
+        const s = getComputedStyle(document.documentElement);
+        return [
+            s.getPropertyValue('--pd-effect-particle-1').trim() || '#ff6b6b',
+            s.getPropertyValue('--pd-effect-particle-2').trim() || '#4ecdc4',
+            s.getPropertyValue('--pd-effect-particle-3').trim() || '#45b7d1',
+            s.getPropertyValue('--pd-effect-particle-4').trim() || '#ffeaa7',
+        ];
+    }
+
     createExplosionParticles(rect) {
         if (!rect) return;
 
@@ -1442,14 +1454,7 @@ class ComicEffectsManager {
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
 
-        const colors = [
-            "#ff6b6b",
-            "#4ecdc4",
-            "#45b7d1",
-            "#96ceb4",
-            "#ffeaa7",
-            "#ff9f43",
-        ];
+        const colors = this.getParticleColors();
 
         for (let i = 0; i < 25; i++) {
             const particle = document.createElement("div");
@@ -1482,14 +1487,7 @@ class ComicEffectsManager {
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
 
-        const colors = [
-            "#ff6b6b",
-            "#4ecdc4",
-            "#45b7d1",
-            "#96ceb4",
-            "#ffeaa7",
-            "#ff9f43",
-        ];
+        const colors = this.getParticleColors();
 
         for (let i = 0; i < 25; i++) {
             const particle = document.createElement("div");

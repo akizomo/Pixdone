@@ -41,16 +41,14 @@ const WORLD_SHUTDOWN_CRT_CONFIG = {
 
 class ComicEffectsManager {
     constructor() {
-        // Arcade theme effect pool (original)
-        this.effects = [
+        // Base "common" pool (used as the default in all themes)
+        // NOTE: Theme-specific effects can be layered in as "rare"/"super rare".
+        // Common pool (baseline). Theme-specific "rare" pools should NOT overlap this list.
+        this.commonEffects = [
             "explode",
             "flyAway",
-            "crumpleThrow",
-            "shatter",
             "vanish",
-            "spinOff",
             "melt",
-            "tornado",
             "bounce",
             "slideLeft",
             "slideRight",
@@ -60,11 +58,35 @@ class ComicEffectsManager {
             "wobble",
             "fadeOut",
         ];
+
+        // Arcade theme: split the former "normal pool" into common + rare.
+        // Keep this list small so it feels special without being disruptive.
+        this.arcadeRareEffects = [
+            "tornado",
+            "shatter",
+            "spinOff",
+            "crumpleThrow",
+        ];
+
+        // Super rare pool (Plus-only roll)
         this.superRareEffects = ["rainbowSmash", "freeze"];
-        // Synthwave theme effect pool
-        this.synthwaveEffects = ["glitchSlide", "neonWarp"];
+
+        // Synthwave theme: treat its "normal" effects as rare.
+        // Common effects remain available so Synthwave isn't "rare-only".
+        this.synthwaveRareEffects = ["glitchSlide", "neonWarp"];
         this.synthwaveSuperRareEffects = ["neonBigBang"];
-        this.epicChance = 0.05; // 5% chance (shared by rainbow and freeze)
+
+        // Forest Bit theme: nature-themed rare effects.
+        this.forestbitRareEffects = ["leafScatter", "butterflyFly", "owlBlink"];
+        this.forestbitSuperRareEffects     = ["fireflyBurst"];   // night epic
+        this.forestbitDaySuperRareEffects  = ["giantTreeGrow"];  // day epic
+
+        // Roll rates
+        this.epicChance = 0.05; // Plus-only: super rare
+        this.rareChanceArcade = 0.18;
+        this.rareChanceSynthwave = 0.22;
+        this.rareChanceForestbit = 0.20;
+
         this.rainbowSmashChance = this.epicChance;
         this.userPlan = 'free';
         this.effectLock = false;
@@ -484,6 +506,65 @@ class ComicEffectsManager {
                 100% { background-position: 0% 50%; }
             }
 
+            /* ── Forest Bit effects ── */
+
+            .leaf-scatter-effect {
+                animation: leafScatterCard 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            }
+
+            @keyframes leafScatterCard {
+                0%   { transform: translateY(0) rotate(0deg);    opacity: 1; }
+                35%  { transform: translateY(-10px) rotate(-6deg); opacity: 0.9; }
+                100% { transform: translateY(10px) rotate(5deg);  opacity: 0; }
+            }
+
+            @keyframes leafFloat {
+                0%   { transform: translate(var(--lx, 0px), 0px) rotate(var(--lr, 0deg)); opacity: 1; }
+                55%  { opacity: 0.85; }
+                100% { transform: translate(var(--lx, 0px), var(--ly, 80px)) rotate(calc(var(--lr, 0deg) + 200deg)); opacity: 0; }
+            }
+
+            @keyframes butterflyFly {
+                0%   { transform: translate(0, 0); opacity: 1; }
+                20%  { transform: translate(calc(var(--bx) * 0.25), calc(var(--by) * 0.25 - 14px)); opacity: 1; }
+                55%  { transform: translate(calc(var(--bx) * 0.65), calc(var(--by) * 0.6 - 6px));  opacity: 0.9; }
+                85%  { transform: translate(calc(var(--bx) * 0.9),  calc(var(--by) * 0.9));        opacity: 0.5; }
+                100% { transform: translate(var(--bx), var(--by));                                 opacity: 0; }
+            }
+
+            @keyframes wingFlap {
+                0%, 100% { transform: scaleX(1); }
+                50%       { transform: scaleX(0.12); }
+            }
+
+            @keyframes owlEyeIn {
+                0%   { opacity: 0; transform: scaleY(0); }
+                100% { opacity: 1; transform: scaleY(1); }
+            }
+
+            @keyframes owlLidClose {
+                0%   { transform: scaleY(0); }
+                100% { transform: scaleY(1); }
+            }
+
+            @keyframes owlLidOpen {
+                0%   { transform: scaleY(1); }
+                100% { transform: scaleY(0); }
+            }
+
+            @keyframes owlShift {
+                0%   { transform: translateX(0px); }
+                50%  { transform: translateX(-6px); }
+                100% { transform: translateX(6px); }
+            }
+
+            @keyframes fireflyFloat {
+                0%   { transform: translate(0, 0) scale(1);       opacity: 0.85; }
+                35%  { transform: translate(calc(var(--fx, 20px) * 0.5), calc(var(--fy, -40px) * 0.4)) scale(1.3); opacity: 1; }
+                70%  { transform: translate(calc(var(--fx, 20px) * 0.9), calc(var(--fy, -40px) * 0.85)) scale(0.9); opacity: 0.6; }
+                100% { transform: translate(var(--fx, 20px), var(--fy, -60px)) scale(0.2); opacity: 0; }
+            }
+
             /* ── Synthwave effects ── */
 
             .glitch-slide-effect {
@@ -648,6 +729,25 @@ class ComicEffectsManager {
             @media (prefers-reduced-motion: reduce) {
                 .content-below-tabs.freeze-list-shake { animation: none; }
             }
+
+            /* ── Forest Bit: Giant Tree Push ── */
+            .tree-push-squish {
+                animation: treePushSquish 0.08s steps(3) forwards;
+            }
+            @keyframes treePushSquish {
+                0%   { transform: scaleY(1)    scaleX(1); }
+                100% { transform: scaleY(0.72) scaleX(1.14); }
+            }
+
+            .tree-push-launch {
+                animation: treePushLaunch 0.32s steps(9) forwards;
+            }
+            @keyframes treePushLaunch {
+                0%   { transform: scaleY(0.72) scaleX(1.14) translateY(0)    rotate(0deg);   opacity: 1; }
+                30%  { transform: scaleY(1)    scaleX(1)    translateY(-18%)  rotate(-3deg);  opacity: 1; }
+                60%  { transform: scaleY(1)    scaleX(1)    translateY(-55%)  rotate(-6deg);  opacity: 0.7; }
+                100% { transform: scaleY(1)    scaleX(1)    translateY(-120%) rotate(-10deg); opacity: 0; }
+            }
         `;
         document.head.appendChild(style);
     }
@@ -672,15 +772,26 @@ class ComicEffectsManager {
         const forceFreeze = params && params.get("effect") === "freeze";
         const forceRainbow = params && params.get("effect") === "rainbow";
         const forceNeonBigBang = params && params.get("effect") === "neonBigBang";
+        const forceGiantTree = params && params.get("effect") === "giantTreeGrow";
 
         const visualTheme = this.getVisualTheme();
         const isSynthwave = visualTheme === "synthwave";
-        const normalPool = isSynthwave ? this.synthwaveEffects : this.effects;
+        const isForestbit = visualTheme === "forestbit";
         const isPlusUser = this.userPlan === 'plus';
+        const isNightMode = document.documentElement.getAttribute("data-theme") === "dark";
         const superRarePool = isPlusUser
-            ? (isSynthwave ? this.synthwaveSuperRareEffects : this.superRareEffects)
+            ? (isSynthwave ? this.synthwaveSuperRareEffects
+               : isForestbit ? (isNightMode ? this.forestbitSuperRareEffects : this.forestbitDaySuperRareEffects)
+               : this.superRareEffects)
             : [];
         const epicChance = superRarePool.length > 0 ? this.epicChance : 0;
+        const rareChance = isSynthwave ? this.rareChanceSynthwave
+            : isForestbit ? this.rareChanceForestbit
+            : this.rareChanceArcade;
+        const rarePool = isSynthwave ? this.synthwaveRareEffects
+            : isForestbit ? this.forestbitRareEffects
+            : this.arcadeRareEffects;
+        const commonPool = this.commonEffects;
 
         if (forceFreeze) {
             console.log("❄️ Epic Freeze effect (forced by ?effect=freeze)");
@@ -691,11 +802,17 @@ class ComicEffectsManager {
         } else if (forceNeonBigBang) {
             console.log("💥 Neon Big Bang (forced by ?effect=neonBigBang)");
             selectedEffect = "neonBigBang";
+        } else if (forceGiantTree) {
+            console.log("🌲 Giant Tree Grow (forced by ?effect=giantTreeGrow)");
+            selectedEffect = "giantTreeGrow";
         } else if (random < epicChance) {
             selectedEffect = superRarePool[Math.floor(Math.random() * superRarePool.length)];
             console.log(`✨ Super rare effect triggered! [${visualTheme}]:`, selectedEffect);
+        } else if (rarePool.length > 0 && random < epicChance + rareChance) {
+            selectedEffect = rarePool[Math.floor(Math.random() * rarePool.length)];
+            console.log(`⭐ Rare effect triggered! [${visualTheme}]:`, selectedEffect);
         } else {
-            selectedEffect = normalPool[Math.floor(Math.random() * normalPool.length)];
+            selectedEffect = commonPool[Math.floor(Math.random() * commonPool.length)];
         }
 
         console.log(
@@ -1096,6 +1213,36 @@ class ComicEffectsManager {
                 this.playNeonBigBangSound();
                 this.playHapticFeedback("strong");
                 break;
+            case "leafScatter":
+                this.createLeafScatterEffect(taskElement, rect);
+                this.playLeafScatterSound();
+                this.playHapticFeedback("light");
+                break;
+            case "fireflyBurst":
+                this.effectLock = true;
+                this.createFireflyBurstEffect(taskElement, rect);
+                this.playFireflyBurstSound();
+                this.playHapticFeedback("medium");
+                break;
+            case "butterflyFly":
+                this.createButterflyFlyEffect(taskElement, rect);
+                this.playButterflyFlySound();
+                this.playHapticFeedback("light");
+                break;
+            case "owlBlink": {
+                const _owlIsNight = document.documentElement.getAttribute("data-theme") === "dark";
+                this.effectLock = true;
+                this.createOwlBlinkEffect(taskElement, rect);
+                if (_owlIsNight) this.playOwlBlinkSound();
+                this.playHapticFeedback("light");
+                break;
+            }
+            case "giantTreeGrow":
+                this.effectLock = true;
+                this.createGiantTreeGrowEffect(taskElement, rect);
+                this.playGiantTreeGrowSound();
+                this.playHapticFeedback("strong");
+                break;
         }
     }
 
@@ -1437,6 +1584,19 @@ class ComicEffectsManager {
         }, 2000);
     }
 
+    /** Read theme particle colors from CSS variables; returns null if not set. */
+    getThemeParticleColors() {
+        try {
+            const style = getComputedStyle(document.documentElement);
+            const colors = [1, 2, 3, 4].map(n =>
+                style.getPropertyValue(`--pd-effect-particle-${n}`).trim()
+            ).filter(c => c.length > 0);
+            return colors.length === 4 ? colors : null;
+        } catch (_) {
+            return null;
+        }
+    }
+
     createExplosionParticles(rect) {
         if (!rect) return;
 
@@ -1451,7 +1611,7 @@ class ComicEffectsManager {
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
 
-        const colors = [
+        const colors = this.getThemeParticleColors() || [
             "#ff6b6b",
             "#4ecdc4",
             "#45b7d1",
@@ -1491,7 +1651,7 @@ class ComicEffectsManager {
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
 
-        const colors = [
+        const colors = this.getThemeParticleColors() || [
             "#ff6b6b",
             "#4ecdc4",
             "#45b7d1",
@@ -3720,6 +3880,768 @@ class ComicEffectsManager {
             vibratoOsc.stop(now + 1.7);
             leadOsc.start(now + 0.75);
             leadOsc.stop(now + 1.7);
+        } catch (e) {}
+    }
+
+    // ── Forest Bit effects ───────────────────────────────────────────────
+
+    createLeafScatterEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const isNight = document.documentElement.getAttribute("data-theme") === "dark";
+        const leafColors = isNight
+            ? ["#c8e6a0", "#a0c878", "#78a050", "#f0ff80"]
+            : ["#4aaa4a", "#2d6b2d", "#f9e04b", "#7acc7a"];
+
+        // "GROW!" label
+        const label = document.createElement("div");
+        label.className = "effect-text";
+        label.textContent = "GROW!";
+        label.style.cssText = [
+            "position:fixed",
+            "font-size:18px",
+            "font-weight:900",
+            `color:${leafColors[0]}`,
+            `text-shadow:1px 1px 0 rgba(0,0,0,0.4)`,
+            `font-family:'Press Start 2P','Courier New',monospace`,
+            `left:${rect.left + rect.width / 2 - 30}px`,
+            `top:${rect.top - 28}px`,
+            "z-index:100000",
+            "pointer-events:none",
+            "transition:opacity 0.3s ease,transform 0.3s ease",
+            "letter-spacing:2px",
+        ].join(";");
+        document.body.appendChild(label);
+        setTimeout(() => { label.style.opacity = "0"; label.style.transform = "translateY(-12px)"; }, 400);
+        setTimeout(() => label.remove(), 750);
+
+        // Main element animation
+        taskElement.classList.add("leaf-scatter-effect");
+        setTimeout(() => taskElement.classList.remove("leaf-scatter-effect"), 900);
+
+        // Pixel leaf particles (4×4px squares)
+        const count = 10;
+        for (let i = 0; i < count; i++) {
+            const leaf = document.createElement("div");
+            const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.6;
+            const dist  = Math.random() * 60 + 30;
+            const lx    = Math.cos(angle) * dist;
+            const ly    = Math.random() * 60 + 50;   // always downward (gravity)
+            const lr    = Math.random() * 180 - 90;
+            leaf.style.cssText = [
+                "position:fixed",
+                `left:${centerX}px`,
+                `top:${centerY}px`,
+                "width:6px",
+                "height:6px",
+                `background:${leafColors[Math.floor(Math.random() * leafColors.length)]}`,
+                "pointer-events:none",
+                "z-index:99998",
+                `--lx:${lx}px`,
+                `--ly:${ly}px`,
+                `--lr:${lr}deg`,
+                `animation:leafFloat ${0.7 + Math.random() * 0.4}s cubic-bezier(0.22,1,0.36,1) ${i * 0.04}s forwards`,
+            ].join(";");
+            document.body.appendChild(leaf);
+            setTimeout(() => leaf.remove(), 1200);
+        }
+    }
+
+    createFireflyBurstEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) { this.effectLock = false; return; }
+
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const glowColor = "#c8e6a0";
+
+        // "BLOOM!" label
+        const label = document.createElement("div");
+        label.className = "effect-text";
+        label.textContent = "BLOOM!";
+        label.style.cssText = [
+            "position:fixed",
+            "font-size:20px",
+            "font-weight:900",
+            `color:${glowColor}`,
+            `text-shadow:0 0 8px ${glowColor},0 0 20px ${glowColor}`,
+            `font-family:'Press Start 2P','Courier New',monospace`,
+            `left:${rect.left + rect.width / 2 - 36}px`,
+            `top:${rect.top - 32}px`,
+            "z-index:100000",
+            "pointer-events:none",
+            "transition:opacity 0.35s ease,transform 0.35s ease",
+            "letter-spacing:2px",
+        ].join(";");
+        document.body.appendChild(label);
+        setTimeout(() => { label.style.opacity = "0"; label.style.transform = "translateY(-14px)"; }, 600);
+        setTimeout(() => label.remove(), 980);
+
+        // Firefly dots (2×2px with glow)
+        const fireflyCount = 9;
+        for (let i = 0; i < fireflyCount; i++) {
+            const ff = document.createElement("div");
+            const angle = (Math.PI * 2 * i) / fireflyCount + (Math.random() - 0.5) * 0.5;
+            const dist  = Math.random() * 70 + 40;
+            const fx    = Math.cos(angle) * dist;
+            const fy    = -(Math.random() * 60 + 30);  // float upward
+            const delay = i * 0.06;
+            ff.style.cssText = [
+                "position:fixed",
+                `left:${centerX}px`,
+                `top:${centerY}px`,
+                "width:4px",
+                "height:4px",
+                `background:${glowColor}`,
+                `box-shadow:0 0 6px 3px ${glowColor}`,
+                "pointer-events:none",
+                "z-index:99999",
+                `--fx:${fx}px`,
+                `--fy:${fy}px`,
+                `animation:fireflyFloat ${0.9 + Math.random() * 0.5}s cubic-bezier(0.22,1,0.36,1) ${delay}s forwards`,
+            ].join(";");
+            document.body.appendChild(ff);
+            setTimeout(() => ff.remove(), 1600);
+        }
+
+        // Brief screen edge glow overlay
+        const glow = document.createElement("div");
+        glow.style.cssText = [
+            "position:fixed",
+            "inset:0",
+            `background:radial-gradient(ellipse at center, transparent 40%, color-mix(in srgb, ${glowColor} 12%, transparent) 100%)`,
+            "pointer-events:none",
+            "z-index:99997",
+            "transition:opacity 0.5s ease",
+        ].join(";");
+        document.body.appendChild(glow);
+        setTimeout(() => { glow.style.opacity = "0"; }, 300);
+        setTimeout(() => { glow.remove(); this.effectLock = false; }, 900);
+    }
+
+    playLeafScatterSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+            // 3-note bird call ascending: G4→B4→D5
+            const notes = [
+                { f: 392, ef: 494, t: 0.00 },
+                { f: 494, ef: 587, t: 0.10 },
+                { f: 587, ef: 784, t: 0.20 },
+            ];
+            notes.forEach(({ f, ef, t }) => {
+                const osc  = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(f, now + t);
+                osc.frequency.linearRampToValueAtTime(ef, now + t + 0.06);
+                gain.gain.setValueAtTime(0, now + t);
+                gain.gain.linearRampToValueAtTime(0.055, now + t + 0.008);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.14);
+                osc.start(now + t); osc.stop(now + t + 0.15);
+            });
+        } catch (e) {}
+    }
+
+    playFireflyBurstSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+            // Full bird chorus: two phrases + sustained finish
+            const phrase = (start) => {
+                [[392, 494], [494, 587], [587, 784], [784, 988]].forEach(([f, ef], i) => {
+                    const osc  = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(f, now + start + i * 0.09);
+                    osc.frequency.linearRampToValueAtTime(ef, now + start + i * 0.09 + 0.06);
+                    gain.gain.setValueAtTime(0, now + start + i * 0.09);
+                    gain.gain.linearRampToValueAtTime(0.050, now + start + i * 0.09 + 0.009);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + start + i * 0.09 + 0.16);
+                    osc.start(now + start + i * 0.09);
+                    osc.stop(now + start + i * 0.09 + 0.17);
+                });
+            };
+            phrase(0.00);
+            phrase(0.45);
+            // Held finish
+            [784, 988].forEach((f, i) => {
+                const osc  = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(f, now + 0.95);
+                gain.gain.setValueAtTime(0.040, now + 0.95);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.95 + 0.55 + i * 0.12);
+                osc.start(now + 0.95);
+                osc.stop(now + 0.95 + 0.56 + i * 0.12);
+            });
+        } catch (e) {}
+    }
+
+    createButterflyFlyEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const isNight = document.documentElement.getAttribute("data-theme") === "dark";
+        const wingColors = isNight
+            ? ["#c8e6a0", "#a0c878", "#f0ff80"]
+            : ["#4aaa4a", "#7acc7a", "#f9e04b"];
+
+        // "FLY!" label
+        const label = document.createElement("div");
+        label.className = "effect-text";
+        label.textContent = "FLY!";
+        label.style.cssText = [
+            "position:fixed",
+            "font-size:18px",
+            "font-weight:900",
+            `color:${wingColors[0]}`,
+            "text-shadow:1px 1px 0 rgba(0,0,0,0.4)",
+            `font-family:'Press Start 2P','Courier New',monospace`,
+            `left:${rect.left + rect.width / 2 - 22}px`,
+            `top:${rect.top - 28}px`,
+            "z-index:100000",
+            "pointer-events:none",
+            "transition:opacity 0.3s ease,transform 0.3s ease",
+            "letter-spacing:2px",
+        ].join(";");
+        document.body.appendChild(label);
+        setTimeout(() => { label.style.opacity = "0"; label.style.transform = "translateY(-12px)"; }, 400);
+        setTimeout(() => label.remove(), 750);
+
+        // 3 butterflies, each = left-wing + right-wing pixel pair
+        const paths = [
+            { bx: -90, by: -70, delay: 0    },
+            { bx:  15, by: -95, delay: 0.10 },
+            { bx:  85, by: -65, delay: 0.18 },
+        ];
+        paths.forEach(({ bx, by, delay }, i) => {
+            const color = wingColors[i % wingColors.length];
+
+            const leftWing = document.createElement("div");
+            leftWing.style.cssText = [
+                "display:inline-block", "width:6px", "height:5px",
+                `background:${color}`,
+                "transform-origin:right center",
+                `animation:wingFlap 0.22s ease-in-out ${delay}s infinite`,
+            ].join(";");
+
+            const rightWing = document.createElement("div");
+            rightWing.style.cssText = [
+                "display:inline-block", "width:6px", "height:5px",
+                `background:${color}`,
+                "transform-origin:left center",
+                `animation:wingFlap 0.22s ease-in-out ${delay + 0.11}s infinite`,
+            ].join(";");
+
+            const bf = document.createElement("div");
+            bf.style.cssText = [
+                "position:fixed",
+                `left:${centerX}px`, `top:${centerY}px`,
+                "pointer-events:none", "z-index:99999",
+                "display:flex", "gap:1px", "align-items:center",
+                `--bx:${bx}px`, `--by:${by}px`,
+                `animation:butterflyFly ${0.9 + i * 0.08}s cubic-bezier(0.22,1,0.36,1) ${delay}s forwards`,
+            ].join(";");
+            bf.appendChild(leftWing);
+            bf.appendChild(rightWing);
+            document.body.appendChild(bf);
+            setTimeout(() => bf.remove(), 1400);
+        });
+    }
+
+    createOwlBlinkEffect(taskElement, optionalRect) {
+        const isNight = document.documentElement.getAttribute("data-theme") === "dark";
+
+        // Day mode: fall back to leaf scatter
+        if (!isNight) {
+            this.effectLock = false;
+            this.createLeafScatterEffect(taskElement, optionalRect);
+            this.playLeafScatterSound();
+            return;
+        }
+
+        const rect = optionalRect || taskElement.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) { this.effectLock = false; return; }
+
+        // Pixel art palette
+        const eyeAmber  = "#ffc800";
+        const eyeDark   = "#050f07";
+        // Pixel glow: sharp double shadow, no blur gradients
+        const glowBig = `0 0 0 2px ${eyeAmber}, 0 0 12px 6px rgba(255,200,0,0.7), 0 0 32px 14px rgba(255,200,0,0.3)`;
+        const glowSm  = `0 0 0 1px ${eyeAmber}, 0 0 6px 3px rgba(255,200,0,0.5)`;
+
+        // ── Overlay (near-instant for pixel snap feel) ────────────────────
+        const overlay = document.createElement("div");
+        overlay.style.cssText = [
+            "position:fixed", "inset:0",
+            "background:#020d04",
+            "pointer-events:none",
+            "z-index:99998",
+            "opacity:0",
+            "transition:opacity 0.15s steps(3)",
+        ].join(";");
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => requestAnimationFrame(() => { overlay.style.opacity = "0.92"; }));
+
+        // ── Helper: pixel-style eye (square, no border-radius) ───────────
+        //   container clips the lid; box-shadow on ball provides glow outside
+        const makeEye = (x, y, size, glowCss) => {
+            const half = Math.floor(size / 2);
+
+            // Wrapper: no overflow:hidden — lets glow bleed out
+            const wrap = document.createElement("div");
+            wrap.style.cssText = [
+                "position:fixed",
+                `left:${x - half}px`, `top:${y - half}px`,
+                `width:${size}px`, `height:${size}px`,
+                "pointer-events:none",
+                "z-index:100000",
+                "transform-origin:center center",
+            ].join(";");
+
+            // Eyeball (square pixel art)
+            const ball = document.createElement("div");
+            ball.style.cssText = [
+                "position:absolute", "inset:0",
+                `background:${eyeAmber}`,
+                `box-shadow:${glowCss}`,
+                "transform:scaleY(0)",
+                "transform-origin:center center",
+            ].join(";");
+
+            // Pupil (square, centered)
+            const ps = Math.max(4, Math.floor(size * 0.3));
+            const po = Math.floor((size - ps) / 2);
+            const pupil = document.createElement("div");
+            pupil.style.cssText = [
+                "position:absolute",
+                `left:${po}px`, `top:${po}px`,
+                `width:${ps}px`, `height:${ps}px`,
+                "background:#1a0600",
+            ].join(";");
+            ball.appendChild(pupil);
+
+            // Lid (clips from top, inside wrap, clips to eye area)
+            const lidWrap = document.createElement("div");
+            lidWrap.style.cssText = [
+                "position:absolute", "inset:0",
+                "overflow:hidden",
+                "z-index:1",
+            ].join(";");
+            const lid = document.createElement("div");
+            lid.style.cssText = [
+                "position:absolute",
+                "left:0", "right:0", "top:0",
+                `height:${size}px`,
+                `background:${eyeDark}`,
+                "transform:scaleY(0)",
+                "transform-origin:top center",
+            ].join(";");
+            lidWrap.appendChild(lid);
+
+            wrap.appendChild(ball);
+            wrap.appendChild(lidWrap);
+            document.body.appendChild(wrap);
+            return { wrap, ball, lid };
+        };
+
+        // ── Eyes (48px primary, 12px ambient) ────────────────────────────
+        const cx = window.innerWidth  / 2;
+        const cy = window.innerHeight / 2 - 10;
+        const L = makeEye(cx - 36, cy, 48, glowBig);
+        const R = makeEye(cx + 36, cy, 48, glowBig);
+        // Two pairs of ambient forest eyes, offset into the "distance"
+        const bg = [
+            makeEye(cx - 130, cy + 55, 12, glowSm),
+            makeEye(cx - 112, cy + 55, 12, glowSm),
+            makeEye(cx + 106, cy + 70, 10, glowSm),
+            makeEye(cx + 122, cy + 70, 10, glowSm),
+        ];
+        bg.forEach(e => { e.ball.style.opacity = "0"; });
+
+        // ── Timeline (~2.4s total) ────────────────────────────────────────
+        // t=0    overlay snaps in
+        // t=120  eyes snap open (steps(4))
+        // t=380  bg eyes pop in
+        // t=550  gaze shift left→right (owlShift, steps(2))
+        // t=900  BLINK both — lid steps(3) close, hold 120ms, steps(2) open
+        // t=1500 wink L
+        // t=1850 fade out (steps(2))
+        // t=2100 cleanup
+
+        // Snap open: pixel pop
+        L.ball.style.animation = "owlEyeIn 0.14s steps(4) 120ms both";
+        R.ball.style.animation = "owlEyeIn 0.14s steps(4) 160ms both";
+
+        // Bg eyes pop in
+        setTimeout(() => {
+            bg.forEach((e, i) => {
+                setTimeout(() => {
+                    e.ball.style.opacity   = "0.7";
+                    e.ball.style.transform = "scaleY(1)";
+                    e.ball.style.animation = "owlEyeIn 0.10s steps(3) both";
+                }, i * 40);
+            });
+        }, 380);
+
+        // Gaze: snappy translate step
+        setTimeout(() => {
+            [L.wrap, R.wrap].forEach(w => {
+                w.style.animation = "owlShift 0.30s steps(2) forwards";
+            });
+        }, 550);
+
+        // Pixel blink helper
+        const doBlink = (eyeObj, delay, closeDur, holdDur, openDur) => {
+            setTimeout(() => {
+                eyeObj.lid.style.animation = `owlLidClose ${closeDur}ms steps(3) forwards`;
+                setTimeout(() => {
+                    eyeObj.lid.style.animation = `owlLidOpen ${openDur}ms steps(2) forwards`;
+                }, closeDur + holdDur);
+            }, delay);
+        };
+
+        // Main blink at t=900
+        doBlink(L, 900,  140, 120, 100);
+        doBlink(R, 920,  140, 120, 100);
+
+        // Wink left at t=1500
+        doBlink(L, 1500, 100, 80,  80);
+
+        // Fade out
+        setTimeout(() => {
+            [L.wrap, R.wrap, ...bg.map(e => e.wrap)].forEach(el => {
+                el.style.animation = "";
+                el.style.transition = "opacity 0.20s steps(2)";
+                el.style.opacity = "0";
+            });
+            overlay.style.transition = "opacity 0.20s steps(2)";
+            overlay.style.opacity = "0";
+        }, 1850);
+
+        // Cleanup
+        setTimeout(() => {
+            [overlay, L.wrap, R.wrap, ...bg.map(e => e.wrap)].forEach(el => el.remove());
+            this.effectLock = false;
+        }, 2100);
+    }
+
+    createGiantTreeGrowEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement?.getBoundingClientRect?.() || { top: 0, bottom: 100, left: 0, right: 100, width: 100, height: 40 };
+        const W  = window.innerWidth;
+        const H  = window.innerHeight;
+        const cx = W / 2;
+
+        const LEAF = ['#2d6b2d', '#4aaa4a', '#7acc7a', '#c8e6a0', '#f9e04b'];
+
+        const TRUNK_W = Math.round(Math.max(36, W * 0.052));
+        const TRUNK_H = Math.round(H * 0.74);
+
+        // Crown tiers: [widthPx, heightPx, leafColorIdx]  bottom → top
+        const TIERS = [
+            [Math.round(W * 0.30), Math.round(H * 0.12), 0],
+            [Math.round(W * 0.22), Math.round(H * 0.10), 1],
+            [Math.round(W * 0.14), Math.round(H * 0.09), 2],
+            [Math.round(W * 0.08), Math.round(H * 0.08), 4],
+        ];
+        const TOTAL_CROWN_H = TIERS.reduce((s, [, h]) => s + h, 0);
+        const CROWN_BASE_Y  = H - TRUNK_H;
+
+        // effectRect from React only has {left,top,width,height} — derive bottom safely
+        const cardBottom = typeof rect.bottom === 'number' ? rect.bottom : rect.top + rect.height;
+
+        // ── Dark flash overlay ────────────────────────────────────────────
+        const overlay = document.createElement('div');
+        overlay.style.cssText = [
+            'position:fixed', 'inset:0',
+            'background:rgba(10,30,10,0.45)',
+            'pointer-events:none', 'z-index:99990',
+            'opacity:0', 'transition:opacity 0.08s steps(2)',
+        ].join(';');
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => requestAnimationFrame(() => { overlay.style.opacity = '1'; }));
+
+        // ── Trunk ─────────────────────────────────────────────────────────
+        const trunk = document.createElement('div');
+        trunk.style.cssText = [
+            'position:fixed',
+            `left:${cx - TRUNK_W / 2}px`, 'bottom:0',
+            `width:${TRUNK_W}px`, `height:${TRUNK_H}px`,
+            `background:repeating-linear-gradient(to right,`
+                + `#4a2c0a 0%,#4a2c0a 33%,#6b4020 33%,#6b4020 66%,#4a2c0a 66%)`,
+            'transform:scaleY(0)', 'transform-origin:bottom center',
+            'pointer-events:none', 'z-index:99995',
+        ].join(';');
+        document.body.appendChild(trunk);
+
+        // ── Crown tiers ───────────────────────────────────────────────────
+        let yOffset = 0;
+        const crownEls = TIERS.map(([w, h, ci]) => {
+            const el = document.createElement('div');
+            el.style.cssText = [
+                'position:fixed',
+                `left:${cx - w / 2}px`,
+                `top:${CROWN_BASE_Y - yOffset - h}px`,
+                `width:${w}px`, `height:${h}px`,
+                `background:${LEAF[ci]}`,
+                `box-shadow:inset 0 0 0 3px ${LEAF[Math.max(0, ci - 1)]}`,
+                'transform:scaleY(0)', 'transform-origin:bottom center',
+                'pointer-events:none', 'z-index:99996',
+            ].join(';');
+            document.body.appendChild(el);
+            yOffset += h;
+            return el;
+        });
+
+        // ── TIMELINE ──────────────────────────────────────────────────────
+        // Trunk tip reaches card bottom when trunk height = (H - cardBottom).
+        // Fraction of full trunk height → time offset within the 300ms growth animation.
+        const trunkFraction = Math.min(1, Math.max(0, (H - cardBottom) / TRUNK_H));
+        const cardHitDelay  = 30 + Math.round(300 * trunkFraction);
+
+        // t=  0: overlay
+        // t= 30: trunk shoots up
+        // t=cardHit: trunk tip reaches card → card squish + launch
+        // t=cardHit+160: crown bursts open
+        // t=cardHit+380: GROW! label
+        // t=cardHit+600: tree fades out
+        // t=cardHit+800: cleanup
+
+        // Trunk burst
+        setTimeout(() => {
+            trunk.style.transition = 'transform 0.30s steps(10)';
+            trunk.style.transform  = 'scaleY(1)';
+        }, 30);
+
+        // Card gets hit by trunk tip → squish (CSS class) then launch (CSS class)
+        // Using CSS @keyframes so animation overrides !important inline styles on the clone.
+        setTimeout(() => {
+            taskElement.classList.remove('tree-push-launch');
+            taskElement.classList.add('tree-push-squish');
+
+            // Effect text appears at card position on impact
+            const effectText = document.createElement('div');
+            effectText.className = 'effect-text';
+            effectText.textContent = 'GROW!!';
+            effectText.style.cssText = [
+                'position:fixed',
+                `left:${rect.left + rect.width / 2 - 38}px`,
+                `top:${rect.top - 28}px`,
+                "font-family:'Press Start 2P','Courier New',monospace",
+                'font-size:18px',
+                'font-weight:900',
+                'color:#f9e04b',
+                'text-shadow:0 0 8px #f9e04b, 2px 2px 0 #2d6b2d, -1px -1px 0 #2d6b2d',
+                'letter-spacing:2px',
+                'pointer-events:none',
+                'z-index:100001',
+                'transition:transform 0.35s steps(6), opacity 0.35s steps(4)',
+            ].join(';');
+            document.body.appendChild(effectText);
+            // Float upward with the card
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                effectText.style.transform = 'translateY(-50px)';
+                effectText.style.opacity   = '0';
+            }));
+            setTimeout(() => effectText.remove(), 500);
+
+            setTimeout(() => {
+                taskElement.classList.remove('tree-push-squish');
+                taskElement.classList.add('tree-push-launch');
+            }, 90);
+        }, cardHitDelay);
+
+        // Crown bursts open (bottom tier first)
+        crownEls.forEach((el, i) => {
+            setTimeout(() => {
+                el.style.transition = 'transform 0.18s steps(5)';
+                el.style.transform  = 'scaleY(1)';
+            }, cardHitDelay + 160 + i * 40);
+        });
+
+        // GROW! label
+        setTimeout(() => {
+            const label = document.createElement('div');
+            label.textContent = 'GROW!';
+            const fs = Math.round(Math.max(18, TRUNK_W * 0.52));
+            label.style.cssText = [
+                'position:fixed',
+                `left:${cx - fs * 1.5}px`,
+                `top:${CROWN_BASE_Y - TOTAL_CROWN_H - fs * 1.8}px`,
+                'font-family:monospace',
+                `font-size:${fs}px`,
+                'font-weight:bold', 'letter-spacing:3px',
+                'color:#f9e04b',
+                'pointer-events:none', 'z-index:100001',
+                'opacity:0', 'transition:opacity 0.06s steps(2)',
+            ].join(';');
+            document.body.appendChild(label);
+            requestAnimationFrame(() => requestAnimationFrame(() => { label.style.opacity = '1'; }));
+            setTimeout(() => { label.style.opacity = '0'; }, 340);
+            setTimeout(() => label.remove(), 500);
+        }, cardHitDelay + 380);
+
+        // Fade tree
+        setTimeout(() => {
+            [trunk, overlay, ...crownEls].forEach(el => {
+                el.style.transition = 'opacity 0.16s steps(3)';
+                el.style.opacity    = '0';
+            });
+        }, cardHitDelay + 600);
+
+        // Cleanup (must finish before React's 1100ms clone removal)
+        setTimeout(() => {
+            [trunk, overlay, ...crownEls].forEach(el => el.remove());
+            taskElement.classList.remove('tree-push-squish', 'tree-push-launch');
+            this.effectLock = false;
+        }, cardHitDelay + 800);
+    }
+
+    playGiantTreeGrowSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+
+            // Low-freq impact thump (roots breaking ground)
+            const thump = ctx.createOscillator();
+            const thumpG = ctx.createGain();
+            thump.type = 'sine';
+            thump.frequency.setValueAtTime(62, now);
+            thump.frequency.exponentialRampToValueAtTime(28, now + 0.16);
+            thumpG.gain.setValueAtTime(0.20, now);
+            thumpG.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
+            thump.connect(thumpG); thumpG.connect(ctx.destination);
+            thump.start(now); thump.stop(now + 0.22);
+
+            // Rising sweep — matches trunk growth (30ms → 330ms visual)
+            const sweep = ctx.createOscillator();
+            const sweepG = ctx.createGain();
+            sweep.type = 'sine';
+            sweep.frequency.setValueAtTime(170, now + 0.03);
+            sweep.frequency.exponentialRampToValueAtTime(580, now + 0.36);
+            sweepG.gain.setValueAtTime(0, now + 0.03);
+            sweepG.gain.linearRampToValueAtTime(0.040, now + 0.08);
+            sweepG.gain.exponentialRampToValueAtTime(0.001, now + 0.40);
+            sweep.connect(sweepG); sweepG.connect(ctx.destination);
+            sweep.start(now + 0.03); sweep.stop(now + 0.42);
+
+            // Crown pop — 3 ascending chirps at crown burst (t≈0.34s)
+            [[880, 1047], [1175, 1397], [1760, 2093]].forEach(([f, ef], i) => {
+                const osc  = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                const t = now + 0.36 + i * 0.07;
+                osc.frequency.setValueAtTime(f, t);
+                osc.frequency.linearRampToValueAtTime(ef, t + 0.06);
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.046, t + 0.008);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(t); osc.stop(t + 0.14);
+            });
+        } catch(e) {}
+    }
+
+    playButterflyFlySound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+            // Light, airy: 3 quick ascending chirps (high sine)
+            [[880, 1046], [1046, 1175], [1175, 1397]].forEach(([f, ef], i) => {
+                const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(f, now + i * 0.10);
+                osc.frequency.linearRampToValueAtTime(ef, now + i * 0.10 + 0.05);
+                gain.gain.setValueAtTime(0, now + i * 0.10);
+                gain.gain.linearRampToValueAtTime(0.042, now + i * 0.10 + 0.007);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.10 + 0.13);
+                osc.start(now + i * 0.10);
+                osc.stop(now + i * 0.10 + 0.14);
+            });
+        } catch (e) {}
+    }
+
+    playOwlBlinkSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+
+            // "Hoo-hoo" — great horned owl style
+            // Each hoot: pitch rises on breath onset then glides down,
+            // vibrato LFO at ~5.5Hz, soft upper harmonic for warmth.
+            const hoot = (startT, baseFreq, dur) => {
+                // Vibrato LFO
+                const lfo = ctx.createOscillator();
+                const lfoGain = ctx.createGain();
+                lfo.type = "sine";
+                lfo.frequency.value = 5.5;
+                lfoGain.gain.value = 7; // ±7Hz pitch wobble
+                lfo.connect(lfoGain);
+
+                // Main oscillator
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                lfoGain.connect(osc.frequency);
+                osc.type = "sine";
+                // Breath onset: slight rise then settle and fall
+                osc.frequency.setValueAtTime(baseFreq + 14, startT);
+                osc.frequency.linearRampToValueAtTime(baseFreq, startT + 0.07);
+                osc.frequency.linearRampToValueAtTime(baseFreq - 10, startT + dur);
+                // Envelope: soft attack, flat sustain, slow tail
+                gain.gain.setValueAtTime(0, startT);
+                gain.gain.linearRampToValueAtTime(0.072, startT + 0.055);
+                gain.gain.setValueAtTime(0.072, startT + dur * 0.55);
+                gain.gain.exponentialRampToValueAtTime(0.001, startT + dur);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                // Upper harmonic (2×) for warmth — very quiet
+                const harm = ctx.createOscillator();
+                const harmGain = ctx.createGain();
+                harm.type = "sine";
+                harm.frequency.setValueAtTime((baseFreq + 14) * 2, startT);
+                harm.frequency.linearRampToValueAtTime(baseFreq * 2, startT + 0.07);
+                harm.frequency.linearRampToValueAtTime((baseFreq - 10) * 2, startT + dur);
+                harmGain.gain.setValueAtTime(0, startT);
+                harmGain.gain.linearRampToValueAtTime(0.016, startT + 0.055);
+                harmGain.gain.setValueAtTime(0.016, startT + dur * 0.55);
+                harmGain.gain.exponentialRampToValueAtTime(0.001, startT + dur);
+                harm.connect(harmGain);
+                harmGain.connect(ctx.destination);
+
+                lfo.start(startT); lfo.stop(startT + dur);
+                osc.start(startT); osc.stop(startT + dur);
+                harm.start(startT); harm.stop(startT + dur);
+            };
+
+            // First hoot at t+300ms (after eyes open), second at t+1050ms
+            hoot(now + 0.30, 278, 0.55);
+            hoot(now + 1.05, 260, 0.65);
         } catch (e) {}
     }
 

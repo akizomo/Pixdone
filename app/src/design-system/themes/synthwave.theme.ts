@@ -166,6 +166,11 @@ export const synthwaveTheme: VisualTheme = {
       '--pd-font-brand':    "'Orbitron', 'Courier New', monospace",
       '--pd-font-brand-ja': "'Orbitron', 'Courier New', monospace",
       '--pd-font-body':     "'Share Tech Mono', 'Courier New', monospace",
+
+      '--pd-effect-particle-1': '#00FFF0',  // neon cyan
+      '--pd-effect-particle-2': '#00FF88',  // neon green
+      '--pd-effect-particle-3': '#FF2D55',  // hot red
+      '--pd-effect-particle-4': '#FFB800',  // amber
     },
 
     // =========================================================================
@@ -275,6 +280,11 @@ export const synthwaveTheme: VisualTheme = {
       '--pd-font-brand':    "'Orbitron', 'Courier New', monospace",
       '--pd-font-brand-ja': "'Orbitron', 'Courier New', monospace",
       '--pd-font-body':     "'Share Tech Mono', 'Courier New', monospace",
+
+      '--pd-effect-particle-1': '#007A78',  // teal-500
+      '--pd-effect-particle-2': '#5A3A9A',  // violet-700
+      '--pd-effect-particle-3': '#FF2DFF',  // magenta-500
+      '--pd-effect-particle-4': '#D97706',  // amber
     },
   },
   effectsStyle: 'glow',

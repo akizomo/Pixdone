@@ -9,8 +9,20 @@ export const arcadeTheme: VisualTheme = {
   name: 'Arcade',
   icon: '🕹️',
   isPremium: false,
-  // Arcade uses the base token system; no overrides needed for either mode.
-  cssVariables: { light: {}, dark: {} },
+  cssVariables: {
+    light: {
+      '--pd-effect-particle-1': '#ff6b6b',
+      '--pd-effect-particle-2': '#4ecdc4',
+      '--pd-effect-particle-3': '#45b7d1',
+      '--pd-effect-particle-4': '#ffeaa7',
+    },
+    dark: {
+      '--pd-effect-particle-1': '#ff6b6b',
+      '--pd-effect-particle-2': '#4ecdc4',
+      '--pd-effect-particle-3': '#45b7d1',
+      '--pd-effect-particle-4': '#ffeaa7',
+    },
+  },
   effectsStyle: 'pixel',
   soundPackKey: 'retro',
 };

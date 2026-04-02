@@ -195,7 +195,7 @@
         <tr><th>サービス提供時期</th><td>決済完了後、即時ご利用いただけます。</td></tr>
         <tr>
           <th>返品・キャンセルについて</th>
-          <td>デジタルコンテンツの性質上、購入完了後の返品・返金・キャンセルは原則として承っておりません。<br>ただし、サービスに重大な不具合がある場合はご連絡ください。</td>
+          <td>ご購入日または更新日から7日以内であれば、返金をお受けしております。返金をご希望の場合は pixdone@akizony.com までご連絡ください。7日を過ぎた場合はデジタルサブスクリプションサービスの性質上、返金はお受けできかねます。サービスに技術的な問題が発生した場合はご連絡いただければ、解決に向けて最善を尽くします。</td>
         </tr>
         <tr><th>動作環境</th><td>最新バージョンの主要ブラウザ（Chrome、Safari、Firefox、Edge）</td></tr>
       </table>
@@ -226,7 +226,7 @@
         <tr><th>Service delivery</th><td>Available immediately after payment is confirmed.</td></tr>
         <tr>
           <th>Refunds &amp; cancellations</th>
-          <td>As this is a digital product, refunds and cancellations are generally not accepted after purchase.<br>Please contact us if you experience a critical issue with the service.</td>
+          <td>Refunds are available within 7 days of the initial purchase or renewal date. To request a refund, please contact us at pixdone@akizony.com. After 7 days, refunds are not available as this is a digital subscription service. If you experience a technical issue with the service, please contact us and we will do our best to resolve it.</td>
         </tr>
         <tr><th>Supported browsers</th><td>Latest versions of major browsers (Chrome, Safari, Firefox, Edge)</td></tr>
       </table>
@@ -240,12 +240,14 @@
   <footer>
     <a href="/">PixDone</a> &nbsp;|&nbsp;
     <a href="/privacy.html" id="footer-privacy-link"></a>
+    &nbsp;|&nbsp;
+    <a href="/terms.html" id="footer-terms-link"></a>
   </footer>
 
   <script>
     const i18n = {
-      ja: { headerLabel: '特定商取引法に基づく表示', privacyLink: 'プライバシーポリシー' },
-      en: { headerLabel: 'Commerce Disclosure',      privacyLink: 'Privacy Policy' },
+      ja: { headerLabel: '特定商取引法に基づく表示', privacyLink: 'プライバシーポリシー', termsLink: '利用規約' },
+      en: { headerLabel: 'Commerce Disclosure',      privacyLink: 'Privacy Policy',      termsLink: 'Terms of Service' },
     };
 
     function setLang(lang) {
@@ -255,6 +257,7 @@
       document.getElementById('btn-en').classList.toggle('active', lang === 'en');
       document.getElementById('header-label').textContent = i18n[lang].headerLabel;
       document.getElementById('footer-privacy-link').textContent = i18n[lang].privacyLink;
+      document.getElementById('footer-terms-link').textContent = i18n[lang].termsLink;
       document.documentElement.lang = lang;
       try { localStorage.setItem('pixdone-lang', lang); } catch(e) {}
     }

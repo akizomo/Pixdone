@@ -246,13 +246,15 @@
 
   <footer>
     <a href="/">PixDone</a> &nbsp;|&nbsp;
+    <a href="/terms.html" id="footer-terms-link"></a>
+    &nbsp;|&nbsp;
     <a href="/tokushoho.html" id="footer-commerce-link"></a>
   </footer>
 
   <script>
     const i18n = {
-      ja: { headerLabel: 'プライバシーポリシー', commerceLink: '特定商取引法に基づく表示' },
-      en: { headerLabel: 'Privacy Policy',       commerceLink: 'Commerce Disclosure' },
+      ja: { headerLabel: 'プライバシーポリシー', termsLink: '利用規約', commerceLink: '特定商取引法に基づく表示' },
+      en: { headerLabel: 'Privacy Policy',       termsLink: 'Terms of Service', commerceLink: 'Commerce Disclosure' },
     };
 
     function setLang(lang) {
@@ -261,6 +263,7 @@
       document.getElementById('btn-ja').classList.toggle('active', lang === 'ja');
       document.getElementById('btn-en').classList.toggle('active', lang === 'en');
       document.getElementById('header-label').textContent = i18n[lang].headerLabel;
+      document.getElementById('footer-terms-link').textContent = i18n[lang].termsLink;
       document.getElementById('footer-commerce-link').textContent = i18n[lang].commerceLink;
       document.documentElement.lang = lang;
       try { localStorage.setItem('pixdone-lang', lang); } catch(e) {}
