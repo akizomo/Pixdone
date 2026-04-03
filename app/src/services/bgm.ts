@@ -500,6 +500,11 @@ export function getBgmTrack(): BgmTrack {
   try {
     const raw = localStorage.getItem(BGM_TRACK_KEY) as BgmTrack | null;
     if (!raw) return 'retro';
+    // Fireplace was removed from the UI; migrate saved selection.
+    if (raw === 'fireplace') {
+      setBgmTrack('retro');
+      return 'retro';
+    }
     const allowed: Record<BgmTrack, true> = {
       retro: true,
       synthwave: true,

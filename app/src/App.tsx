@@ -1544,7 +1544,6 @@ function AppContent() {
       {/* Focus Zen mode (full-screen, hides header/bottom nav) */}
       {focusZenOpen && (
         <FocusZenMode
-          isDesktop={isDesktop}
           lang={lang}
           mode={focusMode}
           timerState={focusTimer.timerState}

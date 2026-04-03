@@ -1,14 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, IconButton } from '../design-system';
 import { BgmControl } from './BgmControl';
 import type { FocusTimerState } from '../hooks/useFocusTimer';
 import type { BgmTrack } from '../services/bgm';
-import { playSound } from '../services/sound';
 
 type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
+/** Align with BottomSheet.css: open 0.35s, close 0.25s */
+const ZEN_SHEET_OPEN = 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)';
+const ZEN_SHEET_CLOSE = 'transform 0.25s cubic-bezier(0.4, 0, 1, 1)';
+const ZEN_BACKDROP_OPEN = 'opacity 0.35s ease';
+const ZEN_BACKDROP_CLOSE = 'opacity 0.25s ease';
+const ZEN_CLOSE_MS = 280;
+
 export interface FocusZenModeProps {
-  isDesktop: boolean;
   lang: 'en' | 'ja';
   mode: TimerMode;
   timerState: FocusTimerState;
@@ -52,7 +57,6 @@ function TimeDigits({ value }: { value: string }) {
 }
 
 export function FocusZenMode({
-  isDesktop,
   lang,
   mode,
   timerState,
@@ -70,7 +74,9 @@ export function FocusZenMode({
 }: FocusZenModeProps) {
   const [visible, setVisible] = useState(true);
   const [entered, setEntered] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeStartedRef = useRef(false);
 
   useEffect(() => {
     let id1: number, id2: number;
@@ -80,13 +86,25 @@ export function FocusZenMode({
     return () => { cancelAnimationFrame(id1); cancelAnimationFrame(id2); };
   }, []);
 
+  const requestClose = useCallback(() => {
+    if (closeStartedRef.current) return;
+    closeStartedRef.current = true;
+    setIsLeaving(true);
+    setEntered(false);
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => {
+      setVisible(false);
+      onClose();
+    }, ZEN_CLOSE_MS);
+  }, [onClose]);
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') requestClose();
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [onClose]);
+  }, [requestClose]);
 
   useEffect(() => {
     if (!visible) return;
@@ -97,14 +115,6 @@ export function FocusZenMode({
     };
   }, [visible]);
 
-  const requestClose = () => {
-    setEntered(false);
-    closeTimerRef.current = setTimeout(() => {
-      setVisible(false);
-      onClose();
-    }, 250);
-  };
-
   useEffect(() => () => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
   }, []);
@@ -112,7 +122,6 @@ export function FocusZenMode({
   if (!visible) return null;
 
   const isRunning = timerState === 'running';
-  const isPaused = timerState === 'paused';
   const isBreakMode = mode === 'shortBreak' || mode === 'longBreak';
 
   const body = (
@@ -185,59 +194,12 @@ export function FocusZenMode({
           </>
         )}
       </div>
-
-      {isPaused && (
-        <div style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem', color: 'var(--pd-color-text-secondary)' }}>
-          {lang === 'ja' ? '一時停止中' : 'Paused'}
-        </div>
-      )}
     </div>
   );
 
-  if (isDesktop) {
-    return (
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={lang === 'ja' ? 'フォーカス（全画面）' : 'Focus (full screen)'}
-        onClick={requestClose}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 2000,
-          background: 'var(--pd-color-overlay-backdrop)',
-          opacity: entered ? 1 : 0,
-          transition: 'opacity 0.3s ease',
-        }}
-      >
-        <div
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            transform: entered ? 'translateY(0)' : 'translateY(8px)',
-            transition: 'transform 0.3s ease',
-          }}
-        >
-          <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 1 }}>
-            <IconButton
-              variant="ghost"
-              size="md"
-              aria-label={lang === 'ja' ? '閉じる' : 'Close'}
-              icon={<span style={{ fontFamily: 'var(--pd-font-body)', fontSize: '22px', lineHeight: 1 }}>×</span>}
-              soundKey={null}
-              onClick={() => { playSound('taskCancel'); requestClose(); }}
-            />
-          </div>
-          {body}
-        </div>
-      </div>
-    );
-  }
+  const backdropTransition = isLeaving ? ZEN_BACKDROP_CLOSE : ZEN_BACKDROP_OPEN;
+  const sheetTransition = isLeaving ? ZEN_SHEET_CLOSE : ZEN_SHEET_OPEN;
 
-  // Mobile: bottom-sheet-like slide up
   return (
     <>
       <div
@@ -249,7 +211,7 @@ export function FocusZenMode({
           zIndex: 2000,
           background: 'var(--pd-color-overlay-backdrop)',
           opacity: entered ? 1 : 0,
-          transition: 'opacity 0.3s ease',
+          transition: backdropTransition,
         }}
       />
       <div
@@ -267,8 +229,10 @@ export function FocusZenMode({
           flexDirection: 'column',
           background: 'var(--pd-color-background-default)',
           transform: entered ? 'translateY(0)' : 'translateY(100%)',
-          transition: 'transform 0.3s ease',
+          transition: sheetTransition,
           paddingBottom: 'env(safe-area-inset-bottom)',
+          pointerEvents: entered ? 'auto' : 'none',
+          imageRendering: 'pixelated',
         }}
       >
         <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 1 }}>
@@ -278,7 +242,7 @@ export function FocusZenMode({
             aria-label={lang === 'ja' ? '閉じる' : 'Close'}
             icon={<span style={{ fontFamily: 'var(--pd-font-body)', fontSize: '22px', lineHeight: 1 }}>×</span>}
             soundKey={null}
-            onClick={() => { playSound('taskCancel'); requestClose(); }}
+            onClick={requestClose}
           />
         </div>
         {body}

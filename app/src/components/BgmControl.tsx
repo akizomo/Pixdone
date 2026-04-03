@@ -21,7 +21,6 @@ const TRACKS: { id: TrackOption; labelEn: string; labelJa: string }[] = [
   { id: 'synthwave', labelEn: 'Synthwave', labelJa: 'シンスウェーブ' },
   { id: 'chill',     labelEn: 'Chill',     labelJa: 'チル' },
   { id: 'rain',      labelEn: 'Rain',      labelJa: '雨' },
-  { id: 'fireplace', labelEn: 'Fireplace', labelJa: '焚き火' },
   { id: 'nightCity', labelEn: 'Night City', labelJa: '夜の街' },
 ];
 
