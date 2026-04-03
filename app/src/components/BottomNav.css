@@ -12,7 +12,7 @@
   z-index: 200;
 }
 
-/* Desktop: floating pill */
+/* Desktop: floating pill anchored to bottom edge */
 @media (any-pointer: fine) {
   .pd-bottom-nav {
     left: 50%;
