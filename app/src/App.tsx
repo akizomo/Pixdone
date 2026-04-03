@@ -12,6 +12,7 @@ import type { ListModalMode, ActiveScreen } from './components';
 import { useLists } from './features/useLists';
 import { SMASH_TITLES } from './features/useLists';
 import { useKeyboardNav } from './hooks/useKeyboardNav';
+import { usePerfectTimingSetup, type PerfectTimingBridgeCallbacks } from './hooks/usePerfectTimingSetup';
 import { useMidnightRefresh } from './hooks/useMidnightRefresh';
 import { useTaskListSwipe } from './hooks/useTaskListSwipe';
 import { useActiveTaskLongPressReorder } from './hooks/useActiveTaskLongPressReorder';
@@ -39,6 +40,9 @@ const FINE_POINTER_MQ = '(any-pointer: fine)';
 
 /** Legal links visibility control (menu vs footer can differ). */
 const SHOW_LEGAL_LINKS_IN_MENU = false;
+
+/** Defer React completion state until PerfectTiming card animations finish (avoids clobbering inline styles). */
+const PERFECT_TIMING_STATE_DEFER_MS = 520;
 
 function subscribeFinePointer(onStoreChange: () => void): () => void {
   if (typeof window === 'undefined') return () => {};
@@ -264,7 +268,7 @@ function AppContent() {
   const getTabCount = (list: List) => list.tasks.filter((t) => !t.completed).length;
 
   /* ---- Task handlers ---- */
-  const handleComplete = useCallback((taskId: string) => {
+  const runCompleteShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
 
     const doComplete = () => {
@@ -276,13 +280,28 @@ function AppContent() {
     if (taskEl) {
       runVanillaCompletionEffect(taskEl, () => {
         doComplete();
-        // Vanilla ComicEffectsManager plays its own effect sound; no playSound('taskComplete') here
       });
     } else {
       doComplete();
       playSound('taskComplete');
     }
   }, [completeTask]);
+
+  const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
+    const doComplete = () => {
+      completeTask(taskId);
+      setTaskFormMode(null);
+      setMobileSheetOpen(false);
+    };
+    window.setTimeout(doComplete, PERFECT_TIMING_STATE_DEFER_MS);
+  }, [completeTask]);
+
+  const handleComplete = useCallback(
+    (taskId: string) => {
+      runCompleteShort(taskId);
+    },
+    [runCompleteShort],
+  );
 
   const handleUncomplete = useCallback((taskId: string) => {
     uncompleteTask(taskId);
@@ -320,7 +339,7 @@ function AppContent() {
     setDeleteTaskConfirm(taskId);
   }, []);
 
-  const handleSmash = useCallback((taskId: string) => {
+  const runSmashShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
 
     const doSmash = () => {
@@ -330,13 +349,35 @@ function AppContent() {
     if (taskEl) {
       runVanillaCompletionEffect(taskEl, () => {
         doSmash();
-        // Vanilla ComicEffectsManager plays its own effect sound
       });
     } else {
       doSmash();
       playSound('taskComplete');
     }
   }, [completeTask]);
+
+  const runSmashFromPerfectTiming = useCallback((taskId: string) => {
+    window.setTimeout(() => {
+      completeTask(taskId);
+    }, PERFECT_TIMING_STATE_DEFER_MS);
+  }, [completeTask]);
+
+  const handleSmash = useCallback(
+    (taskId: string) => {
+      runSmashShort(taskId);
+    },
+    [runSmashShort],
+  );
+
+  const perfectTimingBridgeRef = useRef<PerfectTimingBridgeCallbacks | null>(null);
+  perfectTimingBridgeRef.current = {
+    onCompleteShort: runCompleteShort,
+    onCompleteFromPt: runCompleteFromPerfectTiming,
+    onUncomplete: handleUncomplete,
+    onSmashShort: runSmashShort,
+    onSmashFromPt: runSmashFromPerfectTiming,
+  };
+  usePerfectTimingSetup(lists, perfectTimingBridgeRef);
 
   const handleTaskFormSave = useCallback((fields: Partial<Task> & { title: string }) => {
     const editId = taskFormMode !== 'add' && taskFormMode ? taskFormMode : mobileEditTaskId;
@@ -637,10 +678,12 @@ function AppContent() {
     <div
       className="pd-app-container"
       style={{
-        minHeight: '100vh',
+        // Make the overall app column taller than the viewport so the footer
+        // can naturally sit below the first view when content is short.
+        minHeight: 'calc(100vh + 80px)',
         display: 'flex',
         flexDirection: 'column',
-        // Keep bottom content from colliding with fixed BottomNav, while allowing footer to sit closer to bottom.
+        // Keep bottom content from colliding with fixed BottomNav.
         paddingBottom: focusZenOpen
           ? 0
           : isDesktop

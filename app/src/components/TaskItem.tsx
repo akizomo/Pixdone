@@ -13,9 +13,9 @@ export interface TaskItemProps {
   onDelete?: (taskId: string) => void;
   /** When true, row click does not open edit (e.g. after long-press reorder). */
   suppressOpenEdit?: () => boolean;
-  /** Long-press reorder: pointer path (mouse / pen). */
+  /** Long-press reorder: Pointer path (mouse, pen, or touch when not using the dedicated touch path). */
   onReorderPointerDown?: (e: PointerEvent<HTMLDivElement>) => void;
-  /** Long-press reorder: touch path (iOS / coarse pointers). */
+  /** Long-press reorder: Touch path (iOS / coarse pointer devices). */
   onReorderTouchStart?: (e: TouchEvent<HTMLDivElement>) => void;
   /** True while this row is the source of an in-progress long-press reorder. */
   reorderSource?: boolean;
@@ -64,8 +64,13 @@ export function TaskItem({
     lineHeight: 1.4,
   };
 
+  const perfectTimingLoaded =
+    typeof window !== 'undefined' &&
+    typeof (window as unknown as { PerfectTimingManager?: unknown }).PerfectTimingManager !== 'undefined';
+
   return (
     <div
+      className="task-item task-item-row"
       style={{
         display: 'flex',
         alignItems: 'flex-start',
@@ -88,7 +93,6 @@ export function TaskItem({
         touchAction: 'pan-y',
         WebkitTouchCallout: 'none',
       }}
-      className="task-item-row"
       data-task-id={task.id}
       onPointerDown={(e) => {
         // Mouse/pen only: list swipe listens on the scroll parent; without stopPropagation,
@@ -125,7 +129,20 @@ export function TaskItem({
         type="button"
         role="checkbox"
         aria-checked={task.completed}
-        onClick={(e) => { e.stopPropagation(); onComplete(task.id); }}
+        className="task-checkbox"
+        onClick={(e) => {
+          e.stopPropagation();
+          /* Long-press minigame uses document pointer listeners when PerfectTimingManager is loaded */
+          if (!perfectTimingLoaded) {
+            onComplete(task.id);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          e.preventDefault();
+          e.stopPropagation();
+          onComplete(task.id);
+        }}
         style={{
           display: 'flex',
           alignItems: 'center',

@@ -15,6 +15,7 @@ declare global {
   interface Window {
     taskAnimationEffects?: {
       animateTaskCompletion: (taskElement: HTMLElement, effectRect: EffectRect) => void;
+      comicEffects?: { playSound: (k: string) => void; getSoundEnabled: () => boolean };
     };
   }
 }

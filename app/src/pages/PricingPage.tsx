@@ -298,7 +298,7 @@ export function PricingPage() {
                       padding: '2px 6px',
                     }}
                   >
-                    {isJa ? '2ヶ月無料' : '2 MONTHS FREE'}
+                    {isJa ? '2ヶ月分お得' : '2 MO. SAVINGS'}
                   </span>
                 )}
               </div>

@@ -82,10 +82,7 @@ export function useActiveTaskLongPressReorder(opts: {
     (index: number) => (e: React.PointerEvent<HTMLDivElement>) => {
       if (!enabled || slotCount < 2) return;
       if (e.pointerType === 'mouse' && e.button !== 0) return;
-      // Mouse/pen: do not attach window pointer listeners — they interfere with plain click → edit.
-      // Reorder on touch only (onRowTouchStart + touch path below).
-      if (e.pointerType === 'mouse' || e.pointerType === 'pen') return;
-      // Finger touch on phones: Touch handlers own the gesture (iOS PointerEvent is unreliable).
+      // Finger touch on phones/tablets: Touch handlers own the gesture (iOS PointerEvent is unreliable).
       if (e.pointerType === 'touch' && shouldUseTouchGesturePath()) return;
       if ((e.target as HTMLElement).closest('button, a, input, textarea, select, label')) return;
 
