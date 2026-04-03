@@ -4594,6 +4594,7 @@ class ComicEffectsManager {
             // "Hoo-hoo" — great horned owl style
             // Each hoot: pitch rises on breath onset then glides down,
             // vibrato LFO at ~5.5Hz, soft upper harmonic for warmth.
+            // Combo感を損なわないよう、全体長を少し短く調整。
             const hoot = (startT, baseFreq, dur) => {
                 // Vibrato LFO
                 const lfo = ctx.createOscillator();
@@ -4639,9 +4640,9 @@ class ComicEffectsManager {
                 harm.start(startT); harm.stop(startT + dur);
             };
 
-            // First hoot at t+300ms (after eyes open), second at t+1050ms
-            hoot(now + 0.30, 278, 0.55);
-            hoot(now + 1.05, 260, 0.65);
+            // First hoot at t+260ms, second at t+880ms — 全体尺を短めに。
+            hoot(now + 0.26, 278, 0.38);
+            hoot(now + 0.88, 260, 0.42);
         } catch (e) {}
     }
 
