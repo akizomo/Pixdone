@@ -22,17 +22,37 @@ const DEFAULT_ENTITLEMENTS: PremiumEntitlements = {
   isPremium: false,
 };
 
+function loadInitialFromStorage(): PremiumEntitlements {
+  if (typeof window === 'undefined') return DEFAULT_ENTITLEMENTS;
+  try {
+    const raw = window.localStorage.getItem('pd-entitlements');
+    if (!raw) return DEFAULT_ENTITLEMENTS;
+    const parsed = JSON.parse(raw) as Partial<PremiumEntitlements>;
+    return {
+      plan: parsed.plan === 'plus' ? 'plus' : 'free',
+      billingCycle: parsed.billingCycle === 'monthly' || parsed.billingCycle === 'yearly' ? parsed.billingCycle : null,
+      currentPeriodEnd: typeof parsed.currentPeriodEnd === 'string' ? parsed.currentPeriodEnd : null,
+      unlockedThemes: Array.isArray(parsed.unlockedThemes) ? parsed.unlockedThemes as string[] : [],
+      isPremium: parsed.isPremium === true,
+    };
+  } catch {
+    return DEFAULT_ENTITLEMENTS;
+  }
+}
+
 /**
  * Fetches PixDone+ subscription entitlements from the server.
  * Falls back to free-tier defaults when unauthenticated or on error.
  */
-export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements {
+export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements & { loading: boolean } {
   const { user } = useAuth();
-  const [entitlements, setEntitlements] = useState<PremiumEntitlements>(DEFAULT_ENTITLEMENTS);
+  const [entitlements, setEntitlements] = useState<PremiumEntitlements>(() => loadInitialFromStorage());
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!user) {
       setEntitlements(DEFAULT_ENTITLEMENTS);
+      setLoading(false);
       return;
     }
 
@@ -51,23 +71,32 @@ export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements 
         if (!resp.ok) return;
         const data = await resp.json();
         if (cancelled) return;
-        setEntitlements({
+        const next: PremiumEntitlements = {
           plan: data.plan ?? 'free',
           billingCycle: data.billingCycle ?? null,
           currentPeriodEnd: data.currentPeriodEnd ?? null,
           unlockedThemes: data.unlockedThemes ?? [],
           isPremium: data.isPremium === true,
-        });
+        };
+        setEntitlements(next);
+        try {
+          window.localStorage.setItem('pd-entitlements', JSON.stringify(next));
+        } catch {
+          // ignore storage failures
+        }
       } catch {
         // Ignore network/auth failures – default remains locked.
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
 
     return () => {
       cancelled = true;
+      setLoading(false);
     };
   }, [user]);
 
   // synthwavePremium は isPremium と同義（後方互換）
-  return { ...entitlements, synthwavePremium: entitlements.isPremium };
+  return { ...entitlements, synthwavePremium: entitlements.isPremium, loading };
 }
