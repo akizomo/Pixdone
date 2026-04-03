@@ -7,7 +7,7 @@
   justify-content: center;
   border-width: var(--pxd-border-base);
   border-style: solid;
-  border-radius: var(--pxd-radius-sm);
+  border-radius: var(--pxd-radius-none);
   cursor: pointer;
   transition:
     background-color var(--pxd-motion-fast) var(--pxd-easing-press),

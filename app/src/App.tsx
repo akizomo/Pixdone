@@ -6,7 +6,7 @@ import { ThemeProvider, Button, Chip, IconButton, ModalDialog, BottomSheet } fro
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
   TaskForm, ListModal, AuthModal, BottomNav, FocusScreen,
-  WhatsNewDialog, hasSeenWhatsNew, UpsellModal,
+  UpsellModal,
 } from './components';
 import type { ListModalMode, ActiveScreen } from './components';
 import { useLists } from './features/useLists';
@@ -109,9 +109,6 @@ function AppContent() {
 
   // Delete task confirmation
   const [deleteTaskConfirm, setDeleteTaskConfirm] = useState<string | null>(null); // taskId
-
-  // What's New dialog — show once per version
-  const [whatsNewOpen, setWhatsNewOpen] = useState(() => !hasSeenWhatsNew());
 
   // Stripe purchase redirect banner
   const [purchaseBanner, setPurchaseBanner] = useState<'plus_success' | null>(null);
@@ -423,7 +420,6 @@ function AppContent() {
     mobileSheetOpen ||
     deleteTaskConfirm !== null ||
     focusZenOpen ||
-    whatsNewOpen ||
     inlineTaskFormOpen;
 
   const handleSwipe = useCallback((dir: 'left' | 'right') => {
@@ -644,7 +640,12 @@ function AppContent() {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        paddingBottom: focusZenOpen ? 0 : '80px',
+        // Keep bottom content from colliding with fixed BottomNav, while allowing footer to sit closer to bottom.
+        paddingBottom: focusZenOpen
+          ? 0
+          : isDesktop
+            ? 'calc(48px + 16px + env(safe-area-inset-bottom))'
+            : 'calc(56px + env(safe-area-inset-bottom))',
       }}
     >
       {!focusZenOpen && (
@@ -1553,13 +1554,6 @@ function AppContent() {
         </p>
       </ModalDialog>
 
-      {/* What's New dialog */}
-      <WhatsNewDialog
-        open={whatsNewOpen}
-        onClose={() => setWhatsNewOpen(false)}
-        lang={lang}
-      />
-
       {/* List limit upsell */}
       <UpsellModal
         open={listLimitUpsellOpen}
@@ -1634,46 +1628,81 @@ function AppContent() {
 
       <footer style={{
         textAlign: 'center',
-        padding: '10px 16px',
+        padding: '12px 16px 14px',
         fontSize: '0.6875rem',
         color: 'var(--pd-color-text-muted)',
         borderTop: '1px solid var(--pd-color-border-default)',
         display: 'flex',
-        justifyContent: 'center',
-        gap: '16px',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '10px',
         flexShrink: 0,
         marginTop: 'auto',
       }}>
-        <a
-          href="/tokushoho.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'inherit', textDecoration: 'none' }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            gap: '16px',
+          }}
         >
-          {lang === 'ja' ? '特定商取引法に基づく表示' : 'Commerce Disclosure'}
-        </a>
-        <a
-          href="/privacy.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'inherit', textDecoration: 'none' }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+          <a
+            href="/tokushoho.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'inherit', textDecoration: 'none' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+          >
+            {lang === 'ja' ? '特定商取引法に基づく表示' : 'Commerce Disclosure'}
+          </a>
+          <a
+            href="/privacy.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'inherit', textDecoration: 'none' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+          >
+            {lang === 'ja' ? 'プライバシーポリシー' : 'Privacy Policy'}
+          </a>
+          <a
+            href="/terms.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'inherit', textDecoration: 'none' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+          >
+            {lang === 'ja' ? '利用規約' : 'Terms of Service'}
+          </a>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px',
+            fontFamily: 'var(--pd-font-body)',
+            lineHeight: 1.5,
+          }}
         >
-          {lang === 'ja' ? 'プライバシーポリシー' : 'Privacy Policy'}
-        </a>
-        <a
-          href="/terms.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'inherit', textDecoration: 'none' }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-        >
-          {lang === 'ja' ? '利用規約' : 'Terms of Service'}
-        </a>
+          <span>
+            Created by{' '}
+            <a
+              href="https://akihiro-uezono.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'inherit', textDecoration: 'none' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+            >
+              Akihiro Uezono
+            </a>
+          </span>
+          <span>© 2026 PixDone</span>
+        </div>
       </footer>
       {/* Footer legal links intentionally shown even when menu hides them. */}
     </div>

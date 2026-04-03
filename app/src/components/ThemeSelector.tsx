@@ -76,15 +76,13 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {themeList.map((theme) => {
           const isActive = theme.key === visualTheme;
-          const isComingSoon = theme.key === 'synthwave' && !isPremium;
-          const isLocked = !isComingSoon && (theme.isPremium ? !isPremium : false);
+          const isLocked = theme.isPremium ? !isPremium : false;
 
           return (
             <button
               key={theme.key}
               type="button"
-              disabled={isComingSoon}
-              onClick={() => !isComingSoon && handleSelect(theme.key as ThemeKey, isLocked)}
+              onClick={() => handleSelect(theme.key as ThemeKey, isLocked)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -95,8 +93,8 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
                   : 'var(--pd-color-background-elevated)',
                 border: `2px solid ${isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
                 borderRadius: '0',
-                cursor: isComingSoon ? 'default' : 'pointer',
-                opacity: isComingSoon ? 0.5 : isLocked ? 0.65 : 1,
+                cursor: 'pointer',
+                opacity: isLocked ? 0.65 : 1,
                 fontFamily: 'var(--pd-font-body)',
                 textAlign: 'left',
                 transition: 'background 0.15s, border-color 0.15s',
@@ -115,20 +113,6 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
                 >
                   {theme.name}
                 </span>
-                {isComingSoon && (
-                  <span
-                    style={{
-                      display: 'block',
-                      fontFamily: 'var(--pd-font-brand)',
-                      fontSize: '0.625rem',
-                      letterSpacing: '1px',
-                      color: 'var(--pd-color-text-muted)',
-                      marginTop: '2px',
-                    }}
-                  >
-                    COMING SOON
-                  </span>
-                )}
               </span>
               {isLocked && (
                 <span
@@ -145,7 +129,7 @@ export function ThemeSelector({ onClose }: ThemeSelectorProps) {
                   🔒 PRO
                 </span>
               )}
-              {isActive && !isLocked && !isComingSoon && (
+              {isActive && !isLocked && (
                 <span style={{ color: 'var(--pd-color-accent-default)', fontSize: '0.75rem' }}>▶</span>
               )}
             </button>
