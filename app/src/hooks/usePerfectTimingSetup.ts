@@ -79,12 +79,11 @@ export function usePerfectTimingSetup(
         return;
       }
 
+      // For non-PerfectTiming interactions (plain clicks / taps), delegate to
+      // existing React handlers wired to the checkbox instead of double-routing
+      // through this bridge.
       if (!fromPerfectTiming) {
-        if (isSmash) {
-          cb.onSmashShort(taskId);
-        } else {
-          cb.onCompleteShort(taskId);
-        }
+        return;
       }
     };
 

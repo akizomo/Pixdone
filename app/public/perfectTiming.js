@@ -126,6 +126,16 @@
         const taskElement = state.taskElement;
         const checkbox = state.checkbox;
         const taskId = state.taskId;
+        // この完了は PerfectTiming 由来なので、直後の合成 click では
+        // React 側の通常完了ハンドラを 1 回だけ無効化する。
+        if (checkbox && checkbox.dataset) {
+            checkbox.dataset.perfectTimingConsumeClick = '1';
+            setTimeout(() => {
+                if (checkbox.dataset && checkbox.dataset.perfectTimingConsumeClick === '1') {
+                    delete checkbox.dataset.perfectTimingConsumeClick;
+                }
+            }, 600);
+        }
         closeOverlay();
         const rect = taskElement ? taskElement.getBoundingClientRect() : { left: window.innerWidth / 2 - 24, top: window.innerHeight / 2 - 24, width: 48, height: 48 };
         if (global.PerfectTimingEffects) {
@@ -149,10 +159,8 @@
         const taskCard = cb.closest('.task-card, .task-item');
         const taskId = taskCard?.dataset?.taskId;
         if (!taskId) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-
+        // Let React click handlers run normally for short taps; PerfectTiming
+        // will only take over once the long-press threshold is reached.
         // 完了済みの場合はタップで未完了に戻す（PerfectTimingは不要）
         if (cb.classList.contains('completed')) {
             state.taskId = taskId;
@@ -217,6 +225,12 @@
                 completeTask(taskId, taskCard, false);
             }
         } else if (state.active) {
+            // 長押しミニゲームが発動していた場合は、通常のクリックイベントは
+            // 無効化し、PerfectTiming 側の完了処理だけを走らせる。
+            if (e.cancelable) {
+                e.preventDefault();
+            }
+            e.stopPropagation();
             onRelease(completeTask);
         }
     }

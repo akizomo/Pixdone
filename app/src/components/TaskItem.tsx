@@ -64,10 +64,6 @@ export function TaskItem({
     lineHeight: 1.4,
   };
 
-  const perfectTimingLoaded =
-    typeof window !== 'undefined' &&
-    typeof (window as unknown as { PerfectTimingManager?: unknown }).PerfectTimingManager !== 'undefined';
-
   return (
     <div
       className="task-item task-item-row"
@@ -97,7 +93,10 @@ export function TaskItem({
       onPointerDown={(e) => {
         // Mouse/pen only: list swipe listens on the scroll parent; without stopPropagation,
         // pointer capture + preventDefault on move can eat the click that should open edit (touch was OK).
-        if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
+        // ただし PerfectTiming のチェックボックス長押しは document の pointerdown を監視しているため、
+        // チェックボックス自体をターゲットにしたイベントはバブリングを止めない。
+        const isOnCheckbox = (e.target as HTMLElement | null)?.closest('.task-checkbox');
+        if (!isOnCheckbox && (e.pointerType === 'mouse' || e.pointerType === 'pen')) {
           e.stopPropagation();
         }
         onReorderPointerDown?.(e);
@@ -132,10 +131,12 @@ export function TaskItem({
         className="task-checkbox"
         onClick={(e) => {
           e.stopPropagation();
-          /* Long-press minigame uses document pointer listeners when PerfectTimingManager is loaded */
-          if (!perfectTimingLoaded) {
-            onComplete(task.id);
+          const btn = e.currentTarget as HTMLButtonElement;
+          if ((btn as HTMLButtonElement & { dataset: DOMStringMap }).dataset?.perfectTimingConsumeClick === '1') {
+            delete (btn as HTMLButtonElement & { dataset: DOMStringMap }).dataset.perfectTimingConsumeClick;
+            return;
           }
+          onComplete(task.id);
         }}
         onKeyDown={(e) => {
           if (e.key !== 'Enter' && e.key !== ' ') return;
