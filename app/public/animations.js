@@ -4274,19 +4274,19 @@ class ComicEffectsManager {
         ];
         bg.forEach(e => { e.ball.style.opacity = "0"; });
 
-        // ── Timeline (~2.4s total) ────────────────────────────────────────
+        // ── Timeline (~1.8s total) ────────────────────────────────────────
         // t=0    overlay snaps in
         // t=120  eyes snap open (steps(4))
-        // t=380  bg eyes pop in
-        // t=550  gaze shift left→right (owlShift, steps(2))
-        // t=900  BLINK both — lid steps(3) close, hold 120ms, steps(2) open
-        // t=1500 wink L
-        // t=1850 fade out (steps(2))
-        // t=2100 cleanup
+        // t=340  bg eyes pop in
+        // t=520  gaze shift left→right (owlShift, steps(2))
+        // t=820  BLINK both — lid steps(3) close, hold 100ms, steps(2) open
+        // t=1320 wink L
+        // t=1640 fade out (steps(2))
+        // t=1800 cleanup
 
         // Snap open: pixel pop
-        L.ball.style.animation = "owlEyeIn 0.14s steps(4) 120ms both";
-        R.ball.style.animation = "owlEyeIn 0.14s steps(4) 160ms both";
+        L.ball.style.animation = "owlEyeIn 0.12s steps(4) 120ms both";
+        R.ball.style.animation = "owlEyeIn 0.12s steps(4) 150ms both";
 
         // Bg eyes pop in
         setTimeout(() => {
@@ -4297,14 +4297,14 @@ class ComicEffectsManager {
                     e.ball.style.animation = "owlEyeIn 0.10s steps(3) both";
                 }, i * 40);
             });
-        }, 380);
+        }, 340);
 
         // Gaze: snappy translate step
         setTimeout(() => {
             [L.wrap, R.wrap].forEach(w => {
                 w.style.animation = "owlShift 0.30s steps(2) forwards";
             });
-        }, 550);
+        }, 520);
 
         // Pixel blink helper
         const doBlink = (eyeObj, delay, closeDur, holdDur, openDur) => {
@@ -4316,12 +4316,12 @@ class ComicEffectsManager {
             }, delay);
         };
 
-        // Main blink at t=900
-        doBlink(L, 900,  140, 120, 100);
-        doBlink(R, 920,  140, 120, 100);
+        // Main blink at t=820
+        doBlink(L, 820,  120, 100, 90);
+        doBlink(R, 840,  120, 100, 90);
 
-        // Wink left at t=1500
-        doBlink(L, 1500, 100, 80,  80);
+        // Wink left at t=1320
+        doBlink(L, 1320, 90, 70, 70);
 
         // Fade out
         setTimeout(() => {
@@ -4332,13 +4332,13 @@ class ComicEffectsManager {
             });
             overlay.style.transition = "opacity 0.20s steps(2)";
             overlay.style.opacity = "0";
-        }, 1850);
+        }, 1640);
 
         // Cleanup
         setTimeout(() => {
             [overlay, L.wrap, R.wrap, ...bg.map(e => e.wrap)].forEach(el => el.remove());
             this.effectLock = false;
-        }, 2100);
+        }, 1800);
     }
 
     createGiantTreeGrowEffect(taskElement, optionalRect) {
