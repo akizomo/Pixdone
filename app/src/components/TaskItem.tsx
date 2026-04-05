@@ -19,6 +19,8 @@ export interface TaskItemProps {
   onReorderTouchStart?: (e: TouchEvent<HTMLDivElement>) => void;
   /** True while this row is the source of an in-progress long-press reorder. */
   reorderSource?: boolean;
+  /** Tutorial task 3: in-page link to the Smash List tab (header tabs). */
+  onTutorialSmashLinkClick?: () => void;
 }
 
 const repeatShort: Record<NonNullable<Task['repeat']>, { en: string; ja: string }> = {
@@ -32,7 +34,6 @@ const repeatShort: Record<NonNullable<Task['repeat']>, { en: string; ja: string 
 const TUTORIAL_KEYS: Record<string, string> = {
   'tutorial-1': 'tutorialTask1',
   'tutorial-2': 'tutorialTask2',
-  'tutorial-3': 'tutorialTask3',
 };
 
 export function TaskItem({
@@ -46,6 +47,7 @@ export function TaskItem({
   onReorderPointerDown,
   onReorderTouchStart,
   reorderSource = false,
+  onTutorialSmashLinkClick,
 }: TaskItemProps) {
   const dueLabel = formatDueDate(task.dueDate, lang);
   const repeatLabel = task.repeat && task.repeat !== 'none' ? (repeatShort[task.repeat]?.[lang] ?? '') : '';
@@ -53,6 +55,7 @@ export function TaskItem({
   const doneCount = subtasks.filter((s) => s.done).length;
   const dueStatus = getDueStatus(task.dueDate);
   const displayTitle = TUTORIAL_KEYS[task.id] ? t(TUTORIAL_KEYS[task.id], lang) : task.title;
+  const isTutorialSmashTask = task.id === 'tutorial-3';
   const details = (task.details ?? '').trim();
 
   const badgeStyle: React.CSSProperties = {
@@ -188,7 +191,33 @@ export function TaskItem({
             fontSize: '0.875rem',
           }}
         >
-          {renderTextWithLinks(displayTitle)}
+          {isTutorialSmashTask ? (
+            <>
+              {t('tutorialTask3Before', lang)}
+              {onTutorialSmashLinkClick ? (
+                <a
+                  href="#pd-list-tab-smash"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onTutorialSmashLinkClick();
+                  }}
+                  style={{
+                    color: 'var(--pd-color-accent-default)',
+                    textDecoration: task.completed ? 'line-through' : 'underline',
+                    textUnderlineOffset: '2px',
+                  }}
+                >
+                  {t('tutorialTask3Link', lang)}
+                </a>
+              ) : (
+                <span>{t('tutorialTask3Link', lang)}</span>
+              )}
+              {t('tutorialTask3After', lang)}
+            </>
+          ) : (
+            renderTextWithLinks(displayTitle)
+          )}
         </span>
 
         {details && (

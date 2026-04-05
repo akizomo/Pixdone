@@ -176,6 +176,11 @@ function AppContent() {
     return () => document.removeEventListener('mousedown', handler);
   }, [userMenuOpen]);
 
+  /* ---- Close email auth modal when Firebase session is ready (login success / restored session) ---- */
+  useEffect(() => {
+    if (user) setSignupOpen(false);
+  }, [user]);
+
   /* ---- Midnight refresh ---- */
   useMidnightRefresh();
 
@@ -306,6 +311,21 @@ function AppContent() {
   const handleUncomplete = useCallback((taskId: string) => {
     uncompleteTask(taskId);
   }, [uncompleteTask]);
+
+  const navigateToSmashList = useCallback(() => {
+    playSound('buttonClick');
+    setActiveScreen('tasks');
+    setListSlide(null);
+    setActiveList('smash-list');
+    setTaskFormMode(null);
+    setMobileSheetOpen(false);
+    setMobileEditTaskId(null);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        document.getElementById('pd-list-tab-smash')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+  }, [setActiveList]);
 
   const handleEdit = useCallback((taskId: string) => {
     if (preferInlineTaskUi) {
@@ -852,7 +872,7 @@ function AppContent() {
                       type="button"
                       onClick={() => {
                         playSound('buttonClick');
-                        window.open('https://www.buymeacoffee.com/pixdone', '_blank', 'noopener,noreferrer');
+                        window.open('https://buymeacoffee.com/akizomo', '_blank', 'noopener,noreferrer');
                       }}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '8px',
@@ -1007,6 +1027,7 @@ function AppContent() {
               stopBgm();
               setBgmMenuOpen(false);
             }}
+            onTutorialSmashLinkClick={navigateToSmashList}
           />
         ) : (
           <>
@@ -1129,6 +1150,7 @@ function AppContent() {
                           onComplete={handleUncomplete}
                           onEdit={handleEdit}
                           onDelete={handleDelete}
+                          onTutorialSmashLinkClick={navigateToSmashList}
                         />
                       ))}
                     </div>
@@ -1175,7 +1197,7 @@ function AppContent() {
                 {completedExpanded && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
                     {completedTasks.map((task) => (
-                      <TaskItem key={task.id} task={task} lang={lang} onComplete={handleUncomplete} onEdit={handleEdit} onDelete={handleDelete} />
+                      <TaskItem key={task.id} task={task} lang={lang} onComplete={handleUncomplete} onEdit={handleEdit} onDelete={handleDelete} onTutorialSmashLinkClick={navigateToSmashList} />
                     ))}
                   </div>
                 )}
@@ -1230,6 +1252,7 @@ function AppContent() {
                         onComplete={handleComplete}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
+                        onTutorialSmashLinkClick={navigateToSmashList}
                         suppressOpenEdit={() => Date.now() < suppressRowClickUntilRef.current}
                         onReorderPointerDown={onRowPointerDown(activeIndex)}
                         onReorderTouchStart={onRowTouchStart(activeIndex)}
@@ -1274,6 +1297,7 @@ function AppContent() {
                           onComplete={handleUncomplete}
                           onEdit={handleEdit}
                           onDelete={handleDelete}
+                          onTutorialSmashLinkClick={navigateToSmashList}
                         />
                       ))}
                     </div>
@@ -1371,6 +1395,7 @@ function AppContent() {
       <AuthModal
         open={signupOpen}
         onClose={() => { playSound('taskCancel'); setSignupOpen(false); }}
+        onLoginSuccess={() => setSignupOpen(false)}
         lang={lang}
         onSignupSuccess={() => setPlusIntroOpen(true)}
       />

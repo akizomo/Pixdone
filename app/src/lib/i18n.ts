@@ -59,7 +59,9 @@ const translations: Record<string, Record<string, string>> = {
     breakGamePitch: 'Instead of scrolling social media, want to relax with a tiny game?',
     tutorialTask1: 'Try completing this task!',
     tutorialTask2: 'Each time you complete a task, a different effect appears. How many can you find?',
-    tutorialTask3: 'Try the Smash List for even more fun!',
+    tutorialTask3Before: 'Try the ',
+    tutorialTask3Link: 'Smash List',
+    tutorialTask3After: ' for even more fun!',
   },
   ja: {
     addTask: 'タスクを追加',
@@ -121,7 +123,9 @@ const translations: Record<string, Record<string, string>> = {
     breakGamePitch: 'SNSを見る代わりに、簡単なゲームでリラックスしない？',
     tutorialTask1: 'まずはひとつ、終わらせてみよう。',
     tutorialTask2: '終わらせるたびに、違うエフェクト。いくつ見つけられる？',
-    tutorialTask3: 'スマッシュリスト、試してみる？管理はしない。ただ潰す。',
+    tutorialTask3Before: '',
+    tutorialTask3Link: 'スマッシュリスト',
+    tutorialTask3After: '、試してみる？管理はしない。ただ潰す。',
   },
 };
 

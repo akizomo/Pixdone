@@ -38,6 +38,8 @@ export interface FocusScreenProps {
   onCompleteFocus: () => void;
   /** When false, minute ▲▼ controls are hidden (e.g. logged-out guests). Default true. */
   canAdjustMinutes?: boolean;
+  /** Tutorial task 3: jump to Smash List tab on main screen. */
+  onTutorialSmashLinkClick?: () => void;
 }
 
 const MODES: TimerMode[] = ['pomodoro', 'shortBreak', 'longBreak'];
@@ -91,6 +93,7 @@ export function FocusScreen({
   onSkipBreak,
   onCompleteFocus,
   canAdjustMinutes = true,
+  onTutorialSmashLinkClick,
 }: FocusScreenProps) {
   useWakeLock(timerState === 'running');
   const [taskPanelMode, setTaskPanelMode] = useState<'today' | 'lists'>('today');
@@ -332,6 +335,7 @@ export function FocusScreen({
                     lang={lang}
                     onComplete={onCompleteTask}
                     onEdit={onEditTask ?? (() => {})}
+                    onTutorialSmashLinkClick={onTutorialSmashLinkClick}
                   />
                 ))}
               </div>
@@ -390,6 +394,7 @@ export function FocusScreen({
                       lang={lang}
                       onComplete={onCompleteTask}
                       onEdit={onEditTask ?? (() => {})}
+                      onTutorialSmashLinkClick={onTutorialSmashLinkClick}
                     />
                   ))}
                 </div>

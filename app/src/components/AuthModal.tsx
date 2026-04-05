@@ -24,12 +24,14 @@ function getErrorMessage(code: string, lang: 'en' | 'ja'): string {
 export interface AuthModalProps {
   open: boolean;
   onClose: () => void;
+  /** Called after successful email login (no cancel sound from parent). */
+  onLoginSuccess?: () => void;
   lang: 'en' | 'ja';
   initialMode?: 'signup' | 'login';
   onSignupSuccess?: () => void;
 }
 
-export function AuthModal({ open, onClose, lang, initialMode = 'signup', onSignupSuccess }: AuthModalProps) {
+export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = 'signup', onSignupSuccess }: AuthModalProps) {
   const { login, register, resetPassword } = useAuth();
   const [mode, setMode] = useState<'signup' | 'login' | 'reset'>(initialMode);
   const [email, setEmail] = useState('');
@@ -60,7 +62,7 @@ export function AuthModal({ open, onClose, lang, initialMode = 'signup', onSignu
       if (mode === 'login') {
         await login(email, password);
         playSound('taskComplete');
-        onClose();
+        (onLoginSuccess ?? onClose)();
       } else if (mode === 'signup') {
         await register(email, password);
         playSound('taskComplete');

@@ -45,6 +45,7 @@ export function ListTabs({
           return (
             <button
               key={list.id}
+              id={list.id === 'smash-list' ? 'pd-list-tab-smash' : undefined}
               ref={isActive ? activeRef : null}
               type="button"
               role="tab"
