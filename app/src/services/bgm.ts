@@ -6,7 +6,7 @@
  * Synthwave– arpeggiated chords + sawtooth bass (Am→F→C→G, 95 BPM)
  * Chill    – RPG town-style, triangle wave, pentatonic, 72 BPM
  *
- * Initial state: OFF (safe for browser autoplay policy).
+ * Default preference: ON (Retro). Playback still follows focus timer rules in App.
  * Volume 0.06 — tuned so SFX stays readable by default.
  */
 
@@ -519,9 +519,15 @@ export function getBgmTrack(): BgmTrack {
   }
 }
 
-/** Initial state: OFF (browser autoplay safety). */
+/** Default ON (Retro) when unset; user can turn off (persisted as `'false'`). */
 export function isBgmOn(): boolean {
-  try { return localStorage.getItem(BGM_ENABLED_KEY) === 'true'; } catch { return false; }
+  try {
+    const v = localStorage.getItem(BGM_ENABLED_KEY);
+    if (v === null) return true;
+    return v === 'true';
+  } catch {
+    return true;
+  }
 }
 
 export function setBgmOn(on: boolean): void {

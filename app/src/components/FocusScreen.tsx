@@ -36,6 +36,8 @@ export interface FocusScreenProps {
   onResume: () => void;
   onSkipBreak: () => void;
   onCompleteFocus: () => void;
+  /** When false, minute ▲▼ controls are hidden (e.g. logged-out guests). Default true. */
+  canAdjustMinutes?: boolean;
 }
 
 const MODES: TimerMode[] = ['pomodoro', 'shortBreak', 'longBreak'];
@@ -88,6 +90,7 @@ export function FocusScreen({
   onResume,
   onSkipBreak,
   onCompleteFocus,
+  canAdjustMinutes = true,
 }: FocusScreenProps) {
   useWakeLock(timerState === 'running');
   const [taskPanelMode, setTaskPanelMode] = useState<'today' | 'lists'>('today');
@@ -195,26 +198,45 @@ export function FocusScreen({
             ))}
           </div>
 
-          {/* Time display with adjust arrows (idle only) */}
+          {/* Time display with adjust arrows (idle only, logged-in) */}
           {timerState === 'idle' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <AdjustButton
-                  direction="down"
-                  onClick={() => {
-                  const next = nextMinutesByArrow(minutes, -1);
-                  onAdjustMinutes(next - minutes);
-                }}
-                />
+                {canAdjustMinutes && (
+                  <AdjustButton
+                    direction="down"
+                    onClick={() => {
+                      const next = nextMinutesByArrow(minutes, -1);
+                      onAdjustMinutes(next - minutes);
+                    }}
+                  />
+                )}
                 <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>
-                <AdjustButton
-                  direction="up"
-                  onClick={() => {
-                  const next = nextMinutesByArrow(minutes, 1);
-                  onAdjustMinutes(next - minutes);
-                }}
-                />
+                {canAdjustMinutes && (
+                  <AdjustButton
+                    direction="up"
+                    onClick={() => {
+                      const next = nextMinutesByArrow(minutes, 1);
+                      onAdjustMinutes(next - minutes);
+                    }}
+                  />
+                )}
               </div>
+              {!canAdjustMinutes && (
+                <p
+                  style={{
+                    margin: 0,
+                    maxWidth: '280px',
+                    textAlign: 'center',
+                    fontFamily: 'var(--pd-font-body)',
+                    fontSize: '0.75rem',
+                    color: 'var(--pd-color-text-secondary)',
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {t('focusDurationLoginHint', lang)}
+                </p>
+              )}
             </div>
           ) : (
             <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>

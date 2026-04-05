@@ -1,6 +1,7 @@
 import { Meta } from '@storybook/addon-docs/blocks';
 import { typography } from '../../design-system';
 import { TokensTable } from './TokensTable';
+import { ThemeLiveFontStacks } from './ThemeLiveFontStacks';
 
 <Meta title="Foundations PXD/Typography" />
 
@@ -10,7 +11,19 @@ Pixdone keeps **readable sans-serif for most text** and uses **pixel/display sty
 
 ---
 
-## Font family
+## Live CSS font stacks
+
+Values below follow the Storybook **Color Mode** and **Visual Theme** toolbars (same as the app shell).
+
+<ThemeLiveFontStacks />
+
+---
+
+## TypeScript source (`typography.tokens.ts`)
+
+Authoritative scale definitions used in TS / components. These do not change when you switch visual theme; runtime text still uses CSS variables in `tokens.css` and legacy `--pd-font-*` where themes override.
+
+### Font family
 
 <TokensTable
   caption="Font families for body, display, and code."
@@ -21,7 +34,7 @@ Pixdone keeps **readable sans-serif for most text** and uses **pixel/display sty
   ]}
 />
 
-## Font size
+### Font size
 
 <TokensTable
   caption="Font sizes (px)."
@@ -36,7 +49,7 @@ Pixdone keeps **readable sans-serif for most text** and uses **pixel/display sty
   ]}
 />
 
-## Font weight
+### Font weight
 
 <TokensTable
   caption="Font weights."
@@ -48,7 +61,7 @@ Pixdone keeps **readable sans-serif for most text** and uses **pixel/display sty
   ]}
 />
 
-## Line height & letter spacing
+### Line height & letter spacing
 
 <TokensTable
   caption="Line height and letter spacing."
@@ -64,7 +77,7 @@ Pixdone keeps **readable sans-serif for most text** and uses **pixel/display sty
   ]}
 />
 
-## Text styles (presets)
+### Text styles (presets)
 
 <TokensTable
   caption="Combined text styles for display, heading, body, label."
@@ -84,11 +97,11 @@ Pixdone keeps **readable sans-serif for most text** and uses **pixel/display sty
 
 ## Preview
 
-<div style={{ fontFamily: typography.fontFamily.body, marginTop: 16 }}>
-  <p style={{ fontSize: typography.fontSize.md + 'px', lineHeight: typography.lineHeight.normal, color: '#191D24' }}>
+<div style={{ fontFamily: 'var(--pxd-font-body)', marginTop: 16 }}>
+  <p style={{ fontSize: 'var(--pxd-font-size-md)', lineHeight: 'var(--pxd-line-height-normal)', color: 'var(--pxd-color-text-primary)' }}>
     <strong>Body Md</strong> – Readable sans-serif for most UI.
   </p>
-  <p style={{ fontFamily: typography.fontFamily.display, fontSize: typography.textStyle.pixelLabel.fontSize + 'px', color: '#4C5160', marginTop: 8 }}>
+  <p style={{ fontFamily: 'var(--pxd-font-display)', fontSize: 'var(--pxd-font-size-xs)', color: 'var(--pxd-color-text-secondary)', marginTop: 8 }}>
     Pixel label (display font)
   </p>
 </div>

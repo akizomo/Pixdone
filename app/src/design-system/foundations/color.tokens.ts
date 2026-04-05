@@ -254,6 +254,9 @@ function _toCssVar(key: string): string {
     .replace(/([A-Z])/g, (m) => `-${m.toLowerCase()}`)}`;
 }
 
+/** Every `--pxd-*` primitive from `color.core` (matches `tokens.css` core palette). */
+export const corePrimitiveCssVarNames: readonly string[] = Object.keys(color.core).map(k => _toCssVar(k));
+
 /**
  * Reverse lookup: hex value → CSS primitive variable name.
  * e.g. "#F7F7F8" → "--pxd-gray-50"

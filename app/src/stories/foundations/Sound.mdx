@@ -37,7 +37,9 @@ Pixdone では **すべての操作** に選択音・フィードバック音を
 
 ## トークン一覧（いつ・何を鳴らすか）
 
-各トークンの **再生** ボタンでサンプルを聴けます。Storybook ではフォールバック音源（soundEngine）を使用します。本番で vanilla の animations.js が読み込まれている場合は ComicEffectsManager の音が鳴ります。
+各トークンの **再生** ボタンでサンプルを聴けます。ツールバーの **Visual Theme** を切り替えると、同じトークンキーでもサウンドパックに応じた音色になります（表の上に現在のパック名を表示）。ブラウザによっては、初回再生前にページ内を一度クリックしてオーディオコンテキストを解除する必要があります。
+
+Storybook ではフォールバック音源（soundEngine）を使用します。本番で vanilla の animations.js が読み込まれている場合は ComicEffectsManager の音が鳴ります。
 
 <SoundTable />
 

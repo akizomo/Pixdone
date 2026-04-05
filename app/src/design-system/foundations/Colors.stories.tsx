@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
+import { useResolvedSemanticColorValues } from '../../stories/foundations/useResolvedCssVars';
 
 // ─── Primitive swatches ───────────────────────────────────────────────────────
 
@@ -97,101 +98,14 @@ const COLOR_PALETTES: { name: string; swatches: { step: string; var: string }[] 
   },
 ];
 
-// ─── Semantic groups ──────────────────────────────────────────────────────────
-
-const SEMANTIC_GROUPS: { name: string; tokens: { label: string; var: string; on?: string }[] }[] = [
-  {
-    name: 'Surface',
-    tokens: [
-      { label: 'page',     var: '--pxd-color-surface-page'     },
-      { label: 'page-alt', var: '--pxd-color-surface-page-alt' },
-      { label: 'primary',  var: '--pxd-color-surface-primary'  },
-      { label: 'secondary',var: '--pxd-color-surface-secondary'},
-      { label: 'raised',   var: '--pxd-color-surface-raised'   },
-      { label: 'disabled', var: '--pxd-color-surface-disabled' },
-      { label: 'inverse',  var: '--pxd-color-surface-inverse'  },
-      { label: 'overlay',  var: '--pxd-color-surface-overlay'  },
-    ],
-  },
-  {
-    name: 'Text',
-    tokens: [
-      { label: 'primary',   var: '--pxd-color-text-primary'   },
-      { label: 'secondary', var: '--pxd-color-text-secondary' },
-      { label: 'tertiary',  var: '--pxd-color-text-tertiary'  },
-      { label: 'disabled',  var: '--pxd-color-text-disabled'  },
-      { label: 'inverse',   var: '--pxd-color-text-inverse'   },
-      { label: 'accent',    var: '--pxd-color-text-accent'    },
-      { label: 'success',   var: '--pxd-color-text-success'   },
-      { label: 'warning',   var: '--pxd-color-text-warning'   },
-      { label: 'danger',    var: '--pxd-color-text-danger'    },
-    ],
-  },
-  {
-    name: 'Border',
-    tokens: [
-      { label: 'outline-variant',    var: '--pxd-color-border-outline-variant'    },
-      { label: 'outline',            var: '--pxd-color-border-outline'            },
-      { label: 'interactive',        var: '--pxd-color-border-interactive'        },
-      { label: 'interactive-active', var: '--pxd-color-border-interactive-active' },
-      { label: 'focus',   var: '--pxd-color-border-focus'   },
-      { label: 'danger',  var: '--pxd-color-border-danger'  },
-      { label: 'inverse', var: '--pxd-color-border-inverse' },
-    ],
-  },
-  {
-    name: 'Feedback',
-    tokens: [
-      { label: 'info',    var: '--pxd-color-feedback-info'    },
-      { label: 'success', var: '--pxd-color-feedback-success' },
-      { label: 'warning', var: '--pxd-color-feedback-warning' },
-      { label: 'danger',  var: '--pxd-color-feedback-danger'  },
-    ],
-  },
-  {
-    name: 'Action',
-    tokens: [
-      { label: 'primary',            var: '--pxd-color-action-primary'           },
-      { label: 'primary-hover',      var: '--pxd-color-action-primary-hover'     },
-      { label: 'primary-pressed',    var: '--pxd-color-action-primary-pressed'   },
-      { label: 'secondary',          var: '--pxd-color-action-secondary'         },
-      { label: 'secondary-hover',    var: '--pxd-color-action-secondary-hover'   },
-      { label: 'secondary-pressed',  var: '--pxd-color-action-secondary-pressed' },
-      { label: 'ghost-hover',        var: '--pxd-color-action-ghost-hover'       },
-      { label: 'ghost-pressed',      var: '--pxd-color-action-ghost-pressed'     },
-      { label: 'disabled',           var: '--pxd-color-action-disabled'          },
-    ],
-  },
-  {
-    name: 'Focus',
-    tokens: [
-      { label: 'ring',        var: '--pxd-color-focus-ring'        },
-      { label: 'ring-offset', var: '--pxd-color-focus-ring-offset' },
-    ],
-  },
-  {
-    name: 'Brand',
-    tokens: [
-      { label: 'primary',     var: '--pxd-color-brand-primary'     },
-      { label: 'secondary',   var: '--pxd-color-brand-secondary'   },
-      { label: 'reward',      var: '--pxd-color-brand-reward'      },
-      { label: 'epic',        var: '--pxd-color-brand-epic'        },
-      { label: 'freeze',      var: '--pxd-color-brand-freeze'      },
-      { label: 'smash',       var: '--pxd-color-brand-smash'       },
-      { label: 'pixel-ink',   var: '--pxd-color-brand-pixel-ink'   },
-      { label: 'pixel-paper', var: '--pxd-color-brand-pixel-paper' },
-    ],
-  },
-  {
-    name: 'Rarity',
-    tokens: [
-      { label: 'common',    var: '--pxd-color-rarity-common'    },
-      { label: 'rare',      var: '--pxd-color-rarity-rare'      },
-      { label: 'epic',      var: '--pxd-color-rarity-epic'      },
-      { label: 'legendary', var: '--pxd-color-rarity-legendary' },
-    ],
-  },
-];
+/** Primitive swatches only (semantic / theme docs live under Foundations PXD/Color). */
+const ALL_STORY_COLOR_VARS = Array.from(
+  new Set([
+    ...GRAY_SCALE.map(s => s.var),
+    ...INK_SCALE.map(s => s.var),
+    ...COLOR_PALETTES.flatMap(p => p.swatches.map(s => s.var)),
+  ]),
+);
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
 
@@ -217,15 +131,9 @@ const h2Style: React.CSSProperties = {
   paddingBottom: '8px',
 };
 
-const divider: React.CSSProperties = {
-  border: 'none',
-  borderTop: '1px solid var(--pxd-color-border-outline-variant)',
-  margin: '32px 0',
-};
-
 // ─── Swatch component ─────────────────────────────────────────────────────────
 
-function Swatch({ cssVar, label }: { cssVar: string; label: string }) {
+function Swatch({ cssVar, label, resolved }: { cssVar: string; label: string; resolved?: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '64px' }}>
       <div
@@ -247,51 +155,38 @@ function Swatch({ cssVar, label }: { cssVar: string; label: string }) {
       }}>
         {label}
       </span>
-    </div>
-  );
-}
-
-// ─── Semantic row component ───────────────────────────────────────────────────
-
-function SemanticToken({ cssVar, label }: { cssVar: string; label: string }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '6px 0' }}>
-      <div style={{
-        width: '32px',
-        height: '32px',
-        flexShrink: 0,
-        background: `var(${cssVar})`,
-        borderRadius: '4px',
-        border: '1px solid var(--pxd-color-border-outline-variant)',
-      }} />
-      <code style={{
-        fontFamily: 'var(--pxd-font-mono)',
-        fontSize: '12px',
-        color: 'var(--pxd-color-text-secondary)',
-        flex: 1,
-      }}>
-        {cssVar}
-      </code>
-      <span style={{
-        fontFamily: 'var(--pxd-font-body)',
-        fontSize: '12px',
-        color: 'var(--pxd-color-text-tertiary)',
-      }}>
-        {label}
-      </span>
+      {resolved && (
+        <span style={{
+          fontFamily: 'var(--pxd-font-mono)',
+          fontSize: '9px',
+          color: 'var(--pxd-color-text-tertiary)',
+          lineHeight: 1.2,
+          wordBreak: 'break-all',
+        }}>
+          {resolved}
+        </span>
+      )}
     </div>
   );
 }
 
 // ─── Scale strip ─────────────────────────────────────────────────────────────
 
-function ColorScale({ name, swatches }: { name: string; swatches: { step: string; var: string }[] }) {
+function ColorScale({
+  name,
+  swatches,
+  resolved,
+}: {
+  name: string;
+  swatches: { step: string; var: string }[];
+  resolved: Record<string, string>;
+}) {
   return (
     <div style={{ marginBottom: '24px' }}>
       <p style={sectionTitle}>{name}</p>
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         {swatches.map(s => (
-          <Swatch key={s.var} cssVar={s.var} label={s.step} />
+          <Swatch key={s.var} cssVar={s.var} label={s.step} resolved={resolved[s.var]} />
         ))}
       </div>
     </div>
@@ -300,7 +195,9 @@ function ColorScale({ name, swatches }: { name: string; swatches: { step: string
 
 // ─── Main story component ─────────────────────────────────────────────────────
 
-function ColorTokens() {
+function ColorPrimitiveScales() {
+  const resolved = useResolvedSemanticColorValues(ALL_STORY_COLOR_VARS);
+
   return (
     <div style={{
       padding: '0',
@@ -309,47 +206,28 @@ function ColorTokens() {
       maxWidth: '900px',
     }}>
 
-      {/* ── Primitive ── */}
-      <h2 style={h2Style}>Primitive Tokens</h2>
-      <p style={{ fontSize: '13px', color: 'var(--pxd-color-text-secondary)', marginBottom: '24px', lineHeight: 1.6 }}>
-        Raw color palette. Theme-neutral. Semantic tokens reference these via{' '}
-        <code style={{ fontFamily: 'var(--pxd-font-mono)', fontSize: '12px' }}>var()</code>.
-        Custom themes override primitives to cascade changes automatically.
+      <p style={{ fontSize: '13px', color: 'var(--pxd-color-text-secondary)', marginBottom: '20px', lineHeight: 1.6 }}>
+        <strong>Global primitive scales</strong> from <code style={{ fontFamily: 'var(--pxd-font-mono)', fontSize: '12px' }}>tokens.css</code>
+        {' '}(gray, ink, chroma). Semantic tokens, theme-specific primitives, and usage rules are documented in{' '}
+        <strong>Foundations PXD → Color</strong> (sidebar).
       </p>
 
-      <ColorScale name="Gray  (light neutral — light mode surfaces & text)" swatches={GRAY_SCALE} />
-      <ColorScale name="Ink  (cool blue-gray — dark mode surfaces & text)" swatches={INK_SCALE} />
+      <h2 style={h2Style}>Gray &amp; Ink</h2>
+      <p style={{ fontSize: '13px', color: 'var(--pxd-color-text-secondary)', marginBottom: '24px', lineHeight: 1.6 }}>
+        Theme-neutral base ramps. Resolved RGB reflects the current Storybook toolbars when primitives are overridden.
+      </p>
+
+      <ColorScale name="Gray  (light neutral — light mode surfaces & text)" swatches={GRAY_SCALE} resolved={resolved} />
+      <ColorScale name="Ink  (cool blue-gray — dark mode surfaces & text)" swatches={INK_SCALE} resolved={resolved} />
+
+      <h2 style={{ ...h2Style, marginTop: '40px' }}>Chroma</h2>
+      <p style={{ fontSize: '13px', color: 'var(--pxd-color-text-secondary)', marginBottom: '24px', lineHeight: 1.6 }}>
+        Accent and feedback hues used across themes unless a visual theme replaces semantics.
+      </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '24px', marginTop: '8px' }}>
         {COLOR_PALETTES.map(p => (
-          <ColorScale key={p.name} name={p.name} swatches={p.swatches} />
-        ))}
-      </div>
-
-      <hr style={divider} />
-
-      {/* ── Semantic ── */}
-      <h2 style={h2Style}>Semantic Tokens</h2>
-      <p style={{ fontSize: '13px', color: 'var(--pxd-color-text-secondary)', marginBottom: '24px', lineHeight: 1.6 }}>
-        UI-role assignments. Toggle <strong>Color Mode</strong> in the toolbar to verify light ↔ dark mapping.
-        Component styles must only reference semantic tokens, never primitives directly.
-      </p>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '32px' }}>
-        {SEMANTIC_GROUPS.map(group => (
-          <div key={group.name}>
-            <p style={sectionTitle}>{group.name}</p>
-            <div style={{
-              background: 'var(--pxd-color-surface-raised)',
-              border: '1px solid var(--pxd-color-border-outline-variant)',
-              borderRadius: '8px',
-              padding: '8px 12px',
-            }}>
-              {group.tokens.map(t => (
-                <SemanticToken key={t.var} cssVar={t.var} label={t.label} />
-              ))}
-            </div>
-          </div>
+          <ColorScale key={p.name} name={p.name} swatches={p.swatches} resolved={resolved} />
         ))}
       </div>
     </div>
@@ -359,12 +237,12 @@ function ColorTokens() {
 // ─── Story definition ─────────────────────────────────────────────────────────
 
 const meta: Meta = {
-  title: 'Design System/Color Tokens',
+  title: 'Design System/Color primitives',
   parameters: {
     docs: {
       description: {
         component:
-          'Color token reference. **Primitive** tokens define the raw palette. **Semantic** tokens map UI roles to primitives — use the **Color Mode** toolbar to verify light ↔ dark. Custom themes override primitives; semantics cascade automatically.',
+          '**Global primitive scales** (gray, ink, chroma) as swatch grids. For **semantic** tokens, **per-theme primitives**, and CSS usage rules, open **Foundations PXD → Color**. Use the **Color Mode** / **Visual Theme** toolbars to see resolved colors.',
       },
     },
   },
@@ -373,7 +251,7 @@ export default meta;
 
 type Story = StoryObj;
 
-export const All: Story = {
-  name: 'All tokens',
-  render: () => <ColorTokens />,
+export const PrimitiveScales: Story = {
+  name: 'Primitive scales',
+  render: () => <ColorPrimitiveScales />,
 };

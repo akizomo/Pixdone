@@ -952,149 +952,62 @@ function AppContent() {
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, paddingBottom: '48px' }}>
         {isFocusScreen ? (
-          user ? (
-            <FocusScreen
-              lists={lists}
-              lang={lang}
-              onCompleteTask={handleComplete}
-              onEditTask={handleEdit}
-              mode={focusMode}
-              minutes={focusMinutes}
-              pomodoroCount={focusPomodoroCount}
-              timerState={focusTimer.timerState}
-              remaining={focusTimer.remaining}
-              bgmOn={bgmOn}
-              bgmTrack={bgmTrack}
-              onBgmChange={({ bgmOn: nextOn, track: nextTrack }) => {
-                setBgmOnState(nextOn);
-                setBgmTrackState(nextTrack);
-              }}
-              onBgmMenuOpenChange={setBgmMenuOpen}
-              onOpenZenMode={() => { playSound('buttonClick'); setFocusZenOpen(true); }}
-              onSwitchMode={(m) => {
-                playSound('buttonClick');
-                setFocusMode(m);
-                const nextMin = m === 'pomodoro' ? 25 : m === 'shortBreak' ? 5 : 15;
-                setFocusMinutes(nextMin);
-                focusTimer.reset(nextMin * 60);
-                stopBgm();
-                setBgmMenuOpen(false);
-              }}
-              onAdjustMinutes={(deltaMin) => {
-                if (focusTimer.timerState !== 'idle') return;
-                playSound('buttonClick');
-                const next = Math.min(60, Math.max(1, focusMinutes + deltaMin));
-                setFocusMinutes(next);
-                focusTimer.reset(next * 60);
-              }}
-              onStart={() => { playSound('buttonClick'); focusTimer.start(); }}
-              onPause={() => { playSound('buttonClick'); focusTimer.pause(); stopBgm(); }}
-              onResume={() => { playSound('buttonClick'); focusTimer.resume(); }}
-              onSkipBreak={() => {
-                if (!(focusMode === 'shortBreak' || focusMode === 'longBreak')) return;
-                playSound('taskCancel');
-                stopBgm();
-                setFocusMode('pomodoro');
-                setFocusMinutes(25);
-                focusTimer.reset(25 * 60);
-                setBgmMenuOpen(false);
-              }}
-              onCompleteFocus={() => {
-                playSound('taskComplete');
-                // manual complete -> short break
-                setFocusMode('shortBreak');
-                setFocusMinutes(5);
-                focusTimer.reset(5 * 60);
-                stopBgm();
-                setBgmMenuOpen(false);
-              }}
-            />
-          ) : (
-            <div style={{ padding: '24px 16px', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-              {/* Inactive timer section (layout-only, no interactions) */}
-              <div
-                aria-label={lang === 'ja' ? 'フォーカスタイマー（未ログイン）' : 'Focus timer (logged out)'}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  marginBottom: '24px',
-                  padding: '24px 20px 20px',
-                  background: 'var(--pd-color-background-elevated)',
-                  border: '2px solid var(--pd-color-border-default)',
-                  boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
-                  minHeight: 'min(360px, 40vh)',
-                  justifyContent: 'center',
-                  opacity: 0.6,
-                  filter: 'grayscale(1)',
-                  userSelect: 'none',
-                }}
-              >
-                <div style={{
-                  display: 'flex',
-                  gap: '8px',
-                  marginBottom: '20px',
-                  flexWrap: 'wrap',
-                  visibility: 'visible',
-                }}>
-                  <Chip selected>{t('pomodoro', lang)}</Chip>
-                  <Chip>{t('shortBreak', lang)}</Chip>
-                  <Chip>{t('longBreak', lang)}</Chip>
-                </div>
-
-                <div style={{
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'clamp(4rem, 20vw, 7rem)',
-                  color: 'var(--pd-color-text-primary)',
-                  letterSpacing: '0.04em',
-                  lineHeight: 1,
-                }}>
-                  25:00
-                </div>
-
-                <div style={{ marginTop: '20px' }}>
-                  <Button disabled style={{ minWidth: '120px' }}>
-                    {t('startFocus', lang)}
-                  </Button>
-                </div>
-              </div>
-
-              {/* CTA */}
-              <div
-                style={{
-                  background: 'var(--pd-color-background-elevated)',
-                  border: '2px solid var(--pd-color-border-default)',
-                  boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
-                  padding: '16px',
-                }}
-              >
-                <div style={{
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '1.25rem',
-                  color: 'var(--pd-color-text-primary)',
-                  letterSpacing: '0.08em',
-                  marginBottom: '8px',
-                  textTransform: 'uppercase',
-                }}>
-                  {lang === 'ja' ? 'フォーカスはサインアップ後に利用できます' : 'Focus is available after sign up'}
-                </div>
-                <p style={{
-                  margin: '0 0 12px',
-                  fontFamily: 'var(--pd-font-body)',
-                  fontSize: '0.875rem',
-                  color: 'var(--pd-color-text-secondary)',
-                  lineHeight: 1.45,
-                }}>
-                  {lang === 'ja'
-                    ? 'タスクの保存・同期とあわせて、フォーカスタイマーを使えるようになります。'
-                    : 'Sign up to save & sync tasks, and unlock the focus timer.'}
-                </p>
-                <Button variant="primary" fullWidth onClick={() => setSignupOpen(true)}>
-                  {lang === 'ja' ? 'サインアップ' : 'Sign up'}
-                </Button>
-              </div>
-            </div>
-          )
+          <FocusScreen
+            lists={lists}
+            lang={lang}
+            canAdjustMinutes={!!user}
+            onCompleteTask={handleComplete}
+            onEditTask={handleEdit}
+            mode={focusMode}
+            minutes={focusMinutes}
+            pomodoroCount={focusPomodoroCount}
+            timerState={focusTimer.timerState}
+            remaining={focusTimer.remaining}
+            bgmOn={bgmOn}
+            bgmTrack={bgmTrack}
+            onBgmChange={({ bgmOn: nextOn, track: nextTrack }) => {
+              setBgmOnState(nextOn);
+              setBgmTrackState(nextTrack);
+            }}
+            onBgmMenuOpenChange={setBgmMenuOpen}
+            onOpenZenMode={() => { playSound('buttonClick'); setFocusZenOpen(true); }}
+            onSwitchMode={(m) => {
+              playSound('buttonClick');
+              setFocusMode(m);
+              const nextMin = m === 'pomodoro' ? 25 : m === 'shortBreak' ? 5 : 15;
+              setFocusMinutes(nextMin);
+              focusTimer.reset(nextMin * 60);
+              stopBgm();
+              setBgmMenuOpen(false);
+            }}
+            onAdjustMinutes={(deltaMin) => {
+              if (!user || focusTimer.timerState !== 'idle') return;
+              playSound('buttonClick');
+              const next = Math.min(60, Math.max(1, focusMinutes + deltaMin));
+              setFocusMinutes(next);
+              focusTimer.reset(next * 60);
+            }}
+            onStart={() => { playSound('buttonClick'); focusTimer.start(); }}
+            onPause={() => { playSound('buttonClick'); focusTimer.pause(); stopBgm(); }}
+            onResume={() => { playSound('buttonClick'); focusTimer.resume(); }}
+            onSkipBreak={() => {
+              if (!(focusMode === 'shortBreak' || focusMode === 'longBreak')) return;
+              playSound('taskCancel');
+              stopBgm();
+              setFocusMode('pomodoro');
+              setFocusMinutes(25);
+              focusTimer.reset(25 * 60);
+              setBgmMenuOpen(false);
+            }}
+            onCompleteFocus={() => {
+              playSound('taskComplete');
+              setFocusMode('shortBreak');
+              setFocusMinutes(5);
+              focusTimer.reset(5 * 60);
+              stopBgm();
+              setBgmMenuOpen(false);
+            }}
+          />
         ) : (
           <>
             <ListHeader

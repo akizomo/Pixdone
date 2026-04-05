@@ -4,7 +4,9 @@ export type PreviewType = 'color' | 'spacing' | 'shadow' | 'none';
 
 export interface TokenRow {
   token: string;
-  lightValue: string | number;
+  lightValue?: string | number;
+  /** Alias for `lightValue` (MDX convenience). */
+  value?: string | number;
   darkValue?: string | number;
   description?: string;
   preview?: PreviewType;
@@ -74,6 +76,12 @@ function ShadowBox({ value }: { value: string }) {
   );
 }
 
+function rowLight(row: TokenRow): string | number {
+  if (row.lightValue !== undefined) return row.lightValue;
+  if (row.value !== undefined) return row.value;
+  return '';
+}
+
 export function TokensTable({ rows, caption, primitiveMap }: TokensTableProps) {
   const hasDark = rows.some(r => r.darkValue !== undefined);
 
@@ -111,7 +119,9 @@ export function TokensTable({ rows, caption, primitiveMap }: TokensTableProps) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, i) => (
+          {rows.map((row, i) => {
+            const lv = rowLight(row);
+            return (
             <tr key={row.token + i}>
               {/* Token name */}
               <td style={td}>
@@ -123,16 +133,16 @@ export function TokensTable({ rows, caption, primitiveMap }: TokensTableProps) {
               {/* Light value */}
               <td style={td}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {row.preview === 'color' && <ColorSwatch value={row.lightValue} />}
-                  {row.preview === 'spacing' && <SpacingBar value={typeof row.lightValue === 'number' ? row.lightValue : parseInt(String(row.lightValue), 10) || 0} />}
-                  {row.preview === 'shadow' && <ShadowBox value={String(row.lightValue)} />}
+                  {row.preview === 'color' && <ColorSwatch value={lv} />}
+                  {row.preview === 'spacing' && <SpacingBar value={typeof lv === 'number' ? lv : parseInt(String(lv), 10) || 0} />}
+                  {row.preview === 'shadow' && <ShadowBox value={String(lv)} />}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <code style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 11, color: 'var(--pxd-color-text-secondary, #4C5160)' }}>
-                      {String(row.lightValue)}
+                      {String(lv)}
                     </code>
-                    {primitiveMap?.[String(row.lightValue)] && (
+                    {primitiveMap?.[String(lv)] && (
                       <code style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 10, color: 'var(--pxd-color-text-tertiary, #666C7A)', opacity: 0.8 }}>
-                        {primitiveMap[String(row.lightValue)]}
+                        {primitiveMap[String(lv)]}
                       </code>
                     )}
                   </div>
@@ -168,7 +178,8 @@ export function TokensTable({ rows, caption, primitiveMap }: TokensTableProps) {
                 {row.description ?? '—'}
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>
