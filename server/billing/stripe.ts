@@ -58,7 +58,8 @@ export function verifyStripeWebhook({
   webhookSecret: string;
 }): Stripe.Event {
   if (!signatureHeader) throw new Error("Missing Stripe signature header");
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY ?? "sk_test_dummy";
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecretKey) throw new Error("Missing STRIPE_SECRET_KEY env variable");
   const stripe = new Stripe(stripeSecretKey);
   return stripe.webhooks.constructEvent(rawBody, signatureHeader, webhookSecret);
 }

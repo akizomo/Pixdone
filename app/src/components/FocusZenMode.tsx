@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, IconButton } from '../design-system';
 import { BgmControl } from './BgmControl';
+import { PacmanProgress } from './PacmanProgress';
 import type { FocusTimerState } from '../hooks/useFocusTimer';
 import type { BgmTrack } from '../services/bgm';
 
@@ -18,6 +19,8 @@ export interface FocusZenModeProps {
   mode: TimerMode;
   timerState: FocusTimerState;
   remaining: number;
+  /** Total session duration in seconds — used for Pac-Man progress. Defaults to 25 min. */
+  totalSeconds?: number;
   bgmOn: boolean;
   bgmTrack: BgmTrack;
   onBgmChange: (next: { bgmOn: boolean; track: BgmTrack }) => void;
@@ -61,6 +64,7 @@ export function FocusZenMode({
   mode,
   timerState,
   remaining,
+  totalSeconds = 25 * 60,
   bgmOn,
   bgmTrack,
   onBgmChange,
@@ -165,6 +169,17 @@ export function FocusZenMode({
       >
         <TimeDigits value={formatTime(remaining)} />
       </div>
+
+      {/* Pac-Man progress — pomodoro mode only */}
+      {!isBreakMode && (
+        <div style={{ width: '100%', maxWidth: '340px', padding: '0 4px' }}>
+          <PacmanProgress
+            remaining={remaining}
+            totalSeconds={totalSeconds}
+            timerState={timerState}
+          />
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
         {timerState === 'idle' ? (

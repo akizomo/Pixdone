@@ -1486,6 +1486,7 @@ function AppContent() {
           mode={focusMode}
           timerState={focusTimer.timerState}
           remaining={focusTimer.remaining}
+          totalSeconds={focusMinutes * 60}
           bgmOn={bgmOn}
           bgmTrack={bgmTrack}
           onBgmChange={({ bgmOn: nextOn, track: nextTrack }) => {
