@@ -3,6 +3,7 @@ import { Button, Chip, IconButton } from '../design-system';
 import { t } from '../lib/i18n';
 import { getTodayYMD } from '../lib/date';
 import { PixelBreaker } from './PixelBreaker';
+import { PacmanProgress } from './PacmanProgress';
 import { BgmControl } from './BgmControl';
 import { TaskItem } from './TaskItem';
 import { playSound } from '../services/sound';
@@ -243,6 +244,16 @@ export function FocusScreen({
             </div>
           ) : (
             <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>
+          )}
+
+          {mode === 'pomodoro' && (
+            <div style={{ width: '100%', maxWidth: '340px', padding: '0 4px', marginTop: '12px' }}>
+              <PacmanProgress
+                remaining={remaining}
+                totalSeconds={minutes * 60}
+                timerState={timerState}
+              />
+            </div>
           )}
 
           {/* CTA buttons */}
