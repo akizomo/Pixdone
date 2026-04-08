@@ -125,6 +125,7 @@
 .pd-mobile-fab {
   display: none !important;
   position: fixed;
+  z-index: 300;
   /* Keep clear of bottom nav (+16px gap) */
   bottom: calc(56px + 16px + env(safe-area-inset-bottom));
   left: 50%;
