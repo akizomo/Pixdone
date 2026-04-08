@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { playSound } from '../../../services/sound';
+import { IconButton } from '../IconButton/IconButton';
 import type { BottomSheetProps } from './BottomSheet.types';
 import './BottomSheet.css';
 
@@ -136,14 +137,15 @@ export function BottomSheet({
           <h2 id="pxd-sheet-title" className="pxd-sheet-title">
             {title ?? ''}
           </h2>
-          <button
-            type="button"
-            onClick={() => { playSound('taskCancel'); onClose(); }}
-            className="pxd-sheet-close"
+          <IconButton
+            variant="ghost"
+            size="md"
             aria-label="Close"
-          >
-            <span className="material-icons" style={{ fontSize: '22px', lineHeight: 1 }}>close</span>
-          </button>
+            icon={<span className="material-icons">close</span>}
+            soundKey="taskCancel"
+            onClick={onClose}
+            className="pxd-sheet-close"
+          />
         </div>
         <div className={['pxd-sheet-body', bodyClassName].filter(Boolean).join(' ')}>
           {children}

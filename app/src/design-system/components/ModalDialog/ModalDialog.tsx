@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { playSound } from '../../../services/sound';
+import { IconButton } from '../IconButton/IconButton';
 import type { ModalDialogProps } from './ModalDialog.types';
 import './ModalDialog.css';
 
@@ -92,14 +93,15 @@ export function ModalDialog({
       onClick={handleOverlayClick}
     >
       <div ref={panelRef} className="pxd-modal-panel" onClick={(e) => e.stopPropagation()}>
-        <button
-          type="button"
-          className="pxd-modal-close"
+        <IconButton
+          variant="ghost"
+          size="sm"
           aria-label="Close"
-          onClick={() => { playSound('taskCancel'); onClose(); }}
-        >
-          <span className="material-icons" style={{ fontSize: '20px', lineHeight: 1 }}>close</span>
-        </button>
+          icon={<span className="material-icons">close</span>}
+          soundKey="taskCancel"
+          onClick={onClose}
+          className="pxd-modal-close"
+        />
         {title && (
           <h2 id="modal-title" className="pxd-modal-title">
             {title}

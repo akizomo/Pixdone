@@ -84,7 +84,7 @@ function AppContent() {
     listLimitUpsellOpen, closeListLimitUpsell,
   } = useLists();
 
-  const { user, logout, serverSessionReady, syncServerSession } = useAuth();
+  const { user, logout, syncServerSession } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/effect-request';
@@ -1374,8 +1374,6 @@ function AppContent() {
                     ]}
                     buttonLabel={lang === 'ja' ? 'サインアップ（無料）' : 'Sign up — free'}
                     onSignUp={() => setSignupOpen(true)}
-                    pricingLabel={lang === 'ja' ? 'PixDone+ を見る →' : 'View PixDone+ →'}
-                    onViewPricing={() => navigate('/pricing')}
                   />
               {completedTasks.length > 0 && (
                 <div style={{ marginTop: '24px' }}>

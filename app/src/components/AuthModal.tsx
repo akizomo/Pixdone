@@ -196,39 +196,42 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
 
         {/* Password */}
         {mode !== 'reset' && (
-          <div className="pxd-text-field" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div className="pxd-text-field" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <label
               htmlFor="auth-password-input"
               style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}
             >
               {lang === 'ja' ? 'パスワード' : 'Password'}
             </label>
-            <input
-              id="auth-password-input"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={lang === 'ja' ? 'パスワード' : 'Password'}
-              className="pxd-text-field__input"
-              onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-              autoComplete="current-password"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-            />
-            <button
-              type="button"
-              onClick={() => { playSound('buttonClick'); setShowPassword((v) => !v); }}
-              style={{
-                position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--pd-color-text-muted)', display: 'flex', alignItems: 'center',
-              }}
-            >
-              <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>
-                {showPassword ? 'visibility_off' : 'visibility'}
-              </span>
-            </button>
+            <div style={{ position: 'relative' }}>
+              <input
+                id="auth-password-input"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={lang === 'ja' ? 'パスワード' : 'Password'}
+                className="pxd-text-field__input"
+                style={{ paddingRight: '36px' }}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+                autoComplete="current-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+              />
+              <button
+                type="button"
+                onClick={() => { playSound('buttonClick'); setShowPassword((v) => !v); }}
+                style={{
+                  position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--pd-color-text-muted)', display: 'flex', alignItems: 'center',
+                }}
+              >
+                <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>
+                  {showPassword ? 'visibility_off' : 'visibility'}
+                </span>
+              </button>
+            </div>
           </div>
         )}
 

@@ -22,8 +22,8 @@ export function TutorialPanel({ headline, subtext, buttonLabel, onSignUp, pricin
     <div className="tutorial-complete-cta">
       <p className="tutorial-complete-cta-text">{headline}</p>
       {freeFeatures && freeFeatures.length > 0 ? (
-        <>
-          {featuresLabel && <p className="tutorial-feature-chips-label">{featuresLabel}</p>}
+        <div className="tutorial-feature-note">
+          {featuresLabel && <p className="tutorial-feature-note-label">{featuresLabel}</p>}
           <ul className="tutorial-feature-list">
             {freeFeatures.map((f) => (
               <li key={f.label} className="tutorial-feature-item">
@@ -31,7 +31,7 @@ export function TutorialPanel({ headline, subtext, buttonLabel, onSignUp, pricin
               </li>
             ))}
           </ul>
-        </>
+        </div>
       ) : (
         <p className="tutorial-complete-cta-sub">{subtext}</p>
       )}

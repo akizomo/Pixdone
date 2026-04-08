@@ -513,22 +513,30 @@
   box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
-.tutorial-feature-chips-label {
+.tutorial-feature-note {
+  display: inline-block;
+  border: 2px solid var(--border-color, rgba(255,255,255,0.15));
+  padding: 14px 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.tutorial-feature-note-label {
   font-family: 'VT323', 'Courier New', monospace;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
   letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .tutorial-feature-list {
   list-style: none;
-  margin: 0 0 24px 0;
+  margin: 0;
   padding: 0;
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
-  gap: 6px;
-  text-align: left;
+  gap: 7px;
 }
 
 .tutorial-feature-item {
@@ -537,7 +545,7 @@
   gap: 8px;
   font-family: 'VT323', 'Courier New', monospace;
   font-size: 1.1rem;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   line-height: 1.3;
 }
 
