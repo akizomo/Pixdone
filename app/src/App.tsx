@@ -1493,7 +1493,7 @@ function AppContent() {
       </main>
 
       {/* Mobile FAB */}
-      {!anyModalOpen && isTasksScreen && (
+      {!anyModalOpen && isTasksScreen && !isSubPage && (
         <button
           type="button"
           onClick={openAddTask}
