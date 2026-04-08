@@ -56,10 +56,14 @@ function getRectWithTransformCompensation(taskElement: HTMLElement): EffectRect 
 /**
  * Run the same completion effect as vanilla: clone with .completed, position fixed,
  * animateTaskCompletion (ComicEffectsManager), hide original, call onDone, cleanup after ~1100ms.
+ *
+ * @param effectKey - If provided, pre-selects exactly this effect (bypasses random selection in animations.js).
+ *                    Pass the result of weightedRandomEffect(buildDrawPool(...)).key.
  */
 export function runVanillaCompletionEffect(
   taskEl: HTMLElement | null,
-  onDone: () => void
+  onDone: () => void,
+  effectKey?: string,
 ): void {
   if (!taskEl?.nodeType || taskEl.nodeType !== 1) {
     if (process.env.NODE_ENV === 'development') {
@@ -155,6 +159,14 @@ export function runVanillaCompletionEffect(
   document.documentElement.classList.add('task-effect-playing');
 
   const effectRect: EffectRect = { left, top, width, height };
+
+  // Pre-select specific effect if provided (weighted draw pool selection)
+  if (effectKey) {
+    (window as unknown as {
+      taskAnimationEffects?: { comicEffects?: { setActiveEffects: (keys: string[]) => void } };
+    }).taskAnimationEffects?.comicEffects?.setActiveEffects([effectKey]);
+  }
+
   window.taskAnimationEffects.animateTaskCompletion(effectCloneBase, effectRect);
 
   setTimeout(() => {
@@ -167,6 +179,87 @@ export function runVanillaCompletionEffect(
     document.body.classList.remove('task-effect-playing');
     document.documentElement.classList.remove('task-effect-playing');
     onDone();
+  }, 1100);
+}
+
+/**
+ * Play a specific named effect on a demo task element,
+ * using the same clone preparation as runVanillaCompletionEffect so the
+ * visual behaviour is identical to a real Smash List completion.
+ *
+ * Hides the original, creates a positioned clone with completed styling,
+ * fires comicEffects.playEffect(effectKey), restores after 1100ms.
+ */
+export function playDemoEffect(effectKey: string, el: HTMLElement): void {
+  const rect = el.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return;
+
+  // Hide original so only the clone is visible
+  el.style.visibility = 'hidden';
+
+  // Clone with "completed" look
+  const clone = el.cloneNode(true) as HTMLElement;
+  clone.classList.add('completed');
+
+  const cloneCheckbox =
+    clone.querySelector('.task-checkbox') ??
+    clone.querySelector('button[role="checkbox"]');
+  if (cloneCheckbox instanceof HTMLElement) {
+    cloneCheckbox.classList.add('completed');
+    cloneCheckbox.setAttribute('aria-checked', 'true');
+    cloneCheckbox.style.borderColor = 'var(--pd-color-accent-default)';
+    cloneCheckbox.style.background = 'var(--pd-color-accent-default)';
+    if (!cloneCheckbox.textContent?.trim()) {
+      const check = document.createElement('span');
+      check.setAttribute('aria-hidden', 'true');
+      check.style.cssText = 'font-size: 0.875rem; line-height: 1;';
+      check.textContent = '✓';
+      cloneCheckbox.appendChild(check);
+    }
+  }
+
+  const taskBody = clone.children[1];
+  const titleSpan = taskBody?.querySelector('span');
+  if (titleSpan instanceof HTMLElement) {
+    titleSpan.style.color = 'var(--pd-color-text-muted)';
+    titleSpan.style.textDecoration = 'line-through';
+  }
+
+  // Same !important positioning as runVanillaCompletionEffect
+  const existingStyle = clone.getAttribute('style') ?? '';
+  const effectStyles = [
+    'position: fixed !important',
+    `left: ${rect.left}px !important`,
+    `top: ${rect.top}px !important`,
+    `width: ${rect.width}px !important`,
+    `height: ${rect.height}px !important`,
+    'margin: 0 !important',
+    'pointer-events: none !important',
+    'visibility: visible !important',
+    'z-index: 99999 !important',
+    'box-sizing: border-box !important',
+    'opacity: 1 !important',
+    'min-width: 0 !important',
+    'overflow: hidden !important',
+  ].join('; ');
+  clone.setAttribute('style', existingStyle ? `${existingStyle}; ${effectStyles}` : effectStyles);
+  document.body.appendChild(clone);
+
+  document.body.classList.add('task-effect-playing');
+  document.documentElement.classList.add('task-effect-playing');
+
+  const w = window as unknown as {
+    taskAnimationEffects?: {
+      comicEffects?: { playEffect: (key: string, el: HTMLElement, rect: EffectRect) => void };
+    };
+  };
+  w.taskAnimationEffects?.comicEffects?.playEffect(effectKey, clone, rect);
+
+  setTimeout(() => {
+    clone.remove();
+    el.style.visibility = '';
+    document.body.classList.remove('task-effect-playing');
+    document.documentElement.classList.remove('task-effect-playing');
   }, 1100);
 }
 

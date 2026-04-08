@@ -8,6 +8,8 @@ import {
   signOut,
   sendPasswordResetEmail,
   deleteUser,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
@@ -66,6 +68,7 @@ interface AuthContextValue {
   /** 現在の Firebase ユーザーでサーバーへ再同期（checkout 直前のレース対策に使用） */
   syncServerSession: () => Promise<ServerSessionSyncResult>;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -128,6 +131,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await runServerSessionSync(cred.user);
   };
 
+  const loginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    const cred = await signInWithPopup(auth, provider);
+    await runServerSessionSync(cred.user);
+  };
+
   const register = async (email: string, password: string) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await sendEmailVerification(cred.user);
@@ -159,6 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         serverSessionError,
         syncServerSession,
         login,
+        loginWithGoogle,
         register,
         logout,
         resetPassword,

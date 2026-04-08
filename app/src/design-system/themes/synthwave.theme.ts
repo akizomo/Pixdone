@@ -23,6 +23,10 @@ import type { VisualTheme } from './themeRegistry';
 export const synthwaveTheme: VisualTheme = {
   key: 'synthwave',
   name: 'Synthwave',
+  description: {
+    en: 'Neon nights. Glitchy, futuristic, and electric.',
+    ja: 'ネオンの夜。グリッチで未来的、エレクトリック。',
+  },
   icon: '🌆',
   isPremium: true,
   fontImportUrl:

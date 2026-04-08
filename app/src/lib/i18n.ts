@@ -53,6 +53,7 @@ const translations: Record<string, Record<string, string>> = {
     niceBreak: 'Nice break!',
     backToFocus: 'Back to Focus',
     smash: 'Smash',
+    collection: 'Collection',
     bgmOn: 'BGM ON',
     bgmOff: 'BGM OFF',
     breakGameTitle: 'Quick Break Game',
@@ -62,6 +63,9 @@ const translations: Record<string, Record<string, string>> = {
     tutorialTask3Before: 'Try the ',
     tutorialTask3Link: 'Smash List',
     tutorialTask3After: ' for even more fun!',
+    tutorialTask4Before: 'Focus with the ',
+    tutorialTask4Link: 'Pomodoro Timer',
+    tutorialTask4After: ' and pixel BGM.',
   },
   ja: {
     addTask: 'タスクを追加',
@@ -117,6 +121,7 @@ const translations: Record<string, Record<string, string>> = {
     niceBreak: 'いい休憩だった！',
     backToFocus: 'フォーカスに戻る',
     smash: 'スマッシュ',
+    collection: 'コレクション',
     bgmOn: 'BGM オン',
     bgmOff: 'BGM オフ',
     breakGameTitle: 'ミニゲームで休憩',
@@ -126,6 +131,9 @@ const translations: Record<string, Record<string, string>> = {
     tutorialTask3Before: '',
     tutorialTask3Link: 'スマッシュリスト',
     tutorialTask3After: '、試してみる？管理はしない。ただ潰す。',
+    tutorialTask4Before: 'ピクセルBGM',
+    tutorialTask4Link: 'ポモドーロタイマー',
+    tutorialTask4After: 'でタスクに集中',
   },
 };
 

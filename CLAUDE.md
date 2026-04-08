@@ -33,3 +33,22 @@ Key points to keep in mind:
 - `app/` — frontend (Vite, Vanilla JS)
 - `app/src/design-system/themes/` — theme definitions
 - `docs/` — documentation including BRD
+
+## Sound Rules (mandatory)
+
+Every interactive element **must** call `playSound(key)` from `services/sound.ts`. Use the sound token that matches the semantic action:
+
+| Action | Sound key |
+|--------|-----------|
+| Add / create / Toggle ON (enable something) | `taskAdd` |
+| Edit / open edit mode | `taskEdit` |
+| Delete / remove / Toggle OFF (disable something) | `taskDelete` |
+| Cancel / close modal / back button on detail pages | `taskCancel` |
+| Success / confirm / set theme active | `taskComplete` |
+| Select / tab switch / chip / list item / navigate | `buttonClick` |
+| Subtask complete | `subtaskComplete` |
+
+Rules:
+- DS components (`Button`, `Chip`, `Toggle`, etc.) already call `playSound` internally — **do not call it again in the handler**.
+- Raw `<button>` elements must call `playSound` in their `onClick`.
+- The full mapping is documented in `app/src/design-system/foundations/sound.tokens.ts`.

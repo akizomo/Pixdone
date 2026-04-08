@@ -2,15 +2,18 @@ import {
   users,
   tasks,
   taskLists,
+  effectProgress,
   type User,
   type UpsertUser,
   type Task,
   type TaskList,
   type InsertTask,
   type InsertTaskList,
+  type EffectProgressRow,
 } from "../shared/schema.js";
 import { db } from "./db.js";
 import { eq, and, desc } from "drizzle-orm";
+import { ACTIVE_CHALLENGE_EFFECTS } from "./constants/challengeEffects.js";
 
 // Interface for storage operations
 interface IStorage {
@@ -27,8 +30,9 @@ interface IStorage {
     stripeCustomerId?: string | null;
     stripeSubscriptionId?: string | null;
     currentPeriodEnd?: Date | null;
+    trialEnd?: Date | null;
   }): Promise<User>;
-  getSubscription(userId: string): Promise<{ plan: string; billingCycle: string | null; currentPeriodEnd: Date | null; stripeSubscriptionId: string | null } | undefined>;
+  getSubscription(userId: string): Promise<{ plan: string; billingCycle: string | null; currentPeriodEnd: Date | null; stripeSubscriptionId: string | null; trialEnd: Date | null } | undefined>;
 
   // Task operations
   getUserTasks(userId: string): Promise<Task[]>;
@@ -42,6 +46,10 @@ interface IStorage {
   updateTaskList(listId: number, updates: Partial<TaskList>): Promise<TaskList>;
   deleteTaskList(listId: number): Promise<void>;
   getTasksByListId(listId: number, userId: string): Promise<Task[]>;
+
+  // Effect progress operations
+  getUserEffectProgress(userId: string): Promise<EffectProgressRow[]>;
+  processChallengeProgressOnTaskComplete(userId: string): Promise<{ unlockedEffectIds: string[] }>;
 }
 
 class DatabaseStorage implements IStorage {
@@ -98,23 +106,26 @@ class DatabaseStorage implements IStorage {
     stripeCustomerId?: string | null;
     stripeSubscriptionId?: string | null;
     currentPeriodEnd?: Date | null;
+    trialEnd?: Date | null;
   }): Promise<User> {
+    const setData: Partial<typeof users.$inferInsert> = {
+      subscriptionPlan: data.plan,
+      billingCycle: data.billingCycle ?? null,
+      subscriptionCurrentPeriodEnd: data.currentPeriodEnd ?? null,
+      updatedAt: new Date(),
+    };
+    if (data.stripeCustomerId !== undefined) setData.stripeCustomerId = data.stripeCustomerId;
+    if (data.stripeSubscriptionId !== undefined) setData.stripeSubscriptionId = data.stripeSubscriptionId;
+    if (data.trialEnd !== undefined) setData.trialEnd = data.trialEnd;
     const [user] = await db
       .update(users)
-      .set({
-        subscriptionPlan: data.plan,
-        billingCycle: data.billingCycle ?? null,
-        stripeCustomerId: data.stripeCustomerId ?? undefined,
-        stripeSubscriptionId: data.stripeSubscriptionId ?? undefined,
-        subscriptionCurrentPeriodEnd: data.currentPeriodEnd ?? null,
-        updatedAt: new Date(),
-      })
+      .set(setData)
       .where(eq(users.id, userId))
       .returning();
     return user;
   }
 
-  async getSubscription(userId: string): Promise<{ plan: string; billingCycle: string | null; currentPeriodEnd: Date | null; stripeSubscriptionId: string | null } | undefined> {
+  async getSubscription(userId: string): Promise<{ plan: string; billingCycle: string | null; currentPeriodEnd: Date | null; stripeSubscriptionId: string | null; trialEnd: Date | null } | undefined> {
     const user = await this.getUser(userId);
     if (!user) return undefined;
     return {
@@ -122,6 +133,7 @@ class DatabaseStorage implements IStorage {
       billingCycle: user.billingCycle ?? null,
       currentPeriodEnd: user.subscriptionCurrentPeriodEnd ?? null,
       stripeSubscriptionId: user.stripeSubscriptionId ?? null,
+      trialEnd: user.trialEnd ?? null,
     };
   }
 
@@ -202,6 +214,65 @@ class DatabaseStorage implements IStorage {
       .from(tasks)
       .where(and(eq(tasks.listId, listId), eq(tasks.userId, userId)))
       .orderBy(desc(tasks.createdAt));
+  }
+
+  // Effect progress operations
+
+  async getUserEffectProgress(userId: string): Promise<EffectProgressRow[]> {
+    return await db
+      .select()
+      .from(effectProgress)
+      .where(eq(effectProgress.userId, userId));
+  }
+
+  async processChallengeProgressOnTaskComplete(userId: string): Promise<{ unlockedEffectIds: string[] }> {
+    const unlockedEffectIds: string[] = [];
+    const now = Date.now();
+
+    for (const challenge of ACTIVE_CHALLENGE_EFFECTS) {
+      if (now > challenge.deadline.getTime()) continue; // 期限切れはスキップ
+
+      // 既存の進捗行を取得または新規作成
+      const [existing] = await db
+        .select()
+        .from(effectProgress)
+        .where(and(
+          eq(effectProgress.userId, userId),
+          eq(effectProgress.effectId, challenge.effectId),
+        ));
+
+      if (existing?.owned) continue; // 既に所持済み
+
+      const currentProgress = existing?.challengeProgress ?? 0;
+      const newProgress = currentProgress + 1;
+      const justUnlocked = newProgress >= challenge.threshold;
+
+      await db
+        .insert(effectProgress)
+        .values({
+          userId,
+          effectId: challenge.effectId,
+          owned: justUnlocked,
+          equippedLevel: 1,
+          evolutionProgress: 0,
+          challengeProgress: newProgress,
+          earnedAt: justUnlocked ? new Date() : null,
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: [effectProgress.userId, effectProgress.effectId],
+          set: {
+            challengeProgress: newProgress,
+            owned: justUnlocked,
+            earnedAt: justUnlocked ? new Date() : (existing?.earnedAt ?? null),
+            updatedAt: new Date(),
+          },
+        });
+
+      if (justUnlocked) unlockedEffectIds.push(challenge.effectId);
+    }
+
+    return { unlockedEffectIds };
   }
 }
 

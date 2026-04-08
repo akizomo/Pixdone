@@ -60,6 +60,14 @@
   --pxd-blue-500: #4C8DFF;
   --pxd-blue-700: #2D5BDB;
 
+  /* ── Orange ──────────────────────────────────────────────────────────────── */
+  /*    Info / highlight role. High contrast against purple primary.           */
+  --pxd-orange-50:  #FFF4EB;  /* info surface (light mode) */
+  --pxd-orange-100: #FFE4CC;  /* info surface alt          */
+  --pxd-orange-300: #FFB366;
+  --pxd-orange-500: #FF8C1A;
+  --pxd-orange-700: #CC6600;
+
   /* ── Green ───────────────────────────────────────────────────────────────── */
   --pxd-green-300: #7EE3A7;
   --pxd-green-350: #5CE896;  /* dark mode text-success  */
@@ -149,6 +157,7 @@
   --pxd-color-surface-overlay:   rgba(17, 17, 17, 0.64);
   --pxd-color-surface-inverse:   var(--pxd-gray-900);
   --pxd-color-surface-disabled:  var(--pxd-gray-200);
+  --pxd-color-surface-info:      var(--pxd-orange-50);
 
   /* ── Text ── */
   --pxd-color-text-primary:   var(--pxd-gray-900);
@@ -157,6 +166,7 @@
   --pxd-color-text-inverse:   var(--pxd-white);
   --pxd-color-text-disabled:  var(--pxd-gray-500);
   --pxd-color-text-accent:    var(--pxd-purple-700);
+  --pxd-color-text-info:      var(--pxd-orange-700);
   --pxd-color-text-success:   var(--pxd-green-700);
   --pxd-color-text-warning:   var(--pxd-yellow-700);
   --pxd-color-text-danger:    var(--pxd-red-700);
@@ -168,6 +178,7 @@
   --pxd-color-border-interactive-active: var(--pxd-gray-800);   /* interactive hover/active                */
   --pxd-color-border-inverse: var(--pxd-white);
   --pxd-color-border-focus:   var(--pxd-purple-500);
+  --pxd-color-border-info:    var(--pxd-orange-500);
   --pxd-color-border-danger:  var(--pxd-red-500);
 
   /* ── Feedback ── */
@@ -332,6 +343,7 @@
   --pxd-color-surface-overlay:   rgba(0, 0, 0, 0.75);
   --pxd-color-surface-inverse:   var(--pxd-gray-50);
   --pxd-color-surface-disabled:  var(--pxd-ink-800);
+  --pxd-color-surface-info:      rgba(255, 140, 26, 0.12);
 
   /* ── Text ── */
   --pxd-color-text-primary:   var(--pxd-ink-50);
@@ -340,6 +352,7 @@
   --pxd-color-text-inverse:   var(--pxd-gray-900);
   --pxd-color-text-disabled:  var(--pxd-ink-300);
   --pxd-color-text-accent:    var(--pxd-purple-400);
+  --pxd-color-text-info:      var(--pxd-orange-300);
   --pxd-color-text-success:   var(--pxd-green-350);
   --pxd-color-text-warning:   var(--pxd-yellow-300);
   --pxd-color-text-danger:    var(--pxd-red-400);
@@ -351,6 +364,7 @@
   --pxd-color-border-interactive-active: var(--pxd-ink-100);   /* interactive hover/active                */
   --pxd-color-border-inverse: var(--pxd-gray-900);
   --pxd-color-border-focus:   var(--pxd-purple-400);
+  --pxd-color-border-info:    var(--pxd-orange-300);
   --pxd-color-border-danger:  var(--pxd-red-400);
 
   /* ── Feedback ── */

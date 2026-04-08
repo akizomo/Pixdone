@@ -125,7 +125,8 @@
 .pd-mobile-fab {
   display: none !important;
   position: fixed;
-  bottom: calc(24px + env(safe-area-inset-bottom));
+  /* Keep clear of bottom nav (+16px gap) */
+  bottom: calc(56px + 16px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%) translateZ(0);
   transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -171,7 +172,7 @@
 
   /* Extra padding so content isn't hidden behind FAB */
   .pd-app-container {
-    padding-bottom: 88px;
+    padding-bottom: calc(56px + 56px + 16px + env(safe-area-inset-bottom));
   }
 }
 
@@ -179,6 +180,20 @@
 @media (any-pointer: fine) {
   .pd-app-container {
     padding-bottom: 20px;
+  }
+
+  /*
+   * Task list (TaskItem): right-side actions (e.g. delete) only on row hover or
+   * when focus is inside the row (keyboard / screen reader). Touch-only layouts
+   * keep actions always visible (see @media not (any-pointer: fine) above).
+   */
+  .task-item-row .task-item-row-actions {
+    transition: opacity 0.15s ease;
+  }
+
+  .task-item-row:not(:hover):not(:focus-within) .task-item-row-actions {
+    opacity: 0;
+    pointer-events: none;
   }
 }
 

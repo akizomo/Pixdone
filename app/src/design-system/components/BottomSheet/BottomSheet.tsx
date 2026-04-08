@@ -8,6 +8,8 @@ export function BottomSheet({
   onClose,
   title,
   children,
+  className,
+  bodyClassName,
 }: BottomSheetProps) {
   const [visible, setVisible] = useState(open);
   const [entered, setEntered] = useState(false);
@@ -127,7 +129,7 @@ export function BottomSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'pxd-sheet-title' : undefined}
-        className="pxd-sheet"
+        className={['pxd-sheet', className].filter(Boolean).join(' ')}
         data-open={entered ? 'true' : 'false'}
       >
         <div className="pxd-sheet-header">
@@ -143,7 +145,9 @@ export function BottomSheet({
             <span className="material-icons" style={{ fontSize: '22px', lineHeight: 1 }}>close</span>
           </button>
         </div>
-        <div className="pxd-sheet-body">{children}</div>
+        <div className={['pxd-sheet-body', bodyClassName].filter(Boolean).join(' ')}>
+          {children}
+        </div>
       </div>
     </>
   );

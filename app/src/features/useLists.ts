@@ -194,6 +194,26 @@ function ensureVirtualSmashList(lists: List[]): List[] {
   ];
 }
 
+function ensureTutorialTasks(lists: List[]): List[] {
+  const base = defaultLists.find((l) => l.id === 'default');
+  const baseTasks = base?.tasks ?? [];
+  if (baseTasks.length === 0) return lists;
+
+  return lists.map((l) => {
+    if (l.id !== 'default') return l;
+    // Only auto-replenish the guest tutorial list (avoid touching logged-in "My Tasks").
+    const looksLikeTutorial =
+      l.name === 'Tutorial' ||
+      (Array.isArray(l.tasks) && l.tasks.some((t) => typeof t?.id === 'string' && t.id.startsWith('tutorial-')));
+    if (!looksLikeTutorial) return l;
+
+    const existingIds = new Set((l.tasks ?? []).map((t) => t.id));
+    const missing = baseTasks.filter((t) => !existingIds.has(t.id));
+    if (missing.length === 0) return l;
+    return { ...l, tasks: [...(l.tasks ?? []), ...missing] };
+  });
+}
+
 const defaultLists: List[] = [
   {
     id: 'default',
@@ -210,6 +230,10 @@ const defaultLists: List[] = [
       {
         id: 'tutorial-3', listId: 'default', completed: false, dueDate: null,
         title: 'Try the Smash List for even more fun!',
+      },
+      {
+        id: 'tutorial-4', listId: 'default', completed: false, dueDate: null,
+        title: 'Focus with pixel BGM pomodoro timer',
       },
     ] as Task[],
   },
@@ -233,11 +257,13 @@ function loadLists(): List[] {
       const hasDefault = Array.isArray(parsed) && parsed.some((l) => l.id === 'default');
       if (!hasDefault) return defaultLists;
       // Smash List のダミータスクが不足している場合は 3 件に補充
-      return parsed.map((l) => {
+      const withSmash = parsed.map((l) => {
         const isSmash = l.id === 'smash-list' || l.name === '💥 Smash List';
         if (!isSmash || l.tasks.length >= 3) return l;
         return { ...l, tasks: replenishSmashList(l.tasks, l.id) };
       });
+      // Ensure newly added tutorial tasks appear for existing guest users.
+      return ensureTutorialTasks(withSmash);
     }
   } catch { /* ignore */ }
   return defaultLists;

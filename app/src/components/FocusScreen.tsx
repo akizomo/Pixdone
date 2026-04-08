@@ -41,6 +41,8 @@ export interface FocusScreenProps {
   canAdjustMinutes?: boolean;
   /** Tutorial task 3: jump to Smash List tab on main screen. */
   onTutorialSmashLinkClick?: () => void;
+  /** Tutorial task 4: jump to Focus screen. */
+  onTutorialFocusLinkClick?: () => void;
 }
 
 const MODES: TimerMode[] = ['pomodoro', 'shortBreak', 'longBreak'];
@@ -95,6 +97,7 @@ export function FocusScreen({
   onCompleteFocus,
   canAdjustMinutes = true,
   onTutorialSmashLinkClick,
+  onTutorialFocusLinkClick,
 }: FocusScreenProps) {
   useWakeLock(timerState === 'running');
   const [taskPanelMode, setTaskPanelMode] = useState<'today' | 'lists'>('today');
@@ -347,6 +350,7 @@ export function FocusScreen({
                     onComplete={onCompleteTask}
                     onEdit={onEditTask ?? (() => {})}
                     onTutorialSmashLinkClick={onTutorialSmashLinkClick}
+                    onTutorialFocusLinkClick={onTutorialFocusLinkClick}
                   />
                 ))}
               </div>
@@ -406,6 +410,7 @@ export function FocusScreen({
                       onComplete={onCompleteTask}
                       onEdit={onEditTask ?? (() => {})}
                       onTutorialSmashLinkClick={onTutorialSmashLinkClick}
+                      onTutorialFocusLinkClick={onTutorialFocusLinkClick}
                     />
                   ))}
                 </div>

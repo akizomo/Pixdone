@@ -92,6 +92,14 @@ export function ModalDialog({
       onClick={handleOverlayClick}
     >
       <div ref={panelRef} className="pxd-modal-panel" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className="pxd-modal-close"
+          aria-label="Close"
+          onClick={() => { playSound('taskCancel'); onClose(); }}
+        >
+          <span className="material-icons" style={{ fontSize: '20px', lineHeight: 1 }}>close</span>
+        </button>
         {title && (
           <h2 id="modal-title" className="pxd-modal-title">
             {title}

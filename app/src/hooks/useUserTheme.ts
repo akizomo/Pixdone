@@ -2,6 +2,7 @@ import { useContext, useCallback } from 'react';
 import { ThemeContext } from '../design-system/theme/ThemeProvider';
 import { themes } from '../design-system/themes/themeRegistry';
 import type { ThemeKey } from '../design-system/themes/themeRegistry';
+import type { ColorModePreference } from '../design-system/tokens';
 
 /**
  * Hook for reading and updating the active visual theme.
@@ -9,11 +10,17 @@ import type { ThemeKey } from '../design-system/themes/themeRegistry';
  * - When a user is authenticated, syncs the choice to the server via PATCH /api/user/theme.
  */
 export function useUserTheme() {
-  const { visualTheme, setVisualTheme, theme: colorMode, setTheme } = useContext(ThemeContext);
+  const {
+    visualTheme,
+    setVisualTheme,
+    theme: colorMode,
+    colorModePreference,
+    setColorModePreference,
+  } = useContext(ThemeContext);
 
-  const toggleColorMode = useCallback(() => {
-    setTheme(colorMode === 'dark' ? 'light' : 'dark');
-  }, [colorMode, setTheme]);
+  const setColorMode = useCallback((pref: ColorModePreference) => {
+    setColorModePreference(pref);
+  }, [setColorModePreference]);
 
   const changeTheme = useCallback(
     async (key: ThemeKey) => {
@@ -35,7 +42,11 @@ export function useUserTheme() {
     currentTheme: themes[visualTheme],
     changeTheme,
     themes,
+    /** Resolved color mode ('light' | 'dark') — use for CSS variable lookups */
     colorMode,
-    toggleColorMode,
+    /** Raw user preference ('light' | 'dark' | 'system') */
+    colorModePreference,
+    /** Set color mode preference */
+    setColorMode,
   };
 }

@@ -69,6 +69,7 @@ export const tokens = {
 } as const;
 
 export type ThemeMode = 'light' | 'dark';
+export type ColorModePreference = 'light' | 'dark' | 'system';
 
 function flattenObj(
   obj: Record<string, unknown>,

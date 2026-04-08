@@ -15,6 +15,20 @@
       "when": 1774950015236,
       "tag": "0001_wealthy_frightful_four",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775607778634,
+      "tag": "0002_high_machine_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1775836800000,
+      "tag": "0003_add_trial_end",
+      "breakpoints": true
     }
   ]
 }

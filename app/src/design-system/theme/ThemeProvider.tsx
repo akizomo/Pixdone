@@ -1,9 +1,14 @@
-import { createContext, useCallback, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { getThemeCSSVariables, type ThemeMode } from '../tokens';
+import { createContext, useCallback, useLayoutEffect, useRef, useState, useEffect, type ReactNode } from 'react';
+import { getThemeCSSVariables, type ThemeMode, type ColorModePreference } from '../tokens';
 import { themes, type ThemeKey } from '../themes/themeRegistry';
 
 type ThemeContextValue = {
+  /** Resolved mode actually applied to the UI ('light' | 'dark') */
   theme: ThemeMode;
+  /** Raw user preference including 'system' */
+  colorModePreference: ColorModePreference;
+  setColorModePreference: (p: ColorModePreference) => void;
+  /** @deprecated Use setColorModePreference instead */
   setTheme: (t: ThemeMode) => void;
   visualTheme: ThemeKey;
   setVisualTheme: (key: ThemeKey) => void;
@@ -11,6 +16,8 @@ type ThemeContextValue = {
 
 export const ThemeContext = createContext<ThemeContextValue>({
   theme: 'dark',
+  colorModePreference: 'system',
+  setColorModePreference: () => {},
   setTheme: () => {},
   visualTheme: 'arcade',
   setVisualTheme: () => {},
@@ -18,14 +25,22 @@ export const ThemeContext = createContext<ThemeContextValue>({
 
 const COLOR_MODE_KEY = 'pd-color-mode';
 
-function getInitialTheme(): ThemeMode {
+function getSystemMode(): ThemeMode {
   if (typeof window === 'undefined') return 'dark';
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function getInitialPreference(): ColorModePreference {
+  if (typeof window === 'undefined') return 'system';
   try {
-    const stored = localStorage.getItem(COLOR_MODE_KEY) as ThemeMode | null;
-    if (stored === 'light' || stored === 'dark') return stored;
+    const stored = localStorage.getItem(COLOR_MODE_KEY) as ColorModePreference | null;
+    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
   } catch (_) {}
-  const mq = window.matchMedia('(prefers-color-scheme: light)');
-  return mq.matches ? 'light' : 'dark';
+  return 'system';
+}
+
+function resolveMode(pref: ColorModePreference): ThemeMode {
+  return pref === 'system' ? getSystemMode() : pref;
 }
 
 function getInitialVisualTheme(): ThemeKey {
@@ -58,17 +73,36 @@ export function ThemeProvider({
   /** Override the initial visual theme. Useful in Storybook and tests. */
   defaultVisualTheme?: ThemeKey;
 }) {
-  const [theme, setThemeState] = useState<ThemeMode>(defaultTheme ?? getInitialTheme);
+  const [preference, setPreferenceState] = useState<ColorModePreference>(
+    defaultTheme ?? getInitialPreference,
+  );
+  const [resolvedTheme, setResolvedTheme] = useState<ThemeMode>(
+    () => resolveMode(defaultTheme ?? getInitialPreference()),
+  );
   const [visualTheme, setVisualThemeState] = useState<ThemeKey>(defaultVisualTheme ?? getInitialVisualTheme);
+
+  // Listen for OS color scheme changes when preference is 'system'
+  useEffect(() => {
+    if (preference !== 'system') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => setResolvedTheme(getSystemMode());
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [preference]);
+
+  // Update resolved theme when preference changes
+  useEffect(() => {
+    setResolvedTheme(resolveMode(preference));
+  }, [preference]);
 
   // Track which CSS variables were injected by the previous visual theme so we
   // can remove them before applying a new theme (prevents bleed-through).
   const prevThemeVarKeysRef = useRef<string[]>([]);
 
   useLayoutEffect(() => {
-    const baseVars = getThemeCSSVariables(theme);
+    const baseVars = getThemeCSSVariables(resolvedTheme);
     const root = document.documentElement;
-    root.setAttribute('data-theme', theme);
+    root.setAttribute('data-theme', resolvedTheme);
     root.setAttribute('data-visual-theme', visualTheme);
 
     // Remove overrides left by the previous visual theme before applying new ones
@@ -83,7 +117,7 @@ export function ThemeProvider({
 
     // Apply visual theme overrides for the current color mode
     const vt = themes[visualTheme];
-    const modeVars = vt.cssVariables[theme] ?? {};
+    const modeVars = vt.cssVariables[resolvedTheme] ?? {};
     const appliedKeys: string[] = [];
     for (const [key, value] of Object.entries(modeVars)) {
       root.style.setProperty(key, value);
@@ -102,16 +136,20 @@ export function ThemeProvider({
         __pixdoneSetSoundPack?: (pack: string) => void;
         __pixdoneDesiredSoundPack?: string;
       };
-      // Store desired pack so late-initializing sound engine can pick it up.
       w.__pixdoneDesiredSoundPack = vt.soundPackKey;
       w.__pixdoneSetSoundPack?.(vt.soundPackKey);
     }
-  }, [theme, visualTheme]);
+  }, [resolvedTheme, visualTheme]);
 
-  const setTheme = useCallback((t: ThemeMode) => {
-    setThemeState(t);
-    try { localStorage.setItem(COLOR_MODE_KEY, t); } catch (_) {}
+  const setColorModePreference = useCallback((p: ColorModePreference) => {
+    setPreferenceState(p);
+    try { localStorage.setItem(COLOR_MODE_KEY, p); } catch (_) {}
   }, []);
+
+  // Legacy setTheme — maps to preference directly
+  const setTheme = useCallback((t: ThemeMode) => {
+    setColorModePreference(t);
+  }, [setColorModePreference]);
 
   const setVisualTheme = useCallback((key: ThemeKey) => {
     setVisualThemeState(key);
@@ -121,7 +159,14 @@ export function ThemeProvider({
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, visualTheme, setVisualTheme }}>
+    <ThemeContext.Provider value={{
+      theme: resolvedTheme,
+      colorModePreference: preference,
+      setColorModePreference,
+      setTheme,
+      visualTheme,
+      setVisualTheme,
+    }}>
       {children}
     </ThemeContext.Provider>
   );

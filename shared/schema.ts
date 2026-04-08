@@ -8,6 +8,7 @@ import {
   boolean,
   integer,
   serial,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -41,8 +42,11 @@ export const users = pgTable("users", {
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
+  trialEnd: timestamp("trial_end"),                                         // 無料トライアル終了日
   unlockedThemes: jsonb("unlocked_themes").default([]),                   // AI生成テーマID配列 (将来用)
   customSoundEffect: varchar("custom_sound_effect"),                      // カスタムSE (データモデルのみ)
+  activeSEId: varchar("active_se_id"),                                    // SEオーバーライド (将来用)
+  aiThemeCredits: integer("ai_theme_credits").notNull().default(0),       // AIテーマ生成クレジット (将来用)
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -69,6 +73,21 @@ export const tasks = pgTable("tasks", {
   createdAt: timestamp("created_at").defaultNow(),
   completedAt: timestamp("completed_at"),
 });
+
+// Effect progress table
+export const effectProgress = pgTable("effect_progress", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  effectId: varchar("effect_id").notNull(),
+  owned: boolean("owned").notNull().default(false),
+  equippedLevel: integer("equipped_level").notNull().default(1),
+  evolutionProgress: integer("evolution_progress").notNull().default(0),
+  challengeProgress: integer("challenge_progress").notNull().default(0),
+  earnedAt: timestamp("earned_at"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("user_effect_uniq").on(t.userId, t.effectId),
+]);
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
@@ -101,3 +120,5 @@ export type Task = typeof tasks.$inferSelect;
 export type TaskList = typeof taskLists.$inferSelect;
 export type InsertTask = typeof tasks.$inferInsert;
 export type InsertTaskList = typeof taskLists.$inferInsert;
+export type EffectProgressRow = typeof effectProgress.$inferSelect;
+export type InsertEffectProgress = typeof effectProgress.$inferInsert;

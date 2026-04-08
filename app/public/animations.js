@@ -66,10 +66,11 @@ class ComicEffectsManager {
             "shatter",
             "spinOff",
             "crumpleThrow",
+            "punch",
         ];
 
         // Super rare pool (Plus-only roll)
-        this.superRareEffects = ["rainbowSmash", "freeze"];
+        this.superRareEffects = ["rainbowSmash", "freeze", "bomb"];
 
         // Synthwave theme: treat its "normal" effects as rare.
         // Common effects remain available so Synthwave isn't "rare-only".
@@ -109,6 +110,10 @@ class ComicEffectsManager {
 
     setUserPlan(plan) {
         this.userPlan = plan;
+    }
+
+    setActiveEffects(keys) {
+        this._activeEffects = Array.isArray(keys) ? keys.slice() : [];
     }
 
     setSoundEnabled(enabled) {
@@ -748,6 +753,183 @@ class ComicEffectsManager {
                 60%  { transform: scaleY(1)    scaleX(1)    translateY(-55%)  rotate(-6deg);  opacity: 0.7; }
                 100% { transform: scaleY(1)    scaleX(1)    translateY(-120%) rotate(-10deg); opacity: 0; }
             }
+
+            /* ── Bomb effect ──────────────────────────────────────────────── */
+
+            /* Bomb idle: slight hover bob */
+            @keyframes bombBob {
+                0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+                50%       { transform: translate(-50%, -50%) translateY(-3px); }
+            }
+            /* Bomb fuse shake: rattles faster as countdown progresses */
+            @keyframes bombShakeSlow {
+                0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+                25%       { transform: translate(-50%, -50%) rotate(-4deg); }
+                75%       { transform: translate(-50%, -50%) rotate(4deg); }
+            }
+            @keyframes bombShakeFast {
+                0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+                20%       { transform: translate(-50%, -50%) rotate(-6deg) scale(1.05); }
+                40%       { transform: translate(-50%, -50%) rotate(6deg) scale(0.97); }
+                60%       { transform: translate(-50%, -50%) rotate(-5deg) scale(1.03); }
+                80%       { transform: translate(-50%, -50%) rotate(5deg) scale(0.98); }
+            }
+            /* Countdown digit: pixel snap-in, hold, snap-out */
+            @keyframes countdownPop {
+                0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+                10%  { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+                20%  { transform: translate(-50%, -50%) scale(1.0); opacity: 1; }
+                80%  { transform: translate(-50%, -50%) scale(1.0); opacity: 1; }
+                100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            }
+            .bomb-countdown {
+                position: fixed;
+                pointer-events: none;
+                z-index: 100003;
+                font-family: 'VT323', 'Press Start 2P', monospace;
+                font-weight: bold;
+                image-rendering: pixelated;
+                animation: countdownPop 480ms steps(5, end) forwards;
+            }
+            /* BOMB!! text: huge retro impact */
+            @keyframes bombTextBurst {
+                0%   { transform: translate(-50%, -50%) scale(0.1); opacity: 1; filter: brightness(3); }
+                20%  { transform: translate(-50%, -50%) scale(1.6); opacity: 1; filter: brightness(1.5); }
+                40%  { transform: translate(-50%, -50%) scale(1.1); opacity: 1; filter: brightness(1); }
+                70%  { transform: translate(-50%, -50%) scale(1.2); opacity: 1; filter: brightness(1); }
+                100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; filter: brightness(1); }
+            }
+            .bomb-text {
+                position: fixed;
+                pointer-events: none;
+                z-index: 100003;
+                font-family: 'VT323', 'Press Start 2P', monospace;
+                font-size: clamp(48px, 10vw, 88px);
+                font-weight: bold;
+                color: #ff4400;
+                text-shadow:
+                    3px  3px 0 #ffcc00, -3px -3px 0 #ffcc00,
+                    3px -3px 0 #ffcc00, -3px  3px 0 #ffcc00,
+                    6px  6px 0 #000,    -6px -6px 0 #000,
+                    6px -6px 0 #000,    -6px  6px 0 #000;
+                letter-spacing: 0.04em;
+                image-rendering: pixelated;
+                animation: bombTextBurst 900ms steps(6, end) forwards;
+            }
+            /* Explosion ring: expanding circle */
+            @keyframes bombRing {
+                0%   { transform: translate(-50%, -50%) scale(0);   opacity: 0.9; }
+                60%  { transform: translate(-50%, -50%) scale(1);   opacity: 0.6; }
+                100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+            }
+            .bomb-ring {
+                position: fixed;
+                pointer-events: none;
+                z-index: 100001;
+                border-radius: 50%;
+                animation: bombRing 500ms steps(6, end) forwards;
+            }
+            /* White screen flash */
+            @keyframes bombFlash {
+                0%   { opacity: 0.85; }
+                100% { opacity: 0; }
+            }
+            .bomb-flash {
+                position: fixed;
+                inset: 0;
+                background: #fff;
+                pointer-events: none;
+                z-index: 100002;
+                animation: bombFlash 300ms steps(4, end) forwards;
+            }
+            /* Bomb particle */
+            @keyframes bombParticleFly {
+                0%   { transform: translate(0, 0) scale(1);   opacity: 1; }
+                50%  { opacity: 0.9; }
+                100% { transform: translate(var(--bpx), var(--bpy)) scale(0.3); opacity: 0; }
+            }
+            .bomb-particle {
+                position: fixed;
+                pointer-events: none;
+                z-index: 100000;
+                image-rendering: pixelated;
+                animation: bombParticleFly 700ms steps(8, end) forwards;
+            }
+
+            /* ── Fighter Punch effect (Street Fighter style) ─────────────── */
+
+            /* Impact text: snaps in, skews, holds, then drops */
+            @keyframes sfTextPop {
+                0%   { transform: translate(-50%, -50%) scale(0.05) skewX(-10deg); opacity: 1; }
+                12%  { transform: translate(-50%, -50%) scale(1.5)  skewX(5deg);   opacity: 1; }
+                25%  { transform: translate(-50%, -50%) scale(0.95) skewX(-2deg);  opacity: 1; }
+                40%  { transform: translate(-50%, -50%) scale(1.1)  skewX(0deg);   opacity: 1; }
+                80%  { transform: translate(-50%, -50%) scale(1.1)  skewX(0deg);   opacity: 1; }
+                100% { transform: translate(-50%, -50%) scale(1.15) skewX(0deg);   opacity: 0; }
+            }
+            .punch-text {
+                position: fixed;
+                pointer-events: none;
+                z-index: 100001;
+                font-family: 'VT323', 'Press Start 2P', monospace;
+                font-size: clamp(40px, 8vw, 72px);
+                font-weight: bold;
+                color: #ffe000;
+                /* SF-style: red inner outline + thick black outer */
+                text-shadow:
+                    2px  2px 0 #cc0000, -2px -2px 0 #cc0000,
+                    2px -2px 0 #cc0000, -2px  2px 0 #cc0000,
+                    5px  5px 0 #000,    -5px -5px 0 #000,
+                    5px -5px 0 #000,    -5px  5px 0 #000;
+                letter-spacing: 0.06em;
+                image-rendering: pixelated;
+                animation: sfTextPop 950ms steps(5, end) forwards;
+            }
+
+            /* Circular flash at impact point */
+            @keyframes sfImpactFlash {
+                0%   { transform: translate(-50%,-50%) scale(0);   opacity: 1; }
+                25%  { transform: translate(-50%,-50%) scale(1);   opacity: 1; }
+                60%  { transform: translate(-50%,-50%) scale(1.4); opacity: 0.6; }
+                100% { transform: translate(-50%,-50%) scale(2);   opacity: 0; }
+            }
+            .sf-impact-flash {
+                position: fixed;
+                pointer-events: none;
+                z-index: 100002;
+                border-radius: 50%;
+                animation: sfImpactFlash 280ms steps(4, end) forwards;
+            }
+
+            /* Spark lines: thin streaks flying from impact */
+            @keyframes sfSpark {
+                0%   { transform: translateX(0) scaleX(1); opacity: 1; }
+                50%  { opacity: 1; }
+                100% { transform: translateX(var(--spark-dx)) scaleX(0.2); opacity: 0; }
+            }
+            .sf-spark {
+                position: fixed;
+                height: 3px;
+                pointer-events: none;
+                z-index: 100000;
+                image-rendering: pixelated;
+                transform-origin: left center;
+                animation: sfSpark 420ms steps(6, end) forwards;
+            }
+
+            /* Square pixel particles */
+            @keyframes sfParticleFly {
+                0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+                50%  { opacity: 1; }
+                100% { transform: translate(var(--pdx), var(--pdy)) scale(0.4); opacity: 0; }
+            }
+            .punch-particle {
+                position: fixed;
+                pointer-events: none;
+                z-index: 100000;
+                image-rendering: pixelated;
+                animation: sfParticleFly 550ms steps(7, end) forwards;
+            }
         `;
         document.head.appendChild(style);
     }
@@ -773,6 +955,46 @@ class ComicEffectsManager {
         const forceRainbow = params && params.get("effect") === "rainbow";
         const forceNeonBigBang = params && params.get("effect") === "neonBigBang";
         const forceGiantTree = params && params.get("effect") === "giantTreeGrow";
+        const forcePunch = params && params.get("effect") === "punch";
+        const forceBomb  = params && params.get("effect") === "bomb";
+
+        // URL-param forced effects should override any equipped/active effects.
+        if (forceBomb) {
+            console.log("💣 Bomb effect (forced by ?effect=bomb)");
+            this.playEffect("bomb", taskElement, effectRect);
+            return;
+        }
+        if (forcePunch) {
+            console.log("👊 Punch effect (forced by ?effect=punch)");
+            this.playEffect("punch", taskElement, effectRect);
+            return;
+        }
+        if (forceFreeze) {
+            console.log("❄️ Epic Freeze effect (forced by ?effect=freeze)");
+            this.playEffect("freeze", taskElement, effectRect);
+            return;
+        }
+        if (forceRainbow) {
+            console.log("🌈 Rainbow Smash (forced by ?effect=rainbow)");
+            this.playEffect("rainbowSmash", taskElement, effectRect);
+            return;
+        }
+        if (forceNeonBigBang) {
+            console.log("💥 Neon Big Bang (forced by ?effect=neonBigBang)");
+            this.playEffect("neonBigBang", taskElement, effectRect);
+            return;
+        }
+        if (forceGiantTree) {
+            console.log("🌲 Giant Tree Grow (forced by ?effect=giantTreeGrow)");
+            this.playEffect("giantTreeGrow", taskElement, effectRect);
+            return;
+        }
+
+        if (this._activeEffects && this._activeEffects.length > 0) {
+            const key = this._activeEffects[Math.floor(Math.random() * this._activeEffects.length)];
+            this.playEffect(key, taskElement, effectRect);
+            return;
+        }
 
         const visualTheme = this.getVisualTheme();
         const isSynthwave = visualTheme === "synthwave";
@@ -793,19 +1015,7 @@ class ComicEffectsManager {
             : this.arcadeRareEffects;
         const commonPool = this.commonEffects;
 
-        if (forceFreeze) {
-            console.log("❄️ Epic Freeze effect (forced by ?effect=freeze)");
-            selectedEffect = "freeze";
-        } else if (forceRainbow) {
-            console.log("🌈 Rainbow Smash (forced by ?effect=rainbow)");
-            selectedEffect = "rainbowSmash";
-        } else if (forceNeonBigBang) {
-            console.log("💥 Neon Big Bang (forced by ?effect=neonBigBang)");
-            selectedEffect = "neonBigBang";
-        } else if (forceGiantTree) {
-            console.log("🌲 Giant Tree Grow (forced by ?effect=giantTreeGrow)");
-            selectedEffect = "giantTreeGrow";
-        } else if (random < epicChance) {
+        if (random < epicChance) {
             selectedEffect = superRarePool[Math.floor(Math.random() * superRarePool.length)];
             console.log(`✨ Super rare effect triggered! [${visualTheme}]:`, selectedEffect);
         } else if (rarePool.length > 0 && random < epicChance + rareChance) {
@@ -1241,6 +1451,16 @@ class ComicEffectsManager {
                 this.effectLock = true;
                 this.createGiantTreeGrowEffect(taskElement, rect);
                 this.playGiantTreeGrowSound();
+                this.playHapticFeedback("strong");
+                break;
+            case "punch":
+                this.effectLock = true;
+                this.createFighterPunchEffect(taskElement, rect);
+                this.playHapticFeedback("strong");
+                break;
+            case "bomb":
+                this.effectLock = true;
+                this.createBombEffect(taskElement, rect);
                 this.playHapticFeedback("strong");
                 break;
         }
@@ -2612,6 +2832,63 @@ class ComicEffectsManager {
                     oscillator.start(audioContext.currentTime);
                     oscillator.stop(audioContext.currentTime + 0.08);
                     return;
+                case "punch": {
+                    // Layer 1: Deep impact thud (low-freq square, fast decay)
+                    const punchThud = audioContext.createOscillator();
+                    const punchThudGain = audioContext.createGain();
+                    punchThud.connect(punchThudGain);
+                    punchThudGain.connect(audioContext.destination);
+                    punchThud.type = 'square';
+                    punchThud.frequency.setValueAtTime(130, audioContext.currentTime);
+                    punchThud.frequency.exponentialRampToValueAtTime(45, audioContext.currentTime + 0.18);
+                    punchThudGain.gain.setValueAtTime(0.55, audioContext.currentTime);
+                    punchThudGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.22);
+                    punchThud.start(audioContext.currentTime);
+                    punchThud.stop(audioContext.currentTime + 0.22);
+                    punchThud.onended = () => { try { punchThud.disconnect(); punchThudGain.disconnect(); } catch(e){} };
+
+                    // Layer 2: High-freq crack snap (fast transient)
+                    const punchCrack = audioContext.createOscillator();
+                    const punchCrackGain = audioContext.createGain();
+                    punchCrack.connect(punchCrackGain);
+                    punchCrackGain.connect(audioContext.destination);
+                    punchCrack.type = 'sawtooth';
+                    punchCrack.frequency.setValueAtTime(900, audioContext.currentTime);
+                    punchCrack.frequency.exponentialRampToValueAtTime(180, audioContext.currentTime + 0.07);
+                    punchCrackGain.gain.setValueAtTime(0.35, audioContext.currentTime);
+                    punchCrackGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.09);
+                    punchCrack.start(audioContext.currentTime);
+                    punchCrack.stop(audioContext.currentTime + 0.09);
+                    punchCrack.onended = () => { try { punchCrack.disconnect(); punchCrackGain.disconnect(); } catch(e){} };
+
+                    // Layer 3: White noise burst for impact texture
+                    const noiseDuration = 0.12;
+                    const noiseBuffer = audioContext.createBuffer(1, Math.ceil(audioContext.sampleRate * noiseDuration), audioContext.sampleRate);
+                    const noiseData = noiseBuffer.getChannelData(0);
+                    for (let i = 0; i < noiseData.length; i++) {
+                        noiseData[i] = Math.random() * 2 - 1;
+                    }
+                    const noiseSource = audioContext.createBufferSource();
+                    noiseSource.buffer = noiseBuffer;
+                    const noiseFilter = audioContext.createBiquadFilter();
+                    noiseFilter.type = 'bandpass';
+                    noiseFilter.frequency.value = 1200;
+                    noiseFilter.Q.value = 0.8;
+                    const noiseGain = audioContext.createGain();
+                    noiseSource.connect(noiseFilter);
+                    noiseFilter.connect(noiseGain);
+                    noiseGain.connect(audioContext.destination);
+                    noiseGain.gain.setValueAtTime(0.45, audioContext.currentTime);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + noiseDuration);
+                    noiseSource.start(audioContext.currentTime);
+                    noiseSource.stop(audioContext.currentTime + noiseDuration);
+                    noiseSource.onended = () => { try { noiseSource.disconnect(); noiseFilter.disconnect(); noiseGain.disconnect(); } catch(e){} };
+
+                    // Disconnect unused default oscillator
+                    oscillator.disconnect();
+                    gainNode.disconnect();
+                    return;
+                }
                 default:
                     return;
             }
@@ -4341,6 +4618,376 @@ class ComicEffectsManager {
         }, 1800);
     }
 
+    // ── Bomb Effect ──────────────────────────────────────────────────────
+    // Timeline (~2700ms):
+    //    0ms   bomb.gif appears centered on task (bob animation)
+    //  400ms   "3" countdown digit — slow shake starts
+    //  880ms   "2" countdown digit — shake accelerates
+    //  1360ms  "1" countdown digit (red) — fast shake
+    //  1840ms  BOOM: explosion ring + white flash + particles + "BOMB!!" text
+    //  1840ms  task clone hides
+    //  2700ms  cleanup + effectLock released
+    createBombEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement?.getBoundingClientRect?.() || { top: 0, left: 0, width: 200, height: 44 };
+
+        const cx = rect.left + rect.width  / 2;
+        const cy = rect.top  + rect.height / 2;
+
+        // ── Bomb sprite ─────────────────────────────────────────────────
+        const BOMB_SIZE = Math.round(Math.min(80, Math.max(48, rect.height * 1.6)));
+        const bomb = document.createElement('img');
+        bomb.src = '/bomb.gif?' + Date.now();
+        bomb.alt = '';
+        bomb.setAttribute('aria-hidden', 'true');
+        bomb.style.cssText = [
+            'position:fixed',
+            `left:${cx}px`,
+            `top:${cy}px`,
+            `width:${BOMB_SIZE}px`,
+            `height:${BOMB_SIZE}px`,
+            'object-fit:contain',
+            'image-rendering:pixelated',
+            'pointer-events:none',
+            'z-index:100000',
+            'transform:translate(-50%,-50%)',
+            'animation:bombBob 600ms steps(4,end) infinite',
+        ].join(';');
+        document.body.appendChild(bomb);
+
+        // ── Schedule all countdown + explosion sounds up-front via AudioContext ──
+        this.playBombCountdownSound();
+
+        // ── Countdown helper ────────────────────────────────────────────
+        const showDigit = (text, color, fontSize, delay, duration) => {
+            setTimeout(() => {
+                const el = document.createElement('div');
+                el.className = 'bomb-countdown';
+                el.textContent = text;
+                el.style.cssText = [
+                    `left:${cx}px`,
+                    `top:${cy - BOMB_SIZE * 0.9}px`,
+                    `font-size:${fontSize}`,
+                    `color:${color}`,
+                    `text-shadow: 3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000`,
+                    `animation-duration:${duration}ms`,
+                ].join(';');
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), duration + 50);
+            }, delay);
+        };
+
+        // Digit timings: 3 → 2 → 1, each ~480ms — starts immediately (no idle lag)
+        const STEP = 480;
+        showDigit('3', '#ffffff', 'clamp(36px,7vw,56px)', 0,        STEP);
+        showDigit('2', '#ffcc00', 'clamp(42px,8vw,64px)', STEP,     STEP);
+        showDigit('1', '#ff3300', 'clamp(50px,9vw,72px)', STEP * 2, STEP);
+
+        // ── Bomb shake: slow → fast with each digit ──────────────────────
+        bomb.style.animation = 'bombShakeSlow 220ms steps(3,end) infinite'; // "3" — slow shake from the start
+        setTimeout(() => {
+            bomb.style.animation = 'bombShakeFast 120ms steps(4,end) infinite';
+        }, STEP);
+        setTimeout(() => {
+            bomb.style.animation = 'bombShakeFast 70ms steps(4,end) infinite';
+        }, STEP * 2);
+
+        // ── Explosion (STEP*3 = 1440ms) ──────────────────────────────────
+        const BOOM_AT = STEP * 3;
+
+        setTimeout(() => {
+            // 1. Hide bomb + task clone
+            bomb.remove();
+            if (taskElement) taskElement.style.opacity = '0';
+
+            // 2. White screen flash
+            const flash = document.createElement('div');
+            flash.className = 'bomb-flash';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 350);
+
+            // 3. Explosion rings (2 sizes)
+            [rect.height * 2.5, rect.height * 4].forEach((size, i) => {
+                setTimeout(() => {
+                    const ring = document.createElement('div');
+                    ring.className = 'bomb-ring';
+                    ring.style.cssText = [
+                        `left:${cx}px`, `top:${cy}px`,
+                        `width:${size}px`, `height:${size}px`,
+                        `background:radial-gradient(circle, #fff 0%, #ffaa00 30%, #ff4400 60%, transparent 80%)`,
+                        `animation-duration:${480 + i * 80}ms`,
+                    ].join(';');
+                    document.body.appendChild(ring);
+                    setTimeout(() => ring.remove(), 600);
+                }, i * 60);
+            });
+
+            // 4. Pixel debris particles (radial burst)
+            this._spawnBombParticles(cx, cy, rect);
+
+            // 5. "BOMB!!" retro text
+            setTimeout(() => {
+                const label = document.createElement('div');
+                label.className = 'bomb-text';
+                label.textContent = 'BOMB!!';
+                label.style.left = cx + 'px';
+                label.style.top  = cy + 'px';
+                document.body.appendChild(label);
+                setTimeout(() => label.remove(), 1000);
+            }, 80);
+
+            // 6. Screen shake (app container only — avoid displacing fixed elements)
+            const shakeEl = document.querySelector('.pd-app-container')
+                         || document.querySelector('#root')
+                         || document.querySelector('main');
+            if (shakeEl) {
+                const shake = (dx, dy, delay) => setTimeout(() => {
+                    shakeEl.style.transition = 'transform 60ms steps(1,end)';
+                    shakeEl.style.transform  = `translate(${dx}px,${dy}px)`;
+                }, delay);
+                shake( 6, -4,  0);
+                shake(-5,  3, 65);
+                shake( 4, -2, 130);
+                shake(-3,  2, 195);
+                shake( 0,  0, 260);
+                setTimeout(() => { shakeEl.style.transition = ''; shakeEl.style.transform = ''; }, 300);
+            }
+
+        }, BOOM_AT);
+
+        // ── Cleanup ──────────────────────────────────────────────────────
+        setTimeout(() => {
+            if (bomb.parentNode) bomb.remove();
+            this.effectLock = false;
+        }, BOOM_AT + 900);
+    }
+
+    _spawnBombParticles(cx, cy, rect) {
+        // Two layers: close fast chunks + far slow embers
+        const LAYERS = [
+            { count: 20, distMin: 60,  distMax: 130, durMin: 500, durMax: 650, sizes: [6, 8, 10] },
+            { count: 16, distMin: 100, distMax: 200, durMin: 600, durMax: 800, sizes: [4, 4, 6]  },
+        ];
+        // Bomb palette: fire colors + black smoke chunks
+        const COLORS = ['#ff4400', '#ff8800', '#ffcc00', '#ffffff', '#ff2200', '#222222', '#ff6600'];
+
+        LAYERS.forEach(({ count, distMin, distMax, durMin, durMax, sizes }) => {
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+                const dist  = distMin + Math.random() * (distMax - distMin);
+                const p = document.createElement('div');
+                p.className = 'bomb-particle';
+                const sz = sizes[i % sizes.length] + 'px';
+                p.style.width    = sz;
+                p.style.height   = sz;
+                p.style.background = COLORS[i % COLORS.length];
+                p.style.left = cx + 'px';
+                p.style.top  = cy + 'px';
+                p.style.setProperty('--bpx', Math.round(Math.cos(angle) * dist) + 'px');
+                p.style.setProperty('--bpy', Math.round(Math.sin(angle) * dist) + 'px');
+                p.style.animationDuration = (durMin + Math.random() * (durMax - durMin)) + 'ms';
+                p.style.animationDelay    = (i * 12) + 'ms';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), durMax + 200);
+            }
+        });
+    }
+
+    // ── Fighter Punch Effect (Street Fighter style) ──────────────────────
+    // Timeline (~1400ms):
+    //   0ms    fighter img created off-screen left; rest pos = left of task (no overlap)
+    //   50ms   slide-in (280ms, punch-dash easing)
+    //   340ms  punch impact: SF flash + sparks + pixel particles
+    //   380ms  "FINISH!" SF text pops above task
+    //   400ms  task clone fades
+    //   800ms  slide-out starts (300ms ease-in)
+    //  1400ms  cleanup + effectLock released
+    createFighterPunchEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement?.getBoundingClientRect?.() || { top: 0, left: 0, width: 100, height: 40 };
+
+        const W = window.innerWidth;
+        // Fighter size: ~14vw, clamped to 56–100px
+        const FIGHTER_SIZE = Math.round(Math.min(100, Math.max(56, W * 0.14)));
+
+        // ── Position: fighter to the left, slightly overlapping task edge ──
+        // Negative GAP = fist tip enters the task by that amount (more natural contact)
+        const GAP = -12;  // fist tip is 12px inside task left edge
+        const punchX = Math.max(4, rect.left - FIGHTER_SIZE - GAP);
+
+        // Vertical: shift down a bit so fighter feels grounded below task
+        const taskBottom = rect.top + rect.height;
+        const SINK = 10; // px below task bottom
+        const fighterTop = taskBottom - FIGHTER_SIZE + SINK;
+
+        // ── Create fighter img ──────────────────────────────────────────
+        const fighter = document.createElement('img');
+        fighter.src = '/fighter-punch.gif?' + Date.now(); // force GIF restart
+        fighter.alt = '';
+        fighter.setAttribute('aria-hidden', 'true');
+        // Start fully off-screen to the left
+        const offscreenDx = -(punchX + FIGHTER_SIZE + 40);
+        fighter.style.cssText = [
+            'position:fixed',
+            `left:${punchX}px`,
+            `top:${fighterTop}px`,
+            `width:${FIGHTER_SIZE}px`,
+            `height:${FIGHTER_SIZE}px`,
+            'object-fit:contain',
+            'image-rendering:pixelated',
+            'pointer-events:none',
+            'z-index:100000',
+            `transform:translateX(${offscreenDx}px)`,
+            'will-change:transform',
+        ].join(';');
+        document.body.appendChild(fighter);
+
+        // ── Slide-in (punch dash: fast acceleration, slight overshoot) ──
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                fighter.style.transition = 'transform 280ms cubic-bezier(0.15, 0, 0.3, 1)';
+                fighter.style.transform  = 'translateX(0)';
+            });
+        });
+
+        // ── Impact (340ms) ──────────────────────────────────────────────
+        setTimeout(() => {
+            // Impact point = right edge of fighter sprite (actual fist tip)
+            // Using punchX + FIGHTER_SIZE ensures the flash tracks the sprite,
+            // even when punchX is clamped on narrow screens.
+            const impactX = punchX + FIGHTER_SIZE;
+            const impactY = rect.top + rect.height / 2;
+
+            // 1. SF-style hit flash (circular burst) — delayed 50ms after sparks/particles
+            //    so it lands exactly on the punch frame, not before it
+            setTimeout(() => this._spawnSFImpactFlash(impactX, impactY, rect.height), 50);
+
+            // 2. Spark lines flying rightward from impact
+            this._spawnSFSparks(impactX, impactY);
+
+            // 3. Pixel debris (square chunks)
+            this._spawnSFParticles(impactX, impactY);
+
+            // 4. Screen shake (3-hit pattern like SF)
+            // IMPORTANT: shake the app container, NOT html/body.
+            // Transforming html/body displaces position:fixed effect elements (CSS spec:
+            // a transformed ancestor becomes the containing block for fixed descendants).
+            const shakeEl = document.querySelector('.pd-app-container')
+                         || document.querySelector('#root')
+                         || document.querySelector('main');
+            if (shakeEl) {
+                const shake = (dx, delay) => setTimeout(() => {
+                    shakeEl.style.transition = 'transform 50ms steps(1, end)';
+                    shakeEl.style.transform  = `translateX(${dx}px)`;
+                }, delay);
+                shake(5, 0); shake(-4, 55); shake(3, 110); shake(0, 165);
+                setTimeout(() => { shakeEl.style.transition = ''; shakeEl.style.transform = ''; }, 200);
+            }
+
+        }, 340);
+
+        // Sound fires 30ms before visual impact to compensate for audio latency
+        setTimeout(() => this.playSound('punch'), 310);
+
+        // ── "FINISH!" SF impact text (380ms) ───────────────────────────
+        setTimeout(() => {
+            const label = document.createElement('div');
+            label.className = 'punch-text';
+            label.textContent = 'FINISH!';
+            // Position above the task, centered horizontally on task
+            label.style.left = (rect.left + rect.width / 2) + 'px';
+            label.style.top  = (rect.top - 10) + 'px';  // above task
+            document.body.appendChild(label);
+            setTimeout(() => label.remove(), 1000);
+
+            // Fade task clone a beat after text appears
+            setTimeout(() => {
+                if (taskElement) taskElement.style.opacity = '0';
+            }, 60);
+        }, 380);
+
+        // ── Slide-out left (800ms) ──────────────────────────────────────
+        setTimeout(() => {
+            fighter.style.transition = 'transform 300ms cubic-bezier(0.7, 0, 1, 0.5)';
+            fighter.style.transform  = `translateX(${offscreenDx}px)`;
+        }, 800);
+
+        // ── Cleanup (1400ms) ────────────────────────────────────────────
+        setTimeout(() => {
+            fighter.remove();
+            this.effectLock = false;
+        }, 1400);
+    }
+
+    // Circular white-orange flash at the punch contact point
+    _spawnSFImpactFlash(cx, cy, taskH) {
+        const SIZE = Math.max(60, taskH * 2.2);
+        const flash = document.createElement('div');
+        flash.className = 'sf-impact-flash';
+        flash.style.cssText = [
+            `left:${cx}px`, `top:${cy}px`,
+            `width:${SIZE}px`, `height:${SIZE}px`,
+            'background:radial-gradient(circle, #ffffff 0%, #ffcc00 35%, #ff6600 65%, transparent 100%)',
+        ].join(';');
+        document.body.appendChild(flash);
+        setTimeout(() => flash.remove(), 320);
+    }
+
+    // Spark lines: thin streaks flying from impact, angled rightward (SF hit sparks)
+    _spawnSFSparks(cx, cy) {
+        // Angles (degrees from right = 0): rightward fan
+        const ANGLES = [-40, -20, -5, 10, 25, 45, 60, -55, 75];
+        const COLORS = ['#ffffff', '#ffee00', '#ffaa00', '#ff6600', '#ffffff', '#ffee00'];
+
+        ANGLES.forEach((deg, i) => {
+            const rad  = (deg * Math.PI) / 180;
+            const len  = 24 + (i % 3) * 10; // 24–44px
+            const spark = document.createElement('div');
+            spark.className = 'sf-spark';
+            spark.style.cssText = [
+                `left:${cx}px`,
+                `top:${cy}px`,
+                `width:${len}px`,
+                `background:${COLORS[i % COLORS.length]}`,
+                `transform:rotate(${deg}deg)`,
+                `box-shadow:0 0 3px 1px ${COLORS[i % COLORS.length]}`,
+            ].join(';');
+            const dist = 60 + i * 8;
+            spark.style.setProperty('--spark-dx', Math.round(Math.cos(rad) * dist) + 'px');
+            spark.style.animationDelay = (i * 15) + 'ms';
+            document.body.appendChild(spark);
+            setTimeout(() => spark.remove(), 500);
+        });
+    }
+
+    // Square pixel debris chunks flying rightward from impact
+    _spawnSFParticles(cx, cy) {
+        // SF palette: bold yellow, red, orange, white
+        const COLORS = ['#ffe000', '#ff3300', '#ff8800', '#ffffff', '#ffcc00', '#ff4466'];
+        const COUNT  = 18;
+
+        for (let i = 0; i < COUNT; i++) {
+            // Fan: mostly rightward (0°) with spread of ±90°
+            const deg = -90 + (180 / COUNT) * i;
+            const rad = (deg * Math.PI) / 180;
+            const dist = 40 + Math.floor(Math.random() * 60);
+
+            const p = document.createElement('div');
+            p.className = 'punch-particle';
+            // Pixel sizes in 4/6/8px steps
+            const sz = [4, 6, 8][i % 3] + 'px';
+            p.style.width    = sz;
+            p.style.height   = sz;
+            p.style.background = COLORS[i % COLORS.length];
+            p.style.left     = cx + 'px';
+            p.style.top      = cy + 'px';
+            p.style.setProperty('--pdx', Math.round(Math.cos(rad) * dist) + 'px');
+            p.style.setProperty('--pdy', Math.round(Math.sin(rad) * dist) + 'px');
+            p.style.animationDuration = (440 + i * 8) + 'ms';
+            p.style.animationDelay    = (i * 10) + 'ms';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+        }
+    }
+
     createGiantTreeGrowEffect(taskElement, optionalRect) {
         const rect = optionalRect || taskElement?.getBoundingClientRect?.() || { top: 0, bottom: 100, left: 0, right: 100, width: 100, height: 40 };
         const W  = window.innerWidth;
@@ -4510,6 +5157,69 @@ class ComicEffectsManager {
             taskElement.classList.remove('tree-push-squish', 'tree-push-launch');
             this.effectLock = false;
         }, cardHitDelay + 800);
+    }
+
+    playBombCountdownSound() {
+        if (this.soundEnabled === false) return;
+        if (!this.audioContextReady || !this.audioContext) return;
+        const ctx = this.audioContext;
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const now  = ctx.currentTime;
+        const STEP = 0.48; // matches STEP=480ms in createBombEffect
+
+        // Helper: short retro square-wave beep
+        const beep = (freq, startAt, dur, vol = 0.35) => {
+            const osc = ctx.createOscillator();
+            const g   = ctx.createGain();
+            osc.connect(g);
+            g.connect(ctx.destination);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, startAt);
+            g.gain.setValueAtTime(0, startAt);
+            g.gain.linearRampToValueAtTime(vol, startAt + 0.008);
+            g.gain.exponentialRampToValueAtTime(0.001, startAt + dur);
+            osc.start(startAt);
+            osc.stop(startAt + dur + 0.01);
+            osc.onended = () => { try { osc.disconnect(); g.disconnect(); } catch (_) {} };
+        };
+
+        // 3 — A4, short
+        beep(440, now, 0.15);
+        // 2 — D5, slightly higher
+        beep(587, now + STEP, 0.15);
+        // 1 — A5, high-pitched & a bit longer (urgency)
+        beep(880, now + STEP * 2, 0.22, 0.45);
+
+        // BOOM — low sine rumble at detonation
+        const boomAt = now + STEP * 3;
+
+        const boom = ctx.createOscillator();
+        const boomG = ctx.createGain();
+        boom.connect(boomG);
+        boomG.connect(ctx.destination);
+        boom.type = 'sine';
+        boom.frequency.setValueAtTime(90, boomAt);
+        boom.frequency.exponentialRampToValueAtTime(22, boomAt + 0.7);
+        boomG.gain.setValueAtTime(0.9, boomAt);
+        boomG.gain.exponentialRampToValueAtTime(0.001, boomAt + 0.85);
+        boom.start(boomAt);
+        boom.stop(boomAt + 0.9);
+        boom.onended = () => { try { boom.disconnect(); boomG.disconnect(); } catch (_) {} };
+
+        // Crackle layer: short burst of noise via rapid high-freq modulation
+        const crackle = ctx.createOscillator();
+        const crackleG = ctx.createGain();
+        crackle.connect(crackleG);
+        crackleG.connect(ctx.destination);
+        crackle.type = 'sawtooth';
+        crackle.frequency.setValueAtTime(180, boomAt);
+        crackle.frequency.exponentialRampToValueAtTime(40, boomAt + 0.3);
+        crackleG.gain.setValueAtTime(0.4, boomAt);
+        crackleG.gain.exponentialRampToValueAtTime(0.001, boomAt + 0.3);
+        crackle.start(boomAt);
+        crackle.stop(boomAt + 0.35);
+        crackle.onended = () => { try { crackle.disconnect(); crackleG.disconnect(); } catch (_) {} };
     }
 
     playGiantTreeGrowSound() {

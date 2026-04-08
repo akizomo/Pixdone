@@ -23,6 +23,8 @@ export interface VisualTheme {
   key: ThemeKey;
   /** Display name shown in ThemeSelector UI */
   name: string;
+  /** Short description used in Collection/theme detail UI */
+  description?: { en: string; ja: string };
   /** Emoji icon for the theme card */
   icon: string;
   /** Premium themes require payment to unlock */

@@ -19,6 +19,10 @@ import type { VisualTheme } from './themeRegistry';
 export const forestbitTheme: VisualTheme = {
   key: 'forestbit',
   name: 'Forest Bit',
+  description: {
+    en: 'A quiet forest that grows with each task you finish.',
+    ja: 'タスクをこなすたび、静かな森が育っていく。',
+  },
   icon: '🌲',
   isPremium: true,
 

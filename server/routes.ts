@@ -186,12 +186,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = getSessionUserId(req);
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
       const sub = await storage.getSubscription(userId);
+      const user = await storage.getUser(userId);
+      const trialEnd = sub?.trialEnd ?? null;
+      const isTrialing = trialEnd ? new Date(trialEnd) > new Date() : false;
       res.json({
         plan: sub?.plan ?? 'free',
         billingCycle: sub?.billingCycle ?? null,
         currentPeriodEnd: sub?.currentPeriodEnd ?? null,
         unlockedThemes: [],
         isPremium: sub?.plan === 'plus',
+        isTrialing,
+        trialEnd,
+        activeSEId: user?.activeSEId ?? null,
+        aiThemeCredits: user?.aiThemeCredits ?? 0,
       });
     } catch (error) {
       console.error("Error fetching entitlements:", error);
@@ -283,12 +290,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (!userId) { console.warn('[stripe-webhook] Missing metadata.userId'); break; }
           const subscriptionId = obj?.subscription as string | undefined;
           const customerId = obj?.customer as string | undefined;
-          // billingCycle はサブスクリプションオブジェクトから取得できないので metadata から渡す場合は
-          // create-checkout-session 側で metadata に追加する。ここでは subscription.updated で補完。
+
+          // トライアル終了日を取得するためにサブスクリプションを展開
+          let trialEnd: Date | null = null;
+          if (subscriptionId) {
+            try {
+              const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+              if (stripeSecretKey) {
+                const Stripe = (await import('stripe')).default;
+                const stripe = new Stripe(stripeSecretKey);
+                const sub = await stripe.subscriptions.retrieve(subscriptionId);
+                if (sub.trial_end) {
+                  trialEnd = new Date(sub.trial_end * 1000);
+                }
+              }
+            } catch (e) {
+              console.warn('[stripe-webhook] Failed to retrieve subscription for trial_end:', e);
+            }
+          }
+
           await storage.updateSubscription(userId, {
             plan: 'plus',
             stripeCustomerId: customerId,
             stripeSubscriptionId: subscriptionId,
+            trialEnd,
           });
           break;
         }
@@ -304,10 +329,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             : null;
           const interval = obj?.items?.data?.[0]?.price?.recurring?.interval as string | undefined;
           const billingCycle = interval === 'year' ? 'yearly' : interval === 'month' ? 'monthly' : null;
+          const subTrialEnd = obj?.trial_end
+            ? new Date(obj.trial_end * 1000)
+            : null;
           await storage.updateSubscription(userId, {
             plan: 'plus',
             billingCycle,
             currentPeriodEnd: periodEnd,
+            trialEnd: subTrialEnd,
           });
           break;
         }
@@ -331,6 +360,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Stripe webhook error:", error);
       res.status(400).send('Webhook signature verification failed');
+    }
+  });
+
+  // ---- Effect progress ----
+
+  app.options('/api/effect-progress', (_req, res) => res.sendStatus(204));
+  app.get('/api/effect-progress', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getSessionUserId(req);
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+      const rows = await storage.getUserEffectProgress(userId);
+      res.json(rows);
+    } catch (error) {
+      console.error("Error fetching effect progress:", error);
+      res.status(500).json({ message: "Failed to fetch effect progress" });
+    }
+  });
+
+  app.options('/api/effect-progress/task-complete', (_req, res) => res.sendStatus(204));
+  app.post('/api/effect-progress/task-complete', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getSessionUserId(req);
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+      const result = await storage.processChallengeProgressOnTaskComplete(userId);
+      res.json(result);
+    } catch (error) {
+      console.error("Error processing task complete progress:", error);
+      res.status(500).json({ message: "Failed to process progress" });
     }
   });
 

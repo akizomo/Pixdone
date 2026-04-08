@@ -4,22 +4,22 @@ import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
 
-const BILLING_LIVE = import.meta.env.VITE_BILLING_LIVE === 'true';
 
 const FREE_FEATURES = [
+  { en: 'Smash List — unlimited', ja: 'Smash List（無制限）' },
   { en: 'Up to 3 task lists', ja: 'タスクリスト 3 件まで' },
-  { en: 'Smash List', ja: 'Smash List' },
-  { en: 'Standard themes', ja: 'スタンダードテーマ' },
-  { en: 'Standard task effects', ja: 'スタンダードエフェクト' },
+  { en: 'Common effects', ja: 'Common エフェクト' },
+  { en: 'Challenge effects — earnable during events', ja: 'チャレンジエフェクト（イベント期間中に獲得可能）' },
+  { en: 'Default theme (Arcade)', ja: 'デフォルトテーマ（Arcade）' },
   { en: 'Focus timer', ja: 'フォーカスタイマー' },
 ];
 
 const PLUS_FEATURES = [
   { en: 'Everything in Free', ja: 'Free の全機能' },
   { en: 'Unlimited task lists', ja: '無制限のタスクリスト' },
-  { en: 'Premium themes', ja: 'プレミアムテーマ' },
-  { en: 'Super rare task effects (Rainbow Smash, Freeze…)', ja: 'レアエフェクト（Rainbow Smash / Freeze…）' },
-  { en: 'Priority support', ja: '優先サポート' },
+  { en: 'All preset themes (Synthwave, Forestbit…)', ja: 'プリセットテーマ全種（Synthwave / Forestbit…）' },
+  { en: 'Rare & Epic effects', ja: 'Rare・Epic エフェクト' },
+  { en: 'Monthly effect request (1/month)', ja: 'エフェクトリクエスト（月1回）' },
 ];
 
 type Lang = 'en' | 'ja';
@@ -31,8 +31,8 @@ function detectLang(): Lang {
 export function PricingPage() {
   const navigate = useNavigate();
   const { user, syncServerSession } = useAuth();
-  const { plan } = useThemeEntitlements();
-  const [cycle, setCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const { plan, isTrialing, trialEnd } = useThemeEntitlements();
+  const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [loading, setLoading] = useState(false);
   const [successBanner, setSuccessBanner] = useState(false);
   const lang = detectLang();
@@ -94,26 +94,9 @@ export function PricingPage() {
   const isPlusUser = plan === 'plus';
 
   return (
-    <div
-      style={{
-        minHeight: '100dvh',
-        background: 'var(--pd-color-background-default)',
-        color: 'var(--pd-color-text-primary)',
-        fontFamily: 'var(--pd-font-body)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Header */}
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          padding: '16px 24px',
-          borderBottom: '2px solid var(--pd-color-border-default)',
-        }}
-      >
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+      {/* Sub-page nav */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
         <button
           type="button"
           onClick={() => { playSound('taskCancel'); navigate('/'); }}
@@ -130,25 +113,23 @@ export function PricingPage() {
         >
           ← {isJa ? 'もどる' : 'BACK'}
         </button>
-        <span
-          style={{
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.875rem',
-            color: 'var(--pd-color-text-primary)',
-            letterSpacing: '2px',
-          }}
-        >
+        <span style={{
+          fontFamily: 'var(--pd-font-brand)',
+          fontSize: '0.875rem',
+          color: 'var(--pd-color-text-primary)',
+          letterSpacing: '2px',
+        }}>
           PIXDONE+
         </span>
-      </header>
+      </div>
 
       {/* Success banner */}
       {successBanner && (
         <div
           role="status"
           style={{
-            background: 'var(--pd-color-accent-default)',
-            color: 'var(--pd-color-background-default)',
+            background: 'var(--pxd-color-feedback-success)',
+            color: 'var(--pxd-color-text-inverse)',
             fontFamily: 'var(--pd-font-brand)',
             fontSize: '0.75rem',
             letterSpacing: '1px',
@@ -161,13 +142,13 @@ export function PricingPage() {
       )}
 
       {/* Content */}
-      <main
+      <div
         style={{
           flex: 1,
           maxWidth: '640px',
           width: '100%',
           margin: '0 auto',
-          padding: '32px 24px',
+          padding: '24px 0',
           display: 'flex',
           flexDirection: 'column',
           gap: '32px',
@@ -185,47 +166,27 @@ export function PricingPage() {
           >
             {isJa ? 'もっと楽しく、もっと自分らしく。' : 'LEVEL UP YOUR PRODUCTIVITY'}
           </h1>
-          <p style={{ color: 'var(--pd-color-text-secondary)', margin: 0, fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--pxd-color-text-secondary)', margin: 0, fontSize: '0.875rem' }}>
             {isJa
-              ? 'PixDone+ でリスト上限・テーマ・レアエフェクトをフル解放'
-              : 'Unlock unlimited lists, premium themes, and super rare effects'}
+              ? 'PixDone+ でリスト上限・全テーマ・Rare / Epic エフェクトを解放'
+              : 'Unlock unlimited lists, all themes, and Rare & Epic effects'}
           </p>
+          <span
+            style={{
+              display: 'inline-block',
+              marginTop: '12px',
+              padding: '4px 12px',
+              background: 'var(--pxd-color-surface-info)',
+              color: 'var(--pxd-color-text-info)',
+              border: '2px solid var(--pxd-color-border-info)',
+              fontFamily: 'var(--pd-font-brand)',
+              fontSize: '0.75rem',
+              letterSpacing: '1px',
+            }}
+          >
+            {isJa ? '7日間の無料トライアル付き' : '7-DAY FREE TRIAL'}
+          </span>
         </div>
-
-        {/* Cycle toggle */}
-        {!isPlusUser && (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div
-              style={{
-                display: 'inline-flex',
-                border: '2px solid var(--pd-color-border-default)',
-              }}
-            >
-              {(['monthly', 'yearly'] as const).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => { playSound('buttonClick'); setCycle(c); }}
-                  style={{
-                    padding: '8px 20px',
-                    background: cycle === c ? 'var(--pd-color-accent-default)' : 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontFamily: 'var(--pd-font-brand)',
-                    fontSize: '0.7rem',
-                    color: cycle === c ? 'var(--pd-color-background-default)' : 'var(--pd-color-text-primary)',
-                    letterSpacing: '1px',
-                    transition: 'background 0.15s',
-                  }}
-                >
-                  {c === 'monthly'
-                    ? (isJa ? '月払い' : 'MONTHLY')
-                    : (isJa ? '年払い' : 'YEARLY')}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Pricing cards */}
         {!isPlusUser && (
@@ -233,8 +194,9 @@ export function PricingPage() {
             {/* Free card */}
             <div
               style={{
-                border: '2px solid var(--pd-color-border-default)',
+                border: '2px solid var(--pxd-color-border-outline)',
                 padding: '20px',
+                background: 'var(--pxd-color-surface-primary)',
               }}
             >
               <p
@@ -243,7 +205,7 @@ export function PricingPage() {
                   fontSize: '0.75rem',
                   letterSpacing: '1px',
                   margin: '0 0 4px',
-                  color: 'var(--pd-color-text-secondary)',
+                  color: 'var(--pxd-color-text-tertiary)',
                 }}
               >
                 FREE
@@ -260,7 +222,7 @@ export function PricingPage() {
               </p>
               <ul style={{ margin: 0, padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {FREE_FEATURES.map((f) => (
-                  <li key={f.en} style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}>
+                  <li key={f.en} style={{ fontSize: '0.8125rem', color: 'var(--pxd-color-text-secondary)' }}>
                     {isJa ? f.ja : f.en}
                   </li>
                 ))}
@@ -270,102 +232,119 @@ export function PricingPage() {
             {/* Plus card */}
             <div
               style={{
-                border: '2px solid var(--pd-color-accent-default)',
+                border: '2px solid var(--pxd-color-action-primary)',
                 padding: '20px',
-                background: 'var(--pd-color-accent-subtle)',
+                background: 'var(--pxd-color-surface-primary)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <p
-                  style={{
-                    fontFamily: 'var(--pd-font-brand)',
-                    fontSize: '0.75rem',
-                    letterSpacing: '1px',
-                    margin: 0,
-                    color: 'var(--pd-color-accent-default)',
-                  }}
-                >
-                  PIXDONE+
-                </p>
-                {cycle === 'yearly' && (
-                  <span
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <p
                     style={{
                       fontFamily: 'var(--pd-font-brand)',
-                      fontSize: '0.625rem',
+                      fontSize: '0.75rem',
                       letterSpacing: '1px',
-                      background: 'var(--pd-color-accent-default)',
-                      color: 'var(--pd-color-background-default)',
-                      padding: '2px 6px',
+                      margin: 0,
+                      color: 'var(--pxd-color-text-accent)',
                     }}
                   >
-                    {isJa ? '2ヶ月分お得' : '2 MO. SAVINGS'}
-                  </span>
-                )}
+                    PIXDONE+
+                  </p>
+                  {cycle === 'yearly' && (
+                    <span
+                      style={{
+                        fontFamily: 'var(--pd-font-brand)',
+                        fontSize: '0.575rem',
+                        letterSpacing: '1px',
+                        background: 'var(--pxd-color-surface-info)',
+                        color: 'var(--pxd-color-text-info)',
+                        border: '1px solid var(--pxd-color-border-info)',
+                        padding: '2px 6px',
+                      }}
+                    >
+                      {isJa ? '2ヶ月分お得' : '2 MO. FREE'}
+                    </span>
+                  )}
+                </div>
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    border: '1px solid var(--pxd-color-border-interactive)',
+                  }}
+                >
+                  {(['monthly', 'yearly'] as const).map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => { playSound('buttonClick'); setCycle(c); }}
+                      style={{
+                        padding: '4px 10px',
+                        background: cycle === c ? 'var(--pxd-color-action-primary)' : 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontFamily: 'var(--pd-font-brand)',
+                        fontSize: '0.6rem',
+                        color: cycle === c ? 'var(--pxd-color-text-inverse)' : 'var(--pxd-color-text-secondary)',
+                        letterSpacing: '1px',
+                        transition: 'background 0.15s',
+                      }}
+                    >
+                      {c === 'monthly'
+                        ? (isJa ? '月払い' : 'MONTHLY')
+                        : (isJa ? '年払い' : 'YEARLY')}
+                    </button>
+                  ))}
+                </div>
               </div>
               <p
                 style={{
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '1.25rem',
-                  margin: '0 0 4px',
+                  fontSize: '1.5rem',
+                  margin: '8px 0 4px',
                   letterSpacing: '1px',
-                  color: 'var(--pd-color-accent-default)',
+                  color: 'var(--pxd-color-text-primary)',
                 }}
               >
-                {cycle === 'monthly' ? '¥600' : '¥500'}{isJa ? '/月' : '/mo'}
+                {cycle === 'monthly' ? '¥600' : '¥500'}<span style={{ fontSize: '0.75rem', color: 'var(--pxd-color-text-secondary)' }}>{isJa ? '/月' : '/mo'}</span>
               </p>
               {cycle === 'yearly' && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)', margin: '0 0 16px' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--pxd-color-text-tertiary)', margin: '0 0 4px' }}>
                   {isJa ? '年払い ¥6,000' : '¥6,000 billed yearly'}
                 </p>
               )}
-              {cycle === 'monthly' && <div style={{ marginBottom: '16px' }} />}
+              <p style={{ fontSize: '0.6875rem', color: 'var(--pxd-color-text-tertiary)', margin: '0 0 16px' }}>
+                {isJa
+                  ? '7日間無料 → その後自動で課金開始。いつでもキャンセル可能。'
+                  : '7-day free trial, then auto-renews. Cancel anytime.'}
+              </p>
               <ul style={{ margin: '0 0 20px', padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {PLUS_FEATURES.map((f) => (
-                  <li key={f.en} style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-primary)' }}>
+                  <li key={f.en} style={{ fontSize: '0.8125rem', color: 'var(--pxd-color-text-primary)' }}>
                     {isJa ? f.ja : f.en}
                   </li>
                 ))}
               </ul>
-              {BILLING_LIVE ? (
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={handleUpgrade}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: loading ? 'var(--pd-color-border-default)' : 'var(--pd-color-accent-default)',
-                    border: 'none',
-                    borderRadius: 0,
-                    cursor: loading ? 'progress' : 'pointer',
-                    fontFamily: 'var(--pd-font-brand)',
-                    fontSize: '0.75rem',
-                    color: 'var(--pd-color-background-default)',
-                    letterSpacing: '1px',
-                  }}
-                >
-                  {loading
-                    ? (isJa ? '処理中...' : 'LOADING...')
-                    : (isJa ? 'アップグレード' : 'UPGRADE TO PIXDONE+')}
-                </button>
-              ) : (
-                <div
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: 'var(--pd-color-background-default)',
-                    border: '2px solid var(--pd-color-border-default)',
-                    fontFamily: 'var(--pd-font-brand)',
-                    fontSize: '0.75rem',
-                    color: 'var(--pd-color-text-muted)',
-                    letterSpacing: '1px',
-                    textAlign: 'center',
-                    boxSizing: 'border-box',
-                  }}
-                >
-                  {isJa ? '近日公開' : 'COMING SOON'}
-                </div>
-              )}
+              <button
+                type="button"
+                disabled={loading}
+                onClick={handleUpgrade}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: loading ? 'var(--pxd-color-action-disabled)' : 'var(--pxd-color-action-primary)',
+                  border: 'none',
+                  borderRadius: 0,
+                  cursor: loading ? 'progress' : 'pointer',
+                  fontFamily: 'var(--pd-font-brand)',
+                  fontSize: '0.75rem',
+                  color: 'var(--pxd-color-text-inverse)',
+                  letterSpacing: '1px',
+                }}
+              >
+                {loading
+                  ? (isJa ? '処理中...' : 'LOADING...')
+                  : (isJa ? '7日間無料で試す' : 'START 7-DAY FREE TRIAL')}
+              </button>
             </div>
           </div>
         )}
@@ -374,37 +353,63 @@ export function PricingPage() {
         {isPlusUser && (
           <div
             style={{
-              border: '2px solid var(--pd-color-accent-default)',
+              border: '2px solid var(--pxd-color-action-primary)',
               padding: '24px',
               textAlign: 'center',
+              background: 'var(--pxd-color-surface-primary)',
             }}
           >
-            <p
-              style={{
-                fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.875rem',
-                letterSpacing: '1px',
-                margin: '0 0 8px',
-                color: 'var(--pd-color-accent-default)',
-              }}
-            >
-              {isJa ? '✓ PixDone+ 加入済み' : '✓ YOU ARE ON PIXDONE+'}
-            </p>
-            <p style={{ color: 'var(--pd-color-text-secondary)', margin: '0 0 16px', fontSize: '0.875rem' }}>
+            {isTrialing ? (
+              <span
+                style={{
+                  display: 'inline-block',
+                  fontFamily: 'var(--pd-font-brand)',
+                  fontSize: '0.75rem',
+                  letterSpacing: '1px',
+                  margin: '0 0 8px',
+                  padding: '4px 10px',
+                  background: 'var(--pxd-color-surface-info)',
+                  color: 'var(--pxd-color-text-info)',
+                  border: '1px solid var(--pxd-color-border-info)',
+                }}
+              >
+                {isJa ? '無料トライアル中' : 'FREE TRIAL ACTIVE'}
+              </span>
+            ) : (
+              <p
+                style={{
+                  fontFamily: 'var(--pd-font-brand)',
+                  fontSize: '0.875rem',
+                  letterSpacing: '1px',
+                  margin: '0 0 8px',
+                  color: 'var(--pxd-color-text-success)',
+                }}
+              >
+                {isJa ? '✓ PixDone+ 加入済み' : '✓ YOU ARE ON PIXDONE+'}
+              </p>
+            )}
+            {isTrialing && trialEnd && (
+              <p style={{ color: 'var(--pxd-color-text-secondary)', margin: '0 0 8px', fontSize: '0.8125rem' }}>
+                {isJa
+                  ? `トライアル終了: ${new Date(trialEnd).toLocaleDateString('ja-JP')}`
+                  : `Trial ends: ${new Date(trialEnd).toLocaleDateString('en-US')}`}
+              </p>
+            )}
+            <p style={{ color: 'var(--pxd-color-text-secondary)', margin: '0 0 16px', fontSize: '0.875rem' }}>
               {isJa ? 'すべての機能をご利用いただけます。' : 'You have access to all premium features.'}
             </p>
             <button
               type="button"
-              onClick={() => navigate('/account')}
+              onClick={() => { playSound('buttonClick'); navigate('/account'); }}
               style={{
                 padding: '8px 20px',
                 background: 'transparent',
-                border: '2px solid var(--pd-color-accent-default)',
+                border: '2px solid var(--pxd-color-action-primary)',
                 borderRadius: 0,
                 cursor: 'pointer',
                 fontFamily: 'var(--pd-font-brand)',
                 fontSize: '0.7rem',
-                color: 'var(--pd-color-accent-default)',
+                color: 'var(--pxd-color-text-accent)',
                 letterSpacing: '1px',
               }}
             >
@@ -412,7 +417,7 @@ export function PricingPage() {
             </button>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

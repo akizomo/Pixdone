@@ -20,7 +20,31 @@
   transition: opacity 0.2s ease;
 }
 
+.pxd-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: none;
+  border: 2px solid var(--pd-color-border-default);
+  border-radius: 0;
+  color: var(--pd-color-text-secondary);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.pxd-modal-close:hover {
+  color: var(--pd-color-text-primary);
+  border-color: var(--pd-color-text-primary);
+}
+
 .pxd-modal-panel {
+  position: relative;
   box-sizing: border-box;
   width: 90%;
   max-width: 400px;

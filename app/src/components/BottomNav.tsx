@@ -1,10 +1,10 @@
 import { t } from '../lib/i18n';
 import './BottomNav.css';
 
-export type ActiveScreen = 'tasks' | 'focus';
+export type ActiveScreen = 'tasks' | 'focus' | 'collection';
 
 export interface BottomNavProps {
-  activeScreen: ActiveScreen;
+  activeScreen: ActiveScreen | null;
   onSelect: (screen: ActiveScreen) => void;
   lang: 'en' | 'ja';
 }
@@ -13,6 +13,7 @@ export function BottomNav({ activeScreen, onSelect, lang }: BottomNavProps) {
   const tabs: { id: ActiveScreen; icon: string; labelKey: string }[] = [
     { id: 'tasks', icon: 'format_list_bulleted', labelKey: 'tasks' },
     { id: 'focus', icon: 'timer', labelKey: 'focus' },
+    { id: 'collection', icon: 'auto_awesome', labelKey: 'collection' },
   ];
 
   return (

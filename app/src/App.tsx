@@ -1,8 +1,9 @@
 import {
-  useState, useCallback, useEffect, useRef, useMemo, useSyncExternalStore, type MutableRefObject,
+  useState, useCallback, useEffect, useRef, useMemo, useSyncExternalStore, Component,
+  type MutableRefObject, type ErrorInfo, type ReactNode,
 } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
-import { ThemeProvider, Button, Chip, IconButton, ModalDialog, BottomSheet } from './design-system';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ThemeProvider, Button, Chip, IconButton, ModalDialog, BottomSheet, ToastProvider, useToast } from './design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
   TaskForm, ListModal, AuthModal, BottomNav, FocusScreen,
@@ -22,8 +23,12 @@ import { useFocusTimer } from './hooks/useFocusTimer';
 import { stopBgm, startBgm, isBgmOn, getBgmTrack, isBgmContextSuspended } from './services/bgm';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useThemeEntitlements } from './hooks/useThemeEntitlements';
+import { useEffectProgress } from './hooks/useEffectProgress';
+import { useActiveChallenge } from './hooks/useActiveChallenge';
+import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
+import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect } from './data/effectsRegistry';
 import './styles/task-animations.css';
 import type { List } from './types/list';
 import type { Task } from './types/task';
@@ -31,6 +36,9 @@ import type { BgmTrack } from './services/bgm';
 import { FocusZenMode } from './components/FocusZenMode';
 import { PricingPage } from './pages/PricingPage';
 import { AccountPage } from './pages/AccountPage';
+import { CollectionPage } from './pages/CollectionPage';
+import { EffectRequestPage } from './pages/EffectRequestPage';
+import { useUserTheme } from './hooks/useUserTheme';
 
 /**
  * Desktop UI: at least one fine pointer (mouse/trackpad). No viewport width involved —
@@ -78,6 +86,8 @@ function AppContent() {
 
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/effect-request';
 
   const [lang, setLang] = useState<'en' | 'ja'>(() => {
     try { return (localStorage.getItem('pixdone-lang') as 'en' | 'ja') ?? 'en'; } catch { return 'en'; }
@@ -132,14 +142,19 @@ function AppContent() {
     setSoundMuted(!getSoundEnabled());
   }, []);
 
+  const { showToast } = useToast();
+
   /* ---- Sync user plan to vanilla effect engine ---- */
-  const { plan: userPlan } = useThemeEntitlements();
+  const { plan: userPlan, isPremium } = useThemeEntitlements();
+  const { ownedChallengeEffects, challengeProgressMap, refetch: refetchEffectProgress, optimisticIncrement } = useEffectProgress();
+  const activeChallenge = useActiveChallenge(challengeProgressMap, ownedChallengeEffects);
   useEffect(() => {
     const w = window as unknown as {
       taskAnimationEffects?: { comicEffects?: { setUserPlan: (plan: string) => void } };
     };
     w.taskAnimationEffects?.comicEffects?.setUserPlan(userPlan);
   }, [userPlan]);
+
 
   /* ---- Touch-first UI: viewport narrow while inline was open → BottomSheet ---- */
   useEffect(() => {
@@ -234,6 +249,58 @@ function AppContent() {
   const isTutorial = currentList?.id === 'default';
 
   const isFocusScreen = activeScreen === 'focus';
+  const isCollectionScreen = activeScreen === 'collection';
+  const isTasksScreen = activeScreen === 'tasks';
+
+  const { visualTheme, changeTheme, colorMode } = useUserTheme();
+
+  /* ---- Active effects (localStorage, multi-select) ---- */
+  const normalizeActiveEffects = useCallback((keys: string[]): string[] => {
+    const allowed = new Set(EFFECTS_REGISTRY.map((e) => e.key));
+    const cleaned = (Array.isArray(keys) ? keys : [])
+      .filter((k): k is string => typeof k === 'string')
+      .filter((k) => allowed.has(k));
+    return cleaned.length > 0 ? cleaned : COMMON_EFFECTS.map((e) => e.key);
+  }, []);
+
+  const [activeEffects, setActiveEffectsState] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('pd-active-effects');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return normalizeActiveEffects(parsed as string[]);
+      }
+    } catch { /* ignore */ }
+    // Default: all COMMON effects
+    return COMMON_EFFECTS.map((e) => e.key);
+  });
+  const setActiveEffects = useCallback((keys: string[]) => {
+    const next = normalizeActiveEffects(keys);
+    setActiveEffectsState(next);
+    localStorage.setItem('pd-active-effects', JSON.stringify(next));
+  }, [normalizeActiveEffects]);
+
+  // Cleanup in case the registry changed (e.g. effects hidden/removed)
+  useEffect(() => {
+    const next = normalizeActiveEffects(activeEffects);
+    if (next.join('|') !== activeEffects.join('|')) {
+      setActiveEffects(next);
+    }
+    // run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* ---- Collection tab initial state (for "See all" deep-link) ---- */
+  const [collectionInitialTab, setCollectionInitialTab] = useState<'effects' | 'themes'>('effects');
+  const [collectionInitialEffectKey, setCollectionInitialEffectKey] = useState<string | null>(null);
+
+  /* ---- Sync active effects to vanilla effect engine ---- */
+  useEffect(() => {
+    const w = window as unknown as {
+      taskAnimationEffects?: { comicEffects?: { setActiveEffects: (keys: string[]) => void } };
+    };
+    w.taskAnimationEffects?.comicEffects?.setActiveEffects(activeEffects);
+  }, [activeEffects]);
 
   const allTasks = currentList?.tasks ?? [];
   const activeTasks = allTasks.filter((t) => !t.completed);
@@ -272,6 +339,56 @@ function AppContent() {
 
   const getTabCount = (list: List) => list.tasks.filter((t) => !t.completed).length;
 
+  /* ---- Challenge progress: optimistic + deduplicate + retry on 401 ---- */
+  const countedTaskIds = useRef(new Set<string>());
+
+  const sendChallengeProgress = useCallback((taskId: string) => {
+    if (countedTaskIds.current.has(taskId)) return;
+    countedTaskIds.current.add(taskId);
+
+    // Optimistic: bump local progress instantly so the UI updates before the API responds
+    if (activeChallenge && !activeChallenge.isCompleted) {
+      optimisticIncrement(activeChallenge.effect.key);
+
+      // Detect completion: current progress (before increment) + 1 == threshold
+      if (activeChallenge.progress + 1 >= activeChallenge.threshold) {
+        const effectName = activeChallenge.effect.name;
+        showToast({
+          message: lang === 'ja'
+            ? `チャレンジ達成！「${effectName}」を獲得しました`
+            : `Challenge complete! You earned "${effectName}"`,
+          action: {
+            label: lang === 'ja' ? '確認' : 'VIEW',
+            onClick: () => {
+              setCollectionInitialTab('effects');
+              setCollectionInitialEffectKey(activeChallenge.effect.key);
+              setActiveScreen('collection');
+            },
+          },
+          duration: 8000,
+        });
+      }
+    }
+
+    const attempt = (retries: number) => {
+      fetch('/api/effect-progress/task-complete', { method: 'POST', credentials: 'include' })
+        .then(r => {
+          if (r.status === 401 && retries > 0) {
+            setTimeout(() => attempt(retries - 1), 1500);
+            return;
+          }
+          if (!r.ok) {
+            console.warn('[Challenge] task-complete failed:', r.status);
+            return; // Keep optimistic value — don't refetch on failure
+          }
+          // Reconcile local state with server truth
+          r.json().then(() => refetchEffectProgress());
+        })
+        .catch(e => console.warn('[Challenge] task-complete error:', e));
+    };
+    attempt(3);
+  }, [refetchEffectProgress, activeChallenge, optimisticIncrement, showToast, lang]);
+
   /* ---- Task handlers ---- */
   const runCompleteShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
@@ -283,14 +400,17 @@ function AppContent() {
     };
 
     if (taskEl) {
+      const pool = buildDrawPool(isPremium, visualTheme, activeEffects, ownedChallengeEffects);
+      const selectedKey = pool.length > 0 ? weightedRandomEffect(pool).key : undefined;
       runVanillaCompletionEffect(taskEl, () => {
         doComplete();
-      });
+      }, selectedKey);
     } else {
       doComplete();
       playSound('taskComplete');
     }
-  }, [completeTask]);
+    sendChallengeProgress(taskId);
+  }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
     const doComplete = () => {
@@ -299,7 +419,8 @@ function AppContent() {
       setMobileSheetOpen(false);
     };
     window.setTimeout(doComplete, PERFECT_TIMING_STATE_DEFER_MS);
-  }, [completeTask]);
+    sendChallengeProgress(taskId);
+  }, [completeTask, sendChallengeProgress]);
 
   const handleComplete = useCallback(
     (taskId: string) => {
@@ -326,6 +447,14 @@ function AppContent() {
       });
     });
   }, [setActiveList]);
+
+  const navigateToFocus = useCallback(() => {
+    playSound('buttonClick');
+    setActiveScreen('focus');
+    setTaskFormMode(null);
+    setMobileSheetOpen(false);
+    setMobileEditTaskId(null);
+  }, []);
 
   const handleEdit = useCallback((taskId: string) => {
     if (preferInlineTaskUi) {
@@ -367,14 +496,17 @@ function AppContent() {
     };
 
     if (taskEl) {
+      const pool = buildDrawPool(isPremium, visualTheme, activeEffects, ownedChallengeEffects);
+      const selectedKey = pool.length > 0 ? weightedRandomEffect(pool).key : undefined;
       runVanillaCompletionEffect(taskEl, () => {
         doSmash();
-      });
+      }, selectedKey);
     } else {
       doSmash();
       playSound('taskComplete');
     }
-  }, [completeTask]);
+    // Smash List tasks are local-only dummies — do NOT count toward challenge progress.
+  }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects]);
 
   const runSmashFromPerfectTiming = useCallback((taskId: string) => {
     window.setTimeout(() => {
@@ -694,40 +826,49 @@ function AppContent() {
   }, [bgmOn, bgmTrack, focusMode, focusTimer.timerState, focusTimer.remaining]);
 
   /* ---- Render ---- */
+
+  const goHome = () => {
+    navigate('/');
+    setActiveScreen('tasks');
+  };
+
   return (
-    <div
-      className="pd-app-container"
-      style={{
-        // Make the overall app column taller than the viewport so the footer
-        // can naturally sit below the first view when content is short.
-        minHeight: 'calc(100vh + 80px)',
-        display: 'flex',
-        flexDirection: 'column',
-        // Keep bottom content from colliding with fixed BottomNav.
-        paddingBottom: focusZenOpen
-          ? 0
-          : isDesktop
-            ? 'calc(48px + 16px + env(safe-area-inset-bottom))'
-            : 'calc(56px + env(safe-area-inset-bottom))',
-      }}
-    >
+    <>
+      {/* Global header — full width, outside pd-app-container */}
       {!focusZenOpen && (
       <header
         style={{
           display: 'flex',
           flexDirection: 'column',
           flexShrink: 0,
-          gap: 'var(--pd-layout-header-gap, 16px)',
-          marginBottom: isFocusScreen
-            ? 'var(--pd-layout-header-marginBottom-focus, 12px)'
-            : 'var(--pd-layout-header-marginBottom, 24px)',
-          paddingTop: 'var(--pd-layout-header-paddingVertical, 16px)',
-          paddingBottom: 'var(--pd-layout-header-paddingVertical, 16px)',
+          padding: '12px var(--pd-layout-container-padding, 20px)',
+          background: 'var(--pd-color-background-default)',
+          borderBottom: '2px solid var(--pd-color-border-default)',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 className="pd-app-title">PixDone</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 'var(--pd-layout-container-maxWidth, 600px)', width: '100%', margin: '0 auto' }}>
+          <h1
+            className="pd-app-title"
+            onClick={goHome}
+            style={{ cursor: 'pointer', margin: 0 }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => { if (e.key === 'Enter') goHome(); }}
+          >PixDone</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Challenge button — logged-in only */}
+            {user && (
+              <ChallengeMenu
+                challenge={activeChallenge}
+                lang={lang}
+                onPreviewEffect={(effectKey) => {
+                  setCollectionInitialTab('effects');
+                  setCollectionInitialEffectKey(effectKey);
+                  setActiveScreen('collection');
+                }}
+              />
+            )}
+
             {/* Theme button */}
             <IconButton
               variant="ghost"
@@ -957,21 +1098,57 @@ function AppContent() {
             )}
           </div>
         </div>
-        {!isFocusScreen && (
-          <ListTabs
-            lists={listTabsOrder}
-            activeListId={activeListId}
-            onSelect={(id) => { setListSlide(null); setActiveList(id); setTaskFormMode(null); playSound('buttonClick'); }}
-            onAddList={() => { playSound('buttonClick'); setListModal({ mode: 'add' }); }}
-            getTabLabel={getTabLabel}
-            getTabCount={getTabCount}
-          />
-        )}
       </header>
       )}
 
+      {/* Content area — constrained width */}
+      <div
+        className="pd-app-container"
+        style={{
+          minHeight: 'calc(100vh + 80px)',
+          display: 'flex',
+          flexDirection: 'column',
+          paddingBottom: focusZenOpen
+            ? 0
+            : isDesktop
+              ? 'calc(48px + 16px + env(safe-area-inset-bottom))'
+              : 'calc(56px + env(safe-area-inset-bottom))',
+        }}
+      >
+      {!isFocusScreen && !isCollectionScreen && !isSubPage && (
+        <ListTabs
+          lists={listTabsOrder}
+          activeListId={activeListId}
+          onSelect={(id) => { setListSlide(null); setActiveList(id); setTaskFormMode(null); playSound('buttonClick'); }}
+          onAddList={() => { playSound('buttonClick'); setListModal({ mode: 'add' }); }}
+          getTabLabel={getTabLabel}
+          getTabCount={getTabCount}
+        />
+      )}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, paddingBottom: '48px' }}>
-        {isFocusScreen ? (
+        {pathname === '/pricing' ? (
+          <PricingPage />
+        ) : pathname === '/account' ? (
+          <AccountPage />
+        ) : pathname === '/effect-request' ? (
+          <EffectRequestPage />
+        ) : isCollectionScreen ? (
+          <CollectionPage
+            key={`${collectionInitialTab}-${collectionInitialEffectKey ?? ''}`}
+            lang={lang}
+            isPremium={isPremium}
+            activeEffects={activeEffects}
+            setActiveEffects={setActiveEffects}
+            activeTheme={visualTheme}
+            changeTheme={changeTheme}
+            colorMode={colorMode}
+            initialTab={collectionInitialTab}
+            initialEffectKey={collectionInitialEffectKey}
+            ownedChallengeEffects={ownedChallengeEffects}
+            challengeProgressMap={challengeProgressMap}
+            onRequestEffect={() => navigate('/effect-request')}
+          />
+        ) : isFocusScreen ? (
           <FocusScreen
             lists={lists}
             lang={lang}
@@ -1028,6 +1205,7 @@ function AppContent() {
               setBgmMenuOpen(false);
             }}
             onTutorialSmashLinkClick={navigateToSmashList}
+            onTutorialFocusLinkClick={navigateToFocus}
           />
         ) : (
           <>
@@ -1151,6 +1329,7 @@ function AppContent() {
                           onEdit={handleEdit}
                           onDelete={handleDelete}
                           onTutorialSmashLinkClick={navigateToSmashList}
+                          onTutorialFocusLinkClick={navigateToFocus}
                         />
                       ))}
                     </div>
@@ -1197,7 +1376,7 @@ function AppContent() {
                 {completedExpanded && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
                     {completedTasks.map((task) => (
-                      <TaskItem key={task.id} task={task} lang={lang} onComplete={handleUncomplete} onEdit={handleEdit} onDelete={handleDelete} onTutorialSmashLinkClick={navigateToSmashList} />
+                      <TaskItem key={task.id} task={task} lang={lang} onComplete={handleUncomplete} onEdit={handleEdit} onDelete={handleDelete} onTutorialSmashLinkClick={navigateToSmashList} onTutorialFocusLinkClick={navigateToFocus} />
                     ))}
                   </div>
                 )}
@@ -1253,6 +1432,7 @@ function AppContent() {
                         onEdit={handleEdit}
                         onDelete={handleDelete}
                         onTutorialSmashLinkClick={navigateToSmashList}
+                        onTutorialFocusLinkClick={navigateToFocus}
                         suppressOpenEdit={() => Date.now() < suppressRowClickUntilRef.current}
                         onReorderPointerDown={onRowPointerDown(activeIndex)}
                         onReorderTouchStart={onRowTouchStart(activeIndex)}
@@ -1298,6 +1478,7 @@ function AppContent() {
                           onEdit={handleEdit}
                           onDelete={handleDelete}
                           onTutorialSmashLinkClick={navigateToSmashList}
+                          onTutorialFocusLinkClick={navigateToFocus}
                         />
                       ))}
                     </div>
@@ -1312,7 +1493,7 @@ function AppContent() {
       </main>
 
       {/* Mobile FAB */}
-      {!anyModalOpen && !isFocusScreen && (
+      {!anyModalOpen && isTasksScreen && (
         <button
           type="button"
           onClick={openAddTask}
@@ -1384,11 +1565,12 @@ function AppContent() {
         open={themeModalOpen}
         onClose={() => { playSound('taskCancel'); setThemeModalOpen(false); }}
         title="Theme"
-        actions={
-          <Button variant="secondary" onClick={() => { playSound('taskCancel'); setThemeModalOpen(false); }}>Close</Button>
-        }
+        actions={undefined}
       >
-        <ThemeSelector onClose={() => { setThemeModalOpen(false); }} />
+        <ThemeSelector
+          lang={lang}
+          onClose={() => { setThemeModalOpen(false); }}
+        />
       </ModalDialog>
 
       {/* Auth modal */}
@@ -1470,10 +1652,11 @@ function AppContent() {
       {/* Bottom navigation */}
       {!focusZenOpen && (
         <BottomNav
-          activeScreen={activeScreen}
+          activeScreen={isSubPage ? null : activeScreen}
           onSelect={(screen) => {
             playSound('buttonClick');
             setActiveScreen(screen);
+            if (isSubPage) navigate('/');
             }}
           lang={lang}
         />
@@ -1687,19 +1870,37 @@ function AppContent() {
       </footer>
       {/* Footer legal links intentionally shown even when menu hides them. */}
     </div>
+    </>
   );
+}
+
+class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  componentDidCatch(error: Error, info: ErrorInfo) { console.error('[PixDone crash]', error, info); }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: 24, fontFamily: 'monospace', color: 'red', background: '#111', minHeight: '100vh' }}>
+          <h2>App crashed</h2>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12 }}>{String(this.state.error)}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <Routes>
-          <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/account" element={<AccountPage />} />
-          <Route path="*" element={<AppContent />} />
-        </Routes>
-      </AuthProvider>
-    </ThemeProvider>
+    <RootErrorBoundary>
+      <ThemeProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </RootErrorBoundary>
   );
 }

@@ -657,9 +657,18 @@ class ComicEffectsManager {
         }
     }
 
+    /** Pin a specific effect to always play (bypasses rarity logic). Pass null to restore random. */
+    setFixedEffect(key) {
+        this._fixedEffect = key || null;
+    }
+
     // Play random effect on task completion (effectRect = optional viewport rect when clone not laid out)
     playRandomEffect(taskElement, effectRect) {
         if (this.effectLock) return;
+        if (this._fixedEffect) {
+            this.playEffect(this._fixedEffect, taskElement, effectRect);
+            return;
+        }
         const random = Math.random();
         let selectedEffect;
         const params = typeof window !== "undefined" && window.location ? new URLSearchParams(window.location.search) : null;

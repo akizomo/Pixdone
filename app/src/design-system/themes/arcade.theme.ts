@@ -7,6 +7,10 @@ import type { VisualTheme } from './themeRegistry';
 export const arcadeTheme: VisualTheme = {
   key: 'arcade',
   name: 'Arcade',
+  description: {
+    en: 'Classic pixel arcade. Simple, punchy, and loud.',
+    ja: '王道アーケード。シンプルで、気持ちよく、派手。',
+  },
   icon: '🕹️',
   isPremium: false,
   cssVariables: {

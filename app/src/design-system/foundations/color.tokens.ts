@@ -61,6 +61,13 @@ export const color = {
     blue500: "#4C8DFF",
     blue700: "#2D5BDB",
 
+    // Orange – info / highlight role (high contrast against purple primary)
+    orange50:  "#FFF4EB",
+    orange100: "#FFE4CC",
+    orange300: "#FFB366",
+    orange500: "#FF8C1A",
+    orange700: "#CC6600",
+
     // Green
     green300: "#7EE3A7",
     green350: "#5CE896",  // dark mode text-success
@@ -113,6 +120,7 @@ export const color = {
         overlay:  "rgba(17, 17, 17, 0.64)",
         inverse:  "#191D24",  // gray900
         disabled: "#DDDEE3",  // gray200
+        info:     "#FFF4EB",  // orange50
       },
       text: {
         primary:  "#191D24",  // gray900
@@ -121,6 +129,7 @@ export const color = {
         inverse:  "#FFFFFF",  // white
         disabled: "#858B99",  // gray500
         accent:   "#5B43D6",  // purple700
+        info:     "#CC6600",  // orange700
         success:  "#1D8F4A",  // green700
         warning:  "#B78112",  // yellow700
         danger:   "#B93D3D",  // red700
@@ -132,6 +141,7 @@ export const color = {
         interactiveActive: "#2E3440",  // gray800 – input hover/active
         inverse: "#FFFFFF",  // white
         focus:   "#7B61FF",  // purple500
+        info:    "#FF8C1A",  // orange500
         danger:  "#E85D5D",  // red500
       },
       feedback: {
@@ -170,6 +180,7 @@ export const color = {
         overlay:  "rgba(0, 0, 0, 0.75)",
         inverse:  "#F7F7F8",  // gray50
         disabled: "#1E2435",  // ink800
+        info:     "rgba(255, 140, 26, 0.12)",  // orange500 12%α
       },
       text: {
         primary:  "#E8EBF4",  // ink50
@@ -178,6 +189,7 @@ export const color = {
         inverse:  "#191D24",  // gray900
         disabled: "#404758",  // ink300
         accent:   "#A590FF",  // purple400
+        info:     "#FFB366",  // orange300
         success:  "#5CE896",  // green350
         warning:  "#FFD86B",  // yellow300
         danger:   "#FF7070",  // red400
@@ -189,6 +201,7 @@ export const color = {
         interactiveActive: "#9DA3B4",  // ink100 – input hover/active
         inverse: "#191D24",  // gray900
         focus:   "#A590FF",  // purple400
+        info:    "#FFB366",  // orange300
         danger:  "#FF7070",  // red400
       },
       feedback: {

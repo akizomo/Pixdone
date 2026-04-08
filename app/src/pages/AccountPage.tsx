@@ -65,26 +65,9 @@ export function AccountPage() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100dvh',
-        background: 'var(--pd-color-background-default)',
-        color: 'var(--pd-color-text-primary)',
-        fontFamily: 'var(--pd-font-body)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Header */}
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          padding: '16px 24px',
-          borderBottom: '2px solid var(--pd-color-border-default)',
-        }}
-      >
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+      {/* Sub-page nav */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
         <button
           type="button"
           onClick={() => { playSound('taskCancel'); navigate('/'); }}
@@ -101,25 +84,23 @@ export function AccountPage() {
         >
           ← {isJa ? 'もどる' : 'BACK'}
         </button>
-        <span
-          style={{
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.875rem',
-            color: 'var(--pd-color-text-primary)',
-            letterSpacing: '2px',
-          }}
-        >
+        <span style={{
+          fontFamily: 'var(--pd-font-brand)',
+          fontSize: '0.875rem',
+          color: 'var(--pd-color-text-primary)',
+          letterSpacing: '2px',
+        }}>
           {isJa ? 'アカウント' : 'ACCOUNT'}
         </span>
-      </header>
+      </div>
 
-      <main
+      <div
         style={{
           flex: 1,
           maxWidth: '480px',
           width: '100%',
           margin: '0 auto',
-          padding: '32px 24px',
+          padding: '24px 0',
           display: 'flex',
           flexDirection: 'column',
           gap: '24px',
@@ -286,7 +267,7 @@ export function AccountPage() {
             {isJa ? 'ログアウト' : 'SIGN OUT'}
           </button>
         )}
-      </main>
+      </div>
     </div>
   );
 }

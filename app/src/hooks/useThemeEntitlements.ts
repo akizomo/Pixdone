@@ -7,6 +7,8 @@ export type PremiumEntitlements = {
   currentPeriodEnd: string | null;
   unlockedThemes: string[];
   isPremium: boolean;
+  isTrialing: boolean;
+  trialEnd: string | null;
 };
 
 /** @deprecated Use PremiumEntitlements instead */
@@ -20,6 +22,8 @@ const DEFAULT_ENTITLEMENTS: PremiumEntitlements = {
   currentPeriodEnd: null,
   unlockedThemes: [],
   isPremium: false,
+  isTrialing: false,
+  trialEnd: null,
 };
 
 function loadInitialFromStorage(): PremiumEntitlements {
@@ -34,6 +38,8 @@ function loadInitialFromStorage(): PremiumEntitlements {
       currentPeriodEnd: typeof parsed.currentPeriodEnd === 'string' ? parsed.currentPeriodEnd : null,
       unlockedThemes: Array.isArray(parsed.unlockedThemes) ? parsed.unlockedThemes as string[] : [],
       isPremium: parsed.isPremium === true,
+      isTrialing: (parsed as any).isTrialing === true,
+      trialEnd: typeof (parsed as any).trialEnd === 'string' ? (parsed as any).trialEnd : null,
     };
   } catch {
     return DEFAULT_ENTITLEMENTS;
@@ -77,6 +83,8 @@ export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements 
           currentPeriodEnd: data.currentPeriodEnd ?? null,
           unlockedThemes: data.unlockedThemes ?? [],
           isPremium: data.isPremium === true,
+          isTrialing: data.isTrialing === true,
+          trialEnd: data.trialEnd ?? null,
         };
         setEntitlements(next);
         try {
