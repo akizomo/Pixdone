@@ -23,32 +23,67 @@ export interface UseEffectProgressResult {
   optimisticIncrement: (effectId: string) => void;
 }
 
+const CACHE_KEY = 'pd-effect-progress';
+
+/** localStorage に進捗をキャッシュ */
+function saveToCache(data: Record<string, EffectProgressEntry>): void {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  } catch { /* quota exceeded etc. */ }
+}
+
+/** localStorage からキャッシュを復元 */
+function loadFromCache(): Record<string, EffectProgressEntry> {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw) as Record<string, EffectProgressEntry>;
+  } catch {
+    return {};
+  }
+}
+
+function clearCache(): void {
+  try { localStorage.removeItem(CACHE_KEY); } catch { /* ignore */ }
+}
+
 export function useEffectProgress(): UseEffectProgressResult {
-  const { user } = useAuth();
-  const [progress, setProgress] = useState<Record<string, EffectProgressEntry>>({});
+  const { user, loading: authLoading, serverSessionReady } = useAuth();
+  // キャッシュから初期化 → リロード時に即座に前回の値を表示
+  const [progress, setProgress] = useState<Record<string, EffectProgressEntry>>(loadFromCache);
   const [isLoading, setIsLoading] = useState(false);
   const cancelledRef = useRef(false);
 
   const fetchProgress = useCallback(async () => {
+    // Auth ローディング中はキャッシュを維持して何もしない
+    if (authLoading) return;
+
+    // Auth 解決済みで未ログイン → クリア
     if (!user) {
       setProgress({});
+      clearCache();
       return;
     }
+
+    // ログイン済みだがサーバーセッション未確立 → キャッシュを維持して待機
+    if (!serverSessionReady) return;
     setIsLoading(true);
     try {
       const resp = await fetch('/api/effect-progress', { credentials: 'include' });
-      if (!resp.ok || cancelledRef.current) return;
+      if (cancelledRef.current) return;
+      if (!resp.ok) return; // キャッシュの値を維持
       const rows: EffectProgressEntry[] = await resp.json();
       if (cancelledRef.current) return;
       const map: Record<string, EffectProgressEntry> = {};
       for (const row of rows) map[row.effectId] = row;
       setProgress(map);
+      saveToCache(map);
     } catch {
-      // ignore
+      // ネットワークエラー時はキャッシュの値を維持
     } finally {
       if (!cancelledRef.current) setIsLoading(false);
     }
-  }, [user]);
+  }, [user, authLoading, serverSessionReady]);
 
   useEffect(() => {
     cancelledRef.current = false;
@@ -60,28 +95,32 @@ export function useEffectProgress(): UseEffectProgressResult {
 
   const optimisticIncrement = useCallback((effectId: string) => {
     setProgress(prev => {
+      let next: Record<string, EffectProgressEntry>;
       const existing = prev[effectId];
       if (existing) {
-        return {
+        next = {
           ...prev,
           [effectId]: { ...existing, challengeProgress: existing.challengeProgress + 1 },
         };
+      } else {
+        // No existing row yet — create a placeholder so the UI can show progress
+        next = {
+          ...prev,
+          [effectId]: {
+            id: 0,
+            userId: '',
+            effectId,
+            owned: false,
+            equippedLevel: 1,
+            evolutionProgress: 0,
+            challengeProgress: 1,
+            earnedAt: null,
+            updatedAt: new Date().toISOString(),
+          },
+        };
       }
-      // No existing row yet — create a placeholder so the UI can show progress
-      return {
-        ...prev,
-        [effectId]: {
-          id: 0,
-          userId: '',
-          effectId,
-          owned: false,
-          equippedLevel: 1,
-          evolutionProgress: 0,
-          challengeProgress: 1,
-          earnedAt: null,
-          updatedAt: new Date().toISOString(),
-        },
-      };
+      saveToCache(next);
+      return next;
     });
   }, []);
 

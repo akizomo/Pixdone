@@ -7,14 +7,17 @@ export interface BottomNavProps {
   activeScreen: ActiveScreen | null;
   onSelect: (screen: ActiveScreen) => void;
   lang: 'en' | 'ja';
+  showCollection?: boolean;
 }
 
-export function BottomNav({ activeScreen, onSelect, lang }: BottomNavProps) {
+export function BottomNav({ activeScreen, onSelect, lang, showCollection = true }: BottomNavProps) {
   const tabs: { id: ActiveScreen; icon: string; labelKey: string }[] = [
     { id: 'tasks', icon: 'format_list_bulleted', labelKey: 'tasks' },
     { id: 'focus', icon: 'timer', labelKey: 'focus' },
     { id: 'collection', icon: 'auto_awesome', labelKey: 'collection' },
   ];
+
+  const visibleTabs = showCollection ? tabs : tabs.filter((t) => t.id !== 'collection');
 
   return (
     <nav
@@ -22,7 +25,7 @@ export function BottomNav({ activeScreen, onSelect, lang }: BottomNavProps) {
       className="pd-bottom-nav"
       aria-label={lang === 'ja' ? 'メインナビゲーション' : 'Main navigation'}
     >
-      {tabs.map((tab) => {
+      {visibleTabs.map((tab) => {
         const isActive = activeScreen === tab.id;
         return (
           <button

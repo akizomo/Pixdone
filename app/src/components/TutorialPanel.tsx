@@ -1,6 +1,11 @@
 import { Button } from '../design-system';
 import { playSound } from '../services/sound';
 
+export interface TutorialFeature {
+  icon: string;
+  label: string;
+}
+
 export interface TutorialPanelProps {
   headline: string;
   subtext: string;
@@ -8,13 +13,28 @@ export interface TutorialPanelProps {
   onSignUp: () => void;
   pricingLabel?: string;
   onViewPricing?: () => void;
+  freeFeatures?: TutorialFeature[];
+  featuresLabel?: string;
 }
 
-export function TutorialPanel({ headline, subtext, buttonLabel, onSignUp, pricingLabel, onViewPricing }: TutorialPanelProps) {
+export function TutorialPanel({ headline, subtext, buttonLabel, onSignUp, pricingLabel, onViewPricing, freeFeatures, featuresLabel }: TutorialPanelProps) {
   return (
     <div className="tutorial-complete-cta">
       <p className="tutorial-complete-cta-text">{headline}</p>
-      <p className="tutorial-complete-cta-sub">{subtext}</p>
+      {freeFeatures && freeFeatures.length > 0 ? (
+        <>
+          {featuresLabel && <p className="tutorial-feature-chips-label">{featuresLabel}</p>}
+          <ul className="tutorial-feature-list">
+            {freeFeatures.map((f) => (
+              <li key={f.label} className="tutorial-feature-item">
+                <span className="tutorial-feature-icon">{f.icon}</span>{f.label}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <p className="tutorial-complete-cta-sub">{subtext}</p>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
         <Button variant="primary" onClick={() => { playSound('buttonClick'); onSignUp(); }}>
           {buttonLabel}

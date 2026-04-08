@@ -42,7 +42,7 @@ export const EFFECTS_REGISTRY: EffectDef[] = [
   { key: 'crumpleThrow', name: 'Crumple Throw', rarity: 'RARE', themes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Crumples up like paper and gets tossed.',     ja: 'くしゃっと丸めて投げ捨て。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── RARE — Arcade: CHALLENGE ──────────────────────────────────────────────
-  { key: 'punch', name: 'Punch', rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: "A fighter's punch sends it flying.", ja: 'ファイターのパンチで吹き飛ぶ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: new Date('2026-05-31T23:59:59+09:00'), challengeUnlockThreshold: 50 },
+  { key: 'punch', name: 'Punch', rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: "A fighter's punch sends it flying.", ja: 'ファイターのパンチで吹き飛ぶ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: new Date('2026-05-31T23:59:59+09:00'), challengeUnlockThreshold: 30 },
 
   // ── RARE — Synthwave (premium) ────────────────────────────────────────────
   { key: 'glitchSlide', name: 'Glitch Slide', rarity: 'RARE', themes: ['synthwave'], access: 'premium', description: { en: 'Glitches out with neon artifacts.', ja: 'ネオンのノイズでグリッチ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
@@ -177,6 +177,58 @@ export function weightedRandomEffect(pool: EffectDef[]): EffectDef {
     if (rand <= 0) return ef;
   }
   return pool[pool.length - 1] ?? pool[0];
+}
+
+// ── Tutorial draw pool ───────────────────────────────────────────────────────
+
+/**
+ * Build a special draw pool for tutorial (unauthenticated) users.
+ * Includes ALL effects compatible with the active theme, regardless of
+ * access level, with boosted weights for Rare/Epic so visitors experience
+ * the "wow" effects they saw on SNS.
+ */
+export function buildTutorialDrawPool(activeThemeKey: ThemeKey): EffectDef[] {
+  return EFFECTS_REGISTRY.filter(ef => {
+    // Skip challenge effects — they require server state
+    if (ef.access === 'challenge') return false;
+    const themeOk =
+      ef.themes === 'all' || (ef.themes as ThemeKey[]).includes(activeThemeKey);
+    return themeOk;
+  });
+}
+
+/**
+ * Weighted random selection tuned for tutorial: Rare/Epic appear much more
+ * often so the first experience is exciting.
+ * Weights: COMMON = 40, RARE = 40, EPIC = 20
+ */
+export function weightedRandomEffectTutorial(pool: EffectDef[]): EffectDef {
+  const WEIGHTS: Record<EffectRarity, number> = { COMMON: 40, RARE: 40, EPIC: 20 };
+  const totalWeight = pool.reduce((sum, ef) => sum + (WEIGHTS[ef.rarity] ?? 1), 0);
+  let rand = Math.random() * totalWeight;
+  for (const ef of pool) {
+    rand -= WEIGHTS[ef.rarity] ?? 1;
+    if (rand <= 0) return ef;
+  }
+  return pool[pool.length - 1] ?? pool[0];
+}
+
+/**
+ * Pick a guaranteed Rare or Epic effect from the pool.
+ * Used for tutorial-2 to ensure the visitor sees a premium-tier effect.
+ * Prefers Epic (30% chance) over Rare (70% chance).
+ */
+export function pickGuaranteedRareOrEpic(pool: EffectDef[]): EffectDef {
+  const epic = pool.filter(ef => ef.rarity === 'EPIC');
+  const rare = pool.filter(ef => ef.rarity === 'RARE');
+  if (epic.length > 0 && Math.random() < 0.3) {
+    return epic[Math.floor(Math.random() * epic.length)]!;
+  }
+  if (rare.length > 0) {
+    return rare[Math.floor(Math.random() * rare.length)]!;
+  }
+  // Fallback (shouldn't happen if pool has Rare/Epic)
+  return weightedRandomEffectTutorial(pool);
 }
 
 // ── Theme preview helpers ─────────────────────────────────────────────────────

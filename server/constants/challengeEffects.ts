@@ -7,7 +7,7 @@ export interface ChallengeEffectDef {
 export const ACTIVE_CHALLENGE_EFFECTS: ChallengeEffectDef[] = [
   {
     effectId: 'punch',
-    threshold: 50,
+    threshold: 30,
     deadline: new Date('2026-05-31T23:59:59+09:00'),
   },
 ];

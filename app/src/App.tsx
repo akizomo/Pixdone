@@ -28,7 +28,7 @@ import { useActiveChallenge } from './hooks/useActiveChallenge';
 import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
-import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect } from './data/effectsRegistry';
+import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect, buildTutorialDrawPool, weightedRandomEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
 import './styles/task-animations.css';
 import type { List } from './types/list';
 import type { Task } from './types/task';
@@ -84,7 +84,7 @@ function AppContent() {
     listLimitUpsellOpen, closeListLimitUpsell,
   } = useLists();
 
-  const { user, logout } = useAuth();
+  const { user, logout, serverSessionReady, syncServerSession } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/effect-request';
@@ -195,6 +195,14 @@ function AppContent() {
   useEffect(() => {
     if (user) setSignupOpen(false);
   }, [user]);
+
+  /* ---- Unauthenticated users cannot stay on Collection screen ---- */
+  useEffect(() => {
+    if (user) return;
+    if (activeScreen === 'collection') {
+      setActiveScreen('tasks');
+    }
+  }, [user, activeScreen]);
 
   /* ---- Midnight refresh ---- */
   useMidnightRefresh();
@@ -370,16 +378,22 @@ function AppContent() {
       }
     }
 
+    const postTaskComplete = () =>
+      fetch('/api/effect-progress/task-complete', { method: 'POST', credentials: 'include' });
+
     const attempt = (retries: number) => {
-      fetch('/api/effect-progress/task-complete', { method: 'POST', credentials: 'include' })
+      postTaskComplete()
         .then(r => {
           if (r.status === 401 && retries > 0) {
-            setTimeout(() => attempt(retries - 1), 1500);
+            // セッション未確立の可能性 → 再同期してからリトライ
+            syncServerSession().then(() => {
+              setTimeout(() => attempt(retries - 1), 500);
+            });
             return;
           }
           if (!r.ok) {
             console.warn('[Challenge] task-complete failed:', r.status);
-            return; // Keep optimistic value — don't refetch on failure
+            return;
           }
           // Reconcile local state with server truth
           r.json().then(() => refetchEffectProgress());
@@ -387,11 +401,52 @@ function AppContent() {
         .catch(e => console.warn('[Challenge] task-complete error:', e));
     };
     attempt(3);
-  }, [refetchEffectProgress, activeChallenge, optimisticIncrement, showToast, lang]);
+  }, [refetchEffectProgress, activeChallenge, optimisticIncrement, showToast, lang, syncServerSession]);
+
+  /* ---- Tutorial toast messages (per task) ---- */
+  const showTutorialToast = useCallback((taskId: string, effectRarity?: string) => {
+    if (!taskId.startsWith('tutorial-')) return;
+
+    const rarityLabel = effectRarity === 'EPIC' ? (lang === 'ja' ? 'Epic' : 'Epic')
+      : effectRarity === 'RARE' ? (lang === 'ja' ? 'Rare' : 'Rare')
+      : null;
+
+    const toasts: Record<string, { ja: string; en: string }> = {
+      'tutorial-1': {
+        ja: '✨ エフェクトは20種類以上、どんどん増えてる',
+        en: '✨ 20+ effects — and more on the way',
+      },
+      'tutorial-2': {
+        ja: rarityLabel
+          ? `🏆 ${rarityLabel}エフェクト出た！チャレンジクリアで手に入れよう`
+          : '🏆 Rare・Epicエフェクトはチャレンジクリアで手に入れよう',
+        en: rarityLabel
+          ? `🏆 ${rarityLabel} effect! Earn it by completing a challenge`
+          : '🏆 Earn Rare & Epic effects by completing challenges',
+      },
+      'tutorial-3': {
+        ja: '💥 ストレス発散にも、タスク管理にも使える',
+        en: '💥 For stress relief and getting things done',
+      },
+      'tutorial-4': {
+        ja: '🎵 BGMが集中を作り出す。サインアップして、集中時間を自分でセットしよう',
+        en: '🎵 BGM puts you in the zone. Sign up to set your own focus time',
+      },
+    };
+
+    const msg = toasts[taskId];
+    if (!msg) return;
+
+    showToast({
+      message: lang === 'ja' ? msg.ja : msg.en,
+      duration: 5000,
+    });
+  }, [lang, showToast]);
 
   /* ---- Task handlers ---- */
   const runCompleteShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
+    const isTutorialTask = !user && isTutorial && taskId.startsWith('tutorial-');
 
     const doComplete = () => {
       completeTask(taskId);
@@ -400,17 +455,34 @@ function AppContent() {
     };
 
     if (taskEl) {
-      const pool = buildDrawPool(isPremium, visualTheme, activeEffects, ownedChallengeEffects);
-      const selectedKey = pool.length > 0 ? weightedRandomEffect(pool).key : undefined;
+      // Tutorial (unauthenticated): use boosted pool with Rare/Epic
+      const pool = isTutorialTask
+        ? buildTutorialDrawPool(visualTheme)
+        : buildDrawPool(isPremium, visualTheme, activeEffects, ownedChallengeEffects);
+      let selected;
+      if (isTutorialTask && taskId === 'tutorial-2') {
+        // Guaranteed Rare/Epic for tutorial-2 — the "wow" moment
+        selected = pool.length > 0 ? pickGuaranteedRareOrEpic(pool) : undefined;
+      } else if (isTutorialTask) {
+        selected = pool.length > 0 ? weightedRandomEffectTutorial(pool) : undefined;
+      } else {
+        selected = pool.length > 0 ? weightedRandomEffect(pool) : undefined;
+      }
       runVanillaCompletionEffect(taskEl, () => {
         doComplete();
-      }, selectedKey);
+        if (isTutorialTask) {
+          showTutorialToast(taskId, selected?.rarity);
+        }
+      }, selected?.key);
     } else {
       doComplete();
       playSound('taskComplete');
+      if (isTutorialTask) {
+        showTutorialToast(taskId);
+      }
     }
-    sendChallengeProgress(taskId);
-  }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress]);
+    if (!isTutorialTask) sendChallengeProgress(taskId);
+  }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
     const doComplete = () => {
@@ -1287,11 +1359,19 @@ function AppContent() {
                 <div>
                   <TutorialPanel
                     headline={lang === 'ja' ? 'チュートリアル完了！' : "You've completed the tutorial!"}
-                    subtext={
-                      lang === 'ja'
-                        ? 'サインアップしてタスクを保存・端末間同期。PixDone+ なら無制限リスト・プレミアムテーマも。'
-                        : 'Sign up to save tasks and sync across devices. Upgrade to PixDone+ for unlimited lists and premium themes.'
-                    }
+                    subtext=""
+                    featuresLabel={lang === 'ja' ? 'サインアップで使えること' : 'What you unlock for free'}
+                    freeFeatures={lang === 'ja' ? [
+                      { icon: '💾', label: 'データ保存・同期' },
+                      { icon: '📋', label: '柔軟なタスク管理（リスト・リピート）' },
+                      { icon: '⏱', label: 'タイマー設定' },
+                      { icon: '🏆', label: 'チャレンジでエフェクトを集める' },
+                    ] : [
+                      { icon: '💾', label: 'Save & sync' },
+                      { icon: '📋', label: 'Flexible task management (lists & repeats)' },
+                      { icon: '⏱', label: 'Timer settings' },
+                      { icon: '🏆', label: 'Challenges & effect collection' },
+                    ]}
                     buttonLabel={lang === 'ja' ? 'サインアップ（無料）' : 'Sign up — free'}
                     onSignUp={() => setSignupOpen(true)}
                     pricingLabel={lang === 'ja' ? 'PixDone+ を見る →' : 'View PixDone+ →'}
@@ -1659,6 +1739,7 @@ function AppContent() {
             if (isSubPage) navigate('/');
             }}
           lang={lang}
+          showCollection={!!user}
         />
       )}
 

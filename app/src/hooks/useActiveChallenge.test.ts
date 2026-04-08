@@ -42,7 +42,7 @@ describe('getActiveChallenge', () => {
     evolutionCondition: null,
     evolutionThreshold: null,
     challengeDeadline: new Date('2026-05-31T23:59:59+09:00'),
-    challengeUnlockThreshold: 50,
+    challengeUnlockThreshold: 30,
     ...overrides,
   });
 
@@ -75,7 +75,7 @@ describe('getActiveChallenge', () => {
     expect(result).not.toBeNull();
     expect(result!.effect.key).toBe('punch');
     expect(result!.progress).toBe(32);
-    expect(result!.threshold).toBe(50);
+    expect(result!.threshold).toBe(30);
     expect(result!.isCompleted).toBe(false);
   });
 
