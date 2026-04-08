@@ -69,7 +69,7 @@ export function ListTabs({
                 color: isActive ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
                 fontWeight: isActive ? 600 : 400,
                 cursor: 'pointer',
-                transition: 'all 0.15s',
+                transition: 'background 0.15s, color 0.15s',
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)';

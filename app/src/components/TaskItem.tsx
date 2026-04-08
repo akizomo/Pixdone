@@ -93,7 +93,7 @@ export function TaskItem({
         padding: '10px 12px',
         marginBottom: '8px',
         cursor: reorderSource ? 'grabbing' : 'pointer',
-        transition: 'all 0.2s ease',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease',
         boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
         imageRendering: 'pixelated',
         fontFamily: 'var(--pd-font-body)',
@@ -175,7 +175,7 @@ export function TaskItem({
             ? 'var(--pd-color-accent-default)'
             : 'var(--pd-color-background-default)',
           cursor: 'pointer',
-          transition: 'all 0.2s ease',
+          transition: 'transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease',
           boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
           color: 'white',
           fontSize: '0.75rem',

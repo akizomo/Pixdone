@@ -1311,7 +1311,7 @@ function AppContent() {
                     boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
                     imageRendering: 'pixelated',
                     fontFamily: 'var(--pd-font-body)',
-                    transition: 'all 0.2s ease',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease',
                   }}
                   onMouseEnter={(e) => {
                     const el = e.currentTarget;
@@ -1345,7 +1345,7 @@ function AppContent() {
               {isSmash ? (
                 <SmashListPanel
                   subtitle={t('smashListSubtitle', lang)}
-                  hint={t('smashListHint', lang)}
+                  hint={hasFinePointer ? t('smashListHint', lang) : undefined}
                   tasks={currentList?.tasks ?? []}
                   onSmash={handleSmash}
                   getDisplayTitle={(task: Task) => {
@@ -1733,6 +1733,7 @@ function AppContent() {
           activeScreen={isSubPage ? null : activeScreen}
           onSelect={(screen) => {
             playSound('buttonClick');
+            if (screen === 'collection') setCollectionInitialEffectKey(null);
             setActiveScreen(screen);
             if (isSubPage) navigate('/');
             }}
