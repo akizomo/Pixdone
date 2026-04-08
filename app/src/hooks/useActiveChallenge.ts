@@ -18,7 +18,7 @@ export interface ActiveChallenge {
 export function getActiveChallenge(
   registry: EffectDef[],
   challengeProgressMap: Record<string, number>,
-  ownedChallengeEffects: string[],
+  _ownedChallengeEffects: string[],
   now: Date = new Date(),
 ): ActiveChallenge | null {
   const nowMs = now.getTime();

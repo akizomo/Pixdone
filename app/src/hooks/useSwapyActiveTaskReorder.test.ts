@@ -119,7 +119,7 @@ describe('useSwapyActiveTaskReorder', () => {
       // Attach a container ref so Swapy can be created
       // (In jsdom, containerRef is never attached to DOM so createSwapy won't fire,
       //  but we test the destroy path via re-render)
-      rerender({ enabled: false, items, onReorder: vi.fn() });
+      rerender({ enabled: false, items, onReorder: vi.fn(), onDragStart: vi.fn(), onDragCommit: vi.fn() });
 
       // destroy is called during cleanup
       // The exact count depends on whether the ref was attached, but the pattern is correct
@@ -143,8 +143,8 @@ describe('useSwapyActiveTaskReorder', () => {
         enabled: true,
         items: overrides.items ?? makeItems(3),
         onReorder: overrides.onReorder ?? vi.fn(),
-        onDragStart: overrides.onDragStart,
-        onDragCommit: overrides.onDragCommit,
+        onDragStart: overrides.onDragStart ?? vi.fn(),
+        onDragCommit: overrides.onDragCommit ?? vi.fn(),
       });
       return hookResult;
     }

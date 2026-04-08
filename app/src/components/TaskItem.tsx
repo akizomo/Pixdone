@@ -47,7 +47,7 @@ export function TaskItem({
   task,
   isSmash = false,
   lang = 'en',
-  allowPointerDownPropagation = false,
+  allowPointerDownPropagation: _allowPointerDownPropagation = false,
   onComplete,
   onEdit,
   onDelete,

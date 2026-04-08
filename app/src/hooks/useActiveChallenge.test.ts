@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import type { EffectDef } from '../data/effectsRegistry';
 
 // We'll test the pure helper functions first, then the hook

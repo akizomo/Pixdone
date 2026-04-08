@@ -57,11 +57,10 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
 
   if (!challenge) return null;
 
-  const { effect, progress, threshold, daysLeft, isUrgent, isCompleted } = challenge;
+  const { effect, progress, threshold, isUrgent, isCompleted } = challenge;
   const pct = Math.min((progress / threshold) * 100, 100);
 
   const label = lang === 'ja' ? 'チャレンジ' : 'Challenge';
-  const daysText = lang === 'ja' ? `残り${daysLeft}日` : `${daysLeft} days left`;
 
   const gifSrc = EFFECT_GIF_MAP[effect.key];
 

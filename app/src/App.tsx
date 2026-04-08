@@ -1093,7 +1093,7 @@ function AppContent() {
               <>
                 <Chip variant="ghost" selected={lang === 'en'} onClick={() => { changeLang('en'); playSound('buttonClick'); }}>En</Chip>
                 <Chip variant="ghost" selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
-                <Button variant="primary" onClick={() => { playSound('buttonClick'); setSignupOpen(true); }}>Sign up</Button>
+                <Button variant="primary" onClick={() => { playSound('buttonClick'); setSignupOpen(true); }}>{lang === 'ja' ? '無料ではじめる' : 'Sign up free'}</Button>
               </>
             )}
           </div>
