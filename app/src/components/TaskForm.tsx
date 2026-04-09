@@ -326,6 +326,12 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
             {getRepeatLabel(repeat, lang) || t('repeat', lang)}
           </button>
           {showRepeat && (
+            <>
+            {/* Invisible backdrop to catch outside taps (mobile) */}
+            <div
+              style={{ position: 'fixed', inset: 0, zIndex: 99 }}
+              onClick={() => { playSound('taskCancel'); setShowRepeat(false); setShowCustom(false); }}
+            />
             <div
               style={{
                 position: 'absolute',
@@ -493,6 +499,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
                 </>
               )}
             </div>
+            </>
           )}
         </div>
       </div>

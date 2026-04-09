@@ -8,14 +8,14 @@
   opacity: 0;
   pointer-events: none;
   /* closing: fade out */
-  transition: opacity 0.2s ease;
+  transition: opacity 0.25s ease;
 }
 
 .pxd-sheet-backdrop[data-open="true"] {
   opacity: 1;
   pointer-events: auto;
   /* opening: fade in */
-  transition: opacity 0.25s ease;
+  transition: opacity 0.3s ease;
 }
 
 .pxd-sheet {
@@ -31,8 +31,8 @@
   transform: translateY(100%);
   pointer-events: none;
   padding-bottom: calc(env(safe-area-inset-bottom) + var(--pxd-keyboard-inset, 0px));
-  /* closing: accelerate out */
-  transition: transform 0.2s cubic-bezier(0.4, 0, 1, 1);
+  /* closing: natural decelerate-out (iOS-like) */
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   image-rendering: pixelated;
 }
 
@@ -41,6 +41,26 @@
   pointer-events: auto;
   /* opening: spring-like deceleration */
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Drag handle — swipe affordance pill */
+.pxd-sheet-drag-handle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0 2px;
+  cursor: grab;
+  touch-action: none;
+  background-color: var(--pd-color-background-elevated);
+}
+
+.pxd-sheet-drag-pill {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--pd-color-text-muted);
+  opacity: 0.4;
 }
 
 .pxd-sheet-header {
@@ -52,6 +72,7 @@
   padding: 12px 20px;
   border-bottom: 2px solid var(--pxd-color-border-outline-variant);
   background-color: var(--pd-color-background-elevated);
+  touch-action: none;
 }
 
 .pxd-sheet-title {

@@ -659,6 +659,14 @@ function AppContent() {
   };
   usePerfectTimingSetup(lists, perfectTimingBridgeRef);
 
+  /** Delay clearing edit-task id so BottomSheet content stays during slide-out animation */
+  const closeMobileSheet = useCallback(() => {
+    setTaskFormMode(null);
+    setMobileSheetOpen(false);
+    // Clear after the exit animation (300ms matches BottomSheet CSS transition)
+    setTimeout(() => setMobileEditTaskId(null), 320);
+  }, []);
+
   const handleTaskFormSave = useCallback((fields: Partial<Task> & { title: string }) => {
     const editId = taskFormMode !== 'add' && taskFormMode ? taskFormMode : mobileEditTaskId;
     if (taskFormMode === 'add' || (mobileSheetOpen && !mobileEditTaskId)) {
@@ -672,24 +680,18 @@ function AppContent() {
       updateTask(editId, fields);
       playSound('taskAdd');
     }
-    setTaskFormMode(null);
-    setMobileSheetOpen(false);
-    setMobileEditTaskId(null);
-  }, [taskFormMode, mobileSheetOpen, mobileEditTaskId, currentList, addTask, updateTask]);
+    closeMobileSheet();
+  }, [taskFormMode, mobileSheetOpen, mobileEditTaskId, currentList, addTask, updateTask, closeMobileSheet]);
 
   const handleTaskFormCancel = useCallback(() => {
     playSound('taskCancel');
-    setTaskFormMode(null);
-    setMobileSheetOpen(false);
-    setMobileEditTaskId(null);
-  }, []);
+    closeMobileSheet();
+  }, [closeMobileSheet]);
 
   // Close form without sound (used by close-to-save: TaskForm handles save + sound internally)
   const handleTaskFormClose = useCallback(() => {
-    setTaskFormMode(null);
-    setMobileSheetOpen(false);
-    setMobileEditTaskId(null);
-  }, []);
+    closeMobileSheet();
+  }, [closeMobileSheet]);
 
   // Delegate close to TaskForm's close-to-save logic (for BottomSheet backdrop/close-button)
   const handleTaskFormCloseViaSave = useCallback(() => {
