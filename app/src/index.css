@@ -1,4 +1,0 @@
-/* フォントは index.html / .storybook/preview-head.html の link で読み込み（CSS @import はブロックして loading の原因になるため使用しない） */
-@import 'tailwindcss';
-@import './design-system/theme/global.css';
-@import './styles/perfect-timing.css';

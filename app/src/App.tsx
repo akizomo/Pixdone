@@ -28,6 +28,7 @@ import { useActiveChallenge } from './hooks/useActiveChallenge';
 import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
+import { trackTaskComplete, trackTaskAdd, trackListCreate, trackEffectTriggered, trackChallengeUnlocked } from './services/analytics';
 import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect, buildTutorialDrawPool, weightedRandomEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
 import './styles/task-animations.css';
 import type { List } from './types/list';
@@ -360,6 +361,11 @@ function AppContent() {
 
       // Detect completion: current progress (before increment) + 1 == threshold
       if (activeChallenge.progress + 1 >= activeChallenge.threshold) {
+        trackChallengeUnlocked({
+          challenge_id: activeChallenge.effect.key,
+          effect_id: activeChallenge.effect.key,
+          tasks_completed: activeChallenge.threshold,
+        });
         const effectName = activeChallenge.effect.name;
         showToast({
           message: lang === 'ja'
@@ -454,6 +460,10 @@ function AppContent() {
       setMobileSheetOpen(false);
     };
 
+    // Find the task to gather analytics metadata
+    const task = currentList?.tasks.find((t) => t.id === taskId);
+    const isSmashList = currentList?.id === 'smash-list';
+
     if (taskEl) {
       // Tutorial (unauthenticated): use boosted pool with Rare/Epic
       const pool = isTutorialTask
@@ -468,6 +478,16 @@ function AppContent() {
       } else {
         selected = pool.length > 0 ? weightedRandomEffect(pool) : undefined;
       }
+
+      // Analytics: effect triggered
+      if (selected) {
+        trackEffectTriggered({
+          effect_tier: selected.rarity as 'common' | 'rare' | 'epic',
+          effect_id: selected.key,
+          theme_id: visualTheme,
+        });
+      }
+
       runVanillaCompletionEffect(taskEl, () => {
         doComplete();
         if (isTutorialTask) {
@@ -481,6 +501,16 @@ function AppContent() {
         showTutorialToast(taskId);
       }
     }
+
+    // Analytics: task complete
+    if (!isTutorialTask) {
+      trackTaskComplete({
+        list_type: isSmashList ? 'smash' : 'custom',
+        is_repeat: !!(task as Task | undefined)?.repeat,
+        has_subtasks: !!((task as Task | undefined)?.subtasks?.length),
+      });
+    }
+
     if (!isTutorialTask) sendChallengeProgress(taskId);
   }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast]);
 
@@ -608,6 +638,10 @@ function AppContent() {
     if (taskFormMode === 'add' || (mobileSheetOpen && !mobileEditTaskId)) {
       addTask(currentList!.id, fields);
       playSound('taskAdd');
+      trackTaskAdd({
+        list_type: currentList?.id === 'smash-list' ? 'smash' : 'custom',
+        is_repeat: !!fields.repeat,
+      });
     } else if (editId) {
       updateTask(editId, fields);
       playSound('taskAdd');
@@ -667,6 +701,7 @@ function AppContent() {
     if (listModal.mode === 'add') {
       playSound('taskAdd');
       addList(name ?? 'New list');
+      trackListCreate({ list_name: name ?? 'New list' });
     } else if (listModal.mode === 'rename' && listModal.listId) {
       playSound('taskEdit');
       renameList(listModal.listId, name ?? '');
