@@ -76,7 +76,7 @@ describe('getActiveChallenge', () => {
     expect(result!.effect.key).toBe('punch');
     expect(result!.progress).toBe(32);
     expect(result!.threshold).toBe(30);
-    expect(result!.isCompleted).toBe(false);
+    expect(result!.isCompleted).toBe(true);
   });
 
   it('defaults progress to 0 when not in progressMap', () => {

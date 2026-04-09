@@ -218,6 +218,27 @@ function AppContent() {
     }
   }, []);
 
+  /* ---- Deep links: open Collection tab / focus specific effect ---- */
+  useEffect(() => {
+    // Keep URL params as-is so links remain shareable.
+    if (!user) return;
+    const params = new URLSearchParams(window.location.search);
+    const screen = params.get('screen');
+    if (screen !== 'collection') return;
+
+    const tab = params.get('tab');
+    const effectKey = params.get('effect') ?? params.get('effectKey') ?? params.get('fx');
+
+    setActiveScreen('collection');
+    if (tab === 'themes') setCollectionInitialTab('themes');
+    else if (tab === 'effects') setCollectionInitialTab('effects');
+
+    if (typeof effectKey === 'string' && effectKey.trim().length > 0) {
+      setCollectionInitialTab('effects');
+      setCollectionInitialEffectKey(effectKey.trim());
+    }
+  }, [user]);
+
   useEffect(() => {
     if (purchaseBanner !== 'plus_success') return;
     playSound('taskComplete');
@@ -392,15 +413,14 @@ function AppContent() {
           }
           if (!r.ok) {
             console.warn('[Challenge] task-complete failed:', r.status);
-            return;
           }
-          // Reconcile local state with server truth
-          r.json().then(() => refetchEffectProgress());
+          // optimistic increment が既にローカル状態を更新済み — refetch 不要
+          // 次回マウント時にサーバーと自動マージされる
         })
         .catch(e => console.warn('[Challenge] task-complete error:', e));
     };
     attempt(3);
-  }, [refetchEffectProgress, activeChallenge, optimisticIncrement, showToast, lang, syncServerSession]);
+  }, [activeChallenge, optimisticIncrement, showToast, lang, syncServerSession]);
 
   /* ---- Tutorial toast messages (per task) ---- */
   const showTutorialToast = useCallback((taskId: string, effectRarity?: string) => {

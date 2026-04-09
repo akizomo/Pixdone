@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 export interface EffectProgressEntry {
@@ -53,6 +53,8 @@ export function useEffectProgress(): UseEffectProgressResult {
   const [progress, setProgress] = useState<Record<string, EffectProgressEntry>>(loadFromCache);
   const [isLoading, setIsLoading] = useState(false);
   const cancelledRef = useRef(false);
+  // 初回フェッチ完了フラグ — serverSessionReady の再トグルによる無駄な refetch を防ぐ
+  const hasFetchedRef = useRef(false);
 
   const fetchProgress = useCallback(async () => {
     // Auth ローディング中はキャッシュを維持して何もしない
@@ -62,11 +64,16 @@ export function useEffectProgress(): UseEffectProgressResult {
     if (!user) {
       setProgress({});
       clearCache();
+      hasFetchedRef.current = false;
       return;
     }
 
     // ログイン済みだがサーバーセッション未確立 → キャッシュを維持して待機
     if (!serverSessionReady) return;
+
+    // 既に一度フェッチ済みなら自動リフェッチしない（明示的な refetch() は別パス）
+    if (hasFetchedRef.current) return;
+
     setIsLoading(true);
     try {
       const resp = await fetch('/api/effect-progress', { credentials: 'include' });
@@ -76,8 +83,20 @@ export function useEffectProgress(): UseEffectProgressResult {
       if (cancelledRef.current) return;
       const map: Record<string, EffectProgressEntry> = {};
       for (const row of rows) map[row.effectId] = row;
-      setProgress(map);
-      saveToCache(map);
+
+      // サーバーデータとローカル楽観更新をマージ — 進捗は大きい方を採用
+      setProgress(prev => {
+        const merged: Record<string, EffectProgressEntry> = { ...map };
+        for (const [id, local] of Object.entries(prev)) {
+          const server = merged[id];
+          if (server && local.challengeProgress > server.challengeProgress) {
+            merged[id] = { ...server, challengeProgress: local.challengeProgress };
+          }
+        }
+        saveToCache(merged);
+        return merged;
+      });
+      hasFetchedRef.current = true;
     } catch {
       // ネットワークエラー時はキャッシュの値を維持
     } finally {
@@ -124,21 +143,31 @@ export function useEffectProgress(): UseEffectProgressResult {
     });
   }, []);
 
-  const ownedChallengeEffects = Object.values(progress)
-    .filter(e => e.owned)
-    .map(e => e.effectId);
+  /** 明示的な refetch — hasFetchedRef をリセットしてサーバーから再取得 */
+  const refetch = useCallback(async () => {
+    hasFetchedRef.current = false;
+    await fetchProgress();
+  }, [fetchProgress]);
 
-  const challengeProgressMap: Record<string, number> = {};
-  for (const [id, entry] of Object.entries(progress)) {
-    challengeProgressMap[id] = entry.challengeProgress;
-  }
+  const ownedChallengeEffects = useMemo(
+    () => Object.values(progress).filter(e => e.owned).map(e => e.effectId),
+    [progress],
+  );
+
+  const challengeProgressMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const [id, entry] of Object.entries(progress)) {
+      map[id] = entry.challengeProgress;
+    }
+    return map;
+  }, [progress]);
 
   return {
     progress,
     ownedChallengeEffects,
     challengeProgressMap,
     isLoading,
-    refetch: fetchProgress,
+    refetch,
     optimisticIncrement,
   };
 }

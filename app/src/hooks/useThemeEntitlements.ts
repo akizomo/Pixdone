@@ -62,6 +62,7 @@ export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements 
     if (!user) {
       setEntitlements(DEFAULT_ENTITLEMENTS);
       setLoading(false);
+      try { window.localStorage.removeItem('pd-entitlements'); } catch { /* ignore */ }
       return;
     }
 
@@ -75,7 +76,11 @@ export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements 
           method: 'GET',
           credentials: 'include',
         });
-        if (!resp.ok) return;
+        if (!resp.ok) {
+          // API エラー時は安全側にフォールバック（stale キャッシュを信頼しない）
+          if (!cancelled) setEntitlements(DEFAULT_ENTITLEMENTS);
+          return;
+        }
         const data = await resp.json();
         if (cancelled) return;
         const next: PremiumEntitlements = {
