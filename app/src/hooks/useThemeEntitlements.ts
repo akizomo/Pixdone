@@ -51,16 +51,22 @@ function loadInitialFromStorage(): PremiumEntitlements {
  * Falls back to free-tier defaults when unauthenticated or on error.
  */
 export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements & { loading: boolean } {
-  const { user } = useAuth();
+  const { user, loading: authLoading, serverSessionReady } = useAuth();
   const [entitlements, setEntitlements] = useState<PremiumEntitlements>(() => loadInitialFromStorage());
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    // Auth ローディング中はキャッシュを維持
+    if (authLoading) return;
+
     if (!user) {
       setEntitlements(DEFAULT_ENTITLEMENTS);
       setLoading(false);
       return;
     }
+
+    // サーバーセッション未確立 → キャッシュを維持して待機
+    if (!serverSessionReady) return;
 
     let cancelled = false;
     (async () => {
@@ -69,11 +75,6 @@ export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements 
           method: 'GET',
           credentials: 'include',
         });
-        if (resp.status === 401 && import.meta.env.DEV) {
-          console.debug(
-            '[useThemeEntitlements] 401 — Passport セッション未同期の可能性。AuthContext の firebase-session 同期を確認。',
-          );
-        }
         if (!resp.ok) return;
         const data = await resp.json();
         if (cancelled) return;
@@ -103,7 +104,7 @@ export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements 
       cancelled = true;
       setLoading(false);
     };
-  }, [user]);
+  }, [user, authLoading, serverSessionReady]);
 
   // synthwavePremium は isPremium と同義（後方互換）
   return { ...entitlements, synthwavePremium: entitlements.isPremium, loading };

@@ -756,6 +756,47 @@ export function useLists() {
     );
   }, [setLists]);
 
+  const moveTask = useCallback((taskId: string, targetListId: string) => {
+    if (targetListId === 'smash-list') return;
+
+    let movedTask: Task | undefined;
+
+    setLists((prev) => {
+      // Find and remove from source list
+      let found: Task | undefined;
+      const withRemoved = prev.map((l) => {
+        const idx = l.tasks.findIndex((t) => t.id === taskId);
+        if (idx === -1) return l;
+        found = { ...l.tasks[idx] };
+        return { ...l, tasks: l.tasks.filter((t) => t.id !== taskId) };
+      });
+      if (!found) return prev;
+
+      movedTask = { ...found, listId: targetListId };
+
+      // Assign sortOrder at end of target list's active tasks
+      const targetList = withRemoved.find((l) => l.id === targetListId);
+      const targetActive = (targetList?.tasks ?? []).filter((t) => !t.completed);
+      const maxSort = targetActive.reduce((m, t) => Math.max(m, t.sortOrder ?? -1), -1);
+      movedTask.sortOrder = maxSort + 1;
+
+      return withRemoved.map((l) =>
+        l.id === targetListId ? { ...l, tasks: [...l.tasks, movedTask!] } : l,
+      );
+    });
+
+    if (user && movedTask) {
+      (async () => {
+        const ref = doc(db, 'tasks', taskId);
+        try {
+          await updateDoc(ref, { listId: targetListId, sortOrder: movedTask!.sortOrder ?? 0 });
+        } catch {
+          /* ignore — optimistic UI already applied */
+        }
+      })();
+    }
+  }, [setLists, user]);
+
   const reorderActiveTasks = useCallback(
     (listId: string, fromIndex: number, toIndex: number) => {
       if (listId === 'smash-list' || fromIndex === toIndex) return;
@@ -817,6 +858,7 @@ export function useLists() {
     addSubtask,
     toggleSubtask,
     deleteSubtask,
+    moveTask,
     reorderActiveTasks,
     listLimitUpsellOpen,
     closeListLimitUpsell: () => setListLimitUpsellOpen(false),
