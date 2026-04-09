@@ -335,6 +335,17 @@ export function useLists() {
     );
 
     const unsubLists = onSnapshot(listsQuery, (snap) => {
+      // Firestore にリストが0件 → デフォルトリストを自動作成
+      if (snap.empty) {
+        addDoc(collection(db, 'lists'), {
+          uid: user.uid,
+          name: 'My Tasks',
+          createdAt: Timestamp.now(),
+        }).catch((e) => console.warn('[useLists] auto-create default list failed:', e));
+        // onSnapshot が再度発火するので、ここでは return
+        return;
+      }
+
       setListsState((prev) => {
         const tasksById = new Map<string, Task[]>();
         prev.forEach((l) => tasksById.set(l.id, l.tasks));

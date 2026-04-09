@@ -4,6 +4,7 @@ import { Button, RichTextField, RichTextArea, TextField } from '../design-system
 import { t } from '../lib/i18n';
 import { getTodayYMD, getTomorrowYMD } from '../lib/date';
 import { playSound } from '../services/sound';
+import type { Subtask } from '../types/task';
 
 export interface TaskFormProps {
   lang: 'en' | 'ja';
@@ -32,7 +33,12 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
   const [subtasks, setSubtasks] = useState(task?.subtasks ?? []);
   const [newSubtask, setNewSubtask] = useState('');
 
+  const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
+  const [editingSubtaskText, setEditingSubtaskText] = useState('');
+
   const titleRef = useRef<HTMLDivElement>(null);
+  const subtaskInputRef = useRef<HTMLInputElement>(null);
+  const editingSubtaskRef = useRef<HTMLInputElement>(null);
   const today = getTodayYMD();
   const tomorrow = getTomorrowYMD();
 
@@ -61,13 +67,15 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
     setDueDate((prev) => (prev === ymd ? null : ymd));
   };
 
-  const addSubtask = () => {
+  const addSubtask = useCallback(() => {
     const text = newSubtask.trim();
     if (!text) return;
     playSound('taskAdd');
     setSubtasks((prev) => [...prev, { id: `sub-${Date.now()}`, text, done: false }]);
     setNewSubtask('');
-  };
+    // Auto-focus back so the user can keep typing
+    setTimeout(() => subtaskInputRef.current?.focus(), 0);
+  }, [newSubtask]);
 
   const removeSubtask = (id: string) => {
     playSound('taskCancel');
@@ -77,6 +85,22 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
   const toggleSubtask = (id: string) => {
     playSound('subtaskComplete');
     setSubtasks((prev) => prev.map((s) => s.id === id ? { ...s, done: !s.done } : s));
+  };
+
+  const startEditSubtask = (s: Subtask) => {
+    playSound('taskEdit');
+    setEditingSubtaskId(s.id);
+    setEditingSubtaskText(s.text);
+    setTimeout(() => editingSubtaskRef.current?.focus(), 0);
+  };
+
+  const commitEditSubtask = (id: string) => {
+    const text = editingSubtaskText.trim();
+    if (text) {
+      setSubtasks((prev) => prev.map((s) => s.id === id ? { ...s, text } : s));
+    }
+    setEditingSubtaskId(null);
+    setEditingSubtaskText('');
   };
 
   const chipBtnStyle = (active: boolean): React.CSSProperties => ({
@@ -216,31 +240,64 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
             >
               {s.done && '✓'}
             </button>
-            <span style={{
-              flex: 1, fontSize: '0.8125rem', fontFamily: 'var(--pd-font-body)',
-              color: 'var(--pd-color-text-primary)',
-              textDecoration: s.done ? 'line-through' : 'none',
-            }}>{s.text}</span>
+
+            {editingSubtaskId === s.id ? (
+              <TextField
+                ref={editingSubtaskRef}
+                value={editingSubtaskText}
+                onChange={(e) => setEditingSubtaskText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                    e.preventDefault();
+                    commitEditSubtask(s.id);
+                  }
+                  if (e.key === 'Escape') {
+                    setEditingSubtaskId(null);
+                    setEditingSubtaskText('');
+                  }
+                }}
+                onBlur={() => commitEditSubtask(s.id)}
+                size="sm"
+                style={{ flex: 1 }}
+              />
+            ) : (
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={() => startEditSubtask(s)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') startEditSubtask(s); }}
+                style={{
+                  flex: 1, fontSize: '0.8125rem', fontFamily: 'var(--pd-font-body)',
+                  color: 'var(--pd-color-text-primary)',
+                  textDecoration: s.done ? 'line-through' : 'none',
+                  cursor: 'text',
+                  padding: '6px 0',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >{s.text}</span>
+            )}
+
             <button type="button" onClick={() => removeSubtask(s.id)}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--pd-color-text-muted)', display: 'flex', alignItems: 'center' }}>
               <span className="material-icons" style={{ fontSize: '16px', lineHeight: 1 }}>close</span>
             </button>
           </div>
         ))}
-        <div style={{ display: 'flex', gap: '6px' }}>
-          <TextField
-            value={newSubtask}
-            onChange={(e) => setNewSubtask(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSubtask(); } }}
-            placeholder={t('addSubtask', lang)}
-            size="sm"
-            style={{ flex: 1 }}
-          />
-          <button type="button" onClick={addSubtask}
-            style={{ ...chipBtnStyle(false), padding: '4px 8px', display: 'flex', alignItems: 'center' }}>
-            <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>add</span>
-          </button>
-        </div>
+        <TextField
+          ref={subtaskInputRef}
+          value={newSubtask}
+          onChange={(e) => setNewSubtask(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+              e.preventDefault();
+              addSubtask();
+            }
+          }}
+          placeholder={t('addSubtask', lang)}
+          size="sm"
+        />
       </div>
 
       {/* Actions */}
