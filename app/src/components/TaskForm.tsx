@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import type { Task, RepeatConfig, RepeatPreset, CustomRepeat } from '../types/task';
-import { Button, RichTextField, RichTextArea, TextField } from '../design-system';
+import { Button, RichTextField, RichTextArea, TextField, PopoverMenu } from '../design-system';
 import { t } from '../lib/i18n';
 import { getRepeatLabel } from '../lib/repeat';
 import { getTodayYMD, getTomorrowYMD } from '../lib/date';
@@ -17,6 +17,10 @@ export interface TaskFormProps {
   /** Close without explicit cancel — auto-saves when editing a dirty task */
   onClose?: () => void;
   onDelete?: () => void;
+  /** Available lists for the move-to-list dropdown (edit mode only). */
+  availableLists?: Array<{ id: string; name: string }>;
+  /** Called when user selects a different list in the dropdown. */
+  onMoveToList?: (taskId: string, targetListId: string) => void;
 }
 
 const REPEAT_PRESETS: Array<{ value: RepeatPreset; labelKey: string }> = [
@@ -52,9 +56,11 @@ function getPresetValue(r: RepeatConfig | undefined): RepeatPreset {
 export interface TaskFormHandle {
   /** Trigger close-to-save: auto-saves dirty edits, or just closes */
   close: () => void;
+  /** Close any open sub-menus (repeat, list selector). Returns true if something was dismissed. */
+  dismissSubmenus: () => boolean;
 }
 
-export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskForm({ lang, task, onSave, onCancel, onClose, onDelete }, ref) {
+export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskForm({ lang, task, onSave, onCancel, onClose, onDelete, availableLists, onMoveToList }, ref) {
   const [title, setTitle] = useState(task?.title ?? '');
   const [details, setDetails] = useState(task?.details ?? '');
   const [dueDate, setDueDate] = useState<string | null>(task?.dueDate ?? null);
@@ -69,6 +75,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
 
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
   const [editingSubtaskText, setEditingSubtaskText] = useState('');
+  const [showListMenu, setShowListMenu] = useState(false);
 
   const titleRef = useRef<HTMLDivElement>(null);
   const subtaskInputRef = useRef<HTMLInputElement>(null);
@@ -124,8 +131,15 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
     }
   }, [task, isDirty, title, details, dueDate, repeat, subtasks, onSave, onClose, onCancel]);
 
+  const dismissSubmenus = useCallback(() => {
+    let dismissed = false;
+    if (showRepeat) { setShowRepeat(false); setShowCustom(false); dismissed = true; }
+    if (showListMenu) { setShowListMenu(false); dismissed = true; }
+    return dismissed;
+  }, [showRepeat, showListMenu]);
+
   // Expose handleClose to parent via ref (for BottomSheet backdrop/close-button/outside-click)
-  useImperativeHandle(ref, () => ({ close: handleClose }), [handleClose]);
+  useImperativeHandle(ref, () => ({ close: handleClose, dismissSubmenus }), [handleClose, dismissSubmenus]);
 
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Escape') {
@@ -208,6 +222,49 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
         gap: '12px',
       }}
     >
+      {/* List selector — edit mode only, multiple lists */}
+      {task && availableLists && availableLists.length > 1 && (
+        <div style={{ position: 'relative', alignSelf: 'flex-start' }}>
+          <button
+            type="button"
+            role="combobox"
+            aria-expanded={showListMenu}
+            aria-haspopup="menu"
+            onClick={() => { playSound('buttonClick'); setShowListMenu((v) => !v); }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'none',
+              border: 'none',
+              padding: '0',
+              fontFamily: 'var(--pd-font-body)',
+              fontSize: '0.75rem',
+              color: 'var(--pd-color-text-secondary)',
+              cursor: 'pointer',
+              outline: 'none',
+            }}
+          >
+            {availableLists.find((l) => l.id === task.listId)?.name ?? ''}
+            <span className="material-icons" style={{ fontSize: '14px', lineHeight: 1 }}>arrow_drop_down</span>
+          </button>
+          {showListMenu && (
+            <PopoverMenu
+              align="left"
+              items={availableLists
+                .filter((l) => l.id !== task.listId)
+                .map((l) => ({ id: l.id, label: l.name }))}
+              onSelect={(listId) => {
+                playSound('buttonClick');
+                onMoveToList?.(task.id, listId);
+                setShowListMenu(false);
+              }}
+              onClose={() => { playSound('taskCancel'); setShowListMenu(false); }}
+            />
+          )}
+        </div>
+      )}
+
       {/* Title */}
       <RichTextField
         id="task-title"

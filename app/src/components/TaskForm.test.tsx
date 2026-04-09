@@ -140,6 +140,84 @@ describe('TaskForm — Enter key to save (②)', () => {
   });
 });
 
+// ── List selector in edit mode (⑧ mobile) ─────────────────────────────────
+
+describe('TaskForm — list selector', () => {
+  const lists = [
+    { id: 'list-1', name: 'My Tasks' },
+    { id: 'list-2', name: 'Work' },
+    { id: 'list-3', name: 'Personal' },
+  ];
+
+  it('shows list selector with current list name when editing a task', () => {
+    renderForm({
+      task: { id: 't1', title: 'Test', completed: false, dueDate: null, listId: 'list-1' },
+      availableLists: lists,
+    });
+    const trigger = screen.getByRole('combobox');
+    expect(trigger).toBeInTheDocument();
+    expect(trigger).toHaveTextContent('My Tasks');
+  });
+
+  it('does NOT show list selector when creating a new task', () => {
+    renderForm({ availableLists: lists });
+    expect(screen.queryByRole('combobox')).toBeNull();
+  });
+
+  it('does NOT show list selector when only 1 list exists', () => {
+    renderForm({
+      task: { id: 't1', title: 'Test', completed: false, dueDate: null, listId: 'list-1' },
+      availableLists: [{ id: 'list-1', name: 'My Tasks' }],
+    });
+    expect(screen.queryByRole('combobox')).toBeNull();
+  });
+
+  it('does NOT show list selector when availableLists not provided', () => {
+    renderForm({
+      task: { id: 't1', title: 'Test', completed: false, dueDate: null, listId: 'list-1' },
+    });
+    expect(screen.queryByRole('combobox')).toBeNull();
+  });
+
+  it('opens PopoverMenu with other lists when clicked', () => {
+    renderForm({
+      task: { id: 't1', title: 'Test', completed: false, dueDate: null, listId: 'list-1' },
+      availableLists: lists,
+    });
+    fireEvent.click(screen.getByRole('combobox'));
+    // Current list (My Tasks) should NOT appear as a menu item
+    expect(screen.queryByRole('menuitem', { name: 'My Tasks' })).toBeNull();
+    expect(screen.getByRole('menuitem', { name: 'Work' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Personal' })).toBeInTheDocument();
+  });
+
+  it('calls onMoveToList when a list is selected from the menu', () => {
+    const onMoveToList = vi.fn();
+    renderForm({
+      task: { id: 't1', title: 'Test', completed: false, dueDate: null, listId: 'list-1' },
+      availableLists: lists,
+      onMoveToList,
+    });
+    fireEvent.click(screen.getByRole('combobox'));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Work' }));
+    expect(onMoveToList).toHaveBeenCalledWith('t1', 'list-2');
+  });
+
+  it('plays buttonClick sound when a list is selected', () => {
+    mockPlaySound.mockClear();
+    const onMoveToList = vi.fn();
+    renderForm({
+      task: { id: 't1', title: 'Test', completed: false, dueDate: null, listId: 'list-1' },
+      availableLists: lists,
+      onMoveToList,
+    });
+    fireEvent.click(screen.getByRole('combobox'));
+    mockPlaySound.mockClear();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Personal' }));
+    expect(mockPlaySound).toHaveBeenCalledWith('buttonClick');
+  });
+});
+
 // ── Close-to-Save Tests ────────────────────────────────────────────────────
 
 function makeTask(overrides: Partial<Task> = {}): Task {
