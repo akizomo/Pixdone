@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import type { Task, RepeatConfig, RepeatPreset, CustomRepeat } from '../types/task';
-import { Button, RichTextField, RichTextArea, TextField, PopoverMenu } from '../design-system';
+import { Button, RichTextField, RichTextArea, TextField, PopoverMenu, IconButton } from '../design-system';
 import { t } from '../lib/i18n';
 import { getRepeatLabel } from '../lib/repeat';
 import { getTodayYMD, getTomorrowYMD } from '../lib/date';
@@ -220,8 +220,21 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
         display: 'flex',
         flexDirection: 'column',
         gap: '12px',
+        position: 'relative',
       }}
     >
+      {/* Delete icon — top-right, edit mode only */}
+      {onDelete && (
+        <IconButton
+          variant="ghostDanger"
+          size="sm"
+          aria-label={lang === 'ja' ? '削除' : 'Delete'}
+          icon={<span className="material-icons" style={{ fontSize: '18px' }}>delete</span>}
+          soundKey="taskDelete"
+          onClick={onDelete}
+          style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}
+        />
+      )}
       {/* List selector — edit mode only, multiple lists */}
       {task && availableLists && availableLists.length > 1 && (
         <div style={{ position: 'relative', alignSelf: 'flex-start' }}>
@@ -596,9 +609,6 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
           <Button variant="secondary" size="sm" onClick={onCancel}>{t('cancel', lang)}</Button>
         </div>
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-          {onDelete && (
-            <Button variant="dangerOutline" size="sm" onClick={onDelete}>{t('delete', lang)}</Button>
-          )}
           <Button variant="primary" size="sm" onClick={handleSave}>{t('save', lang)}</Button>
         </div>
       </div>

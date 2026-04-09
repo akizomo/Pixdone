@@ -8,6 +8,7 @@ const variantMap = {
   secondary: 'pxd-icon-button--secondary',
   ghost: 'pxd-icon-button--ghost',
   danger: 'pxd-icon-button--danger',
+  ghostDanger: 'pxd-icon-button--ghost-danger',
 } as const;
 
 export function IconButton({

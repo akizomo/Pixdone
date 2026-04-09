@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import type { SoundKey } from '../../foundations/sound.tokens';
 
-export type IconButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type IconButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'ghostDanger';
 export type IconButtonSize = 'sm' | 'md' | 'lg';
 
 export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {

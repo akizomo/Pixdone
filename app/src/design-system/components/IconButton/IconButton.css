@@ -151,3 +151,21 @@
   filter: brightness(0.95);
   box-shadow: 2px 2px 0 rgba(25, 29, 36, 0.6);
 }
+
+/* Ghost-danger: muted by default, red on hover */
+.pxd-icon-button--ghost-danger {
+  background-color: transparent;
+  color: var(--pd-color-text-muted);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.pxd-icon-button--ghost-danger:hover:not(:disabled) {
+  background-color: var(--pxd-color-action-ghost-hover);
+  color: var(--pxd-color-feedback-danger);
+}
+
+.pxd-icon-button--ghost-danger:active:not(:disabled) {
+  background-color: var(--pxd-color-action-ghost-pressed);
+  color: var(--pxd-color-feedback-danger);
+}
