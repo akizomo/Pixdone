@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
+import { Button } from '../design-system';
 
 type Lang = 'en' | 'ja';
 
@@ -68,22 +69,9 @@ export function AccountPage() {
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
       {/* Sub-page nav */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
-        <button
-          type="button"
-          onClick={() => { playSound('taskCancel'); navigate('/'); }}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.75rem',
-            color: 'var(--pd-color-text-secondary)',
-            letterSpacing: '1px',
-            padding: '4px 0',
-          }}
-        >
+        <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={() => navigate('/')}>
           ← {isJa ? 'もどる' : 'BACK'}
-        </button>
+        </Button>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
           fontSize: '0.875rem',
@@ -162,24 +150,9 @@ export function AccountPage() {
                   {isJa ? 'リスト 3 件まで・スタンダード機能' : 'Up to 3 lists · Standard features'}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}
-                style={{
-                  padding: '8px 16px',
-                  background: 'var(--pd-color-accent-default)',
-                  border: 'none',
-                  borderRadius: 0,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.625rem',
-                  color: 'var(--pd-color-background-default)',
-                  letterSpacing: '1px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <Button variant="primary" size="sm" onClick={() => navigate('/pricing')}>
                 {isJa ? 'アップグレード' : 'UPGRADE'}
-              </button>
+              </Button>
             </div>
           )}
 
@@ -218,26 +191,9 @@ export function AccountPage() {
               )}
 
               {!cancelledUntil && (
-                <button
-                  type="button"
-                  disabled={cancelling}
-                  onClick={handleCancel}
-                  style={{
-                    padding: '8px 16px',
-                    background: 'transparent',
-                    border: '2px solid var(--pd-color-border-default)',
-                    borderRadius: 0,
-                    cursor: cancelling ? 'progress' : 'pointer',
-                    fontFamily: 'var(--pd-font-brand)',
-                    fontSize: '0.625rem',
-                    color: 'var(--pd-color-text-secondary)',
-                    letterSpacing: '1px',
-                  }}
-                >
-                  {cancelling
-                    ? (isJa ? '処理中...' : 'LOADING...')
-                    : (isJa ? 'プランをキャンセル' : 'CANCEL PLAN')}
-                </button>
+                <Button variant="secondary" size="sm" loading={cancelling} onClick={handleCancel}>
+                  {isJa ? 'プランをキャンセル' : 'CANCEL PLAN'}
+                </Button>
               )}
             </div>
           )}
@@ -248,24 +204,9 @@ export function AccountPage() {
 
         {/* Sign out */}
         {user && (
-          <button
-            type="button"
-            onClick={() => { playSound('taskCancel'); logout(); navigate('/'); }}
-            style={{
-              padding: '10px',
-              background: 'transparent',
-              border: '2px solid var(--pd-color-border-default)',
-              borderRadius: 0,
-              cursor: 'pointer',
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.7rem',
-              color: 'var(--pd-color-text-secondary)',
-              letterSpacing: '1px',
-              alignSelf: 'flex-start',
-            }}
-          >
+          <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={() => { logout(); navigate('/'); }}>
             {isJa ? 'ログアウト' : 'SIGN OUT'}
-          </button>
+          </Button>
         )}
       </div>
     </div>

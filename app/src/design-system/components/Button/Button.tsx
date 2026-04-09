@@ -23,6 +23,7 @@ export function Button({
   children,
   type = 'button',
   className = '',
+  soundKey = 'buttonClick',
   onClick,
   ...rest
 }: ButtonProps) {
@@ -42,7 +43,7 @@ export function Button({
       className={classes}
       disabled={disabled || loading}
       aria-busy={loading}
-      onClick={(e) => { playSound('buttonClick'); onClick?.(e); }}
+      onClick={(e) => { if (soundKey) playSound(soundKey); onClick?.(e); }}
       {...rest}
     >
       {loading ? '…' : children}

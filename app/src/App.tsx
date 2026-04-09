@@ -694,7 +694,9 @@ function AppContent() {
   }, [closeMobileSheet]);
 
   // Delegate close to TaskForm's close-to-save logic (for BottomSheet backdrop/close-button)
+  // If a sub-menu (repeat dropdown, list selector) is open, close it first and keep the sheet open.
   const handleTaskFormCloseViaSave = useCallback(() => {
+    if (taskFormRef.current?.dismissSubmenus()) return;
     taskFormRef.current ? taskFormRef.current.close() : handleTaskFormCancel();
   }, [handleTaskFormCancel]);
 
@@ -1092,41 +1094,15 @@ function AppContent() {
                         </span>
                         {/* Upgrade CTA (free only) */}
                         {userPlan !== 'plus' && (
-                          <button
-                            type="button"
-                            onClick={() => { setUserMenuOpen(false); playSound('buttonClick'); navigate('/pricing'); }}
-                            style={{
-                              fontFamily: 'var(--pd-font-brand)',
-                              fontSize: '0.6rem',
-                              letterSpacing: '1px',
-                              padding: '2px 8px',
-                              background: 'var(--pd-color-accent-default)',
-                              border: 'none',
-                              color: 'var(--pd-color-background-default)',
-                              cursor: 'pointer',
-                            }}
-                          >
+                          <Button variant="primary" size="sm" onClick={() => { setUserMenuOpen(false); navigate('/pricing'); }}>
                             {lang === 'ja' ? 'アップグレード →' : 'UPGRADE →'}
-                          </button>
+                          </Button>
                         )}
                         {/* Manage account (plus only) */}
                         {userPlan === 'plus' && (
-                          <button
-                            type="button"
-                            onClick={() => { setUserMenuOpen(false); playSound('buttonClick'); navigate('/account'); }}
-                            style={{
-                              fontFamily: 'var(--pd-font-brand)',
-                              fontSize: '0.6rem',
-                              letterSpacing: '1px',
-                              padding: '2px 8px',
-                              background: 'transparent',
-                              border: '1px solid var(--pd-color-border-default)',
-                              color: 'var(--pd-color-text-secondary)',
-                              cursor: 'pointer',
-                            }}
-                          >
+                          <Button variant="secondary" size="sm" onClick={() => { setUserMenuOpen(false); navigate('/account'); }}>
                             {lang === 'ja' ? '管理 →' : 'MANAGE →'}
-                          </button>
+                          </Button>
                         )}
                       </div>
                     </div>
@@ -1705,30 +1681,12 @@ function AppContent() {
         aria-label="PixDone+"
         actions={
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
-            <button
-              type="button"
-              onClick={() => { playSound('taskCancel'); setPlusIntroOpen(false); }}
-              style={{
-                padding: '8px 16px', background: 'transparent',
-                border: '2px solid var(--pd-color-border-default)', borderRadius: 0,
-                cursor: 'pointer', fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.7rem', color: 'var(--pd-color-text-secondary)', letterSpacing: '1px',
-              }}
-            >
+            <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={() => setPlusIntroOpen(false)}>
               {lang === 'ja' ? 'あとで' : 'LATER'}
-            </button>
-            <button
-              type="button"
-              onClick={() => { playSound('buttonClick'); setPlusIntroOpen(false); navigate('/pricing'); }}
-              style={{
-                padding: '8px 20px', background: 'var(--pd-color-accent-default)',
-                border: '2px solid var(--pd-color-accent-default)', borderRadius: 0,
-                cursor: 'pointer', fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.7rem', color: 'var(--pd-color-background-default)', letterSpacing: '1px',
-              }}
-            >
+            </Button>
+            <Button variant="primary" size="sm" onClick={() => { setPlusIntroOpen(false); navigate('/pricing'); }}>
               {lang === 'ja' ? 'PixDone+ を見る' : 'VIEW PIXDONE+'}
-            </button>
+            </Button>
           </div>
         }
       >
@@ -1887,23 +1845,14 @@ function AppContent() {
               )}
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setPurchaseBanner(null)}
+          <IconButton
+            variant="ghost"
+            size="sm"
+            soundKey="taskCancel"
             aria-label={lang === 'ja' ? '閉じる' : 'Dismiss'}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--pd-color-text-muted)',
-              padding: '4px',
-              flexShrink: 0,
-              fontSize: '1rem',
-              lineHeight: 1,
-            }}
-          >
-            ✕
-          </button>
+            onClick={() => setPurchaseBanner(null)}
+            icon={<span style={{ fontSize: '1rem', lineHeight: 1 }}>✕</span>}
+          />
         </div>
       )}
 

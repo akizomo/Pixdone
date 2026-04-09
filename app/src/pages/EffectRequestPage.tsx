@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
+import { Button } from '../design-system';
 
 type Lang = 'en' | 'ja';
 function detectLang(): Lang {
@@ -50,22 +51,9 @@ export function EffectRequestPage() {
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
       {/* Sub-page nav */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
-        <button
-          type="button"
-          onClick={() => { playSound('taskCancel'); goBack(); }}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.75rem',
-            color: 'var(--pd-color-text-secondary)',
-            letterSpacing: '1px',
-            padding: '4px 0',
-          }}
-        >
+        <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={goBack}>
           ← {isJa ? 'もどる' : 'BACK'}
-        </button>
+        </Button>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
           fontSize: '0.875rem',
@@ -112,23 +100,9 @@ export function EffectRequestPage() {
                 ? 'エフェクトリクエストは PixDone+ 会員限定です。月1回、欲しいエフェクトをリクエストできます。'
                 : 'Effect requests are available to PixDone+ members. Submit one request per month.'}
             </p>
-            <button
-              type="button"
-              onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}
-              style={{
-                padding: '10px 24px',
-                background: 'var(--pd-color-accent-default)',
-                border: 'none',
-                borderRadius: 0,
-                cursor: 'pointer',
-                fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.75rem',
-                color: 'var(--pd-color-background-default)',
-                letterSpacing: '1px',
-              }}
-            >
+            <Button variant="primary" size="sm" onClick={() => navigate('/pricing')}>
               {isJa ? 'PixDone+ にアップグレード' : 'UPGRADE TO PIXDONE+'}
-            </button>
+            </Button>
           </div>
         ) : submitted ? (
           /* Success state */
@@ -155,23 +129,9 @@ export function EffectRequestPage() {
                 ? 'ありがとうございます！次回のアップデートで検討します。'
                 : 'Thank you! We will consider your request in an upcoming update.'}
             </p>
-            <button
-              type="button"
-              onClick={() => { playSound('buttonClick'); goBack(); }}
-              style={{
-                padding: '8px 20px',
-                background: 'transparent',
-                border: '2px solid var(--pd-color-accent-default)',
-                borderRadius: 0,
-                cursor: 'pointer',
-                fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.7rem',
-                color: 'var(--pd-color-accent-default)',
-                letterSpacing: '1px',
-              }}
-            >
+            <Button variant="secondary" size="sm" onClick={goBack}>
               {isJa ? 'もどる' : 'BACK'}
-            </button>
+            </Button>
           </div>
         ) : (
           /* Form */
@@ -237,30 +197,9 @@ export function EffectRequestPage() {
               </p>
             )}
 
-            <button
-              type="button"
-              disabled={loading || !description.trim()}
-              onClick={handleSubmit}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: loading || !description.trim()
-                  ? 'var(--pd-color-border-default)'
-                  : 'var(--pd-color-accent-default)',
-                border: 'none',
-                borderRadius: 0,
-                cursor: loading || !description.trim() ? 'default' : 'pointer',
-                fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.75rem',
-                color: 'var(--pd-color-background-default)',
-                letterSpacing: '1px',
-                transition: 'background 0.15s',
-              }}
-            >
-              {loading
-                ? (isJa ? '送信中...' : 'SENDING...')
-                : (isJa ? 'リクエストを送信' : 'SUBMIT REQUEST')}
-            </button>
+            <Button variant="primary" fullWidth loading={loading} disabled={!description.trim()} onClick={handleSubmit}>
+              {isJa ? 'リクエストを送信' : 'SUBMIT REQUEST'}
+            </Button>
 
             <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)', textAlign: 'center' }}>
               {isJa ? '月1回まで送信できます' : '1 request per month'}

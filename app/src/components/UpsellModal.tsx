@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ModalDialog } from '../design-system';
-import { playSound } from '../services/sound';
+import { ModalDialog, Button } from '../design-system';
 
 export type UpsellReason = 'list-limit' | 'preset-theme' | 'sound-effect';
 
@@ -40,13 +39,11 @@ export function UpsellModal({ open, onClose, reason, lang = 'en' }: UpsellModalP
   const body = isJa ? copy.bodyJa : copy.body;
 
   const handleUpgrade = () => {
-    playSound('buttonClick');
     onClose();
     navigate('/pricing');
   };
 
   const handleClose = () => {
-    playSound('taskCancel');
     onClose();
   };
 
@@ -58,40 +55,12 @@ export function UpsellModal({ open, onClose, reason, lang = 'en' }: UpsellModalP
       aria-label={title}
       actions={
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
-          <button
-            type="button"
-            onClick={handleClose}
-            style={{
-              padding: '8px 16px',
-              background: 'transparent',
-              border: '2px solid var(--pd-color-border-default)',
-              borderRadius: 0,
-              cursor: 'pointer',
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.7rem',
-              color: 'var(--pd-color-text-secondary)',
-              letterSpacing: '1px',
-            }}
-          >
+          <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={handleClose}>
             {isJa ? 'キャンセル' : 'CANCEL'}
-          </button>
-          <button
-            type="button"
-            onClick={handleUpgrade}
-            style={{
-              padding: '8px 20px',
-              background: 'var(--pd-color-accent-default)',
-              border: '2px solid var(--pd-color-accent-default)',
-              borderRadius: 0,
-              cursor: 'pointer',
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.7rem',
-              color: 'var(--pd-color-background-default)',
-              letterSpacing: '1px',
-            }}
-          >
+          </Button>
+          <Button variant="primary" size="sm" onClick={handleUpgrade}>
             {isJa ? 'アップグレード' : 'UPGRADE'}
-          </button>
+          </Button>
         </div>
       }
     >

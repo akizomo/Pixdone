@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
+import { Button } from '../design-system';
 
 
 const FREE_FEATURES = [
@@ -97,22 +98,9 @@ export function PricingPage() {
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
       {/* Sub-page nav */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
-        <button
-          type="button"
-          onClick={() => { playSound('taskCancel'); navigate('/'); }}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.75rem',
-            color: 'var(--pd-color-text-secondary)',
-            letterSpacing: '1px',
-            padding: '4px 0',
-          }}
-        >
+        <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={() => navigate('/')}>
           ← {isJa ? 'もどる' : 'BACK'}
-        </button>
+        </Button>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
           fontSize: '0.875rem',
@@ -324,27 +312,9 @@ export function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={handleUpgrade}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: loading ? 'var(--pxd-color-action-disabled)' : 'var(--pxd-color-action-primary)',
-                  border: 'none',
-                  borderRadius: 0,
-                  cursor: loading ? 'progress' : 'pointer',
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.75rem',
-                  color: 'var(--pxd-color-text-inverse)',
-                  letterSpacing: '1px',
-                }}
-              >
-                {loading
-                  ? (isJa ? '処理中...' : 'LOADING...')
-                  : (isJa ? '7日間無料で試す' : 'START 7-DAY FREE TRIAL')}
-              </button>
+              <Button variant="primary" fullWidth loading={loading} onClick={handleUpgrade}>
+                {isJa ? '7日間無料で試す' : 'START 7-DAY FREE TRIAL'}
+              </Button>
             </div>
           </div>
         )}
@@ -398,23 +368,9 @@ export function PricingPage() {
             <p style={{ color: 'var(--pxd-color-text-secondary)', margin: '0 0 16px', fontSize: '0.875rem' }}>
               {isJa ? 'すべての機能をご利用いただけます。' : 'You have access to all premium features.'}
             </p>
-            <button
-              type="button"
-              onClick={() => { playSound('buttonClick'); navigate('/account'); }}
-              style={{
-                padding: '8px 20px',
-                background: 'transparent',
-                border: '2px solid var(--pxd-color-action-primary)',
-                borderRadius: 0,
-                cursor: 'pointer',
-                fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.7rem',
-                color: 'var(--pxd-color-text-accent)',
-                letterSpacing: '1px',
-              }}
-            >
+            <Button variant="secondary" size="sm" onClick={() => navigate('/account')}>
               {isJa ? 'アカウント管理' : 'MANAGE ACCOUNT'}
-            </button>
+            </Button>
           </div>
         )}
       </div>

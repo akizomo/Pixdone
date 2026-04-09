@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { IconButton, ModalDialog } from '../design-system/components';
+import { IconButton, ModalDialog, Button } from '../design-system/components';
 import { BottomSheet } from '../design-system/components/BottomSheet/BottomSheet';
-import { playSound } from '../services/sound';
 import type { ActiveChallenge } from '../hooks/useActiveChallenge';
 
 const urgentPulseStyle = `
@@ -194,26 +193,16 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
       )}
 
       {/* Preview button */}
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => {
-          playSound('buttonClick');
           setOpen(false);
           onPreviewEffect?.(effect.key);
         }}
-        style={{
-          fontFamily: 'var(--pd-font-brand)',
-          fontSize: '0.85rem',
-          color: 'var(--pd-color-accent-default)',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: '8px 0',
-          textAlign: 'left',
-        }}
       >
         {lang === 'ja' ? 'エフェクトをプレビュー →' : 'Preview effect →'}
-      </button>
+      </Button>
     </div>
   );
 
