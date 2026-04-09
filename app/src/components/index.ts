@@ -10,7 +10,7 @@ export { TutorialPanel } from './TutorialPanel';
 export type { TutorialPanelProps } from './TutorialPanel';
 export { ThemeSelector } from './ThemeSelector';
 export { TaskForm } from './TaskForm';
-export type { TaskFormProps } from './TaskForm';
+export type { TaskFormProps, TaskFormHandle } from './TaskForm';
 export { ListModal } from './ListModal';
 export type { ListModalProps, ListModalMode } from './ListModal';
 export { AuthModal } from './AuthModal';

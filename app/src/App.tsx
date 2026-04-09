@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, Button, Chip, IconButton, ModalDialog, BottomSheet, ToastProvider, useToast } from './design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
-  TaskForm, ListModal, AuthModal, BottomNav, FocusScreen,
+  TaskForm, type TaskFormHandle, ListModal, AuthModal, BottomNav, FocusScreen,
   UpsellModal,
 } from './components';
 import type { ListModalMode, ActiveScreen } from './components';
@@ -28,6 +28,7 @@ import { useActiveChallenge } from './hooks/useActiveChallenge';
 import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
+import { trackTaskComplete, trackTaskAdd, trackListCreate, trackEffectTriggered, trackChallengeUnlocked } from './services/analytics';
 import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect, buildTutorialDrawPool, weightedRandomEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
 import './styles/task-animations.css';
 import type { List } from './types/list';
@@ -80,6 +81,7 @@ function AppContent() {
     lists, activeListId, setActiveList, currentList,
     addList, renameList, deleteList,
     addTask, updateTask, deleteTask, completeTask, uncompleteTask,
+    moveTask,
     reorderActiveTasks,
     listLimitUpsellOpen, closeListLimitUpsell,
   } = useLists();
@@ -111,6 +113,8 @@ function AppContent() {
   // Mobile: BottomSheet open for task add/edit
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [mobileEditTaskId, setMobileEditTaskId] = useState<string | null>(null);
+  // Ref to trigger close-to-save from parent (BottomSheet backdrop, outside-click, etc.)
+  const taskFormRef = useRef<TaskFormHandle>(null);
 
   // Completed section
   const [completedExpanded, setCompletedExpanded] = useState(false);
@@ -360,6 +364,11 @@ function AppContent() {
 
       // Detect completion: current progress (before increment) + 1 == threshold
       if (activeChallenge.progress + 1 >= activeChallenge.threshold) {
+        trackChallengeUnlocked({
+          challenge_id: activeChallenge.effect.key,
+          effect_id: activeChallenge.effect.key,
+          tasks_completed: activeChallenge.threshold,
+        });
         const effectName = activeChallenge.effect.name;
         showToast({
           message: lang === 'ja'
@@ -454,6 +463,10 @@ function AppContent() {
       setMobileSheetOpen(false);
     };
 
+    // Find the task to gather analytics metadata
+    const task = currentList?.tasks.find((t) => t.id === taskId);
+    const isSmashList = currentList?.id === 'smash-list';
+
     if (taskEl) {
       // Tutorial (unauthenticated): use boosted pool with Rare/Epic
       const pool = isTutorialTask
@@ -468,6 +481,16 @@ function AppContent() {
       } else {
         selected = pool.length > 0 ? weightedRandomEffect(pool) : undefined;
       }
+
+      // Analytics: effect triggered
+      if (selected) {
+        trackEffectTriggered({
+          effect_tier: selected.rarity as 'common' | 'rare' | 'epic',
+          effect_id: selected.key,
+          theme_id: visualTheme,
+        });
+      }
+
       runVanillaCompletionEffect(taskEl, () => {
         doComplete();
         if (isTutorialTask) {
@@ -481,6 +504,16 @@ function AppContent() {
         showTutorialToast(taskId);
       }
     }
+
+    // Analytics: task complete
+    if (!isTutorialTask) {
+      trackTaskComplete({
+        list_type: isSmashList ? 'smash' : 'custom',
+        is_repeat: !!(task as Task | undefined)?.repeat,
+        has_subtasks: !!((task as Task | undefined)?.subtasks?.length),
+      });
+    }
+
     if (!isTutorialTask) sendChallengeProgress(taskId);
   }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast]);
 
@@ -560,6 +593,15 @@ function AppContent() {
     setDeleteTaskConfirm(taskId);
   }, []);
 
+  const handleMoveToList = useCallback((taskId: string, targetListId: string) => {
+    playSound('buttonClick');
+    moveTask(taskId, targetListId);
+  }, [moveTask]);
+
+  const availableListsForMove = lists
+    .filter((l) => l.id !== 'smash-list' && l.id !== currentList?.id)
+    .map((l) => ({ id: l.id, name: l.name }));
+
   const runSmashShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
 
@@ -608,6 +650,10 @@ function AppContent() {
     if (taskFormMode === 'add' || (mobileSheetOpen && !mobileEditTaskId)) {
       addTask(currentList!.id, fields);
       playSound('taskAdd');
+      trackTaskAdd({
+        list_type: currentList?.id === 'smash-list' ? 'smash' : 'custom',
+        is_repeat: !!fields.repeat,
+      });
     } else if (editId) {
       updateTask(editId, fields);
       playSound('taskAdd');
@@ -623,6 +669,18 @@ function AppContent() {
     setMobileSheetOpen(false);
     setMobileEditTaskId(null);
   }, []);
+
+  // Close form without sound (used by close-to-save: TaskForm handles save + sound internally)
+  const handleTaskFormClose = useCallback(() => {
+    setTaskFormMode(null);
+    setMobileSheetOpen(false);
+    setMobileEditTaskId(null);
+  }, []);
+
+  // Delegate close to TaskForm's close-to-save logic (for BottomSheet backdrop/close-button)
+  const handleTaskFormCloseViaSave = useCallback(() => {
+    taskFormRef.current ? taskFormRef.current.close() : handleTaskFormCancel();
+  }, [handleTaskFormCancel]);
 
   const openAddTask = useCallback(() => {
     // Smash List: FAB acts as a quick smash (same as Space key)
@@ -667,6 +725,7 @@ function AppContent() {
     if (listModal.mode === 'add') {
       playSound('taskAdd');
       addList(name ?? 'New list');
+      trackListCreate({ list_name: name ?? 'New list' });
     } else if (listModal.mode === 'rename' && listModal.listId) {
       playSound('taskEdit');
       renameList(listModal.listId, name ?? '');
@@ -725,7 +784,7 @@ function AppContent() {
   const suppressRowClickUntilRef = useRef(0);
   const inlineTaskFormRef = useRef<HTMLDivElement>(null);
 
-  /* Desktop inline TaskForm: dismiss on outside tap (overlay-style UX) */
+  /* Desktop inline TaskForm: dismiss on outside tap (close-to-save for edits) */
   useEffect(() => {
     if (!inlineTaskFormOpen) return;
     let downHandler: ((e: MouseEvent) => void) | null = null;
@@ -736,7 +795,8 @@ function AppContent() {
         if (!panel || panel.contains(t)) return;
         const addSection = document.querySelector('.pd-add-task-section');
         if (taskFormMode === 'add' && addSection?.contains(t)) return;
-        handleTaskFormCancel();
+        // Use close-to-save: auto-saves dirty edits, falls back to cancel for new tasks
+        taskFormRef.current ? taskFormRef.current.close() : handleTaskFormCancel();
       };
       document.addEventListener('mousedown', downHandler, true);
     }, 0);
@@ -1467,6 +1527,7 @@ function AppContent() {
                 {taskFormMode === 'add' && (
                   <div ref={inlineTaskFormRef} style={{ paddingTop: '16px', paddingBottom: '16px' }}>
                     <TaskForm
+                      ref={taskFormRef}
                       lang={lang}
                       listId={currentList?.id ?? ''}
                       onSave={handleTaskFormSave}
@@ -1494,11 +1555,13 @@ function AppContent() {
                     {taskFormMode === task.id && editingTask ? (
                       <div ref={inlineTaskFormRef} style={{ paddingTop: '16px', paddingBottom: '16px' }}>
                         <TaskForm
+                          ref={taskFormRef}
                           lang={lang}
                           listId={currentList?.id ?? ''}
                           task={editingTask}
                           onSave={handleTaskFormSave}
                           onCancel={handleTaskFormCancel}
+                          onClose={handleTaskFormClose}
                           onDelete={() => handleDelete(task.id)}
                         />
                       </div>
@@ -1509,6 +1572,8 @@ function AppContent() {
                         onComplete={handleComplete}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
+                        onMoveToList={handleMoveToList}
+                        availableLists={availableListsForMove}
                         onTutorialSmashLinkClick={navigateToSmashList}
                         onTutorialFocusLinkClick={navigateToFocus}
                         suppressOpenEdit={() => Date.now() < suppressRowClickUntilRef.current}
@@ -1609,17 +1674,20 @@ function AppContent() {
       {/* Mobile BottomSheet for task add/edit */}
       <BottomSheet
         open={mobileSheetOpen && !preferInlineTaskUi}
-        onClose={handleTaskFormCancel}
+        onClose={handleTaskFormCloseViaSave}
+        silent
         title={mobileEditTaskId
           ? (lang === 'ja' ? 'タスクを編集' : 'Edit task')
           : (lang === 'ja' ? 'タスクを追加' : 'Add a task')}
       >
         <TaskForm
+          ref={taskFormRef}
           lang={lang}
           listId={currentList?.id ?? ''}
           task={mobileEditTaskId ? editingTask ?? undefined : undefined}
           onSave={handleTaskFormSave}
           onCancel={handleTaskFormCancel}
+          onClose={handleTaskFormClose}
           onDelete={mobileEditTaskId ? () => handleDelete(mobileEditTaskId) : undefined}
         />
       </BottomSheet>

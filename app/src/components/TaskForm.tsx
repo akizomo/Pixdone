@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import type { Task, RepeatConfig, RepeatPreset, CustomRepeat } from '../types/task';
 import { Button, RichTextField, RichTextArea, TextField } from '../design-system';
 import { t } from '../lib/i18n';
@@ -14,6 +14,8 @@ export interface TaskFormProps {
   task?: Task;
   onSave: (fields: Partial<Task> & { title: string }) => void;
   onCancel: () => void;
+  /** Close without explicit cancel — auto-saves when editing a dirty task */
+  onClose?: () => void;
   onDelete?: () => void;
 }
 
@@ -47,7 +49,12 @@ function getPresetValue(r: RepeatConfig | undefined): RepeatPreset {
   return 'none'; // custom shows separately
 }
 
-export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormProps) {
+export interface TaskFormHandle {
+  /** Trigger close-to-save: auto-saves dirty edits, or just closes */
+  close: () => void;
+}
+
+export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskForm({ lang, task, onSave, onCancel, onClose, onDelete }, ref) {
   const [title, setTitle] = useState(task?.title ?? '');
   const [details, setDetails] = useState(task?.details ?? '');
   const [dueDate, setDueDate] = useState<string | null>(task?.dueDate ?? null);
@@ -82,10 +89,60 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
     onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
   }, [title, details, dueDate, repeat, subtasks, onSave, onCancel]);
 
+  // Dirty check: has the user changed any field from the original task values?
+  const isDirty = useCallback(() => {
+    if (!task) return false; // new task — no dirty check
+    return (
+      title.trim() !== (task.title ?? '') ||
+      (details.trim() || '') !== (task.details ?? '') ||
+      dueDate !== (task.dueDate ?? null) ||
+      JSON.stringify(repeat) !== JSON.stringify(task.repeat ?? 'none') ||
+      JSON.stringify(subtasks) !== JSON.stringify(task.subtasks ?? [])
+    );
+  }, [title, details, dueDate, repeat, subtasks, task]);
+
+  // Close-to-save: auto-save when closing an edited task with dirty changes
+  const handleClose = useCallback(() => {
+    if (task && isDirty() && title.trim()) {
+      // Editing + dirty + title non-empty → save then explicitly close
+      playSound('taskAdd');
+      onSave({
+        title: title.trim(),
+        details: details.trim() || undefined,
+        dueDate,
+        repeat,
+        subtasks,
+      });
+      // Explicitly close the form (don't rely on onSave to do it)
+      (onClose ?? onCancel)();
+    } else if (task) {
+      // Edit mode, nothing changed or title empty → silent close
+      (onClose ?? onCancel)();
+    } else {
+      // New task abandoned → cancel with sound
+      onCancel();
+    }
+  }, [task, isDirty, title, details, dueDate, repeat, subtasks, onSave, onClose, onCancel]);
+
+  // Expose handleClose to parent via ref (for BottomSheet backdrop/close-button/outside-click)
+  useImperativeHandle(ref, () => ({ close: handleClose }), [handleClose]);
+
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Escape') {
       e.preventDefault();
-      onCancel();
+      e.nativeEvent.stopPropagation(); // Prevent BottomSheet's document listener from double-firing
+      handleClose();
+    }
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      handleSave();
+    }
+  };
+
+  const handleDetailsKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      handleSave();
     }
   };
 
@@ -167,6 +224,7 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
         onChange={(v) => setDetails(v)}
         placeholder={t('details', lang)}
         rows={3}
+        onKeyDown={handleDetailsKeyDown}
       />
 
       {/* Date buttons */}
@@ -482,4 +540,4 @@ export function TaskForm({ lang, task, onSave, onCancel, onDelete }: TaskFormPro
       </div>
     </div>
   );
-}
+});

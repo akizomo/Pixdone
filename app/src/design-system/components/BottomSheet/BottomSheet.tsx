@@ -11,6 +11,7 @@ export function BottomSheet({
   children,
   className,
   bodyClassName,
+  silent,
 }: BottomSheetProps) {
   const [visible, setVisible] = useState(open);
   const [entered, setEntered] = useState(false);
@@ -122,7 +123,7 @@ export function BottomSheet({
       <div
         className="pxd-sheet-backdrop"
         data-open={entered ? 'true' : 'false'}
-        onClick={() => { playSound('taskCancel'); onClose(); }}
+        onClick={() => { if (!silent) playSound('taskCancel'); onClose(); }}
         aria-hidden="true"
       />
       <div
@@ -142,7 +143,7 @@ export function BottomSheet({
             size="md"
             aria-label="Close"
             icon={<span className="material-icons">close</span>}
-            soundKey="taskCancel"
+            soundKey={silent ? undefined : 'taskCancel'}
             onClick={onClose}
             className="pxd-sheet-close"
           />

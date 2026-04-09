@@ -9,4 +9,6 @@ export interface BottomSheetProps {
   className?: string;
   /** Optional extra class on the sheet body */
   bodyClassName?: string;
+  /** When true, backdrop/close-button do NOT play their own sound (caller handles it) */
+  silent?: boolean;
 }
