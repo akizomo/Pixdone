@@ -1,0 +1,27 @@
+# Express 5 / path-to-regexp: 無効ルート（例 app.options('*')）の再導入を検知
+name: API import check
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build + verify dist/api can be imported
+        run: npm run check:api-import

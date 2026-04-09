@@ -1,0 +1,12 @@
+---
+description: アイコンは世界観（ピクセル/8bit風）に合わせる
+globs: public/**/*.{html,css,js}
+alwaysApply: true
+---
+
+# アイコンルール (Pixdone)
+
+- **方針**: 角丸アイコンは世界観に合わない。ピクセル/8bit風に統一する。
+- **close ボタン**: Font Awesome の `fa-times` は使わず、テキスト `×` を使う（`.auth-close-icon`, `.modal-close-icon`）。
+- **アイコン使用時**: Font Awesome を使う場合は角丸を避け、`border-radius: 0`、`image-rendering: pixelated` を適用する。
+- **新規 UI 追加時**: アイコンを追加する場合は、角丸デザインを避け、ピクセル風・シャープな見た目にする。

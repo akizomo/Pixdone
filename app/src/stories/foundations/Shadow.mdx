@@ -1,0 +1,50 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { shadow } from '../../design-system';
+import { TokensTable } from './TokensTable';
+
+<Meta title="Foundations PXD/Shadow" />
+
+# Shadow Tokens
+
+Pixdone uses **soft shadows** for general elevation and **pixel shadows** for retro emphasis. Use pixel shadows selectively for primary CTAs and raised retro cards; not every surface needs a strong pixel shadow. Reward glows are for success/reward feedback.
+
+---
+
+## Soft shadows
+
+<TokensTable
+  caption="Soft elevation for cards, dropdowns, modals."
+  rows={[
+    { token: 'shadow.none', value: shadow.none, description: 'No shadow', preview: 'shadow' },
+    { token: 'shadow.softXs', value: shadow.softXs, description: 'Very subtle', preview: 'shadow' },
+    { token: 'shadow.softSm', value: shadow.softSm, description: 'Cards, dropdowns', preview: 'shadow' },
+    { token: 'shadow.softMd', value: shadow.softMd, description: 'Modals, raised panels', preview: 'shadow' },
+  ]}
+/>
+
+## Pixel shadows
+
+<TokensTable
+  caption="Retro offset-only shadows for buttons and emphasis."
+  rows={[
+    { token: 'shadow.pixelSm', value: shadow.pixelSm, description: 'Small – buttons', preview: 'shadow' },
+    { token: 'shadow.pixelMd', value: shadow.pixelMd, description: 'Medium – primary CTA', preview: 'shadow' },
+    { token: 'shadow.pixelLg', value: shadow.pixelLg, description: 'Large – emphasis cards', preview: 'shadow' },
+    { token: 'shadow.pixelInset', value: shadow.pixelInset, description: 'Inset – pressed state', preview: 'shadow' },
+  ]}
+/>
+
+## Reward glow
+
+<TokensTable
+  caption="Glow rings for reward/success feedback."
+  rows={[
+    { token: 'shadow.rewardGlowGreen', value: shadow.rewardGlowGreen, description: 'Success / reward', preview: 'shadow' },
+    { token: 'shadow.rewardGlowPurple', value: shadow.rewardGlowPurple, description: 'Reward highlight', preview: 'shadow' },
+    { token: 'shadow.rewardGlowPink', value: shadow.rewardGlowPink, description: 'Reward highlight', preview: 'shadow' },
+  ]}
+/>
+
+## CSS variables
+
+`--pxd-shadow-none`, `--pxd-shadow-soft-xs`, `--pxd-shadow-pixel-md`, `--pxd-shadow-reward-glow-green`, etc. See `tokens.css`.

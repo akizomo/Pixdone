@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>特定商取引法に基づく表示 / Commerce Disclosure — PixDone</title>
+  <link rel="icon" type="image/svg+xml" href="/PixDone.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design-system primitives (subset of tokens.css) ── */
+    :root {
+      --pxd-gray-50:  #F7F7F8;
+      --pxd-gray-100: #EFEFF1;
+      --pxd-gray-300: #C7C9D1;
+      --pxd-gray-600: #666C7A;
+      --pxd-gray-700: #4C5160;
+      --pxd-gray-900: #191D24;
+      --pxd-white:    #FFFFFF;
+      --pxd-ink-50:  #E8EBF4;
+      --pxd-ink-100: #9DA3B4;
+      --pxd-ink-200: #5E6478;
+      --pxd-ink-500: #354262;
+      --pxd-ink-700: #252D40;
+      --pxd-ink-800: #1E2435;
+      --pxd-ink-900: #1A1F2C;
+      --pxd-ink-950: #12151C;
+      --pxd-purple-400: #A590FF;
+      --pxd-purple-500: #7B61FF;
+      --pxd-font-body:  "Inter", system-ui, sans-serif;
+      --pxd-font-brand: "VT323", monospace;
+
+      /* Semantic – light mode */
+      --pxd-color-surface-page:      var(--pxd-gray-50);
+      --pxd-color-surface-secondary: var(--pxd-gray-100);
+      --pxd-color-surface-primary:   var(--pxd-white);
+      --pxd-color-text-primary:      var(--pxd-gray-900);
+      --pxd-color-text-secondary:    var(--pxd-gray-700);
+      --pxd-color-text-tertiary:     var(--pxd-gray-600);
+      --pxd-color-border-outline:    var(--pxd-gray-300);
+      --pxd-color-action-primary:    var(--pxd-purple-500);
+
+      /* App design-system aliases (keep in sync with app/src/design-system/theme/global.css) */
+      --pd-color-accent-default: var(--pxd-color-action-primary);
+      --pd-color-accent-hover:   var(--pxd-color-action-primary);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --pxd-color-surface-page:      var(--pxd-ink-950);
+        --pxd-color-surface-secondary: var(--pxd-ink-900);
+        --pxd-color-surface-primary:   var(--pxd-ink-800);
+        --pxd-color-text-primary:      var(--pxd-ink-50);
+        --pxd-color-text-secondary:    var(--pxd-ink-100);
+        --pxd-color-text-tertiary:     var(--pxd-ink-200);
+        --pxd-color-border-outline:    var(--pxd-ink-500);
+        --pxd-color-action-primary:    var(--pxd-purple-400);
+
+        --pd-color-accent-default: var(--pxd-color-action-primary);
+        --pd-color-accent-hover:   var(--pxd-color-action-primary);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--pxd-color-surface-page);
+      color: var(--pxd-color-text-primary);
+      font-family: var(--pxd-font-body);
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    a { color: var(--pd-color-accent-default); text-decoration: none; }
+    a:hover { color: var(--pd-color-accent-hover); text-decoration: underline; }
+    .page-header {
+      background: var(--pxd-color-surface-primary);
+      border-bottom: 1px solid var(--pxd-color-border-outline);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      font-family: var(--pxd-font-brand);
+      font-size: 1.5rem;
+      color: var(--pxd-color-text-primary);
+      text-decoration: none;
+    }
+    .page-header-sep { color: var(--pxd-color-text-tertiary); }
+    .page-header-label { font-size: 0.875rem; color: var(--pxd-color-text-secondary); }
+    .lang-toggle {
+      margin-left: auto;
+      display: flex;
+      gap: 4px;
+    }
+    .lang-btn {
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-family: var(--pxd-font-body);
+      background: none;
+      border: 1px solid var(--pxd-color-border-outline);
+      color: var(--pxd-color-text-secondary);
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: var(--pxd-color-action-primary);
+      border-color: var(--pxd-color-action-primary);
+      color: #fff;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      border-bottom: 2px solid var(--pxd-color-action-primary);
+      padding-bottom: 12px;
+    }
+    .updated {
+      color: var(--pxd-color-text-tertiary);
+      font-size: 0.8125rem;
+      margin-bottom: 36px;
+    }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
+    th, td {
+      text-align: left;
+      padding: 12px 14px;
+      border: 1px solid var(--pxd-color-border-outline);
+      vertical-align: top;
+    }
+    th {
+      background: var(--pxd-color-surface-secondary);
+      font-weight: 600;
+      white-space: nowrap;
+      width: 40%;
+      color: var(--pxd-color-text-secondary);
+      font-size: 0.875rem;
+    }
+    td { background: var(--pxd-color-surface-primary); font-size: 0.9375rem; }
+    .note {
+      background: var(--pxd-color-surface-secondary);
+      border: 1px solid var(--pxd-color-border-outline);
+      padding: 14px 16px;
+      font-size: 0.875rem;
+      color: var(--pxd-color-text-secondary);
+      margin-top: 24px;
+    }
+    .note strong { color: var(--pxd-color-text-primary); }
+    footer {
+      text-align: center;
+      padding: 24px 20px;
+      border-top: 1px solid var(--pxd-color-border-outline);
+      color: var(--pxd-color-text-tertiary);
+      font-size: 0.8125rem;
+    }
+    footer a { color: var(--pxd-color-text-tertiary); text-decoration: underline; }
+    footer a:hover { color: var(--pxd-color-text-secondary); }
+    @media (max-width: 600px) {
+      th { width: 44%; font-size: 0.8125rem; }
+      th, td { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <a href="/" class="logo">PixDone</a>
+    <span class="page-header-sep">/</span>
+    <span class="page-header-label" id="header-label"></span>
+    <div class="lang-toggle">
+      <button class="lang-btn" id="btn-ja" onclick="setLang('ja')">Ja</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">En</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Japanese -->
+    <div id="content-ja">
+      <h1>特定商取引法に基づく表示</h1>
+      <p class="updated">最終更新: <span class="updated-year"></span></p>
+      <table>
+        <tr><th>販売業者</th><td>Akihiro Uezono</td></tr>
+        <tr><th>代表者名</th><td>Akihiro Uezono</td></tr>
+        <tr><th>所在地</th><td>請求があれば遅滞なく開示いたします。</td></tr>
+        <tr><th>電話番号</th><td>請求があれば遅滞なく開示いたします。</td></tr>
+        <tr><th>メールアドレス</th><td>contact@akizony.com</td></tr>
+        <tr><th>販売URL</th><td>https://pixdone.vercel.app</td></tr>
+        <tr><th>販売価格</th><td>各商品・サービスの購入ページに表示される価格（税込）。</td></tr>
+        <tr><th>販売価格以外の費用</th><td>インターネット通信料はお客様のご負担となります。</td></tr>
+        <tr>
+          <th>お支払い方法</th>
+          <td>クレジットカード（Stripe によるセキュア決済）<br>対応ブランド: Visa / Mastercard / American Express など</td>
+        </tr>
+        <tr><th>お支払い時期</th><td>購入手続き完了時（クレジットカード即時決済）</td></tr>
+        <tr><th>サービス提供時期</th><td>決済完了後、即時ご利用いただけます。</td></tr>
+        <tr>
+          <th>返品・キャンセルについて</th>
+          <td>ご購入日または更新日から7日以内であれば、返金をお受けしております。返金をご希望の場合は pixdone@akizony.com までご連絡ください。7日を過ぎた場合はデジタルサブスクリプションサービスの性質上、返金はお受けできかねます。サービスに技術的な問題が発生した場合はご連絡いただければ、解決に向けて最善を尽くします。</td>
+        </tr>
+        <tr><th>動作環境</th><td>最新バージョンの主要ブラウザ（Chrome、Safari、Firefox、Edge）</td></tr>
+      </table>
+      <div class="note">
+        <strong>お問い合わせ</strong><br>
+        上記事項についてご不明な点がある場合は、アプリ内のサポートリンクまたは公開連絡先までご連絡ください。
+      </div>
+    </div>
+
+    <!-- English -->
+    <div id="content-en">
+      <h1>Commerce Disclosure</h1>
+      <p class="updated">Last updated: <span class="updated-year"></span></p>
+      <table>
+        <tr><th>Seller</th><td>Akihiro Uezono</td></tr>
+        <tr><th>Representative</th><td>Akihiro Uezono</td></tr>
+        <tr><th>Address</th><td>Available upon request.</td></tr>
+        <tr><th>Phone</th><td>Available upon request.</td></tr>
+        <tr><th>Email</th><td>contact@akizony.com</td></tr>
+        <tr><th>Website</th><td>https://pixdone.vercel.app</td></tr>
+        <tr><th>Pricing</th><td>Prices are shown (tax-inclusive) on each product's purchase page.</td></tr>
+        <tr><th>Additional costs</th><td>Internet connection fees are the customer's responsibility.</td></tr>
+        <tr>
+          <th>Payment method</th>
+          <td>Credit card (processed securely via Stripe)<br>Accepted: Visa / Mastercard / American Express, etc.</td>
+        </tr>
+        <tr><th>Payment timing</th><td>Charged immediately upon purchase completion.</td></tr>
+        <tr><th>Service delivery</th><td>Available immediately after payment is confirmed.</td></tr>
+        <tr>
+          <th>Refunds &amp; cancellations</th>
+          <td>Refunds are available within 7 days of the initial purchase or renewal date. To request a refund, please contact us at pixdone@akizony.com. After 7 days, refunds are not available as this is a digital subscription service. If you experience a technical issue with the service, please contact us and we will do our best to resolve it.</td>
+        </tr>
+        <tr><th>Supported browsers</th><td>Latest versions of major browsers (Chrome, Safari, Firefox, Edge)</td></tr>
+      </table>
+      <div class="note">
+        <strong>Contact</strong><br>
+        For any questions regarding the above, please use the support link in the app or email us at <a href="mailto:contact@akizony.com">contact@akizony.com</a>.
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">PixDone</a> &nbsp;|&nbsp;
+    <a href="/privacy.html" id="footer-privacy-link"></a>
+    &nbsp;|&nbsp;
+    <a href="/terms.html" id="footer-terms-link"></a>
+  </footer>
+
+  <script>
+    const i18n = {
+      ja: { headerLabel: '特定商取引法に基づく表示', privacyLink: 'プライバシーポリシー', termsLink: '利用規約' },
+      en: { headerLabel: 'Commerce Disclosure',      privacyLink: 'Privacy Policy',      termsLink: 'Terms of Service' },
+    };
+
+    function setLang(lang) {
+      document.getElementById('content-ja').style.display = lang === 'ja' ? '' : 'none';
+      document.getElementById('content-en').style.display = lang === 'en' ? '' : 'none';
+      document.getElementById('btn-ja').classList.toggle('active', lang === 'ja');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.getElementById('header-label').textContent = i18n[lang].headerLabel;
+      document.getElementById('footer-privacy-link').textContent = i18n[lang].privacyLink;
+      document.getElementById('footer-terms-link').textContent = i18n[lang].termsLink;
+      document.documentElement.lang = lang;
+      try { localStorage.setItem('pixdone-lang', lang); } catch(e) {}
+    }
+
+    // 現在の年を埋める
+    document.querySelectorAll('.updated-year').forEach(el => {
+      el.textContent = new Date().getFullYear();
+    });
+
+    // アプリと同じ localStorage キーで言語を取得
+    const saved = (() => { try { return localStorage.getItem('pixdone-lang'); } catch(e) { return null; } })();
+    setLang(saved === 'en' ? 'en' : 'ja');
+  </script>
+</body>
+</html>

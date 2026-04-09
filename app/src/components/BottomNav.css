@@ -1,0 +1,43 @@
+.pd-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(56px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--pd-color-background-elevated);
+  border-top: 2px solid var(--pd-color-border-default);
+  display: flex;
+  align-items: stretch;
+  z-index: 200;
+}
+
+/* Desktop: floating pill anchored to bottom edge */
+@media (any-pointer: fine) {
+  .pd-bottom-nav {
+    left: 50%;
+    right: auto;
+    bottom: 16px;
+    transform: translateX(-50%);
+    width: max-content;
+    min-width: 260px;
+    height: 48px;
+    padding-bottom: 0;
+    border: 2px solid var(--pd-color-border-default);
+    border-radius: 0;
+    box-shadow: 3px 3px 0 var(--pd-color-shadow-default);
+    overflow: hidden;
+  }
+
+  /* ボタン: 横パディングを広げ、上ボーダーインジケーターを無効化 */
+  .pd-bottom-nav button {
+    padding: 0 28px;
+    border-top: none !important;
+    min-width: 100px;
+  }
+
+  /* アクティブ状態: 背景色で表現 */
+  .pd-bottom-nav button[aria-selected="true"] {
+    background: var(--pd-color-accent-subtle) !important;
+  }
+}

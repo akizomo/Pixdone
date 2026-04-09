@@ -1,0 +1,12 @@
+---
+description: モーダル・ページタイトルはピクセルフォント（VT323）を使用する
+globs: public/**/*.{html,css,js}
+alwaysApply: false
+---
+
+# モーダル・ページタイトルのフォント
+
+- **モーダルタイトル**（ボトムシートの見出し、確認ダイアログのタイトルなど）と**ページタイトル**には、リストタイトル（MY TASKS など）と同じ**ピクセルフォント**を使う。
+- フォント: `'VT323', 'Courier New', monospace`
+- CSS では `style.css` の `.list-title` または `.pixel-title` を踏襲する。
+- 新規モーダルを追加する場合は、タイトル要素に `.pixel-title` を付与するか、`.modal-content h2` / `.modal-content h3` や `.task-sheet-header h3` の既存スタイルが適用されるようにする。

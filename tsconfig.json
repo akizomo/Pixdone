@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "node16",
+        "moduleResolution": "node16",
+        "baseUrl": ".",
+        "paths": {
+            "/*": [
+                "./*"
+            ]
+        },
+        "strict": false,
+        "useUnknownInCatchVariables": false,
+        "noImplicitAny": false,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "dist"
+    },
+    "include": [
+        "server/**/*.ts",
+        "api/**/*.ts",
+        "shared/**/*.ts"
+    ]
+}

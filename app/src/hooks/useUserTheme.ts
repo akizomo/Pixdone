@@ -3,7 +3,6 @@ import { ThemeContext } from '../design-system/theme/ThemeProvider';
 import { themes } from '../design-system/themes/themeRegistry';
 import type { ThemeKey } from '../design-system/themes/themeRegistry';
 import type { ColorModePreference } from '../design-system/tokens';
-import { trackThemeSwitch } from '../services/analytics';
 
 /**
  * Hook for reading and updating the active visual theme.
@@ -25,14 +24,7 @@ export function useUserTheme() {
 
   const changeTheme = useCallback(
     async (key: ThemeKey) => {
-      const previousTheme = visualTheme;
       setVisualTheme(key);
-
-      // Analytics: theme switch
-      if (key !== previousTheme) {
-        trackThemeSwitch({ from_theme: previousTheme, to_theme: key });
-      }
-
       // Best-effort server sync – ignore errors (unauthenticated or network failure)
       try {
         await fetch('/api/user/theme', {
@@ -42,7 +34,7 @@ export function useUserTheme() {
         });
       } catch (_) {}
     },
-    [setVisualTheme, visualTheme],
+    [setVisualTheme],
   );
 
   return {

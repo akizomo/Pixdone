@@ -1,0 +1,110 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# PixDone CI / Deploy
+#
+# ブランチ戦略:
+#   develop ブランチ → ステージング (pixdone-bwm6.vercel.app)
+#   main    ブランチ → 本番環境     (pixdone.akizony.com)
+#
+# 必要な GitHub Secrets:
+#   VERCEL_TOKEN  … Vercel アカウント設定 → Tokens で発行
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI / Deploy
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  VERCEL_ORG_ID: team_JgRJfRCwLdRM9bfZZT0KtMAV
+
+jobs:
+  # ── CI: 全ブランチ・全PRで実行 ────────────────────────────────────────────
+  ci:
+    name: CI Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build + verify API can be imported
+        run: npm run check:api-import
+
+  # ── ステージングデプロイ: develop ブランチへの push 時 ───────────────────
+  deploy-staging:
+    name: Deploy → Staging
+    needs: ci
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: staging
+      url: https://pixdone-bwm6.vercel.app
+    env:
+      VERCEL_PROJECT_ID: prj_o8EXZcFrMV9pm8PxAcez6gbzXmAg
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel environment (staging)
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build for staging
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to staging
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  # ── 本番デプロイ: main ブランチへの push 時 ─────────────────────────────
+  deploy-production:
+    name: Deploy → Production
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://pixdone.akizony.com
+    env:
+      VERCEL_PROJECT_ID: prj_thbh5tAQTdrUYMaMrq64o0rlKuaR
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel environment (production)
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build for production
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to production
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

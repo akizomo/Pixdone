@@ -1,0 +1,82 @@
+.pxd-toast-container {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.pxd-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--pd-color-background-elevated);
+  border: 2px solid var(--pd-color-border-default);
+  box-shadow: 4px 4px 0px var(--pd-color-shadow-default);
+  font-family: var(--pd-font-body);
+  font-size: 0.85rem;
+  color: var(--pd-color-text-primary);
+  max-width: min(400px, calc(100vw - 32px));
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.pxd-toast--entered {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pxd-toast--exiting {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.pxd-toast__message {
+  flex: 1;
+  min-width: 0;
+}
+
+.pxd-toast__action {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  background: none;
+  border: 1px solid var(--pd-color-accent-default);
+  font-family: var(--pd-font-brand);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  color: var(--pd-color-accent-default);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pxd-toast__action:hover {
+  background: var(--pd-color-accent-subtle);
+}
+
+.pxd-toast__close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--pd-color-text-secondary);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.pxd-toast__close:hover {
+  color: var(--pd-color-text-primary);
+}

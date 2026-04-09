@@ -1,0 +1,60 @@
+/* ─────────────────────────────────────────────
+   Pac-Man Progress — Pomodoro Zen Mode
+   All colors come from CSS variables only.
+   Never hardcode colours here.
+   Animate only transform and opacity.
+───────────────────────────────────────────── */
+
+/* ── Pac-Man arrive: pop on completion ── */
+@keyframes pxd-arrive {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.45); }
+  65%  { transform: scale(0.88); }
+  100% { transform: scale(1); }
+}
+
+.pxd-pacman--arrive {
+  animation: pxd-arrive 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ── Dot eating: scale up → vanish ── */
+@keyframes pxd-dot-eat {
+  0%   { opacity: 0.45; transform: scale(1); }
+  35%  { opacity: 1;    transform: scale(1.6); }
+  100% { opacity: 0;    transform: scale(0.1); }
+}
+
+.pxd-dot--eating {
+  animation: pxd-dot-eat 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* ── Flag wave ── */
+@keyframes pxd-flag-wave {
+  0%, 100% { transform: scaleX(1); }
+  50%       { transform: scaleX(0.85); }
+}
+
+.pxd-flag--idle {
+  animation: pxd-flag-wave 1.8s ease-in-out infinite;
+}
+
+.pxd-flag--complete {
+  animation: pxd-flag-wave 0.32s ease-in-out infinite;
+}
+
+/* ── Respect reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .pxd-pacman--arrive,
+  .pxd-dot--eating,
+  .pxd-flag--idle,
+  .pxd-flag--complete {
+    animation: none;
+  }
+
+  .pxd-dot--eating {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,51 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { ThemeAwareSemanticColorTables } from './ThemeAwareSemanticColorTable';
+import { ThemePrimitiveTokensPanel } from './ThemePrimitiveTokensPanel';
+
+<Meta title="Foundations PXD/Color" />
+
+# Color Tokens
+
+**Foundations のこのページ**を、セマンティック色・ビジュアルテーマごとのプリミティブ・利用ルールの**正とします**。  
+グローバルな **Gray / Ink / 色相スケールのスウォッチ一覧**だけは、レイアウトの都合で **Design System → Color primitives → [Primitive scales](?path=/story/design-system-color-primitives--primitive-scales)** に分けています（内容の重複ではなく、役割の分割です）。
+
+| 見たいもの | どこへ |
+|------------|--------|
+| `--pxd-color-*` の解決値（表）、テーマ別プリミティブ、`var()` のルール | **このページ** |
+| `--pxd-gray-*` / `--pxd-ink-*` / 各色相のステップをスウォッチで一覧 | **Design System → Color primitives** |
+
+---
+
+Pixdone uses a **Primitive → Semantic** color architecture.
+
+- **Primitive** tokens (`--pxd-gray-*`, `--pxd-ink-*`, `--pxd-purple-*` …) define the raw palette.
+- **Semantic** tokens (`--pxd-color-surface-page`, `--pxd-color-text-primary` …) assign UI meaning and are overridden per color mode and **visual theme**.
+- **Components** must only reference semantic tokens — never primitives directly.
+
+## Primitives per visual theme
+
+Arcade / Synthwave / Forest Bit では、テーマTSで定義する専用プリミティブ（`--pxd-sw-*`、`--pxd-fb-*` など）と、`tokens.css` の共有プリミティブへの参照が異なります。ツールバーでテーマと Color Mode を切り替えると、**その組み合わせで使われるプリミティブ**が次に表示されます。
+
+<ThemePrimitiveTokensPanel />
+
+## Live semantic reference
+
+The tables below show each semantic token **as resolved in the current Storybook preview**: use the **Color Mode** toolbar (light / dark) to see mode changes, and the **Visual Theme** toolbar (Arcade, Synthwave, Forest Bit) to see palette overrides such as Synthwave navy / neon accents.
+
+<ThemeAwareSemanticColorTables />
+
+---
+
+## CSS変数の使い方
+
+コンポーネントでは `--pxd-` プレフィックスのセマンティックトークンを使用する。プリミティブトークン (`--pxd-gray-*`, `--pxd-ink-*`) は直接参照しない。
+
+```css
+/* ✅ 正しい — セマンティックトークンを参照 */
+color: var(--pxd-color-text-primary);
+background: var(--pxd-color-surface-page);
+
+/* ❌ 誤り — プリミティブを直接参照 */
+color: var(--pxd-gray-900);
+background: var(--pxd-ink-950);
+```

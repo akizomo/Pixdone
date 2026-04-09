@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.env.local
+
+# Firebase サービスアカウント（秘密鍵）— リポジトリに入れない
+*-firebase-adminsdk-*.json
+.pnpm-store/

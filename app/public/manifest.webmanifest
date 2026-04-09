@@ -1,0 +1,14 @@
+{
+  "name": "PixDone",
+  "short_name": "PixDone",
+  "description": "Pixel-style task manager with focus mode.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0A0A22",
+  "theme_color": "#0A0A22",
+  "icons": [
+    { "src": "/PixDone.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
+

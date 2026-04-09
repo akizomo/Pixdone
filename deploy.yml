@@ -1,0 +1,13 @@
+# Deployment Configuration for PixDone
+# This ensures proper deployment with the correct run command
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pixdone-config
+data:
+  run-command: "tsx server/index.ts"
+  port: "5000"
+  health-check-path: "/health"
+  app-name: "PixDone"
+  node-env: "production"

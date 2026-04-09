@@ -1,0 +1,57 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations PXD/Accessibility" />
+
+# Accessibility
+
+Pixdone foundations are built **accessible by default**. Apply these rules when implementing components and patterns. This page does not use token tables; it describes design and implementation rules.
+
+---
+
+## Minimum tap targets
+
+- **44×44px minimum** for primary interactive elements: buttons, links, list rows, icon-only controls.
+- Use `--pxd-tap-target-min: 44px` and spacing tokens so touch targets are never smaller.
+- Provide adequate spacing between targets to avoid mis-taps.
+
+---
+
+## Focus visibility
+
+- **Visible focus states** – Every focusable element must show a clear focus indicator (e.g. ring using `--pxd-color-focus-ring` and `--pxd-color-focus-ring-offset`).
+- **Never remove focus outline** without replacing it with an equally visible style (e.g. 2px outline or custom ring).
+- Ensure focus ring has **at least 3:1 contrast** against the background.
+
+---
+
+## Color contrast
+
+- **Text** – Meet WCAG 2.1 AA: **4.5:1** for normal text, **3:1** for large text (e.g. 24px+).
+- **UI components** – Non-text UI should have at least **3:1** contrast against adjacent surfaces.
+- **Do not rely on color alone** – Pair semantic colors (success, warning, danger) with icon or text so meaning is clear without color.
+
+---
+
+## Reduced motion
+
+- **Respect `prefers-reduced-motion: reduce`** – `tokens.css` shortens motion duration variables when this preference is set. Use `--pxd-motion-*` variables for all transitions and animations.
+- Prefer reduced or no motion for decorative effects; keep essential feedback minimal (e.g. instant or fast only).
+
+---
+
+## Icon button labeling
+
+- **Accessible labels** – Use `aria-label` or visually hidden text so screen reader users understand the action.
+- Ensure the control is focusable and meets the minimum tap target size (44×44px).
+
+---
+
+## Summary checklist
+
+| Area | Requirement |
+|------|-------------|
+| Tap target | ≥ 44×44px; use `--pxd-tap-target-min` |
+| Focus | Visible ring; never outline: none without replacement |
+| Contrast | WCAG AA for text; 3:1 for UI; semantics not by color alone |
+| Reduced motion | Use `--pxd-motion-*`; honor prefers-reduced-motion |
+| Icon buttons | aria-label or equivalent; focusable |

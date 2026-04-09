@@ -1,0 +1,84 @@
+/* Perfect Timing minigame (parity with public/style.css) */
+.perfect-timing-overlay {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.perfect-timing-bar {
+  position: relative;
+  width: 200px;
+  height: 24px;
+  background: var(--pd-color-background-secondary, var(--bg-secondary, #28292d));
+  border: 2px solid var(--pd-color-border-default, var(--border-color, #3c4043));
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: 2px 2px 0 var(--pd-color-shadow-default, rgba(0, 0, 0, 0.3));
+}
+
+.perfect-timing-indicator {
+  position: absolute;
+  top: 2px;
+  width: 16px;
+  height: 18px;
+  background: var(--pd-color-accent-default, var(--accent-color, #1a73e8));
+  border-radius: 0;
+  transition: none;
+}
+
+.perfect-timing-zone {
+  position: absolute;
+  top: 2px;
+  height: 18px;
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+.perfect-timing-zone-good {
+  background: #fbbc04;
+}
+
+.perfect-timing-zone-great {
+  background: #34a853;
+}
+
+.perfect-timing-zone-perfect {
+  background: #1a73e8;
+}
+
+.perfect-timing-result-text {
+  position: fixed;
+  font-family: 'VT323', monospace;
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff6b6b;
+  text-shadow: 2px 2px 0 #000, -2px -2px 0 #fff;
+  z-index: 10001;
+  pointer-events: none;
+}
+
+@keyframes perfectTimingFlash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.perfect-timing-result-miss {
+  color: #9aa0a6;
+  font-size: 18px;
+}
+.perfect-timing-result-good {
+  color: #fbbc04;
+  font-size: 22px;
+}
+.perfect-timing-result-great {
+  color: #34a853;
+  font-size: 28px;
+}
+.perfect-timing-result-perfect {
+  color: #ffd700;
+  font-size: 36px;
+}
