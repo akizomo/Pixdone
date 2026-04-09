@@ -947,9 +947,49 @@ class ComicEffectsManager {
 
     // Play random effect on task completion (effectRect = optional viewport rect when clone not laid out)
     playRandomEffect(taskElement, effectRect) {
+        // ── コンボカウントは effectLock / activeEffects 中でも常に更新する ──
+        const currentTime = Date.now();
+        if (!this.comboCount) this.comboCount = 0;
+        if (!this.lastEffectTime) this.lastEffectTime = 0;
+
+        const timeSinceLastEffect = currentTime - this.lastEffectTime;
+
+        if (timeSinceLastEffect < 3000) {
+            // 3秒以内なら連続コンボ
+            this.comboCount++;
+            this.showComboEffect(this.comboCount);
+        } else {
+            this.comboCount = 1;
+        }
+
+        this.lastEffectTime = currentTime;
+
+        // コンボタイムアウトリセット
+        if (this.comboTimeout) {
+            clearTimeout(this.comboTimeout);
+        }
+
+        // 5コンボ以上: 余計なUI要素を薄くしてエフェクトに集中させる
+        if (this.comboCount >= 5) {
+            const smashContainer = document.querySelector('.pd-app-container') || document.querySelector('.app-container');
+            if (smashContainer) {
+                smashContainer.classList.add('smash-combo-active');
+            }
+            document.body.classList.add('smash-combo-active');
+        }
+
+        this.comboTimeout = setTimeout(() => {
+            this.comboCount = 0;
+            const smashContainer = document.querySelector('.pd-app-container') || document.querySelector('.app-container');
+            if (smashContainer) {
+                smashContainer.classList.remove('smash-combo-active');
+            }
+            document.body.classList.remove('smash-combo-active');
+        }, 3000);
+
+        // ── エフェクト描画はロック中ならスキップ ──
         if (this.effectLock) return;
-        const random = Math.random();
-        let selectedEffect;
+
         const params = typeof window !== "undefined" && window.location ? new URLSearchParams(window.location.search) : null;
         const forceFreeze = params && params.get("effect") === "freeze";
         const forceRainbow = params && params.get("effect") === "rainbow";
@@ -996,6 +1036,8 @@ class ComicEffectsManager {
             return;
         }
 
+        const random = Math.random();
+        let selectedEffect;
         const visualTheme = this.getVisualTheme();
         const isSynthwave = visualTheme === "synthwave";
         const isForestbit = visualTheme === "forestbit";
@@ -1034,46 +1076,6 @@ class ComicEffectsManager {
 
         // Clear any existing effect text to prevent overlapping
         this.clearExistingEffectText();
-
-        // コンボ効果の処理
-        const currentTime = Date.now();
-        if (!this.comboCount) this.comboCount = 0;
-        if (!this.lastEffectTime) this.lastEffectTime = 0;
-
-        const timeSinceLastEffect = currentTime - this.lastEffectTime;
-
-        if (timeSinceLastEffect < 3000) {
-            // 3秒以内なら連続コンボ
-            this.comboCount++;
-            this.showComboEffect(this.comboCount);
-        } else {
-            this.comboCount = 1;
-        }
-
-        this.lastEffectTime = currentTime;
-
-        // コンボタイムアウトリセット
-        if (this.comboTimeout) {
-            clearTimeout(this.comboTimeout);
-        }
-
-        // 5コンボ以上: 余計なUI要素を薄くしてエフェクトに集中させる
-        if (this.comboCount >= 5) {
-            const smashContainer = document.querySelector('.pd-app-container') || document.querySelector('.app-container');
-            if (smashContainer) {
-                smashContainer.classList.add('smash-combo-active');
-            }
-            document.body.classList.add('smash-combo-active');
-        }
-
-        this.comboTimeout = setTimeout(() => {
-            this.comboCount = 0;
-            const smashContainer = document.querySelector('.pd-app-container') || document.querySelector('.app-container');
-            if (smashContainer) {
-                smashContainer.classList.remove('smash-combo-active');
-            }
-            document.body.classList.remove('smash-combo-active');
-        }, 3000);
 
         this.playEffect(selectedEffect, taskElement, effectRect);
     }
