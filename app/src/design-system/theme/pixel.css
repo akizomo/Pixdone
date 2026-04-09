@@ -171,6 +171,11 @@
     display: none !important;
   }
 
+  /* Hide delete / move-to-list icons on mobile — use edit bottom sheet instead */
+  .task-item-row-actions {
+    display: none !important;
+  }
+
   /* Extra padding so content isn't hidden behind FAB */
   .pd-app-container {
     padding-bottom: calc(56px + 56px + 16px + env(safe-area-inset-bottom));
