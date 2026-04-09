@@ -49,7 +49,9 @@ export const users = pgTable("users", {
   aiThemeCredits: integer("ai_theme_credits").notNull().default(0),       // AIテーマ生成クレジット (将来用)
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_users_stripe_customer_id").on(table.stripeCustomerId),
+]);
 
 // Task lists table
 export const taskLists = pgTable("task_lists", {

@@ -321,9 +321,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // billing_cycle_anchor や current_period_end を同期する
           const customerId = obj?.customer as string | undefined;
           if (!customerId) break;
-          const user = await storage.getUser(customerId);
-          const userId = user?.id;
-          if (!userId) break;
+          const user = await storage.getUserByStripeCustomerId(customerId);
+          if (!user) { console.warn('[stripe-webhook] subscription.updated: no user for customer', customerId.slice(0, 7) + '…'); break; }
+          const userId = user.id;
+          const status = obj?.status as string | undefined;
+          const plan = (status === 'active' || status === 'trialing') ? 'plus' : 'free';
           const periodEnd = obj?.current_period_end
             ? new Date(obj.current_period_end * 1000)
             : null;
@@ -333,25 +335,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
             ? new Date(obj.trial_end * 1000)
             : null;
           await storage.updateSubscription(userId, {
-            plan: 'plus',
+            plan,
             billingCycle,
             currentPeriodEnd: periodEnd,
             trialEnd: subTrialEnd,
           });
           break;
         }
-        case 'customer.subscription.deleted':
-        case 'invoice.payment_failed': {
+        case 'customer.subscription.deleted': {
           const customerId = obj?.customer as string | undefined;
           if (!customerId) break;
-          // stripeCustomerId で検索して plan を free に戻す
-          const { db } = await import('./db.js');
-          const { users } = await import('../shared/schema.js');
-          const { eq } = await import('drizzle-orm');
-          const [user] = await db.select().from(users).where(eq(users.stripeCustomerId, customerId));
+          const user = await storage.getUserByStripeCustomerId(customerId);
           if (user) {
             await storage.updateSubscription(user.id, { plan: 'free', billingCycle: null, currentPeriodEnd: null });
+          } else {
+            console.warn('[stripe-webhook] subscription.deleted: no user for customer', customerId?.slice(0, 7) + '…');
           }
+          break;
+        }
+        case 'invoice.payment_failed': {
+          // Stripe はデフォルトで複数回リトライするため、ここでは即座にダウングレードしない。
+          // subscription.updated (status → past_due/canceled) で plan が free に切り替わる。
+          const customerId = obj?.customer as string | undefined;
+          console.warn('[stripe-webhook] payment failed for customer', customerId?.slice(0, 7) + '…', '— awaiting Stripe retry');
           break;
         }
       }

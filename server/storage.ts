@@ -21,6 +21,7 @@ interface IStorage {
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByStripeCustomerId(customerId: string): Promise<Pick<User, 'id'> | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserTheme(userId: string, themeKey: string): Promise<User>;
   isPremium(userId: string): Promise<boolean>;
@@ -64,6 +65,11 @@ class DatabaseStorage implements IStorage {
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
+  }
+
+  async getUserByStripeCustomerId(customerId: string): Promise<Pick<User, 'id'> | undefined> {
+    const [row] = await db.select({ id: users.id }).from(users).where(eq(users.stripeCustomerId, customerId));
+    return row;
   }
 
 
