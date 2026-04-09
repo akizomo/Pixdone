@@ -1659,7 +1659,7 @@ function AppContent() {
             justifyContent: 'center',
             fontSize: '1.5rem',
             cursor: 'pointer',
-            zIndex: 1000,
+            zIndex: 300,
             userSelect: 'none',
             WebkitUserSelect: 'none',
           }}

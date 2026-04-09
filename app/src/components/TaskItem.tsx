@@ -232,6 +232,8 @@ export function TaskItem({
             fontSize: '0.875rem',
             // Ensure consistent row height across visual themes/fonts.
             lineHeight: 1.35,
+            wordBreak: 'break-word',
+            overflowWrap: 'anywhere',
           }}
         >
           {isTutorialSmashTask ? (
