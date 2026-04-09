@@ -1,3 +1,4 @@
+import type { HTMLAttributes } from 'react';
 import { forwardRef, useEffect, useId, useImperativeHandle, useRef } from 'react';
 import type { RichTextFieldProps } from './RichTextField.types';
 import './RichTextField.css';
@@ -24,6 +25,7 @@ export const RichTextField = forwardRef<HTMLDivElement, RichTextFieldProps>(func
   size = 'md',
   ...rest
 }: RichTextFieldProps, ref) {
+  const { onKeyDown: externalOnKeyDown, ...domRest } = rest as HTMLAttributes<HTMLDivElement> & { onKeyDown?: React.KeyboardEventHandler<HTMLDivElement> };
   const generatedId = useId();
   const id = idProp ?? generatedId;
   const labelId = `${id}-label`;
@@ -138,11 +140,11 @@ export const RichTextField = forwardRef<HTMLDivElement, RichTextFieldProps>(func
         onPasteCapture={handlePaste}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            // Keep it single-line; do not submit/save.
             e.preventDefault();
           }
+          externalOnKeyDown?.(e);
         }}
-        {...rest}
+        {...domRest}
       />
       {(helperText || errorText) && (
         <div className="pxd-rich-text-field__helper">

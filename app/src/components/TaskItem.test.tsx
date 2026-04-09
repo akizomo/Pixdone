@@ -359,6 +359,148 @@ describe('TaskItem', () => {
     });
   });
 
+  describe('checkbox accessibility (⑥)', () => {
+    it('has aria-label describing the task name in English', () => {
+      render(
+        <TaskItem
+          task={makeTask({ title: 'Buy milk' })}
+          lang="en"
+          onComplete={vi.fn()}
+          onEdit={vi.fn()}
+        />,
+      );
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-label', 'Mark "Buy milk" as complete');
+    });
+
+    it('has aria-label describing the task name in Japanese', () => {
+      render(
+        <TaskItem
+          task={makeTask({ title: '牛乳を買う' })}
+          lang="ja"
+          onComplete={vi.fn()}
+          onEdit={vi.fn()}
+        />,
+      );
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-label', '「牛乳を買う」を完了にする');
+    });
+
+    it('checkbox tap target is at least 44px wide and tall', () => {
+      const { container } = render(
+        <TaskItem task={makeTask()} onComplete={vi.fn()} onEdit={vi.fn()} />,
+      );
+      const checkboxZone = container.querySelector('.task-checkbox-zone') as HTMLElement;
+      expect(checkboxZone).not.toBeNull();
+      const style = checkboxZone.style;
+      // The zone should have minWidth/minHeight >= 44px for mobile tap targets
+      const minW = parseInt(style.minWidth, 10);
+      const minH = parseInt(style.minHeight, 10);
+      expect(minW).toBeGreaterThanOrEqual(44);
+      expect(minH).toBeGreaterThanOrEqual(44);
+    });
+
+    it('clicking the expanded zone triggers onComplete', () => {
+      const onComplete = vi.fn();
+      const { container } = render(
+        <TaskItem task={makeTask({ id: 'zone-test' })} onComplete={onComplete} onEdit={vi.fn()} />,
+      );
+      const checkboxZone = container.querySelector('.task-checkbox-zone') as HTMLElement;
+      fireEvent.click(checkboxZone);
+      expect(onComplete).toHaveBeenCalledWith('zone-test');
+    });
+  });
+
+  describe('move to list menu (⑧)', () => {
+    it('shows move button when onMoveToList and availableLists are provided', () => {
+      render(
+        <TaskItem
+          task={makeTask()}
+          onComplete={vi.fn()}
+          onEdit={vi.fn()}
+          onMoveToList={vi.fn()}
+          availableLists={[
+            { id: 'list-2', name: 'Work' },
+            { id: 'list-3', name: 'Personal' },
+          ]}
+        />,
+      );
+      expect(screen.getByLabelText(/move/i)).toBeInTheDocument();
+    });
+
+    it('does not show move button when onMoveToList is not provided', () => {
+      render(
+        <TaskItem task={makeTask()} onComplete={vi.fn()} onEdit={vi.fn()} />,
+      );
+      expect(screen.queryByLabelText(/move/i)).toBeNull();
+    });
+
+    it('shows available lists when move button is clicked', () => {
+      render(
+        <TaskItem
+          task={makeTask({ listId: 'list-1' })}
+          onComplete={vi.fn()}
+          onEdit={vi.fn()}
+          onMoveToList={vi.fn()}
+          availableLists={[
+            { id: 'list-2', name: 'Work' },
+            { id: 'list-3', name: 'Personal' },
+          ]}
+        />,
+      );
+      fireEvent.click(screen.getByLabelText(/move/i));
+      expect(screen.getByText('Work')).toBeInTheDocument();
+      expect(screen.getByText('Personal')).toBeInTheDocument();
+    });
+
+    it('calls onMoveToList with taskId and target listId when a list is selected', () => {
+      const onMoveToList = vi.fn();
+      render(
+        <TaskItem
+          task={makeTask({ id: 'task-move', listId: 'list-1' })}
+          onComplete={vi.fn()}
+          onEdit={vi.fn()}
+          onMoveToList={onMoveToList}
+          availableLists={[
+            { id: 'list-2', name: 'Work' },
+          ]}
+        />,
+      );
+      fireEvent.click(screen.getByLabelText(/move/i));
+      fireEvent.click(screen.getByText('Work'));
+      expect(onMoveToList).toHaveBeenCalledWith('task-move', 'list-2');
+    });
+
+    it('move menu click does not trigger onEdit', () => {
+      const onEdit = vi.fn();
+      render(
+        <TaskItem
+          task={makeTask()}
+          onComplete={vi.fn()}
+          onEdit={onEdit}
+          onMoveToList={vi.fn()}
+          availableLists={[{ id: 'list-2', name: 'Work' }]}
+        />,
+      );
+      fireEvent.click(screen.getByLabelText(/move/i));
+      expect(onEdit).not.toHaveBeenCalled();
+    });
+
+    it('does not show move button on smash list', () => {
+      render(
+        <TaskItem
+          task={makeTask()}
+          isSmash
+          onComplete={vi.fn()}
+          onEdit={vi.fn()}
+          onMoveToList={vi.fn()}
+          availableLists={[{ id: 'list-2', name: 'Work' }]}
+        />,
+      );
+      expect(screen.queryByLabelText(/move/i)).toBeNull();
+    });
+  });
+
   describe('reorder event handlers', () => {
     it('wires onReorderPointerDown to the row', () => {
       const onPointerDown = vi.fn();

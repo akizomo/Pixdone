@@ -1,3 +1,4 @@
+import type { HTMLAttributes } from 'react';
 import { useEffect, useId, useRef } from 'react';
 import type { RichTextAreaProps } from './RichTextArea.types';
 import './RichTextArea.css';
@@ -22,6 +23,7 @@ export function RichTextArea({
   rows = 3,
   ...rest
 }: RichTextAreaProps) {
+  const { onKeyDown: externalOnKeyDown, ...domRest } = rest as HTMLAttributes<HTMLDivElement> & { onKeyDown?: React.KeyboardEventHandler<HTMLDivElement> };
   const generatedId = useId();
   const id = idProp ?? generatedId;
   const labelId = `${id}-label`;
@@ -144,8 +146,9 @@ export function RichTextArea({
           el.dataset.empty = String(!md.trim());
           onChange?.(md);
         }}
+        onKeyDown={externalOnKeyDown}
         onPasteCapture={handlePaste}
-        {...rest}
+        {...domRest}
       />
       {(helperText || errorText) && (
         <div className="pxd-rich-text-area__helper">

@@ -1,0 +1,125 @@
+/* ── PopoverMenu ── */
+
+.pxd-popover-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  z-index: 300;
+  min-width: 160px;
+  background: var(--pd-color-background-elevated);
+  border: 2px solid var(--pd-color-border-default);
+  box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
+  border-radius: 0;
+  image-rendering: pixelated;
+  overflow: hidden;
+  animation: pxd-popover-menu-in var(--pxd-motion-base, 180ms) cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pxd-popover-menu--right {
+  right: 0;
+}
+
+.pxd-popover-menu--left {
+  left: 0;
+}
+
+/* ── Header ── */
+
+.pxd-popover-menu__header {
+  padding: 6px 14px;
+  border-bottom: 2px solid var(--pd-color-border-default);
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-body);
+  font-size: 0.6875rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+
+/* ── Menu item button ── */
+
+.pxd-popover-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--pd-color-border-default);
+  color: var(--pd-color-text-primary);
+  font-family: var(--pd-font-body);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background var(--pxd-motion-fast, 120ms) ease,
+              color var(--pxd-motion-fast, 120ms) ease;
+  border-radius: 0;
+  white-space: nowrap;
+}
+
+.pxd-popover-menu__item:last-child {
+  border-bottom: none;
+}
+
+/* Hover – matches account menu pattern: background-hover */
+@media (hover: hover) {
+  .pxd-popover-menu__item:hover:not(:disabled) {
+    background: var(--pd-color-background-hover);
+  }
+}
+
+/* Active (pressed) – subtle inset */
+.pxd-popover-menu__item:active:not(:disabled) {
+  background: var(--pd-color-background-hover);
+  opacity: 0.85;
+}
+
+/* Focus-visible for keyboard navigation */
+.pxd-popover-menu__item:focus {
+  outline: none;
+}
+
+.pxd-popover-menu__item:focus-visible {
+  outline: 2px solid var(--pxd-color-focus-ring, var(--pd-color-accent-default));
+  outline-offset: -2px;
+}
+
+/* Danger variant */
+.pxd-popover-menu__item--danger {
+  color: var(--pd-color-semantic-danger, #ef4444);
+}
+
+@media (hover: hover) {
+  .pxd-popover-menu__item--danger:hover:not(:disabled) {
+    background: var(--pd-color-background-hover);
+    color: var(--pd-color-semantic-danger, #ef4444);
+  }
+}
+
+/* Disabled */
+.pxd-popover-menu__item:disabled {
+  cursor: not-allowed;
+  opacity: var(--pxd-opacity-disabled, 0.48);
+}
+
+/* ── Icon inside item ── */
+
+.pxd-popover-menu__icon {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ── Animation ── */
+
+@keyframes pxd-popover-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

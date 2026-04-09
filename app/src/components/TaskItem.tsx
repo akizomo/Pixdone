@@ -1,9 +1,11 @@
-import type { PointerEvent, TouchEvent } from 'react';
+import { useState, type PointerEvent, type TouchEvent } from 'react';
 import type { Task } from '../types/task';
 import { formatDueDate, getDueStatus } from '../lib/date';
 import { t } from '../lib/i18n';
 import { getRepeatLabel } from '../lib/repeat';
 import { renderTextWithLinks } from '../lib/linkify';
+import { playSound } from '../services/sound';
+import { PopoverMenu } from '../design-system';
 
 export interface TaskItemProps {
   task: Task;
@@ -17,6 +19,10 @@ export interface TaskItemProps {
   onComplete: (taskId: string) => void;
   onEdit: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
+  /** Move task to another list. */
+  onMoveToList?: (taskId: string, targetListId: string) => void;
+  /** Lists available as move targets (excluding current list and smash list). */
+  availableLists?: Array<{ id: string; name: string }>;
   /** When true, row click does not open edit (e.g. after long-press reorder). */
   suppressOpenEdit?: () => boolean;
   /** Long-press reorder: Pointer path (mouse, pen, or touch when not using the dedicated touch path). */
@@ -45,6 +51,8 @@ export function TaskItem({
   onComplete,
   onEdit,
   onDelete,
+  onMoveToList,
+  availableLists,
   suppressOpenEdit,
   onReorderPointerDown,
   onReorderTouchStart,
@@ -52,12 +60,14 @@ export function TaskItem({
   onTutorialSmashLinkClick,
   onTutorialFocusLinkClick,
 }: TaskItemProps) {
+  const [showMoveMenu, setShowMoveMenu] = useState(false);
+  const displayTitle = TUTORIAL_KEYS[task.id] ? t(TUTORIAL_KEYS[task.id], lang) : task.title;
   const dueLabel = formatDueDate(task.dueDate, lang);
   const repeatLabel = getRepeatLabel(task.repeat, lang);
+  const checkboxAriaLabel = t('markComplete', lang).replace('{0}', displayTitle);
   const subtasks = task.subtasks ?? [];
   const doneCount = subtasks.filter((s) => s.done).length;
   const dueStatus = getDueStatus(task.dueDate);
-  const displayTitle = TUTORIAL_KEYS[task.id] ? t(TUTORIAL_KEYS[task.id], lang) : task.title;
   const isTutorialSmashTask = task.id === 'tutorial-3';
   const isTutorialFocusTask = task.id === 'tutorial-4';
   const details = (task.details ?? '').trim();
@@ -130,55 +140,82 @@ export function TaskItem({
         el.style.backgroundColor = 'var(--pd-color-background-default)';
       }}
     >
-      {/* Checkbox */}
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={task.completed}
-        className="task-checkbox"
-        onClick={(e) => {
-          e.stopPropagation();
-          const btn = e.currentTarget as HTMLButtonElement;
-          if ((btn as HTMLButtonElement & { dataset: DOMStringMap }).dataset?.perfectTimingConsumeClick === '1') {
-            delete (btn as HTMLButtonElement & { dataset: DOMStringMap }).dataset.perfectTimingConsumeClick;
-            return;
-          }
-          onComplete(task.id);
-        }}
-        onKeyDown={(e) => {
-          if (e.key !== 'Enter' && e.key !== ' ') return;
-          e.preventDefault();
-          e.stopPropagation();
-          onComplete(task.id);
-        }}
+      {/* Checkbox zone — expanded tap target for mobile */}
+      <div
+        className="task-checkbox-zone"
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: '24px',
-          height: '24px',
+          minWidth: '44px',
+          minHeight: '44px',
           flexShrink: 0,
-          marginRight: '12px',
-          marginTop: '1px',
-          border: '2px solid',
-          borderColor: task.completed
-            ? 'var(--pd-color-accent-default)'
-            : 'var(--pd-color-border-default)',
-          borderRadius: 0,
-          background: task.completed
-            ? 'var(--pd-color-accent-default)'
-            : 'var(--pd-color-background-default)',
+          marginRight: '4px',
+          marginLeft: '-6px',
+          marginTop: '-6px',
+          marginBottom: '-6px',
           cursor: 'pointer',
-          transition: 'transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease',
-          boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
-          color: 'white',
-          fontSize: '0.75rem',
-          fontWeight: 'bold',
-          imageRendering: 'pixelated',
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          const checkbox = e.currentTarget.querySelector('.task-checkbox') as HTMLButtonElement | null;
+          if (checkbox?.dataset?.perfectTimingConsumeClick === '1') {
+            delete checkbox.dataset.perfectTimingConsumeClick;
+            return;
+          }
+          onComplete(task.id);
         }}
       >
-        {task.completed && <span aria-hidden style={{ fontSize: '0.875rem', lineHeight: 1 }}>✓</span>}
-      </button>
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={task.completed}
+          aria-label={checkboxAriaLabel}
+          className="task-checkbox"
+          tabIndex={-1}
+          onClick={(e) => {
+            // Handled by zone; stop double-fire
+            e.stopPropagation();
+            const btn = e.currentTarget as HTMLButtonElement;
+            if (btn.dataset?.perfectTimingConsumeClick === '1') {
+              delete btn.dataset.perfectTimingConsumeClick;
+              return;
+            }
+            onComplete(task.id);
+          }}
+          onKeyDown={(e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            e.stopPropagation();
+            onComplete(task.id);
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            flexShrink: 0,
+            border: '2px solid',
+            borderColor: task.completed
+              ? 'var(--pd-color-accent-default)'
+              : 'var(--pd-color-border-default)',
+            borderRadius: 0,
+            background: task.completed
+              ? 'var(--pd-color-accent-default)'
+              : 'var(--pd-color-background-default)',
+            cursor: 'pointer',
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease',
+            boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
+            color: 'white',
+            fontSize: '0.75rem',
+            fontWeight: 'bold',
+            imageRendering: 'pixelated',
+          }}
+        >
+          {task.completed && <span aria-hidden style={{ fontSize: '0.875rem', lineHeight: 1 }}>✓</span>}
+        </button>
+      </div>
 
       {/* Task body */}
       <div
@@ -305,33 +342,87 @@ export function TaskItem({
         )}
       </div>
 
-      {/* Delete button — desktop: visible on row hover/focus only (see pixel.css) */}
-      {!isSmash && onDelete && (
-        <div className="task-item-row-actions" style={{ flexShrink: 0, display: 'flex', alignItems: 'flex-start' }}>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
-            aria-label="Delete task"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--pd-color-text-muted)',
-              cursor: 'pointer',
-              padding: '4px',
-              fontSize: '0.875rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '28px',
-              height: '28px',
-              transition: 'color 0.2s ease',
-              flexShrink: 0,
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-semantic-danger)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-muted)'; }}
-          >
-            <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>delete</span>
-          </button>
+      {/* Action buttons — desktop: visible on row hover/focus only (see pixel.css) */}
+      {!isSmash && (onDelete || (onMoveToList && availableLists && availableLists.length > 0)) && (
+        <div className="task-item-row-actions" style={{ flexShrink: 0, display: 'flex', alignItems: 'flex-start', position: 'relative' }}>
+          {onMoveToList && availableLists && availableLists.length > 0 && (
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  playSound('buttonClick');
+                  setShowMoveMenu((v) => !v);
+                }}
+                aria-label={t('moveToList', lang)}
+                aria-expanded={showMoveMenu}
+                aria-haspopup="menu"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: showMoveMenu ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-muted)',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  fontSize: '0.875rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '28px',
+                  height: '28px',
+                  transition: 'color var(--pxd-motion-fast, 120ms) ease',
+                  flexShrink: 0,
+                  borderRadius: 0,
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-accent-default)'; }}
+                onMouseLeave={(e) => {
+                  if (!showMoveMenu) (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-muted)';
+                }}
+              >
+                <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>drive_file_move</span>
+              </button>
+              {showMoveMenu && (
+                <PopoverMenu
+                  header={t('moveToList', lang)}
+                  items={availableLists.map((list) => ({
+                    id: list.id,
+                    label: list.name,
+                  }))}
+                  onSelect={(listId) => {
+                    playSound('buttonClick');
+                    onMoveToList(task.id, listId);
+                    setShowMoveMenu(false);
+                  }}
+                  onClose={() => { playSound('taskCancel'); setShowMoveMenu(false); }}
+                />
+              )}
+            </div>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
+              aria-label="Delete task"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--pd-color-text-muted)',
+                cursor: 'pointer',
+                padding: '4px',
+                fontSize: '0.875rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '28px',
+                height: '28px',
+                transition: 'color 0.2s ease',
+                flexShrink: 0,
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-semantic-danger)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-muted)'; }}
+            >
+              <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>delete</span>
+            </button>
+          )}
         </div>
       )}
     </div>

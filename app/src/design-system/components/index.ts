@@ -20,4 +20,6 @@ export { Select } from './Select/Select';
 export type { SelectProps, SelectOption, SelectSize } from './Select/Select.types';
 export { Toggle } from './Toggle/Toggle';
 export type { ToggleProps } from './Toggle/Toggle.types';
+export { PopoverMenu } from './PopoverMenu/PopoverMenu';
+export type { PopoverMenuProps, PopoverMenuItem } from './PopoverMenu/PopoverMenu.types';
 export { ToastProvider, useToast } from './Toast/Toast';
