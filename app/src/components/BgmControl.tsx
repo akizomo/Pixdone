@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { IconButton } from '../design-system';
+import { useState } from 'react';
+import { IconButton, PopoverMenu } from '../design-system';
 import { setBgmTrack, setBgmOn, setBgmVolume, getBgmVolume } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
 import { playSound } from '../services/sound';
@@ -27,20 +27,6 @@ const TRACKS: { id: TrackOption; labelEn: string; labelJa: string }[] = [
 export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, variant = 'default' }: BgmControlProps) {
   const [open, setOpen]   = useState(false);
   const [vol, setVol]     = useState(() => Math.round(getBgmVolume() * 100));
-  const wrapRef           = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
-        playSound('taskCancel');
-        setOpen(false);
-        onMenuOpenChange?.(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open]);
 
   const selected: TrackOption = bgmOn ? track : 'off';
 
@@ -62,8 +48,14 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
     setBgmVolume(v / 100);
   };
 
+  const handleClose = () => {
+    playSound('taskCancel');
+    setOpen(false);
+    onMenuOpenChange?.(false);
+  };
+
   return (
-    <div ref={wrapRef} style={{ position: 'relative', display: 'inline-block' }}>
+    <div style={{ position: 'relative', display: 'inline-block' }}>
       {/* Trigger: BGM icon button */}
       {variant === 'zen' || variant === 'ghost' ? (
         <IconButton
@@ -114,69 +106,44 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
         </button>
       )}
 
-      {/* Popover menu */}
+      {/* Popover menu — uses DS PopoverMenu for consistent outside-click + Escape */}
       {open && (
-        <div
-          role="dialog"
-          aria-label={lang === 'ja' ? 'BGM設定' : 'BGM settings'}
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 8px)',
-            right: 0,
-            zIndex: 500,
-            background: variant === 'zen' ? 'var(--pd-color-background-default)' : 'var(--pd-color-background-elevated)',
-            border: variant === 'zen' ? 'none' : '2px solid var(--pd-color-border-default)',
-            boxShadow: variant === 'zen' ? 'none' : '3px 3px 0 var(--pd-color-shadow-default)',
-            padding: '12px',
-            minWidth: '200px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '4px',
-          }}
+        <PopoverMenu
+          items={[]}
+          onSelect={() => {}}
+          onClose={handleClose}
+          align="right"
         >
           {/* Track list */}
-          {TRACKS.map(tr => {
-            const isActive = selected === tr.id;
-            return (
-              <button
-                key={tr.id}
-                type="button"
-                onClick={() => handleTrackSelect(tr.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  width: '100%',
-                  padding: '8px 10px',
-                  background: isActive ? 'var(--pd-color-background-hover)' : 'none',
-                  border: 'none',
-                  color: 'var(--pd-color-text-primary)',
-                  fontFamily: 'var(--pd-font-body)',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'background 0.2s ease',
-                }}
-                onMouseEnter={e => {
-                  if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)';
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'none';
-                }}
-              >
-                <span className="material-icons" style={{ fontSize: '14px', lineHeight: 1, color: 'var(--pd-color-accent-default)', opacity: isActive ? 1 : 0 }}>
-                  check
-                </span>
-                {lang === 'ja' ? tr.labelJa : tr.labelEn}
-              </button>
-            );
-          })}
+          <div style={{ padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            {TRACKS.map(tr => {
+              const isActive = selected === tr.id;
+              return (
+                <button
+                  key={tr.id}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => handleTrackSelect(tr.id)}
+                  className={`pxd-popover-menu__item${isActive ? ' pxd-popover-menu__item--active' : ''}`}
+                  style={{
+                    background: isActive ? 'var(--pd-color-background-hover)' : undefined,
+                    border: 'none',
+                    borderBottom: 'none',
+                  }}
+                >
+                  <span className="material-icons" style={{ fontSize: '14px', lineHeight: 1, color: 'var(--pd-color-accent-default)', opacity: isActive ? 1 : 0 }}>
+                    check
+                  </span>
+                  {lang === 'ja' ? tr.labelJa : tr.labelEn}
+                </button>
+              );
+            })}
+          </div>
 
-          {/* Volume slider — always visible */}
+          {/* Volume slider */}
           <div style={{
             borderTop: variant === 'zen' ? 'none' : '1px solid var(--pd-color-border-default)',
-            marginTop: '4px',
-            paddingTop: '10px',
+            padding: '10px 14px 8px',
             display: 'flex',
             flexDirection: 'column',
             gap: '6px',
@@ -206,7 +173,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
                 }}
               />
           </div>
-        </div>
+        </PopoverMenu>
       )}
     </div>
   );

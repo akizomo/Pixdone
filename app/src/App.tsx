@@ -3,7 +3,7 @@ import {
   type MutableRefObject, type ErrorInfo, type ReactNode,
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, Button, Chip, IconButton, ModalDialog, BottomSheet, ToastProvider, useToast } from './design-system';
+import { ThemeProvider, Button, Chip, IconButton, ModalDialog, BottomSheet, ToastProvider, useToast, PopoverMenu } from './design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
   TaskForm, type TaskFormHandle, ListModal, AuthModal, BottomNav, FocusScreen,
@@ -105,7 +105,7 @@ function AppContent() {
   const [plusIntroOpen, setPlusIntroOpen] = useState(false);
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
+  // userMenuRef removed — PopoverMenu handles outside-click internally
   const [focusZenOpen, setFocusZenOpen] = useState(false);
 
   // Desktop: null = closed, 'add' = new task, task.id = editing
@@ -183,17 +183,7 @@ function AppContent() {
     }
   }, [lang]);
 
-  /* ---- User menu click-outside ---- */
-  useEffect(() => {
-    if (!userMenuOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
-        setUserMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [userMenuOpen]);
+  /* ---- User menu click-outside: handled by PopoverMenu DS component ---- */
 
   /* ---- Close email auth modal when Firebase session is ready (login success / restored session) ---- */
   useEffect(() => {
@@ -602,6 +592,10 @@ function AppContent() {
     .filter((l) => l.id !== 'smash-list' && l.id !== currentList?.id)
     .map((l) => ({ id: l.id, name: l.name }));
 
+  const allListsForForm = lists
+    .filter((l) => l.id !== 'smash-list')
+    .map((l) => ({ id: l.id, name: l.name }));
+
   const runSmashShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
 
@@ -795,14 +789,17 @@ function AppContent() {
         if (!panel || panel.contains(t)) return;
         const addSection = document.querySelector('.pd-add-task-section');
         if (taskFormMode === 'add' && addSection?.contains(t)) return;
+        // If a sub-menu (repeat dropdown, list selector) is open, close it first
+        // and keep the form open. Next outside-click will close the form.
+        if (taskFormRef.current?.dismissSubmenus()) return;
         // Use close-to-save: auto-saves dirty edits, falls back to cancel for new tasks
         taskFormRef.current ? taskFormRef.current.close() : handleTaskFormCancel();
       };
-      document.addEventListener('mousedown', downHandler, true);
+      document.addEventListener('pointerdown', downHandler, true);
     }, 0);
     return () => {
       window.clearTimeout(tid);
-      if (downHandler) document.removeEventListener('mousedown', downHandler, true);
+      if (downHandler) document.removeEventListener('pointerdown', downHandler, true);
     };
   }, [inlineTaskFormOpen, taskFormMode, handleTaskFormCancel]);
 
@@ -1019,7 +1016,7 @@ function AppContent() {
 
             {user ? (
               /* Logged-in: person avatar + dropdown */
-              <div ref={userMenuRef} style={{ position: 'relative' }}>
+              <div style={{ position: 'relative' }}>
                 <IconButton
                   variant="ghost"
                   size="sm"
@@ -1029,16 +1026,21 @@ function AppContent() {
                   onClick={() => setUserMenuOpen((v) => !v)}
                 />
                 {userMenuOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '110%',
-                    right: 0,
-                    zIndex: 300,
-                    background: 'var(--pd-color-background-elevated)',
-                    border: '2px solid var(--pd-color-border-default)',
-                    boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
-                    minWidth: '200px',
-                  }}>
+                  <PopoverMenu
+                    items={[
+                      { id: 'sound', label: soundMuted ? (lang === 'ja' ? 'サウンドオフ' : 'Sound off') : (lang === 'ja' ? 'サウンドオン' : 'Sound on'), icon: soundMuted ? 'volume_off' : 'volume_up' },
+                      { id: 'support', label: lang === 'ja' ? 'Support PixDone' : 'Support PixDone', icon: 'favorite' },
+                      { id: 'logout', label: lang === 'ja' ? 'ログアウト' : 'Log out', icon: 'logout' },
+                    ]}
+                    onSelect={(id) => {
+                      if (id === 'sound') { toggleSound(); return; }
+                      if (id === 'support') { playSound('buttonClick'); window.open('https://buymeacoffee.com/akizomo', '_blank', 'noopener,noreferrer'); return; }
+                      if (id === 'logout') { setUserMenuOpen(false); playSound('taskComplete'); logout(); }
+                    }}
+                    onClose={() => { playSound('taskCancel'); setUserMenuOpen(false); }}
+                    align="right"
+                    className="pxd-user-menu"
+                  >
                     {/* Email + plan badge */}
                     <div style={{
                       padding: '10px 14px',
@@ -1120,47 +1122,6 @@ function AppContent() {
                         <Chip variant="ghost" selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
                       </div>
                     </div>
-                    {/* Sound toggle */}
-                    <button
-                      type="button"
-                      onClick={toggleSound}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '8px',
-                        width: '100%', textAlign: 'left',
-                        padding: '10px 14px', background: 'none',
-                        border: 'none', borderBottom: '1px solid var(--pd-color-border-default)',
-                        color: 'var(--pd-color-text-primary)',
-                        fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem', cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
-                    >
-                      <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>
-                        {soundMuted ? 'volume_off' : 'volume_up'}
-                      </span>
-                      {soundMuted ? (lang === 'ja' ? 'サウンドオフ' : 'Sound off') : (lang === 'ja' ? 'サウンドオン' : 'Sound on')}
-                    </button>
-                    {/* Support PixDone */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        playSound('buttonClick');
-                        window.open('https://buymeacoffee.com/akizomo', '_blank', 'noopener,noreferrer');
-                      }}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '8px',
-                        width: '100%', textAlign: 'left',
-                        padding: '10px 14px', background: 'none',
-                        border: 'none', borderBottom: '1px solid var(--pd-color-border-default)',
-                        color: 'var(--pd-color-text-primary)',
-                        fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem', cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
-                    >
-                      <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>favorite</span>
-                      {lang === 'ja' ? 'Support PixDone' : 'Support PixDone'}
-                    </button>
                     {SHOW_LEGAL_LINKS_IN_MENU && (
                     <div style={{
                       padding: '8px 14px',
@@ -1199,25 +1160,7 @@ function AppContent() {
                       </a>
                     </div>
                     )}
-                    {/* Log out */}
-                    <button
-                      type="button"
-                      onClick={() => { setUserMenuOpen(false); playSound('taskComplete'); logout(); }}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '8px',
-                        width: '100%', textAlign: 'left',
-                        padding: '10px 14px', background: 'none',
-                        border: 'none', borderBottom: '1px solid var(--pd-color-border-default)',
-                        color: 'var(--pd-color-text-primary)',
-                        fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem', cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
-                    >
-                      <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>logout</span>
-                      {lang === 'ja' ? 'ログアウト' : 'Log out'}
-                    </button>
-                  </div>
+                  </PopoverMenu>
                 )}
               </div>
             ) : (
@@ -1563,6 +1506,8 @@ function AppContent() {
                           onCancel={handleTaskFormCancel}
                           onClose={handleTaskFormClose}
                           onDelete={() => handleDelete(task.id)}
+                          availableLists={allListsForForm}
+                          onMoveToList={handleMoveToList}
                         />
                       </div>
                     ) : (
@@ -1689,6 +1634,8 @@ function AppContent() {
           onCancel={handleTaskFormCancel}
           onClose={handleTaskFormClose}
           onDelete={mobileEditTaskId ? () => handleDelete(mobileEditTaskId) : undefined}
+          availableLists={allListsForForm}
+          onMoveToList={handleMoveToList}
         />
       </BottomSheet>
 

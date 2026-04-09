@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { t } from '../lib/i18n';
 import { playSound } from '../services/sound';
+import { PopoverMenu } from '../design-system';
+import type { PopoverMenuItem } from '../design-system/components/PopoverMenu/PopoverMenu.types';
 
 export interface ListHeaderProps {
   title: string;
@@ -12,18 +14,20 @@ export interface ListHeaderProps {
 
 export function ListHeader({ title, showMenu, lang = 'en', onRename, onDelete }: ListHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!menuOpen) return;
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [menuOpen]);
+  const items = useMemo(() => {
+    const list: PopoverMenuItem[] = [];
+    if (onRename) list.push({ id: 'rename', label: t('rename', lang), icon: 'edit' });
+    if (onDelete) list.push({ id: 'delete', label: t('deleteList', lang), icon: 'delete', danger: true });
+    return list;
+  }, [onRename, onDelete, lang]);
+
+  const handleSelect = (id: string) => {
+    playSound('buttonClick');
+    setMenuOpen(false);
+    if (id === 'rename') onRename?.();
+    if (id === 'delete') onDelete?.();
+  };
 
   return (
     <div
@@ -53,7 +57,7 @@ export function ListHeader({ title, showMenu, lang = 'en', onRename, onDelete }:
       </h2>
 
       {showMenu && (
-        <div ref={menuRef} style={{ position: 'relative' }}>
+        <div style={{ position: 'relative' }}>
           <button
             type="button"
             onClick={() => { playSound('buttonClick'); setMenuOpen((v) => !v); }}
@@ -81,53 +85,12 @@ export function ListHeader({ title, showMenu, lang = 'en', onRename, onDelete }:
           </button>
 
           {menuOpen && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '110%',
-                right: 0,
-                zIndex: 200,
-                background: 'var(--pd-color-background-elevated)',
-                border: '2px solid var(--pd-color-border-default)',
-                boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
-                minWidth: '150px',
-              }}
-            >
-              {onRename && (
-                <button
-                  type="button"
-                  onClick={() => { playSound('buttonClick'); setMenuOpen(false); onRename(); }}
-                  style={{
-                    display: 'block', width: '100%', textAlign: 'left',
-                    padding: '10px 14px', background: 'none',
-                    border: 'none', borderBottom: '1px solid var(--pd-color-border-default)',
-                    color: 'var(--pd-color-text-primary)',
-                    fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem', cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
-                >
-                  <span className="material-icons" style={{ fontSize: '16px', lineHeight: 1, verticalAlign: 'middle', marginRight: '6px' }}>edit</span>{t('rename', lang)}
-                </button>
-              )}
-              {onDelete && (
-                <button
-                  type="button"
-                  onClick={() => { playSound('buttonClick'); setMenuOpen(false); onDelete(); }}
-                  style={{
-                    display: 'block', width: '100%', textAlign: 'left',
-                    padding: '10px 14px', background: 'none',
-                    border: 'none',
-                    color: 'var(--pd-color-semantic-danger, #ef4444)',
-                    fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem', cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
-                >
-                  <span className="material-icons" style={{ fontSize: '16px', lineHeight: 1, verticalAlign: 'middle', marginRight: '6px' }}>delete</span>{t('deleteList', lang)}
-                </button>
-              )}
-            </div>
+            <PopoverMenu
+              items={items}
+              onSelect={handleSelect}
+              onClose={() => { playSound('taskCancel'); setMenuOpen(false); }}
+              align="right"
+            />
           )}
         </div>
       )}
