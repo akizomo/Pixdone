@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { trackPomodoroComplete } from '../services/analytics';
 
 export type FocusTimerState = 'idle' | 'running' | 'paused';
 
@@ -7,6 +8,10 @@ export function useFocusTimer(onTimerEnd?: () => void) {
   const [remaining, setRemaining] = useState(25 * 60);
   // Mirror remaining in a ref for synchronous access (avoids stale closure in startTick).
   const remainingRef = useRef(25 * 60);
+  // Total duration in seconds for the current session (set when timer starts).
+  const totalDurationRef = useRef(25 * 60);
+  // How many pomodoros completed in this hook lifecycle.
+  const sessionCountRef = useRef(0);
   // Unix ms when the timer should reach 0. null when not running.
   const deadlineRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -39,6 +44,11 @@ export function useFocusTimer(onTimerEnd?: () => void) {
       deadlineRef.current = null;
       updateRemaining(0);
       setTimerState('idle');
+      sessionCountRef.current += 1;
+      trackPomodoroComplete({
+        duration_minutes: Math.round(totalDurationRef.current / 60),
+        session_index: sessionCountRef.current,
+      });
       onTimerEndRef.current?.();
     } else {
       updateRemaining(newRemaining);
@@ -64,6 +74,7 @@ export function useFocusTimer(onTimerEnd?: () => void) {
   }, [syncRemaining]);
 
   const start = useCallback(() => {
+    totalDurationRef.current = remainingRef.current;
     setTimerState('running');
     startTick(remainingRef.current);
   }, [startTick]);

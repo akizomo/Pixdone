@@ -26,10 +26,6 @@ function renderForm(overrides: Partial<Parameters<typeof TaskForm>[0]> = {}) {
   return { ...result, ...props };
 }
 
-function getTitleField() {
-  return screen.getByRole('textbox', { name: /task/i }) ?? document.getElementById('task-title');
-}
-
 describe('TaskForm — Enter key to save (②)', () => {
   describe('title field', () => {
     it('calls onSave when Enter is pressed (not composing)', () => {

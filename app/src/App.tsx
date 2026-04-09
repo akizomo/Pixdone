@@ -150,7 +150,7 @@ function AppContent() {
 
   /* ---- Sync user plan to vanilla effect engine ---- */
   const { plan: userPlan, isPremium } = useThemeEntitlements();
-  const { ownedChallengeEffects, challengeProgressMap, refetch: refetchEffectProgress, optimisticIncrement } = useEffectProgress();
+  const { ownedChallengeEffects, challengeProgressMap, optimisticIncrement } = useEffectProgress();
   const activeChallenge = useActiveChallenge(challengeProgressMap, ownedChallengeEffects);
   useEffect(() => {
     const w = window as unknown as {
