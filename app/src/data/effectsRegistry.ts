@@ -1,4 +1,5 @@
 import type { ThemeKey } from '../design-system/themes/themeRegistry';
+import { themes } from '../design-system/themes/themeRegistry';
 
 export type EffectRarity = 'COMMON' | 'RARE' | 'EPIC';
 export type EffectAccess = 'free_unlocked' | 'challenge' | 'premium';
@@ -7,8 +8,8 @@ export interface EffectDef {
   key: string;
   name: string;
   rarity: EffectRarity;
-  /** 'all' = shared across all themes; ThemeKey[] = theme-specific */
-  themes: ThemeKey[] | 'all';
+  /** 'all' = shared across all themes; ThemeKey[] = home themes (biased toward) */
+  homeThemes: ThemeKey[] | 'all';
   /** Access control — independent of rarity */
   access: EffectAccess;
   description: { en: string; ja: string };
@@ -23,48 +24,48 @@ export interface EffectDef {
 
 export const EFFECTS_REGISTRY: EffectDef[] = [
   // ── COMMON — free, all themes ─────────────────────────────────────────────
-  { key: 'explode',    name: 'Explode',     rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Burst into pixel confetti.',        ja: 'ピクセル紙吹雪が弾ける。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'flyAway',    name: 'Fly Away',    rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Task takes off into the sky.',       ja: 'タスクが空へ飛んでいく。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'vanish',     name: 'Vanish',      rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Disappears in a puff of smoke.',     ja: '煙とともに消える。'               }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'melt',       name: 'Melt',        rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Melts away like it never existed.',  ja: '溶けて、なかったことに。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'bounce',     name: 'Bounce',      rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Bounces off the screen.',             ja: '画面の外へ跳ねていく。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'slideLeft',  name: 'Slide Left',  rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Slides off to the left.',             ja: '左へスライドして消える。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'slideRight', name: 'Slide Right', rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Slides off to the right.',            ja: '右へスライドして消える。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'flip',       name: 'Flip',        rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Flips out of existence.',             ja: 'くるっと反転して消える。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'shrink',     name: 'Shrink',      rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Shrinks down to nothing.',            ja: '小さく縮んで消える。'             }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'stretch',    name: 'Stretch',     rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Stretches into the distance.',        ja: '伸びて遠ざかっていく。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'wobble',     name: 'Wobble',      rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Wobbles wildly before vanishing.',    ja: 'ぐらぐら揺れて消える。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'fadeOut',    name: 'Fade Out',    rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Fades gracefully into the void.',     ja: 'ふわっとフェードして消える。'     }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'explode',    name: 'Explode',     rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Burst into pixel confetti.',        ja: 'ピクセル紙吹雪が弾ける。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'flyAway',    name: 'Fly Away',    rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Task takes off into the sky.',       ja: 'タスクが空へ飛んでいく。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'vanish',     name: 'Vanish',      rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Disappears in a puff of smoke.',     ja: '煙とともに消える。'               }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'melt',       name: 'Melt',        rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Melts away like it never existed.',  ja: '溶けて、なかったことに。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'bounce',     name: 'Bounce',      rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Bounces off the screen.',             ja: '画面の外へ跳ねていく。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'slideLeft',  name: 'Slide Left',  rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Slides off to the left.',             ja: '左へスライドして消える。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'slideRight', name: 'Slide Right', rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Slides off to the right.',            ja: '右へスライドして消える。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'flip',       name: 'Flip',        rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Flips out of existence.',             ja: 'くるっと反転して消える。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'shrink',     name: 'Shrink',      rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Shrinks down to nothing.',            ja: '小さく縮んで消える。'             }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'stretch',    name: 'Stretch',     rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Stretches into the distance.',        ja: '伸びて遠ざかっていく。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'wobble',     name: 'Wobble',      rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Wobbles wildly before vanishing.',    ja: 'ぐらぐら揺れて消える。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'fadeOut',    name: 'Fade Out',    rarity: 'COMMON', homeThemes: 'all', access: 'free_unlocked', description: { en: 'Fades gracefully into the void.',     ja: 'ふわっとフェードして消える。'     }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── RARE — Arcade + Forestbit (premium) ──────────────────────────────────
-  { key: 'shatter',      name: 'Shatter',       rarity: 'RARE', themes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Shatters into a thousand pieces.',            ja: '粉々に砕け散る。'               }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'spinOff',      name: 'Spin Off',      rarity: 'RARE', themes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Spins off the screen at full speed.',          ja: '高速スピンで画面外へ。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'crumpleThrow', name: 'Crumple Throw', rarity: 'RARE', themes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Crumples up like paper and gets tossed.',     ja: 'くしゃっと丸めて投げ捨て。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'shatter',      name: 'Shatter',       rarity: 'RARE', homeThemes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Shatters into a thousand pieces.',            ja: '粉々に砕け散る。'               }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'spinOff',      name: 'Spin Off',      rarity: 'RARE', homeThemes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Spins off the screen at full speed.',          ja: '高速スピンで画面外へ。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'crumpleThrow', name: 'Crumple Throw', rarity: 'RARE', homeThemes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Crumples up like paper and gets tossed.',     ja: 'くしゃっと丸めて投げ捨て。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── RARE — Arcade: CHALLENGE ──────────────────────────────────────────────
-  { key: 'punch', name: 'Fighter Kick', rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: "A fighter's kick sends it flying.", ja: 'ファイターのキックで吹き飛ぶ。' }, evolutionStages: 2, evolutionCondition: 'cumulative_completions_50', evolutionThreshold: 50, challengeDeadline: new Date('2026-05-31T23:59:59+09:00'), challengeUnlockThreshold: 20 },
+  { key: 'punch', name: 'Fighter Kick', rarity: 'RARE', homeThemes: ['arcade'], access: 'challenge', description: { en: "A fighter's kick sends it flying.", ja: 'ファイターのキックで吹き飛ぶ。' }, evolutionStages: 2, evolutionCondition: 'cumulative_completions_50', evolutionThreshold: 50, challengeDeadline: new Date('2026-05-31T23:59:59+09:00'), challengeUnlockThreshold: 20 },
 
   // ── RARE — Synthwave (premium) ────────────────────────────────────────────
-  { key: 'glitchSlide', name: 'Glitch Slide', rarity: 'RARE', themes: ['synthwave'], access: 'premium', description: { en: 'Glitches out with neon artifacts.', ja: 'ネオンのノイズでグリッチ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'neonWarp',    name: 'Neon Warp',    rarity: 'RARE', themes: ['synthwave'], access: 'premium', description: { en: 'Warps through a neon portal.',       ja: 'ネオンポータルでワープ。'     }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'scanDrone',   name: 'Scan Drone',   rarity: 'RARE', themes: ['synthwave'], access: 'premium', description: { en: 'A drone scans and pixelates the task.', ja: 'ドローンがスキャンしてピクセル分解。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'glitchSlide', name: 'Glitch Slide', rarity: 'RARE', homeThemes: ['synthwave'], access: 'premium', description: { en: 'Glitches out with neon artifacts.', ja: 'ネオンのノイズでグリッチ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'neonWarp',    name: 'Neon Warp',    rarity: 'RARE', homeThemes: ['synthwave'], access: 'premium', description: { en: 'Warps through a neon portal.',       ja: 'ネオンポータルでワープ。'     }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'scanDrone',   name: 'Scan Drone',   rarity: 'RARE', homeThemes: ['synthwave'], access: 'premium', description: { en: 'A drone scans and pixelates the task.', ja: 'ドローンがスキャンしてピクセル分解。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── RARE — Forest Bit (premium) ───────────────────────────────────────────
-  { key: 'leafScatter',  name: 'Leaf Scatter',  rarity: 'RARE', themes: ['forestbit'], access: 'premium', description: { en: 'A gust of leaves scatters across the screen.', ja: '葉っぱが舞い散る。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'butterflyFly', name: 'Butterfly Fly', rarity: 'RARE', themes: ['forestbit'], access: 'premium', description: { en: 'Butterflies flutter and carry it away.',         ja: '蝶がひらひら運んでいく。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'fireflyBurst', name: 'Firefly Burst', rarity: 'RARE', themes: ['forestbit'], access: 'premium', description: { en: 'Fireflies burst in a warm night glow.',          ja: 'ホタルの光がふわっと弾ける。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'leafScatter',  name: 'Leaf Scatter',  rarity: 'RARE', homeThemes: ['forestbit'], access: 'premium', description: { en: 'A gust of leaves scatters across the screen.', ja: '葉っぱが舞い散る。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'butterflyFly', name: 'Butterfly Fly', rarity: 'RARE', homeThemes: ['forestbit'], access: 'premium', description: { en: 'Butterflies flutter and carry it away.',         ja: '蝶がひらひら運んでいく。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'fireflyBurst', name: 'Firefly Burst', rarity: 'RARE', homeThemes: ['forestbit'], access: 'premium', description: { en: 'Fireflies burst in a warm night glow.',          ja: 'ホタルの光がふわっと弾ける。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── EPIC — Arcade + Forestbit (premium) ──────────────────────────────────
-  { key: 'rainbowSmash', name: 'Rainbow Smash', rarity: 'EPIC', themes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Explodes in a full rainbow of pixel glory.',          ja: '虹色のピクセル大爆発。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'freeze',       name: 'Freeze',        rarity: 'EPIC', themes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Time freezes. The task crystallizes and shatters.',  ja: '時間が止まり、結晶化して砕ける。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'bomb',         name: 'Bomb',          rarity: 'EPIC', themes: ['arcade'],             access: 'premium', description: { en: 'Countdown… then a huge pixel blast.',                ja: 'カウントダウン…そして大爆発。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'rainbowSmash', name: 'Rainbow Smash', rarity: 'EPIC', homeThemes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Explodes in a full rainbow of pixel glory.',          ja: '虹色のピクセル大爆発。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'freeze',       name: 'Freeze',        rarity: 'EPIC', homeThemes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Time freezes. The task crystallizes and shatters.',  ja: '時間が止まり、結晶化して砕ける。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'bomb',         name: 'Bomb',          rarity: 'EPIC', homeThemes: ['arcade'],             access: 'premium', description: { en: 'Countdown… then a huge pixel blast.',                ja: 'カウントダウン…そして大爆発。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── EPIC — Forest Bit (premium) ───────────────────────────────────────────
-  { key: 'giantTreeGrow', name: 'Giant Tree Grow', rarity: 'EPIC', themes: ['forestbit'], access: 'premium', description: { en: 'A giant tree grows and takes over the world.', ja: '巨大な木が育ち、世界を覆う。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'owlBlink',      name: 'Owl Blink',       rarity: 'EPIC', themes: ['forestbit'], access: 'premium', description: { en: 'A mysterious owl appears… blink.',          ja: '謎のフクロウが現れて…まばたき。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'giantTreeGrow', name: 'Giant Tree Grow', rarity: 'EPIC', homeThemes: ['forestbit'], access: 'premium', description: { en: 'A giant tree grows and takes over the world.', ja: '巨大な木が育ち、世界を覆う。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'owlBlink',      name: 'Owl Blink',       rarity: 'EPIC', homeThemes: ['forestbit'], access: 'premium', description: { en: 'A mysterious owl appears… blink.',          ja: '謎のフクロウが現れて…まばたき。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── EPIC — Synthwave (premium) ────────────────────────────────────────────
-  { key: 'neonBigBang', name: 'Neon Big Bang', rarity: 'EPIC', themes: ['synthwave'], access: 'premium', description: { en: 'A neon supernova consumes the task.', ja: 'ネオンの超新星が飲み込む。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'neonBigBang', name: 'Neon Big Bang', rarity: 'EPIC', homeThemes: ['synthwave'], access: 'premium', description: { en: 'A neon supernova consumes the task.', ja: 'ネオンの超新星が飲み込む。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 ];
 
 /** Fallback effect key when the draw pool is empty */
@@ -123,19 +124,41 @@ export function canDeactivateEffect(
   return activeOfRarity.length > 1;
 }
 
+// ── Theme bias constants ─────────────────────────────────────────────────────
+
+/** Weight multiplier when the active theme matches the effect's home theme */
+export const THEME_WEIGHT_HOME = 5.0;
+/** Weight multiplier for effects whose home theme differs from the active theme */
+export const THEME_WEIGHT_OTHER = 1.0;
+
+/**
+ * Compute the theme bias multiplier for an effect.
+ * Common effects (homeThemes === 'all') always return 1.0.
+ * Rare/Epic effects get THEME_WEIGHT_HOME when the active theme is one of
+ * their home themes, otherwise THEME_WEIGHT_OTHER.
+ */
+export function getThemeMultiplier(ef: EffectDef, activeThemeKey: ThemeKey): number {
+  if (ef.homeThemes === 'all') return 1.0;
+  return (ef.homeThemes as ThemeKey[]).includes(activeThemeKey)
+    ? THEME_WEIGHT_HOME
+    : THEME_WEIGHT_OTHER;
+}
+
 // ── Draw pool ─────────────────────────────────────────────────────────────────
 
 /**
  * Build the eligible effect draw pool for a given user.
  *
- * - free_unlocked + theme match → always included (if activated)
- * - premium + theme match + isPremium → included (if activated)
+ * Theme filtering is NOT applied here — all accessible effects enter the pool.
+ * Theme bias is applied later by drawEffect() via weighted random selection.
+ *
+ * - free_unlocked → always included (if activated)
+ * - premium + isPremium → included (if activated)
  * - challenge + within deadline + owned → included (if activated)
  * - Falls back to all free_unlocked 'all'-theme effects if pool is empty
  */
 export function buildDrawPool(
   isPremium: boolean,
-  activeThemeKey: ThemeKey,
   activatedKeys: string[],
   ownedChallengeEffects: string[] = [],
 ): EffectDef[] {
@@ -145,10 +168,6 @@ export function buildDrawPool(
     .map(key => EFFECTS_REGISTRY.find(ef => ef.key === key))
     .filter((ef): ef is EffectDef => ef !== undefined)
     .filter(ef => {
-      const themeOk =
-        ef.themes === 'all' || (ef.themes as ThemeKey[]).includes(activeThemeKey);
-      if (!themeOk) return false;
-
       if (ef.access === 'free_unlocked') return true;
       if (ef.access === 'premium') return isPremium;
       if (ef.access === 'challenge') {
@@ -160,58 +179,70 @@ export function buildDrawPool(
     });
 
   if (pool.length === 0) {
-    return EFFECTS_REGISTRY.filter(ef => ef.access === 'free_unlocked' && ef.themes === 'all');
+    return EFFECTS_REGISTRY.filter(ef => ef.access === 'free_unlocked' && ef.homeThemes === 'all');
   }
   return pool;
 }
 
 /**
- * Weighted random selection from a draw pool.
- * Weights: COMMON = 85, RARE = 12, EPIC = 3
+ * Weighted random selection with theme bias.
+ *
+ * Each effect's weight = rarityWeight * themeMultiplier.
+ * - Rarity weights: COMMON = 85, RARE = 12, EPIC = 3
+ * - Theme multiplier: home theme match = 5×, other = 1× (Common always 1×)
  */
-export function weightedRandomEffect(pool: EffectDef[]): EffectDef {
+export function drawEffect(pool: EffectDef[], activeThemeKey: ThemeKey): EffectDef {
   const WEIGHTS: Record<EffectRarity, number> = { COMMON: 85, RARE: 12, EPIC: 3 };
-  const totalWeight = pool.reduce((sum, ef) => sum + (WEIGHTS[ef.rarity] ?? 1), 0);
+
+  const weighted = pool.map(ef => ({
+    effect: ef,
+    weight: (WEIGHTS[ef.rarity] ?? 1) * getThemeMultiplier(ef, activeThemeKey),
+  }));
+
+  const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
   let rand = Math.random() * totalWeight;
-  for (const ef of pool) {
-    rand -= WEIGHTS[ef.rarity] ?? 1;
-    if (rand <= 0) return ef;
+
+  for (const { effect, weight } of weighted) {
+    rand -= weight;
+    if (rand <= 0) return effect;
   }
-  return pool[pool.length - 1] ?? pool[0];
+
+  return weighted[weighted.length - 1]?.effect ?? pool[0];
 }
 
 // ── Tutorial draw pool ───────────────────────────────────────────────────────
 
 /**
  * Build a special draw pool for tutorial (unauthenticated) users.
- * Includes ALL effects compatible with the active theme, regardless of
- * access level, with boosted weights for Rare/Epic so visitors experience
- * the "wow" effects they saw on SNS.
+ * Includes ALL effects regardless of theme, excluding challenge effects
+ * (which require server state). Theme bias is applied by drawEffectTutorial().
  */
-export function buildTutorialDrawPool(activeThemeKey: ThemeKey): EffectDef[] {
-  return EFFECTS_REGISTRY.filter(ef => {
-    // Skip challenge effects — they require server state
-    if (ef.access === 'challenge') return false;
-    const themeOk =
-      ef.themes === 'all' || (ef.themes as ThemeKey[]).includes(activeThemeKey);
-    return themeOk;
-  });
+export function buildTutorialDrawPool(): EffectDef[] {
+  return EFFECTS_REGISTRY.filter(ef => ef.access !== 'challenge');
 }
 
 /**
- * Weighted random selection tuned for tutorial: Rare/Epic appear much more
- * often so the first experience is exciting.
- * Weights: COMMON = 40, RARE = 40, EPIC = 20
+ * Weighted random selection tuned for tutorial with theme bias.
+ * Rare/Epic appear much more often so the first experience is exciting.
+ * Weights: COMMON = 40, RARE = 40, EPIC = 20 (× theme multiplier)
  */
-export function weightedRandomEffectTutorial(pool: EffectDef[]): EffectDef {
+export function drawEffectTutorial(pool: EffectDef[], activeThemeKey: ThemeKey): EffectDef {
   const WEIGHTS: Record<EffectRarity, number> = { COMMON: 40, RARE: 40, EPIC: 20 };
-  const totalWeight = pool.reduce((sum, ef) => sum + (WEIGHTS[ef.rarity] ?? 1), 0);
+
+  const weighted = pool.map(ef => ({
+    effect: ef,
+    weight: (WEIGHTS[ef.rarity] ?? 1) * getThemeMultiplier(ef, activeThemeKey),
+  }));
+
+  const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
   let rand = Math.random() * totalWeight;
-  for (const ef of pool) {
-    rand -= WEIGHTS[ef.rarity] ?? 1;
-    if (rand <= 0) return ef;
+
+  for (const { effect, weight } of weighted) {
+    rand -= weight;
+    if (rand <= 0) return effect;
   }
-  return pool[pool.length - 1] ?? pool[0];
+
+  return weighted[weighted.length - 1]?.effect ?? pool[0];
 }
 
 /**
@@ -229,22 +260,22 @@ export function pickGuaranteedRareOrEpic(pool: EffectDef[]): EffectDef {
     return rare[Math.floor(Math.random() * rare.length)]!;
   }
   // Fallback (shouldn't happen if pool has Rare/Epic)
-  return weightedRandomEffectTutorial(pool);
+  return drawEffectTutorial(pool, 'arcade');
 }
 
 // ── Theme preview helpers ─────────────────────────────────────────────────────
 
 export function getThemeLimitedEffectKeys(themeKey: ThemeKey): string[] {
   return EFFECTS_REGISTRY
-    .filter(ef => ef.themes !== 'all')
-    .filter(ef => (ef.themes as ThemeKey[]).includes(themeKey))
+    .filter(ef => ef.homeThemes !== 'all')
+    .filter(ef => (ef.homeThemes as ThemeKey[]).includes(themeKey))
     .map(ef => ef.key);
 }
 
 export function getThemeExclusiveEffectKeys(themeKey: ThemeKey): string[] {
   return EFFECTS_REGISTRY
-    .filter(ef => Array.isArray(ef.themes))
-    .filter(ef => (ef.themes as ThemeKey[]).length === 1 && (ef.themes as ThemeKey[])[0] === themeKey)
+    .filter(ef => Array.isArray(ef.homeThemes))
+    .filter(ef => (ef.homeThemes as ThemeKey[]).length === 1 && (ef.homeThemes as ThemeKey[])[0] === themeKey)
     .map(ef => ef.key);
 }
 
@@ -258,4 +289,28 @@ export function getRandomThemeLimitedEffectKey(themeKey: ThemeKey): string {
     return limited[Math.floor(Math.random() * limited.length)] ?? FALLBACK_EFFECT_KEY;
   }
   return FALLBACK_EFFECT_KEY;
+}
+
+// ── Home theme display helpers ───────────────────────────────────────────────
+
+/**
+ * Returns a localized description of the effect's home theme bias behaviour.
+ * Used in Collection page detail views.
+ */
+export function getHomeThemeDescription(
+  effect: EffectDef,
+  lang: 'en' | 'ja',
+): { label: string; sub: string } | null {
+  if (effect.homeThemes === 'all') return null;
+  const homeNames = (effect.homeThemes as ThemeKey[])
+    .map(k => themes[k]?.name ?? k);
+  const joined = homeNames.join(lang === 'ja' ? '・' : ' / ');
+  return {
+    label: lang === 'ja'
+      ? `${joined}で最も出やすい`
+      : `Most likely in ${joined}`,
+    sub: lang === 'ja'
+      ? '他のテーマでも発動することがある'
+      : 'Can also appear in other themes',
+  };
 }

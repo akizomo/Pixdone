@@ -58,7 +58,7 @@ function getRectWithTransformCompensation(taskElement: HTMLElement): EffectRect 
  * animateTaskCompletion (ComicEffectsManager), hide original, call onDone, cleanup after ~1100ms.
  *
  * @param effectKey - If provided, pre-selects exactly this effect (bypasses random selection in animations.js).
- *                    Pass the result of weightedRandomEffect(buildDrawPool(...)).key.
+ *                    Pass the result of drawEffect(buildDrawPool(...), activeThemeKey).key.
  */
 export function runVanillaCompletionEffect(
   taskEl: HTMLElement | null,

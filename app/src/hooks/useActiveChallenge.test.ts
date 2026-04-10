@@ -35,7 +35,7 @@ describe('getActiveChallenge', () => {
     key: 'punch',
     name: 'Punch',
     rarity: 'RARE',
-    themes: ['arcade'],
+    homeThemes: ['arcade'],
     access: 'challenge',
     description: { en: 'A punch.', ja: 'パンチ。' },
     evolutionStages: 1,
@@ -48,7 +48,7 @@ describe('getActiveChallenge', () => {
 
   it('returns null when no challenge effects exist in registry', () => {
     const registry: EffectDef[] = [{
-      key: 'explode', name: 'Explode', rarity: 'COMMON', themes: 'all',
+      key: 'explode', name: 'Explode', rarity: 'COMMON', homeThemes: 'all',
       access: 'free_unlocked',
       description: { en: '', ja: '' },
       evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null,

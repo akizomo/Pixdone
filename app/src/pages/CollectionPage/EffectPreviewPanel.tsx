@@ -1,7 +1,7 @@
 import { useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DemoTaskItem } from './DemoTaskItem';
-import { EFFECTS_REGISTRY, isEffectLocked, canDeactivateEffect } from '../../data/effectsRegistry';
+import { EFFECTS_REGISTRY, isEffectLocked, canDeactivateEffect, getHomeThemeDescription } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
 import { Toggle } from '../../design-system';
 import { EvolutionSection } from './EvolutionSection';
@@ -183,6 +183,38 @@ export function EffectPreviewPanel({
         }}>
           {effect.description[lang]}
         </p>
+        {/* Home theme bias info */}
+        {(() => {
+          const themeInfo = getHomeThemeDescription(effect, lang);
+          if (!themeInfo) return null;
+          return (
+            <div style={{
+              padding: '8px 10px',
+              background: 'var(--pd-color-background-elevated)',
+              border: '1px solid var(--pd-color-border-default)',
+            }}>
+              <p style={{
+                margin: 0,
+                fontFamily: 'var(--pd-font-brand)',
+                fontSize: '0.6875rem',
+                letterSpacing: '0.5px',
+                color: 'var(--pd-color-text-primary)',
+                lineHeight: 1.4,
+              }}>
+                {themeInfo.label}
+              </p>
+              <p style={{
+                margin: '2px 0 0',
+                fontFamily: 'var(--pd-font-body)',
+                fontSize: '0.6875rem',
+                color: 'var(--pd-color-text-secondary)',
+                lineHeight: 1.4,
+              }}>
+                {themeInfo.sub}
+              </p>
+            </div>
+          );
+        })()}
         {isLocked && effect.access === 'premium' && (
           <button
             type="button"

@@ -29,7 +29,7 @@ import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
 import { trackTaskComplete, trackTaskAdd, trackListCreate, trackEffectTriggered, trackChallengeUnlocked } from './services/analytics';
-import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect, buildTutorialDrawPool, weightedRandomEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
+import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, drawEffect, buildTutorialDrawPool, drawEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
 import { resolveAnimationKey } from './data/effectEvolution';
 import './styles/task-animations.css';
 import type { List } from './types/list';
@@ -494,16 +494,16 @@ function AppContent() {
     if (taskEl) {
       // Tutorial (unauthenticated): use boosted pool with Rare/Epic
       const pool = isTutorialTask
-        ? buildTutorialDrawPool(visualTheme)
-        : buildDrawPool(isPremium, visualTheme, activeEffects, ownedChallengeEffects);
+        ? buildTutorialDrawPool()
+        : buildDrawPool(isPremium, activeEffects, ownedChallengeEffects);
       let selected;
       if (isTutorialTask && taskId === 'tutorial-2') {
         // Guaranteed Rare/Epic for tutorial-2 — the "wow" moment
         selected = pool.length > 0 ? pickGuaranteedRareOrEpic(pool) : undefined;
       } else if (isTutorialTask) {
-        selected = pool.length > 0 ? weightedRandomEffectTutorial(pool) : undefined;
+        selected = pool.length > 0 ? drawEffectTutorial(pool, visualTheme) : undefined;
       } else {
-        selected = pool.length > 0 ? weightedRandomEffect(pool) : undefined;
+        selected = pool.length > 0 ? drawEffect(pool, visualTheme) : undefined;
       }
 
       // Analytics: effect triggered
@@ -635,8 +635,8 @@ function AppContent() {
     };
 
     if (taskEl) {
-      const pool = buildDrawPool(isPremium, visualTheme, activeEffects, ownedChallengeEffects);
-      const baseSmashKey = forcedEffectKey ?? (pool.length > 0 ? weightedRandomEffect(pool).key : undefined);
+      const pool = buildDrawPool(isPremium, activeEffects, ownedChallengeEffects);
+      const baseSmashKey = forcedEffectKey ?? (pool.length > 0 ? drawEffect(pool, visualTheme).key : undefined);
       const smashLvl = baseSmashKey ? (effectProgressMap[baseSmashKey]?.equippedLevel ?? 1) : 1;
       const selectedKey = baseSmashKey ? resolveAnimationKey(baseSmashKey, smashLvl) : undefined;
       runVanillaCompletionEffect(taskEl, () => {
