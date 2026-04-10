@@ -3,6 +3,7 @@ import type { Task } from '../types/task';
 import { TaskItem } from './TaskItem';
 import { isEditingText } from '../lib/utils';
 import { playSound } from '../services/sound';
+import './SmashListPanel.css';
 
 export interface SmashListPanelProps {
   subtitle: string;
@@ -10,6 +11,23 @@ export interface SmashListPanelProps {
   tasks: Task[];
   onSmash: (taskId: string) => void;
   getDisplayTitle: (task: Task) => string;
+}
+
+/** Split "sentence. sentence" into fragments with <br /> between them. */
+function renderWithLineBreaks(text: string) {
+  const parts = text.split('. ');
+  return parts.map((part, i) => (
+    <span key={i}>
+      {part}{i < parts.length - 1 ? <>.<br /></> : null}
+    </span>
+  ));
+}
+
+/** Replace "Space" keyword with a styled <span className="command-key">. */
+function renderWithCommandKey(text: string) {
+  return text.split(/\b(Space)\b/).map((part, i) =>
+    part === 'Space' ? <span key={i} className="command-key">Space</span> : part,
+  );
 }
 
 export function SmashListPanel({
@@ -86,43 +104,18 @@ export function SmashListPanel({
   }, [tasks, onSmash]);
 
   return (
-    <div style={{ padding: '8px 0 16px' }}>
-      <div
-        className="pd-smash-card"
-        style={{
-          padding: '10px 12px',
-          marginBottom: '16px',
-          border: '2px solid var(--pd-color-smash-border)',
-          background: 'linear-gradient(135deg, var(--pd-color-smash-gradientStart) 0%, var(--pd-color-smash-gradientEnd) 100%)',
-          boxShadow: '2px 2px 0 var(--pd-color-shadow-default)',
-        }}
-      >
-        <p
-          style={{
-            color: 'var(--pd-color-smash-text)',
-            fontFamily: 'var(--pd-font-body)',
-            fontSize: '1rem',
-            fontWeight: 600,
-            marginBottom: 0,
-            lineHeight: 1.35,
-          }}
-          dangerouslySetInnerHTML={{ __html: subtitle.replace(/\. /g, '.<br>') }}
-        />
-        {hint ? (
-          <p
-            style={{
-              color: 'var(--pd-color-smash-hint)',
-              fontSize: '1rem',
-              fontWeight: 600,
-              marginTop: '6px',
-              marginBottom: 0,
-              lineHeight: 1.3,
-            }}
-            dangerouslySetInnerHTML={{ __html: hint.replace(/\bSpace\b/g, '<span class="command-key">Space</span>') }}
-          />
-        ) : null}
+    <div className="pd-smash-panel">
+      <div className="pd-smash-card">
+        <p className="pd-smash-card__subtitle">
+          {renderWithLineBreaks(subtitle)}
+        </p>
+        {hint && (
+          <p className="pd-smash-card__hint">
+            {renderWithCommandKey(hint)}
+          </p>
+        )}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="pd-smash-panel__list">
         {tasks.filter((t) => !t.completed).slice(0, 3).map((task) => (
           <TaskItem
             key={task.id}
