@@ -202,8 +202,8 @@ function ensureVirtualSmashList(lists: List[]): List[] {
 
   // Smash List is an "effect playground" list; keep it local-only (not persisted).
   return [
-    { id: 'smash-list', name: '💥 Smash List', tasks: replenishSmashList([], 'smash-list') },
     ...lists,
+    { id: 'smash-list', name: '💥 Smash List', tasks: replenishSmashList([], 'smash-list') },
   ];
 }
 
@@ -287,9 +287,7 @@ function loadActiveId(lists: List[]): string {
     const raw = localStorage.getItem(ACTIVE_KEY);
     if (raw && lists.some((l) => l.id === raw)) return raw;
   } catch { /* ignore */ }
-  // Default to the first normal list, not Smash List
-  const firstNormal = lists.find((l) => l.id !== 'smash-list');
-  return firstNormal?.id ?? lists[0]?.id ?? 'default';
+  return lists[0]?.id ?? 'default';
 }
 
 export function useLists() {
@@ -329,13 +327,12 @@ export function useLists() {
   /**
    * After reload or Firestore sync, activeId may point at a deleted / optimistic id that no longer
    * exists in `lists`. Then no tab matches, swipe findIndex is -1, and UI looks broken.
-   * Snap to the first normal list (skip Smash List).
+   * Snap to the first available list.
    */
   useEffect(() => {
     if (lists.length === 0) return;
     if (lists.some((l) => l.id === activeId)) return;
-    const firstNormal = lists.find((l) => l.id !== 'smash-list');
-    const fallback = firstNormal?.id ?? lists[0]?.id;
+    const fallback = lists[0]?.id;
     if (fallback) {
       setActiveList(fallback);
     }
