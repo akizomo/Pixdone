@@ -7,10 +7,11 @@ interface EffectCardProps {
   isEquipped: boolean;
   isPremium: boolean;
   ownedChallengeEffects?: string[];
+  equippedLevel?: number;
   onClick: () => void;
 }
 
-export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffects = [], onClick }: EffectCardProps) {
+export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffects = [], equippedLevel, onClick }: EffectCardProps) {
   const isLocked = isEffectLocked(effect, isPremium, ownedChallengeEffects);
   const isChallenge = effect.access === 'challenge';
   const withinDeadline = !effect.challengeDeadline || Date.now() <= effect.challengeDeadline.getTime();
@@ -36,17 +37,32 @@ export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffect
         transition: 'opacity 0.15s',
       }}
     >
-      {/* Rarity badge */}
-      <span
-        style={{
-          fontSize: '0.625rem',
-          fontFamily: 'var(--pd-font-brand)',
-          letterSpacing: '1px',
-          color: badgeColor(effect.rarity, isChallenge),
-        }}
-      >
-        {effect.rarity}
-      </span>
+      {/* Rarity + level badge */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <span
+          style={{
+            fontSize: '0.625rem',
+            fontFamily: 'var(--pd-font-brand)',
+            letterSpacing: '1px',
+            color: badgeColor(effect.rarity, isChallenge),
+          }}
+        >
+          {effect.rarity}
+        </span>
+        {effect.evolutionStages > 1 && equippedLevel != null && equippedLevel >= 1 && (
+          <span
+            style={{
+              fontSize: '0.5625rem',
+              fontFamily: 'var(--pd-font-brand)',
+              letterSpacing: '1px',
+              color: equippedLevel >= 2 ? '#64ffda' : '#ffd54f',
+              fontWeight: 'bold',
+            }}
+          >
+            Lv{equippedLevel}
+          </span>
+        )}
+      </div>
 
       {/* Effect name */}
       <span

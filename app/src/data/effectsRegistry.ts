@@ -12,7 +12,7 @@ export interface EffectDef {
   /** Access control — independent of rarity */
   access: EffectAccess;
   description: { en: string; ja: string };
-  evolutionStages: 1 | 2;
+  evolutionStages: 1 | 2 | 3 | 4 | 5;
   evolutionCondition: string | null;
   evolutionThreshold: number | null;
   /** Set only for challenge effects: when the challenge period expires */

@@ -6,6 +6,9 @@ import { playDemoEffect } from '../../services/taskAnimations';
 import { Toggle } from '../../design-system';
 import { playSound } from '../../services/sound';
 import { badgeColor } from './rarityColors';
+import { EvolutionSection } from './EvolutionSection';
+import { resolveAnimationKey } from '../../data/effectEvolution';
+import type { EffectProgressEntry } from '../../hooks/useEffectProgress';
 
 interface EffectSheetContentProps {
   effectKey: string;
@@ -14,6 +17,7 @@ interface EffectSheetContentProps {
   setActiveEffects: (keys: string[]) => void;
   ownedChallengeEffects?: string[];
   challengeProgressMap?: Record<string, number>;
+  effectProgressMap?: Record<string, EffectProgressEntry>;
   lang: 'en' | 'ja';
   indexLabel: string;
   onPrev: () => void;
@@ -28,6 +32,7 @@ export function EffectSheetContent({
   setActiveEffects,
   ownedChallengeEffects = [],
   challengeProgressMap = {},
+  effectProgressMap = {},
   lang,
   indexLabel,
   onPrev,
@@ -48,10 +53,11 @@ export function EffectSheetContent({
   const challengeProgress = challengeProgressMap[effectKey] ?? 0;
   const challengeThreshold = effect?.challengeUnlockThreshold ?? 0;
 
+  const demoAnimKey = resolveAnimationKey(effectKey, effectProgressMap[effectKey]?.equippedLevel ?? 1);
   const triggerDemo = useCallback(() => {
     if (!demoRef.current) return;
-    playDemoEffect(effectKey, demoRef.current);
-  }, [effectKey]);
+    playDemoEffect(demoAnimKey, demoRef.current);
+  }, [demoAnimKey]);
 
   const handleToggle = () => {
     if (isActive) {
@@ -228,6 +234,15 @@ export function EffectSheetContent({
               </div>
             </div>
           )}
+
+          {/* Evolution progress (shown after challenge is earned) */}
+          <EvolutionSection
+            effectKey={effectKey}
+            isPremium={isPremium}
+            effectProgress={effectProgressMap[effectKey]}
+            lang={lang}
+            compact
+          />
 
           {/* Description */}
           <p style={{

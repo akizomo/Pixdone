@@ -4,6 +4,9 @@ import { DemoTaskItem } from './DemoTaskItem';
 import { EFFECTS_REGISTRY, isEffectLocked, canDeactivateEffect } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
 import { Toggle } from '../../design-system';
+import { EvolutionSection } from './EvolutionSection';
+import { resolveAnimationKey } from '../../data/effectEvolution';
+import type { EffectProgressEntry } from '../../hooks/useEffectProgress';
 
 interface EffectPreviewPanelProps {
   effectKey: string;
@@ -12,12 +15,14 @@ interface EffectPreviewPanelProps {
   setActiveEffects: (keys: string[]) => void;
   ownedChallengeEffects?: string[];
   challengeProgressMap?: Record<string, number>;
+  effectProgressMap?: Record<string, EffectProgressEntry>;
   lang: 'en' | 'ja';
 }
 
 export function EffectPreviewPanel({
   effectKey, isPremium, activeEffects, setActiveEffects,
   ownedChallengeEffects = [], challengeProgressMap = {},
+  effectProgressMap = {},
   lang,
 }: EffectPreviewPanelProps) {
   const navigate = useNavigate();
@@ -34,10 +39,11 @@ export function EffectPreviewPanel({
   const challengeProgress = challengeProgressMap[effectKey] ?? 0;
   const challengeThreshold = effect?.challengeUnlockThreshold ?? 0;
 
+  const demoAnimKey = resolveAnimationKey(effectKey, effectProgressMap[effectKey]?.equippedLevel ?? 1);
   const triggerDemo = useCallback(() => {
     if (!demoRef.current) return;
-    playDemoEffect(effectKey, demoRef.current);
-  }, [effectKey]);
+    playDemoEffect(demoAnimKey, demoRef.current);
+  }, [demoAnimKey]);
 
   const handleToggle = () => {
     if (isLocked) { navigate('/pricing'); return; }
@@ -161,6 +167,13 @@ export function EffectPreviewPanel({
             </div>
           </div>
         )}
+        {/* Evolution progress (shown after challenge is earned) */}
+        <EvolutionSection
+          effectKey={effectKey}
+          isPremium={isPremium}
+          effectProgress={effectProgressMap[effectKey]}
+          lang={lang}
+        />
         <p style={{
           margin: 0,
           fontFamily: 'var(--pd-font-body)',
