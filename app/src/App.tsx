@@ -1,6 +1,6 @@
 import {
   useState, useCallback, useEffect, useRef, useMemo, useSyncExternalStore, Component,
-  type MutableRefObject, type ErrorInfo, type ReactNode,
+  type ErrorInfo, type ReactNode,
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu } from './design-system';
@@ -21,12 +21,10 @@ import { useEffectProgress } from './hooks/useEffectProgress';
 import { useActiveChallenge } from './hooks/useActiveChallenge';
 import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
-import { t } from './lib/i18n';
-import { trackTaskComplete, trackTaskAdd, trackListCreate, trackEffectTriggered, trackChallengeUnlocked } from './services/analytics';
+import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked } from './services/analytics';
 import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect, buildTutorialDrawPool, weightedRandomEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
 import { resolveAnimationKey } from './data/effectEvolution';
 import './styles/task-animations.css';
-import type { List } from './types/list';
 import type { Task } from './types/task';
 import { PricingPage } from './pages/PricingPage';
 import { AccountPage } from './pages/AccountPage';
@@ -67,7 +65,7 @@ function getFinePointerSnapshot(): boolean {
 }
 
 function AppContent() {
-  const { lists, activeListId, currentList } = useListsData();
+  const { lists, currentList } = useListsData();
   const {
     setActiveList,
     addList, renameList, deleteList,
@@ -107,7 +105,6 @@ function AppContent() {
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
   const hasFinePointer = useSyncExternalStore(subscribeFinePointer, getFinePointerSnapshot, () => true);
   const isDesktop = hasFinePointer;
-  const preferInlineTaskUi = hasFinePointer;
 
   /* ---- Sound state (vanilla parity: pixdone-sound-enabled, ComicEffectsManager when loaded) ---- */
   const [soundMuted, setSoundMuted] = useState(() => !getSoundEnabled());
@@ -228,7 +225,6 @@ function AppContent() {
 
   const isFocusScreen = activeScreen === 'focus';
   const isCollectionScreen = activeScreen === 'collection';
-  const isTasksScreen = activeScreen === 'tasks';
 
   const { visualTheme, changeTheme, colorMode } = useUserTheme();
 
