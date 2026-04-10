@@ -693,16 +693,6 @@ function AppContent() {
     closeMobileSheet();
   }, [closeMobileSheet]);
 
-  // Close the BottomSheet directly (same pattern as ChallengeMenu).
-  // Save dirty data synchronously first, then close in one step.
-  const handleTaskFormCloseViaSave = useCallback(() => {
-    if (taskFormRef.current?.dismissSubmenus()) return;
-    taskFormRef.current?.saveIfDirty();
-    setMobileSheetOpen(false);
-    setTaskFormMode(null);
-    setTimeout(() => setMobileEditTaskId(null), 320);
-  }, []);
-
   const openAddTask = useCallback(() => {
     // Smash List: FAB acts as a quick smash (same as Space key)
     if (isSmash) {
@@ -763,18 +753,6 @@ function AppContent() {
     themeModalOpen ||
     listModal !== null ||
     mobileSheetOpen ||
-    deleteTaskConfirm !== null ||
-    focusZenOpen ||
-    inlineTaskFormOpen;
-
-  // FAB uses a separate flag that excludes mobileSheetOpen so that the FAB
-  // stays mounted (behind the z-400 sheet) during the close animation.
-  // Inserting/removing the FAB DOM node mid-transition was cancelling the
-  // BottomSheet slide-out CSS transition on some browsers.
-  const anyModalOpenExceptSheet =
-    signupOpen ||
-    themeModalOpen ||
-    listModal !== null ||
     deleteTaskConfirm !== null ||
     focusZenOpen ||
     inlineTaskFormOpen;
@@ -1594,7 +1572,7 @@ function AppContent() {
       </main>
 
       {/* Mobile FAB */}
-      {!anyModalOpenExceptSheet && isTasksScreen && !isSubPage && (
+      {!anyModalOpen && isTasksScreen && !isSubPage && (
         <button
           type="button"
           onClick={openAddTask}
@@ -1629,11 +1607,16 @@ function AppContent() {
         </button>
       )}
 
-      {/* Mobile BottomSheet for task add/edit */}
+      {/* Mobile BottomSheet for task add/edit — same pattern as ChallengeMenu */}
       <BottomSheet
         open={mobileSheetOpen && !preferInlineTaskUi}
-        onClose={handleTaskFormCloseViaSave}
-        silent
+        onClose={() => {
+          if (taskFormRef.current?.dismissSubmenus()) return;
+          taskFormRef.current?.saveIfDirty();
+          setMobileSheetOpen(false);
+          setTaskFormMode(null);
+          setTimeout(() => setMobileEditTaskId(null), 320);
+        }}
         title={mobileEditTaskId
           ? (lang === 'ja' ? 'タスクを編集' : 'Edit task')
           : (lang === 'ja' ? 'タスクを追加' : 'Add a task')}
