@@ -17,21 +17,21 @@ describe('resolveAnimationKey', () => {
     expect(resolveAnimationKey('shatter', 1)).toBe('shatter');
   });
 
-  it('returns base key for punch at Lv1', () => {
-    expect(resolveAnimationKey('punch', 1)).toBe('punch');
+  it('returns base key for fighter at Lv1', () => {
+    expect(resolveAnimationKey('fighter', 1)).toBe('fighter');
   });
 
-  it('returns Lv2 key for punch at equippedLevel 2', () => {
-    expect(resolveAnimationKey('punch', 2)).toBe('punchLv2');
+  it('returns Lv2 key for fighter at equippedLevel 2', () => {
+    expect(resolveAnimationKey('fighter', 2)).toBe('fighterLv2');
   });
 
   it('returns LvN key for higher levels', () => {
-    expect(resolveAnimationKey('punch', 3)).toBe('punchLv3');
-    expect(resolveAnimationKey('punch', 5)).toBe('punchLv5');
+    expect(resolveAnimationKey('fighter', 3)).toBe('fighterLv3');
+    expect(resolveAnimationKey('fighter', 5)).toBe('fighterLv5');
   });
 
   it('returns base key when equippedLevel is 0 or undefined-like', () => {
-    expect(resolveAnimationKey('punch', 0)).toBe('punch');
+    expect(resolveAnimationKey('fighter', 0)).toBe('fighter');
   });
 });
 
@@ -62,7 +62,7 @@ describe('canEvolve', () => {
 
   it('returns false when already at max level', () => {
     expect(canEvolve({
-      effectKey: 'punch',
+      effectKey: 'fighter',
       equippedLevel: 2,
       evolutionProgress: 100,
       isPremium: true,
@@ -71,7 +71,7 @@ describe('canEvolve', () => {
 
   it('returns false when progress < threshold', () => {
     expect(canEvolve({
-      effectKey: 'punch',
+      effectKey: 'fighter',
       equippedLevel: 1,
       evolutionProgress: 49,
       isPremium: true,
@@ -80,7 +80,7 @@ describe('canEvolve', () => {
 
   it('returns false when not premium (even with enough progress)', () => {
     expect(canEvolve({
-      effectKey: 'punch',
+      effectKey: 'fighter',
       equippedLevel: 1,
       evolutionProgress: 50,
       isPremium: false,
@@ -89,7 +89,7 @@ describe('canEvolve', () => {
 
   it('returns true when progress >= threshold AND premium', () => {
     expect(canEvolve({
-      effectKey: 'punch',
+      effectKey: 'fighter',
       equippedLevel: 1,
       evolutionProgress: 50,
       isPremium: true,
@@ -98,7 +98,7 @@ describe('canEvolve', () => {
 
   it('returns true when progress exceeds threshold', () => {
     expect(canEvolve({
-      effectKey: 'punch',
+      effectKey: 'fighter',
       equippedLevel: 1,
       evolutionProgress: 75,
       isPremium: true,
@@ -143,7 +143,7 @@ describe('getEvolutionStatus', () => {
 
   it('returns maxed status for Lv2 effects', () => {
     const status = getEvolutionStatus({
-      effectKey: 'punch',
+      effectKey: 'fighter',
       equippedLevel: 2,
       evolutionProgress: 50,
       isPremium: true,
@@ -156,7 +156,7 @@ describe('getEvolutionStatus', () => {
 
   it('shows need_premium when progress met but not premium', () => {
     const status = getEvolutionStatus({
-      effectKey: 'punch',
+      effectKey: 'fighter',
       equippedLevel: 1,
       evolutionProgress: 50,
       isPremium: false,
@@ -167,7 +167,7 @@ describe('getEvolutionStatus', () => {
 
   it('shows need_progress when premium but progress not met', () => {
     const status = getEvolutionStatus({
-      effectKey: 'punch',
+      effectKey: 'fighter',
       equippedLevel: 1,
       evolutionProgress: 30,
       isPremium: true,
@@ -179,7 +179,7 @@ describe('getEvolutionStatus', () => {
 
   it('shows ready when all conditions met', () => {
     const status = getEvolutionStatus({
-      effectKey: 'punch',
+      effectKey: 'fighter',
       equippedLevel: 1,
       evolutionProgress: 50,
       isPremium: true,
@@ -190,7 +190,7 @@ describe('getEvolutionStatus', () => {
 
   it('shows need_progress + need_premium when neither condition met', () => {
     const status = getEvolutionStatus({
-      effectKey: 'punch',
+      effectKey: 'fighter',
       equippedLevel: 1,
       evolutionProgress: 10,
       isPremium: false,

@@ -170,7 +170,7 @@ export function runVanillaCompletionEffect(
   window.taskAnimationEffects.animateTaskCompletion(effectCloneBase, effectRect);
 
   // Effects with longer timelines need more cleanup time
-  const LONG_EFFECTS = new Set(['punchLv2', 'punchLv3', 'punchLv4', 'punchLv5']);
+  const LONG_EFFECTS = new Set(['fighterLv2', 'fighterLv3', 'fighterLv4', 'fighterLv5']);
   const cleanupDelay = effectKey && LONG_EFFECTS.has(effectKey) ? 1550 : 1100;
 
   setTimeout(() => {
@@ -259,7 +259,7 @@ export function playDemoEffect(effectKey: string, el: HTMLElement): void {
   };
   w.taskAnimationEffects?.comicEffects?.playEffect(effectKey, clone, rect);
 
-  const LONG_EFFECTS = new Set(['punchLv2', 'punchLv3', 'punchLv4', 'punchLv5']);
+  const LONG_EFFECTS = new Set(['fighterLv2', 'fighterLv3', 'fighterLv4', 'fighterLv5']);
   const demoCleanupDelay = LONG_EFFECTS.has(effectKey) ? 1550 : 1100;
 
   setTimeout(() => {

@@ -15,7 +15,7 @@ const urgentPulseStyle = `
 
 /** Map effect key → preview GIF path */
 const EFFECT_GIF_MAP: Record<string, string> = {
-  punch: '/fighter-punch.gif',
+  fighter: '/fighter-punch.gif',
 };
 
 const DESKTOP_MQ = '(min-width: 768px)';

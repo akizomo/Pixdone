@@ -66,7 +66,7 @@ class ComicEffectsManager {
             "shatter",
             "spinOff",
             "crumpleThrow",
-            "punch",
+            "fighter",
         ];
 
         // Super rare pool (Plus-only roll)
@@ -995,8 +995,8 @@ class ComicEffectsManager {
         const forceRainbow = params && params.get("effect") === "rainbow";
         const forceNeonBigBang = params && params.get("effect") === "neonBigBang";
         const forceGiantTree = params && params.get("effect") === "giantTreeGrow";
-        const forcePunch = params && params.get("effect") === "punch";
-        const forcePunchLv2 = params && params.get("effect") === "punchLv2";
+        const forcePunch = params && params.get("effect") === "fighter";
+        const forcePunchLv2 = params && params.get("effect") === "fighterLv2";
         const forceBomb  = params && params.get("effect") === "bomb";
 
         // URL-param forced effects should override any equipped/active effects.
@@ -1006,13 +1006,13 @@ class ComicEffectsManager {
             return;
         }
         if (forcePunchLv2) {
-            console.log("⚔️ Fighter Kick Lv2 (forced by ?effect=punchLv2)");
-            this.playEffect("punchLv2", taskElement, effectRect);
+            console.log("⚔️ Fighter Lv2 Kick (forced by ?effect=fighterLv2)");
+            this.playEffect("fighterLv2", taskElement, effectRect);
             return;
         }
         if (forcePunch) {
-            console.log("👊 Punch effect (forced by ?effect=punch)");
-            this.playEffect("punch", taskElement, effectRect);
+            console.log("👊 Fighter Lv1 Punch (forced by ?effect=fighter)");
+            this.playEffect("fighter", taskElement, effectRect);
             return;
         }
         if (forceFreeze) {
@@ -1467,12 +1467,12 @@ class ComicEffectsManager {
                 this.playGiantTreeGrowSound();
                 this.playHapticFeedback("strong");
                 break;
-            case "punch":
+            case "fighter":
                 this.effectLock = true;
                 this.createFighterPunchEffect(taskElement, rect);
                 this.playHapticFeedback("strong");
                 break;
-            case "punchLv2":
+            case "fighterLv2":
                 this.effectLock = true;
                 this.createFighterKickLv2Effect(taskElement, rect);
                 this.playHapticFeedback("strong");
@@ -2851,7 +2851,7 @@ class ComicEffectsManager {
                     oscillator.start(audioContext.currentTime);
                     oscillator.stop(audioContext.currentTime + 0.08);
                     return;
-                case "punch": {
+                case "fighter": {
                     // Layer 1: Deep impact thud (low-freq square, fast decay)
                     const punchThud = audioContext.createOscillator();
                     const punchThudGain = audioContext.createGain();
@@ -2908,7 +2908,7 @@ class ComicEffectsManager {
                     gainNode.disconnect();
                     return;
                 }
-                case "punchLv2": {
+                case "fighterLv2": {
                     // Lv2: Deeper, heavier impact — enhanced version of Lv1 sound
                     const t = audioContext.currentTime;
 
@@ -5047,7 +5047,7 @@ class ComicEffectsManager {
         }, 340);
 
         // Sound fires 30ms before visual impact to compensate for audio latency
-        setTimeout(() => this.playSound('punch'), 310);
+        setTimeout(() => this.playSound('fighter'), 310);
 
         // ── "FINISH!" SF impact text (380ms) ───────────────────────────
         setTimeout(() => {
@@ -5218,7 +5218,7 @@ class ComicEffectsManager {
         });
 
         // ── Sound (340ms) ───────────────────────────────────────────
-        setTimeout(() => this.playSound('punchLv2'), 340);
+        setTimeout(() => this.playSound('fighterLv2'), 340);
 
         // ── Impact at 370ms (GIF frame 7) ────────────────────────────
         setTimeout(() => {

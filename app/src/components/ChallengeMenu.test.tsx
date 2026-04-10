@@ -37,8 +37,8 @@ const mockOnPreviewEffect = vi.fn();
 
 const makeChallenge = (overrides: Partial<ActiveChallenge> = {}): ActiveChallenge => ({
   effect: {
-    key: 'punch',
-    name: 'Punch',
+    key: 'fighter',
+    name: 'Fighter',
     rarity: 'RARE',
     themes: ['arcade'],
     access: 'challenge',
@@ -112,7 +112,7 @@ describe('ChallengeMenu', () => {
     it('opens when icon is tapped', () => {
       render(<ChallengeMenu challenge={makeChallenge()} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
       fireEvent.click(screen.getByLabelText('Challenge'));
-      expect(screen.getByText('Punch')).toBeInTheDocument();
+      expect(screen.getByText('Fighter')).toBeInTheDocument();
       expect(screen.getByText('RARE')).toBeInTheDocument();
     });
 
@@ -159,7 +159,7 @@ describe('ChallengeMenu', () => {
       const previewBtn = screen.getByText(/Preview effect/);
       fireEvent.click(previewBtn);
 
-      expect(mockOnPreviewEffect).toHaveBeenCalledWith('punch');
+      expect(mockOnPreviewEffect).toHaveBeenCalledWith('fighter');
     });
 
     // ── New: motivational message + GIF ─────────────────────────────────
@@ -184,7 +184,7 @@ describe('ChallengeMenu', () => {
     it('displays the effect preview GIF', () => {
       render(<ChallengeMenu challenge={makeChallenge()} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
       fireEvent.click(screen.getByLabelText('Challenge'));
-      const gif = screen.getByAltText('Punch') as HTMLImageElement;
+      const gif = screen.getByAltText('Fighter') as HTMLImageElement;
       expect(gif).toBeInTheDocument();
       expect(gif.src).toContain('fighter-punch.gif');
     });

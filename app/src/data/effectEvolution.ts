@@ -2,9 +2,9 @@
  * Effect Evolution System
  *
  * Handles Lv1 → Lv2 evolution for effects that support it.
- * Currently: punch (Fighter Kick) — Lv2 requires 50 cumulative completions + PixDone+.
+ * Currently: fighter (Fighter) — Lv1 = Punch, Lv2 = Kick. Lv2 requires 50 cumulative completions + PixDone+.
  *
- * The effectId in the DB stays the same (e.g. 'punch'); `equippedLevel` determines
+ * The effectId in the DB stays the same (e.g. 'fighter'); `equippedLevel` determines
  * which animation variant to play.
  */
 
@@ -16,7 +16,7 @@ import { EFFECTS_REGISTRY } from './effectsRegistry';
  * Given an effect registry key and the user's equippedLevel,
  * return the animation key that animations.js should play.
  *
- * For evolving effects at Lv2, appends 'Lv2' suffix (e.g. 'punch' → 'punchLv2').
+ * For evolving effects at Lv2, appends 'Lv2' suffix (e.g. 'fighter' → 'fighterLv2').
  * Non-evolving effects or Lv1 always return the base key.
  */
 export function resolveAnimationKey(effectKey: string, equippedLevel: number): string {
@@ -25,7 +25,7 @@ export function resolveAnimationKey(effectKey: string, equippedLevel: number): s
   const def = EFFECTS_REGISTRY.find(e => e.key === effectKey);
   if (!def || def.evolutionStages < 2) return effectKey;
 
-  // Lv2 → 'punchLv2', Lv3 → 'punchLv3', etc.
+  // Lv2 → 'fighterLv2', Lv3 → 'fighterLv3', etc.
   return `${effectKey}Lv${equippedLevel}`;
 }
 

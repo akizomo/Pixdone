@@ -32,8 +32,8 @@ describe('getActiveChallenge', () => {
   });
 
   const makeChallengeEffect = (overrides: Partial<EffectDef> = {}): EffectDef => ({
-    key: 'punch',
-    name: 'Punch',
+    key: 'fighter',
+    name: 'Fighter',
     rarity: 'RARE',
     themes: ['arcade'],
     access: 'challenge',
@@ -70,10 +70,10 @@ describe('getActiveChallenge', () => {
   it('returns active challenge with correct progress', () => {
     const effect = makeChallengeEffect();
     const now = new Date('2026-04-08T12:00:00Z');
-    const result = getActiveChallenge([effect], { punch: 32 }, [], now);
+    const result = getActiveChallenge([effect], { fighter: 32 }, [], now);
 
     expect(result).not.toBeNull();
-    expect(result!.effect.key).toBe('punch');
+    expect(result!.effect.key).toBe('fighter');
     expect(result!.progress).toBe(32);
     expect(result!.threshold).toBe(30);
     expect(result!.isCompleted).toBe(true);
@@ -118,14 +118,14 @@ describe('getActiveChallenge', () => {
   it('marks isCompleted=true when progress >= threshold', () => {
     const effect = makeChallengeEffect({ challengeUnlockThreshold: 50 });
     const now = new Date('2026-04-08T12:00:00Z');
-    const result = getActiveChallenge([effect], { punch: 50 }, [], now);
+    const result = getActiveChallenge([effect], { fighter: 50 }, [], now);
     expect(result!.isCompleted).toBe(true);
   });
 
   it('marks isCompleted=true when progress exceeds threshold', () => {
     const effect = makeChallengeEffect({ challengeUnlockThreshold: 50 });
     const now = new Date('2026-04-08T12:00:00Z');
-    const result = getActiveChallenge([effect], { punch: 75 }, [], now);
+    const result = getActiveChallenge([effect], { fighter: 75 }, [], now);
     expect(result!.isCompleted).toBe(true);
   });
 
@@ -135,11 +135,11 @@ describe('getActiveChallenge', () => {
       challengeDeadline: new Date('2026-01-01T00:00:00Z'),
     });
     const active = makeChallengeEffect({
-      key: 'punch',
+      key: 'fighter',
       challengeDeadline: new Date('2026-05-31T23:59:59+09:00'),
     });
     const now = new Date('2026-04-08T12:00:00Z');
     const result = getActiveChallenge([expired, active], {}, [], now);
-    expect(result!.effect.key).toBe('punch');
+    expect(result!.effect.key).toBe('fighter');
   });
 });
