@@ -32,6 +32,7 @@ export function FocusScreenContainer({
   onEdit,
   onNavigateToSmashList,
   onNavigateToFocus,
+  focusZenOpen,
   onFocusZenOpenChange,
 }: FocusScreenContainerProps) {
   const { lists } = useListsData();
