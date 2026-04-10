@@ -65,6 +65,16 @@ UI は `app/src/design-system/` のコンポーネントとトークンを使っ
   - シャドウ: `--pxd-shadow-{type}-{size}`
 - **`--pxd-color-*` は使わない**。テーマに連動しないため。色は必ず `--pd-color-*` を使う。
 
+### トークン階層ルール（Primitive → Semantic）
+- **Primitive トークン** (`tokens.css`): `--pxd-{color}-{step}` 形式の生のカラーパレット。テーマ中立。
+- **Semantic トークン** (`tokens.ts`): `--pd-color-{role}-{variant}` 形式。必ず primitive の値と一致する hex を使い、対応 primitive をコメントで明記する。
+- 新しいセマンティック色を追加するときは:
+  1. 対応する primitive が `tokens.css` にあるか確認
+  2. なければ primitive を先に追加（命名規則: `--pxd-{hue}-{step}`、step は明度順）
+  3. `tokens.ts` でその hex を使い、コメントで `// {hue}-{step}` を書く
+- **テーマ追加時も同じルール**: 新テーマの `.theme.ts` でオーバーライドする色は、そのテーマ固有の primitive（例: `--pxd-sw-*` for synthwave）を参照する。
+- **テキスト色の WCAG AA 必須**: テキストに使うセマンティック色は、dark（bg `#202124`）/ light（bg `#ffffff`）両方で **4.5:1 以上**のコントラスト比を確保する。新色追加時は計算して検証すること。
+
 ### インラインスタイル禁止
 - `style={{}}` は原則使わない。CSS クラス（コンポーネント名.css）を使う。
 - 例外: 真に動的な値のみ（ユーザー入力に基づく色、計算された位置など）。
