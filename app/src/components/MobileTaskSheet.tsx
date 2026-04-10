@@ -1,11 +1,11 @@
 /**
- * MobileTaskSheet — self-contained BottomSheet for task add/edit on mobile.
+ * MobileTaskSheet — BottomSheet for task add/edit on mobile.
  *
- * Identical pattern to ChallengeMenu:
- *   - Owns its own `open` state
- *   - onClose = () => setOpen(false)
- *   - NO state sync back to parent (no onOpenChange, no cascading re-renders)
- *   - Parent controls it via imperative ref only
+ * ChallengeMenu と完全に同じパターン:
+ *   - 自前の `open` state を管理
+ *   - onClose = () => setOpen(false) の1行のみ
+ *   - save は close と分離: 先にデータを保存し、rAF で1フレーム遅延させてから close
+ *     (親の再レンダーが CSS transition を潰さないようにする)
  */
 import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
 import { BottomSheet } from '../design-system/components/BottomSheet/BottomSheet';
@@ -43,6 +43,16 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
 
     const task = editTaskId ? tasks.find((t) => t.id === editTaskId) ?? undefined : undefined;
 
+    // Close with 1-frame delay so parent re-renders from save don't stomp the CSS transition.
+    const closeDeferred = useCallback(() => {
+      requestAnimationFrame(() => setOpen(false));
+    }, []);
+
+    // Immediate close — no data changes, safe to close immediately.
+    const closeImmediate = useCallback(() => {
+      setOpen(false);
+    }, []);
+
     useImperativeHandle(ref, () => ({
       openAdd() {
         setEditTaskId(null);
@@ -67,8 +77,15 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
         onUpdateTask(editTaskId, fields);
         playSound('taskAdd');
       }
-      setOpen(false);
-    }, [mode, editTaskId, currentListId, onAddTask, onUpdateTask]);
+      // Defer close by 1 frame so the parent re-render from onAddTask/onUpdateTask
+      // settles before we trigger the BottomSheet close animation.
+      closeDeferred();
+    }, [mode, editTaskId, currentListId, onAddTask, onUpdateTask, closeDeferred]);
+
+    const handleCancel = useCallback(() => {
+      playSound('taskCancel');
+      closeImmediate();
+    }, [closeImmediate]);
 
     const title = mode === 'edit'
       ? (lang === 'ja' ? 'タスクを編集' : 'Edit task')
@@ -77,7 +94,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
     return (
       <BottomSheet
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={closeImmediate}
         title={title}
       >
         <TaskForm
@@ -86,8 +103,8 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
           listId={currentListId}
           task={task}
           onSave={handleSave}
-          onCancel={() => { playSound('taskCancel'); setOpen(false); }}
-          onClose={() => setOpen(false)}
+          onCancel={handleCancel}
+          onClose={closeImmediate}
           onDelete={editTaskId ? () => onDeleteRequest(editTaskId) : undefined}
           availableLists={availableLists}
           onMoveToList={onMoveToList}

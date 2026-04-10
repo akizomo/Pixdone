@@ -110,10 +110,11 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
     );
   }, [title, details, dueDate, repeat, subtasks, task]);
 
-  // Close-to-save: auto-save when closing an edited task with dirty changes
+  // Close-to-save: auto-save when closing an edited task with dirty changes.
+  // onSave already handles closing the sheet — do NOT call onClose/onCancel after onSave.
   const handleClose = useCallback(() => {
     if (task && isDirty() && title.trim()) {
-      // Editing + dirty + title non-empty → save then explicitly close
+      // Editing + dirty + title non-empty → save (which also closes)
       playSound('taskAdd');
       onSave({
         title: title.trim(),
@@ -122,8 +123,6 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
         repeat,
         subtasks,
       });
-      // Explicitly close the form (don't rely on onSave to do it)
-      (onClose ?? onCancel)();
     } else if (task) {
       // Edit mode, nothing changed or title empty → silent close
       (onClose ?? onCancel)();
