@@ -7,7 +7,27 @@ export interface ChallengeEffectDef {
 export const ACTIVE_CHALLENGE_EFFECTS: ChallengeEffectDef[] = [
   {
     effectId: 'punch',
-    threshold: 30,
+    threshold: 20,
     deadline: new Date('2026-05-31T23:59:59+09:00'),
+  },
+];
+
+// ── Evolution definitions ─────────────────────────────────────────────────────
+
+export interface EvolutionDef {
+  effectId: string;
+  maxLevel: number;
+  /** Cumulative task completions (after owning) required for Lv2 */
+  evolutionThreshold: number;
+  /** Whether premium subscription is required for evolution */
+  requiresPremium: boolean;
+}
+
+export const EVOLVABLE_EFFECTS: EvolutionDef[] = [
+  {
+    effectId: 'punch',
+    maxLevel: 2,
+    evolutionThreshold: 50,
+    requiresPremium: true,
   },
 ];

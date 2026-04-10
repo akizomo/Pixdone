@@ -13,7 +13,7 @@ import {
 } from "../shared/schema.js";
 import { db } from "./db.js";
 import { eq, and, desc } from "drizzle-orm";
-import { ACTIVE_CHALLENGE_EFFECTS } from "./constants/challengeEffects.js";
+import { ACTIVE_CHALLENGE_EFFECTS, EVOLVABLE_EFFECTS } from "./constants/challengeEffects.js";
 
 // Interface for storage operations
 interface IStorage {
@@ -50,7 +50,7 @@ interface IStorage {
 
   // Effect progress operations
   getUserEffectProgress(userId: string): Promise<EffectProgressRow[]>;
-  processChallengeProgressOnTaskComplete(userId: string): Promise<{ unlockedEffectIds: string[] }>;
+  processChallengeProgressOnTaskComplete(userId: string): Promise<{ unlockedEffectIds: string[]; evolvedEffectIds: string[] }>;
 }
 
 class DatabaseStorage implements IStorage {
@@ -231,14 +231,15 @@ class DatabaseStorage implements IStorage {
       .where(eq(effectProgress.userId, userId));
   }
 
-  async processChallengeProgressOnTaskComplete(userId: string): Promise<{ unlockedEffectIds: string[] }> {
+  async processChallengeProgressOnTaskComplete(userId: string): Promise<{ unlockedEffectIds: string[]; evolvedEffectIds: string[] }> {
     const unlockedEffectIds: string[] = [];
+    const evolvedEffectIds: string[] = [];
     const now = Date.now();
 
+    // ── 1. Challenge unlock progress ──────────────────────────────────────────
     for (const challenge of ACTIVE_CHALLENGE_EFFECTS) {
       if (now > challenge.deadline.getTime()) continue; // 期限切れはスキップ
 
-      // 既存の進捗行を取得または新規作成
       const [existing] = await db
         .select()
         .from(effectProgress)
@@ -278,7 +279,47 @@ class DatabaseStorage implements IStorage {
       if (justUnlocked) unlockedEffectIds.push(challenge.effectId);
     }
 
-    return { unlockedEffectIds };
+    // ── 2. Evolution progress for owned evolving effects ──────────────────────
+    for (const evo of EVOLVABLE_EFFECTS) {
+      const [existing] = await db
+        .select()
+        .from(effectProgress)
+        .where(and(
+          eq(effectProgress.userId, userId),
+          eq(effectProgress.effectId, evo.effectId),
+        ));
+
+      // Must own the effect and not already at max level
+      if (!existing?.owned) continue;
+      if (existing.equippedLevel >= evo.maxLevel) continue;
+
+      const newEvolutionProgress = existing.evolutionProgress + 1;
+
+      // Check if evolution conditions are met
+      let justEvolved = false;
+      if (newEvolutionProgress >= evo.evolutionThreshold && evo.requiresPremium) {
+        const premium = await this.isPremium(userId);
+        justEvolved = premium;
+      } else if (newEvolutionProgress >= evo.evolutionThreshold && !evo.requiresPremium) {
+        justEvolved = true;
+      }
+
+      await db
+        .update(effectProgress)
+        .set({
+          evolutionProgress: newEvolutionProgress,
+          equippedLevel: justEvolved ? evo.maxLevel : existing.equippedLevel,
+          updatedAt: new Date(),
+        })
+        .where(and(
+          eq(effectProgress.userId, userId),
+          eq(effectProgress.effectId, evo.effectId),
+        ));
+
+      if (justEvolved) evolvedEffectIds.push(evo.effectId);
+    }
+
+    return { unlockedEffectIds, evolvedEffectIds };
   }
 }
 

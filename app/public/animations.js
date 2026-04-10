@@ -996,12 +996,18 @@ class ComicEffectsManager {
         const forceNeonBigBang = params && params.get("effect") === "neonBigBang";
         const forceGiantTree = params && params.get("effect") === "giantTreeGrow";
         const forcePunch = params && params.get("effect") === "punch";
+        const forcePunchLv2 = params && params.get("effect") === "punchLv2";
         const forceBomb  = params && params.get("effect") === "bomb";
 
         // URL-param forced effects should override any equipped/active effects.
         if (forceBomb) {
             console.log("💣 Bomb effect (forced by ?effect=bomb)");
             this.playEffect("bomb", taskElement, effectRect);
+            return;
+        }
+        if (forcePunchLv2) {
+            console.log("⚔️ Fighter Kick Lv2 (forced by ?effect=punchLv2)");
+            this.playEffect("punchLv2", taskElement, effectRect);
             return;
         }
         if (forcePunch) {
@@ -2906,36 +2912,36 @@ class ComicEffectsManager {
                     // Lv2: Deeper, heavier impact — enhanced version of Lv1 sound
                     const t = audioContext.currentTime;
 
-                    // Layer 1: Sub-bass thud (deeper than Lv1)
+                    // Layer 1: Sub-bass thud (deeper & louder than Lv1)
                     const lv2Thud = audioContext.createOscillator();
                     const lv2ThudGain = audioContext.createGain();
                     lv2Thud.connect(lv2ThudGain);
                     lv2ThudGain.connect(audioContext.destination);
                     lv2Thud.type = 'square';
-                    lv2Thud.frequency.setValueAtTime(100, t);
-                    lv2Thud.frequency.exponentialRampToValueAtTime(30, t + 0.25);
-                    lv2ThudGain.gain.setValueAtTime(0.7, t);
-                    lv2ThudGain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+                    lv2Thud.frequency.setValueAtTime(90, t);
+                    lv2Thud.frequency.exponentialRampToValueAtTime(25, t + 0.3);
+                    lv2ThudGain.gain.setValueAtTime(0.8, t);
+                    lv2ThudGain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
                     lv2Thud.start(t);
-                    lv2Thud.stop(t + 0.3);
+                    lv2Thud.stop(t + 0.35);
                     lv2Thud.onended = () => { try { lv2Thud.disconnect(); lv2ThudGain.disconnect(); } catch(e){} };
 
-                    // Layer 2: Sharp crack (wider freq sweep)
+                    // Layer 2: Sharp crack (wider freq sweep, louder)
                     const lv2Crack = audioContext.createOscillator();
                     const lv2CrackGain = audioContext.createGain();
                     lv2Crack.connect(lv2CrackGain);
                     lv2CrackGain.connect(audioContext.destination);
                     lv2Crack.type = 'sawtooth';
-                    lv2Crack.frequency.setValueAtTime(1200, t);
-                    lv2Crack.frequency.exponentialRampToValueAtTime(120, t + 0.08);
-                    lv2CrackGain.gain.setValueAtTime(0.45, t);
-                    lv2CrackGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+                    lv2Crack.frequency.setValueAtTime(1400, t);
+                    lv2Crack.frequency.exponentialRampToValueAtTime(100, t + 0.09);
+                    lv2CrackGain.gain.setValueAtTime(0.5, t);
+                    lv2CrackGain.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
                     lv2Crack.start(t);
-                    lv2Crack.stop(t + 0.1);
+                    lv2Crack.stop(t + 0.11);
                     lv2Crack.onended = () => { try { lv2Crack.disconnect(); lv2CrackGain.disconnect(); } catch(e){} };
 
-                    // Layer 3: White noise burst (heavier)
-                    const lv2NoiseDuration = 0.16;
+                    // Layer 3: White noise burst (heavier, longer)
+                    const lv2NoiseDuration = 0.2;
                     const lv2NoiseBuffer = audioContext.createBuffer(1, Math.ceil(audioContext.sampleRate * lv2NoiseDuration), audioContext.sampleRate);
                     const lv2NoiseData = lv2NoiseBuffer.getChannelData(0);
                     for (let i = 0; i < lv2NoiseData.length; i++) {
@@ -2945,32 +2951,46 @@ class ComicEffectsManager {
                     lv2NoiseSource.buffer = lv2NoiseBuffer;
                     const lv2NoiseFilter = audioContext.createBiquadFilter();
                     lv2NoiseFilter.type = 'bandpass';
-                    lv2NoiseFilter.frequency.value = 800;
-                    lv2NoiseFilter.Q.value = 0.6;
+                    lv2NoiseFilter.frequency.value = 900;
+                    lv2NoiseFilter.Q.value = 0.5;
                     const lv2NoiseGain = audioContext.createGain();
                     lv2NoiseSource.connect(lv2NoiseFilter);
                     lv2NoiseFilter.connect(lv2NoiseGain);
                     lv2NoiseGain.connect(audioContext.destination);
-                    lv2NoiseGain.gain.setValueAtTime(0.55, t);
+                    lv2NoiseGain.gain.setValueAtTime(0.6, t);
                     lv2NoiseGain.gain.exponentialRampToValueAtTime(0.001, t + lv2NoiseDuration);
                     lv2NoiseSource.start(t);
                     lv2NoiseSource.stop(t + lv2NoiseDuration);
                     lv2NoiseSource.onended = () => { try { lv2NoiseSource.disconnect(); lv2NoiseFilter.disconnect(); lv2NoiseGain.disconnect(); } catch(e){} };
 
-                    // Layer 4: Secondary shockwave bass boom (Lv2 exclusive, 160ms after impact)
+                    // Layer 4: Secondary shockwave bass boom (Lv2 exclusive, 120ms after)
                     const lv2Boom = audioContext.createOscillator();
                     const lv2BoomGain = audioContext.createGain();
                     lv2Boom.connect(lv2BoomGain);
                     lv2BoomGain.connect(audioContext.destination);
                     lv2Boom.type = 'sine';
-                    lv2Boom.frequency.setValueAtTime(60, t + 0.16);
-                    lv2Boom.frequency.exponentialRampToValueAtTime(25, t + 0.38);
+                    lv2Boom.frequency.setValueAtTime(70, t + 0.12);
+                    lv2Boom.frequency.exponentialRampToValueAtTime(20, t + 0.4);
                     lv2BoomGain.gain.setValueAtTime(0, t);
-                    lv2BoomGain.gain.setValueAtTime(0.5, t + 0.16);
-                    lv2BoomGain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-                    lv2Boom.start(t + 0.16);
-                    lv2Boom.stop(t + 0.4);
+                    lv2BoomGain.gain.setValueAtTime(0.6, t + 0.12);
+                    lv2BoomGain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+                    lv2Boom.start(t + 0.12);
+                    lv2Boom.stop(t + 0.45);
                     lv2Boom.onended = () => { try { lv2Boom.disconnect(); lv2BoomGain.disconnect(); } catch(e){} };
+
+                    // Layer 5: High shimmer (Lv2 exclusive — adds "power-up" feel)
+                    const lv2Shimmer = audioContext.createOscillator();
+                    const lv2ShimmerGain = audioContext.createGain();
+                    lv2Shimmer.connect(lv2ShimmerGain);
+                    lv2ShimmerGain.connect(audioContext.destination);
+                    lv2Shimmer.type = 'sine';
+                    lv2Shimmer.frequency.setValueAtTime(2400, t);
+                    lv2Shimmer.frequency.exponentialRampToValueAtTime(800, t + 0.15);
+                    lv2ShimmerGain.gain.setValueAtTime(0.2, t);
+                    lv2ShimmerGain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+                    lv2Shimmer.start(t);
+                    lv2Shimmer.stop(t + 0.18);
+                    lv2Shimmer.onended = () => { try { lv2Shimmer.disconnect(); lv2ShimmerGain.disconnect(); } catch(e){} };
 
                     oscillator.disconnect();
                     gainNode.disconnect();
@@ -5033,7 +5053,7 @@ class ComicEffectsManager {
         setTimeout(() => {
             const label = document.createElement('div');
             label.className = 'punch-text';
-            label.textContent = 'FINISH!';
+            label.textContent = 'PUNCH';
             // Position above the task, centered horizontally on task
             label.style.left = (rect.left + rect.width / 2) + 'px';
             label.style.top  = (rect.top - 10) + 'px';  // above task
@@ -5142,17 +5162,17 @@ class ComicEffectsManager {
         const rect = optionalRect || taskElement?.getBoundingClientRect?.() || { top: 0, left: 0, width: 100, height: 40 };
 
         const W = window.innerWidth;
-        const FIGHTER_SIZE = Math.round(Math.min(110, Math.max(60, W * 0.16)));
+        const FIGHTER_SIZE = Math.round(Math.min(140, Math.max(72, W * 0.20)));
 
-        const GAP = -14;
+        const GAP = -24;  // further right (more overlap with task)
         const punchX = Math.max(4, rect.left - FIGHTER_SIZE - GAP);
         const taskBottom = rect.top + rect.height;
-        const SINK = 10;
+        const SINK = 34;  // further down below task
         const fighterTop = taskBottom - FIGHTER_SIZE + SINK;
 
-        // ── Create fighter img (reuse punch GIF) ────────────────────
+        // ── Create fighter img ──────────────────────────────────────
         const fighter = document.createElement('img');
-        fighter.src = '/fighter-punch.gif?' + Date.now();
+        fighter.src = '/fighter-kick.gif?' + Date.now();
         fighter.alt = '';
         fighter.setAttribute('aria-hidden', 'true');
         const offscreenDx = -(punchX + FIGHTER_SIZE + 40);
@@ -5165,35 +5185,50 @@ class ComicEffectsManager {
             'object-fit:contain',
             'image-rendering:pixelated',
             'pointer-events:none',
-            'z-index:100000',
+            'z-index:100005',
             `transform:translateX(${offscreenDx}px)`,
             'will-change:transform',
         ].join(';');
         document.body.appendChild(fighter);
 
-        // ── Slide-in (faster, more aggressive) ──────────────────────
+        // ── Timeline ────────────────────────────────────────────────
+        // Slide-in with idle pose, then GIF restart for kick.
+        // GIF: loop=1 (no repeat), frame 9 holds on last frame.
+        // GIF durations: 50,50,100,50,40,40,40,70,50,5000
+        // Frame 7 = impact at 370ms after GIF restart.
+        // GIF starts immediately with slide-in (same as Lv1 punch).
+        // GIF durations: 50,50,100,50,40,40,40,70,50,5000
+        // Frame 7 = impact at 370ms into GIF.
+        // No src-swap — GIF plays from load, no flicker.
+        //
+        //   0ms     slide-in + GIF start simultaneously
+        // 340ms     sound (30ms before impact)
+        // 370ms     IMPACT (GIF frame 7)
+        // 410ms     "KICK" text + task fade
+        // 490ms     shockwave
+        // 700ms     slide-out
+        // 1400ms    cleanup
+
+        // ── Slide-in (280ms — same as punch) ────────────────────────
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                fighter.style.transition = 'transform 240ms cubic-bezier(0.10, 0, 0.2, 1)';
+                fighter.style.transition = 'transform 280ms cubic-bezier(0.15, 0, 0.3, 1)';
                 fighter.style.transform  = 'translateX(0)';
             });
         });
 
-        // ── Primary Impact (340ms) ──────────────────────────────────
+        // ── Sound (340ms) ───────────────────────────────────────────
+        setTimeout(() => this.playSound('punchLv2'), 340);
+
+        // ── Impact at 370ms (GIF frame 7) ────────────────────────────
         setTimeout(() => {
             const impactX = punchX + FIGHTER_SIZE;
             const impactY = rect.top + rect.height / 2;
 
-            // Bigger flash
-            setTimeout(() => this._spawnSFImpactFlashLv2(impactX, impactY, rect.height), 40);
-
-            // More sparks (doubled)
+            setTimeout(() => this._spawnSFImpactFlashLv2(impactX, impactY, rect.height), 20);
             this._spawnSFSparksLv2(impactX, impactY);
-
-            // More particles (doubled, bigger)
             this._spawnSFParticlesLv2(impactX, impactY);
 
-            // Stronger screen shake (5-hit)
             const shakeEl = document.querySelector('.pd-app-container')
                          || document.querySelector('#root')
                          || document.querySelector('main');
@@ -5205,41 +5240,35 @@ class ComicEffectsManager {
                 shake(7, -2, 0); shake(-6, 3, 50); shake(5, -3, 100); shake(-4, 2, 150); shake(2, -1, 200); shake(0, 0, 250);
                 setTimeout(() => { shakeEl.style.transition = ''; shakeEl.style.transform = ''; }, 280);
             }
+        }, 370);
 
-        }, 340);
-
-        // Sound fires early to compensate for audio latency
-        setTimeout(() => this.playSound('punchLv2'), 310);
-
-        // ── "ULTIMATE!" impact text (380ms) — glowing, larger ───────
+        // ── "KICK" text (410ms) ─────────────────────────────────────
         setTimeout(() => {
             const label = document.createElement('div');
             label.className = 'punch-text';
-            label.textContent = 'ULTIMATE!';
+            label.textContent = 'KICK';
             label.style.left = (rect.left + rect.width / 2) + 'px';
             label.style.top  = (rect.top - 14) + 'px';
-            label.style.fontSize = 'clamp(1.8rem, 7vw, 3rem)';
-            label.style.textShadow = '0 0 12px #ffcc00, 0 0 24px #ff6600, 0 0 36px #ff3300';
             document.body.appendChild(label);
-            setTimeout(() => label.remove(), 1100);
+            setTimeout(() => label.remove(), 1000);
 
             setTimeout(() => {
                 if (taskElement) taskElement.style.opacity = '0';
-            }, 50);
-        }, 380);
+            }, 40);
+        }, 410);
 
-        // ── Secondary shockwave (Lv2 exclusive, 500ms) ──────────────
+        // ── Shockwave (490ms) ───────────────────────────────────────
         setTimeout(() => {
             const impactX = punchX + FIGHTER_SIZE;
             const impactY = rect.top + rect.height / 2;
             this._spawnShockwave(impactX, impactY);
-        }, 500);
+        }, 490);
 
-        // ── Slide-out left (800ms) ──────────────────────────────────
+        // ── Slide-out (700ms) ───────────────────────────────────────
         setTimeout(() => {
             fighter.style.transition = 'transform 300ms cubic-bezier(0.7, 0, 1, 0.5)';
             fighter.style.transform  = `translateX(${offscreenDx}px)`;
-        }, 800);
+        }, 700);
 
         // ── Cleanup (1400ms) ────────────────────────────────────────
         setTimeout(() => {
@@ -5249,41 +5278,57 @@ class ComicEffectsManager {
     }
 
     // Lv2: Bigger impact flash with double ring
+    // Lv2: Big impact flash with triple burst
     _spawnSFImpactFlashLv2(cx, cy, taskH) {
-        const SIZE = Math.max(80, taskH * 3);
+        const SIZE = Math.max(100, taskH * 3.5);
+        // Primary flash — brighter, larger
         const flash = document.createElement('div');
         flash.className = 'sf-impact-flash';
         flash.style.cssText = [
             `left:${cx}px`, `top:${cy}px`,
             `width:${SIZE}px`, `height:${SIZE}px`,
-            'background:radial-gradient(circle, #ffffff 0%, #ffee00 25%, #ff6600 55%, #ff0000 75%, transparent 100%)',
+            'background:radial-gradient(circle, #ffffff 0%, #ffee00 20%, #ff6600 50%, #ff0000 70%, transparent 100%)',
         ].join(';');
         document.body.appendChild(flash);
-        setTimeout(() => flash.remove(), 400);
+        setTimeout(() => flash.remove(), 450);
 
-        // Second, wider ring (Lv2 exclusive)
+        // Second ring (wider)
         setTimeout(() => {
             const ring = document.createElement('div');
             ring.className = 'sf-impact-flash';
-            const RING_SIZE = SIZE * 1.5;
+            const RING_SIZE = SIZE * 1.6;
             ring.style.cssText = [
                 `left:${cx}px`, `top:${cy}px`,
                 `width:${RING_SIZE}px`, `height:${RING_SIZE}px`,
-                'background:radial-gradient(circle, transparent 40%, #ffcc00 60%, transparent 80%)',
+                'background:radial-gradient(circle, transparent 35%, #ffcc00 55%, transparent 75%)',
             ].join(';');
             document.body.appendChild(ring);
-            setTimeout(() => ring.remove(), 350);
-        }, 60);
+            setTimeout(() => ring.remove(), 380);
+        }, 50);
+
+        // Third ring — outermost glow (Lv2 exclusive)
+        setTimeout(() => {
+            const glow = document.createElement('div');
+            glow.className = 'sf-impact-flash';
+            const GLOW_SIZE = SIZE * 2.2;
+            glow.style.cssText = [
+                `left:${cx}px`, `top:${cy}px`,
+                `width:${GLOW_SIZE}px`, `height:${GLOW_SIZE}px`,
+                'background:radial-gradient(circle, transparent 50%, rgba(255,100,0,0.3) 70%, transparent 90%)',
+            ].join(';');
+            document.body.appendChild(glow);
+            setTimeout(() => glow.remove(), 320);
+        }, 100);
     }
 
-    // Lv2: More sparks, wider spread
+    // Lv2: Many sparks, wide fan, glowing
     _spawnSFSparksLv2(cx, cy) {
-        const ANGLES = [-60, -45, -30, -15, 0, 15, 30, 45, 60, 75, -70, 80, -80, 85];
-        const COLORS = ['#ffffff', '#ffee00', '#ffaa00', '#ff6600', '#ff0000', '#ffffff', '#ffee00'];
+        const ANGLES = [-80, -65, -50, -35, -20, -5, 10, 25, 40, 55, 70, 85, -75, 80, -85, 90, -45, 0];
+        const COLORS = ['#ffffff', '#ffee00', '#ffaa00', '#ff6600', '#ff0000', '#ffffff', '#ffee00', '#ffcc00'];
 
         ANGLES.forEach((deg, i) => {
             const rad  = (deg * Math.PI) / 180;
-            const len  = 28 + (i % 3) * 12;
+            const len  = 30 + (i % 4) * 10;
             const spark = document.createElement('div');
             spark.className = 'sf-spark';
             spark.style.cssText = [
@@ -5292,29 +5337,29 @@ class ComicEffectsManager {
                 `width:${len}px`,
                 `background:${COLORS[i % COLORS.length]}`,
                 `transform:rotate(${deg}deg)`,
-                `box-shadow:0 0 4px 2px ${COLORS[i % COLORS.length]}`,
+                `box-shadow:0 0 6px 3px ${COLORS[i % COLORS.length]}`,
             ].join(';');
-            const dist = 80 + i * 10;
+            const dist = 90 + i * 10;
             spark.style.setProperty('--spark-dx', Math.round(Math.cos(rad) * dist) + 'px');
-            spark.style.animationDelay = (i * 12) + 'ms';
+            spark.style.animationDelay = (i * 10) + 'ms';
             document.body.appendChild(spark);
-            setTimeout(() => spark.remove(), 600);
+            setTimeout(() => spark.remove(), 700);
         });
     }
 
-    // Lv2: More and bigger particles
+    // Lv2: Lots of big particles, wide spread
     _spawnSFParticlesLv2(cx, cy) {
         const COLORS = ['#ffe000', '#ff3300', '#ff8800', '#ffffff', '#ffcc00', '#ff4466', '#ff0000', '#ffee00'];
-        const COUNT  = 28;
+        const COUNT  = 36;
 
         for (let i = 0; i < COUNT; i++) {
-            const deg = -100 + (200 / COUNT) * i;
+            const deg = -110 + (220 / COUNT) * i;
             const rad = (deg * Math.PI) / 180;
-            const dist = 50 + Math.floor(Math.random() * 80);
+            const dist = 60 + Math.floor(Math.random() * 100);
 
             const p = document.createElement('div');
             p.className = 'punch-particle';
-            const sz = [4, 6, 8, 10][i % 4] + 'px';
+            const sz = [5, 7, 9, 11, 6][i % 5] + 'px';
             p.style.width    = sz;
             p.style.height   = sz;
             p.style.background = COLORS[i % COLORS.length];
@@ -5322,17 +5367,18 @@ class ComicEffectsManager {
             p.style.top      = cy + 'px';
             p.style.setProperty('--pdx', Math.round(Math.cos(rad) * dist) + 'px');
             p.style.setProperty('--pdy', Math.round(Math.sin(rad) * dist) + 'px');
-            p.style.animationDuration = (480 + i * 6) + 'ms';
-            p.style.animationDelay    = (i * 8) + 'ms';
+            p.style.animationDuration = (500 + i * 5) + 'ms';
+            p.style.animationDelay    = (i * 6) + 'ms';
             document.body.appendChild(p);
-            setTimeout(() => p.remove(), 700);
+            setTimeout(() => p.remove(), 800);
         }
     }
 
-    // Lv2 exclusive: expanding shockwave ring
+    // Lv2 exclusive: double expanding shockwave rings
     _spawnShockwave(cx, cy) {
-        const ring = document.createElement('div');
-        ring.style.cssText = [
+        // Inner fast ring
+        const ring1 = document.createElement('div');
+        ring1.style.cssText = [
             'position:fixed',
             `left:${cx}px`, `top:${cy}px`,
             'width:20px', 'height:20px',
@@ -5341,18 +5387,40 @@ class ComicEffectsManager {
             'pointer-events:none',
             'z-index:100001',
             'transform:translate(-50%, -50%) scale(1)',
-            'opacity:0.8',
+            'opacity:0.9',
             'will-change:transform, opacity',
         ].join(';');
-        document.body.appendChild(ring);
-
+        document.body.appendChild(ring1);
         requestAnimationFrame(() => {
-            ring.style.transition = 'transform 400ms cubic-bezier(0.15, 0, 0.3, 1), opacity 400ms ease-out';
-            ring.style.transform  = 'translate(-50%, -50%) scale(12)';
-            ring.style.opacity    = '0';
+            ring1.style.transition = 'transform 350ms cubic-bezier(0.15, 0, 0.3, 1), opacity 350ms ease-out';
+            ring1.style.transform  = 'translate(-50%, -50%) scale(14)';
+            ring1.style.opacity    = '0';
         });
+        setTimeout(() => ring1.remove(), 450);
 
-        setTimeout(() => ring.remove(), 500);
+        // Outer slower ring (delayed)
+        setTimeout(() => {
+            const ring2 = document.createElement('div');
+            ring2.style.cssText = [
+                'position:fixed',
+                `left:${cx}px`, `top:${cy}px`,
+                'width:20px', 'height:20px',
+                'border:2px solid #ff8800',
+                'border-radius:50%',
+                'pointer-events:none',
+                'z-index:100001',
+                'transform:translate(-50%, -50%) scale(1)',
+                'opacity:0.6',
+                'will-change:transform, opacity',
+            ].join(';');
+            document.body.appendChild(ring2);
+            requestAnimationFrame(() => {
+                ring2.style.transition = 'transform 450ms cubic-bezier(0.15, 0, 0.3, 1), opacity 450ms ease-out';
+                ring2.style.transform  = 'translate(-50%, -50%) scale(18)';
+                ring2.style.opacity    = '0';
+            });
+            setTimeout(() => ring2.remove(), 550);
+        }, 80);
     }
 
     // ── Scan Drone Effect (Synthwave Rare) ─────────────────────────────
