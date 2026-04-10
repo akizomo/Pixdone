@@ -10,8 +10,8 @@ import {
   UpsellModal,
 } from './components';
 import type { ListModalMode, ActiveScreen } from './components';
-import { useLists } from './features/useLists';
 import { SMASH_TITLES } from './features/useLists';
+import { ListsProvider, useListsContext } from './features/ListsContext';
 import { useKeyboardNav } from './hooks/useKeyboardNav';
 import { usePerfectTimingSetup, type PerfectTimingBridgeCallbacks } from './hooks/usePerfectTimingSetup';
 import { useMidnightRefresh } from './hooks/useMidnightRefresh';
@@ -85,7 +85,7 @@ function AppContent() {
     reorderActiveTasks,
     resetRepeatingTasks,
     listLimitUpsellOpen, closeListLimitUpsell,
-  } = useLists();
+  } = useListsContext();
 
   const { user, logout, syncServerSession } = useAuth();
   const navigate = useNavigate();
@@ -1921,7 +1921,9 @@ export default function App() {
       <ThemeProvider>
         <ToastProvider>
           <AuthProvider>
-            <AppContent />
+            <ListsProvider>
+              <AppContent />
+            </ListsProvider>
           </AuthProvider>
         </ToastProvider>
       </ThemeProvider>
