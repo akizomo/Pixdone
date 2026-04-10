@@ -73,8 +73,8 @@ export const tokens = {
   },
   typography: {
     fontFamily: {
-      brand: "'Pixelify Sans', 'VT323', 'Courier New', monospace",
-      brandJa: "'PixelMplus10', 'Pixelify Sans', 'VT323', 'Courier New', monospace",
+      brand: "'Handjet', 'VT323', 'Courier New', monospace",
+      brandJa: "'PixelMplus10', 'Handjet', 'VT323', 'Courier New', monospace",
       body: "'Inter', system-ui, sans-serif",
     },
     scale: {

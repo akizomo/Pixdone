@@ -52,7 +52,7 @@
   font-size: var(--pd-font-scale-appTitle, 32px);
   font-weight: 700;
   color: var(--pd-color-text-primary);
-  font-family: var(--pd-font-brand);
+  font-family: 'VT323', 'Courier New', monospace;
   letter-spacing: 2px;
   text-shadow: 2px 2px 0px var(--pd-color-shadow-default);
   margin: 0;
