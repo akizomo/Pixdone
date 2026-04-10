@@ -117,8 +117,6 @@ function AppContent() {
   const taskFormRef = useRef<TaskFormHandle>(null);
   // Mobile: self-contained BottomSheet (same pattern as ChallengeMenu)
   const mobileTaskSheetRef = useRef<MobileTaskSheetHandle>(null);
-  // Synced from MobileTaskSheet for anyModalOpen (disables swipe/reorder while sheet is open)
-  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
   // Completed section
   const [completedExpanded, setCompletedExpanded] = useState(false);
@@ -168,7 +166,7 @@ function AppContent() {
   useEffect(() => {
     if (preferInlineTaskUi) return;
     if (taskFormMode === 'add') {
-      mobileTaskSheetRef.current?.openAdd(currentList?.id ?? '');
+      mobileTaskSheetRef.current?.openAdd();
       setTaskFormMode(null);
       return;
     }
@@ -712,7 +710,7 @@ function AppContent() {
     if (preferInlineTaskUi) {
       setTaskFormMode('add');
     } else {
-      mobileTaskSheetRef.current?.openAdd(currentList?.id ?? '');
+      mobileTaskSheetRef.current?.openAdd();
     }
   }, [isSmash, currentList, handleSmash, preferInlineTaskUi]);
 
@@ -749,11 +747,13 @@ function AppContent() {
   }, [listModal, addList, renameList, deleteList, lists]);
 
   const inlineTaskFormOpen = preferInlineTaskUi && taskFormMode !== null;
+  // mobileSheetOpen is NOT included here — MobileTaskSheet is fully self-contained
+  // (same as ChallengeMenu). The z-400 sheet covers everything so swipe/reorder
+  // can't fire while it's open anyway.
   const anyModalOpen =
     signupOpen ||
     themeModalOpen ||
     listModal !== null ||
-    mobileSheetOpen ||
     deleteTaskConfirm !== null ||
     focusZenOpen ||
     inlineTaskFormOpen;
@@ -1623,7 +1623,6 @@ function AppContent() {
         onDeleteRequest={handleDelete}
         onMoveToList={handleMoveToList}
         availableLists={allListsForForm}
-        onOpenChange={setMobileSheetOpen}
       />
 
       {/* List modal */}
