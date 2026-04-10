@@ -49,9 +49,6 @@ import { useUserTheme } from './hooks/useUserTheme';
  */
 const FINE_POINTER_MQ = '(any-pointer: fine)';
 
-/** Legal links visibility control (menu vs footer can differ). */
-const SHOW_LEGAL_LINKS_IN_MENU = false;
-
 /** Defer React completion state until PerfectTiming card animations finish (avoids clobbering inline styles). */
 const PERFECT_TIMING_STATE_DEFER_MS = 520;
 
@@ -1111,44 +1108,6 @@ function AppContent() {
                         <Chip variant="ghost" selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
                       </div>
                     </div>
-                    {SHOW_LEGAL_LINKS_IN_MENU && (
-                    <div style={{
-                      padding: '8px 14px',
-                      borderBottom: '1px solid var(--pd-color-border-default)',
-                      display: 'flex', gap: '12px',
-                    }}>
-                      <a
-                        href="/tokushoho.html"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: 'var(--pd-color-text-secondary)', fontSize: '0.75rem', textDecoration: 'none' }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-                      >
-                        {lang === 'ja' ? '特定商取引法' : 'Commerce Disclosure'}
-                      </a>
-                      <a
-                        href="/privacy.html"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: 'var(--pd-color-text-secondary)', fontSize: '0.75rem', textDecoration: 'none' }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-                      >
-                        {lang === 'ja' ? 'プライバシー' : 'Privacy'}
-                      </a>
-                      <a
-                        href="/terms.html"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: 'var(--pd-color-text-secondary)', fontSize: '0.75rem', textDecoration: 'none' }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-                      >
-                        {lang === 'ja' ? '利用規約' : 'Terms'}
-                      </a>
-                    </div>
-                    )}
                   </PopoverMenu>
                 )}
               </div>
