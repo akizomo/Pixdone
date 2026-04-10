@@ -23,6 +23,7 @@ export const RichTextField = forwardRef<HTMLDivElement, RichTextFieldProps>(func
   className = '',
   maxLength,
   size = 'md',
+  wrap = false,
   ...rest
 }: RichTextFieldProps, ref) {
   const { onKeyDown: externalOnKeyDown, ...domRest } = rest as HTMLAttributes<HTMLDivElement> & { onKeyDown?: React.KeyboardEventHandler<HTMLDivElement> };
@@ -115,7 +116,7 @@ export const RichTextField = forwardRef<HTMLDivElement, RichTextFieldProps>(func
   };
 
   return (
-    <div className={`pxd-rich-text-field pxd-rich-text-field--${size} ${className}`.trim()}>
+    <div className={`pxd-rich-text-field pxd-rich-text-field--${size}${wrap ? ' pxd-rich-text-field--wrap' : ''} ${className}`.trim()}>
       {label && (
         <label id={labelId} className="pxd-rich-text-field__label">
           {label}

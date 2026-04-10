@@ -84,6 +84,13 @@
   box-shadow: 0 0 0 3px rgba(232, 93, 93, 0.2);
 }
 
+.pxd-rich-text-field--wrap .pxd-rich-text-field__input {
+  white-space: pre-wrap;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
+}
+
 .pxd-rich-text-field__input a {
   color: var(--pxd-color-text-accent);
   text-decoration: underline;

@@ -12,6 +12,8 @@ export interface RichTextFieldProps extends Omit<HTMLAttributes<HTMLDivElement>,
   placeholder?: string;
   maxLength?: number;
   size?: RichTextFieldSize;
+  /** Allow text to wrap to multiple lines instead of truncating with ellipsis. */
+  wrap?: boolean;
   onChange?: (value: string) => void;
 }
 

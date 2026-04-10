@@ -21,6 +21,8 @@ export interface TaskFormProps {
   availableLists?: Array<{ id: string; name: string }>;
   /** Called when user selects a different list in the dropdown. */
   onMoveToList?: (taskId: string, targetListId: string) => void;
+  /** Mobile mode: disables Enter-to-save on title/description (subtask is unaffected). */
+  mobile?: boolean;
 }
 
 const REPEAT_PRESETS: Array<{ value: RepeatPreset; labelKey: string }> = [
@@ -62,7 +64,7 @@ export interface TaskFormHandle {
   dismissSubmenus: () => boolean;
 }
 
-export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskForm({ lang, task, onSave, onCancel, onClose, onDelete, availableLists, onMoveToList }, ref) {
+export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskForm({ lang, task, onSave, onCancel, onClose, onDelete, availableLists, onMoveToList, mobile = false }, ref) {
   const [title, setTitle] = useState(task?.title ?? '');
   const [details, setDetails] = useState(task?.details ?? '');
   const [dueDate, setDueDate] = useState<string | null>(task?.dueDate ?? null);
@@ -162,14 +164,14 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
       e.nativeEvent.stopPropagation(); // Prevent BottomSheet's document listener from double-firing
       handleClose();
     }
-    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing && !mobile) {
       e.preventDefault();
       handleSave();
     }
   };
 
   const handleDetailsKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && !mobile) {
       e.preventDefault();
       handleSave();
     }
@@ -235,59 +237,62 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
         display: 'flex',
         flexDirection: 'column',
         gap: '12px',
-        position: 'relative',
       }}
     >
-      {/* Delete icon — top-right, edit mode only */}
-      {onDelete && (
-        <IconButton
-          variant="ghostDanger"
-          size="sm"
-          aria-label={lang === 'ja' ? '削除' : 'Delete'}
-          icon={<span className="material-icons" style={{ fontSize: '18px' }}>delete</span>}
-          soundKey="taskDelete"
-          onClick={onDelete}
-          style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}
-        />
-      )}
-      {/* List selector — edit mode only, multiple lists */}
-      {task && availableLists && availableLists.length > 1 && (
-        <div style={{ position: 'relative', alignSelf: 'flex-start' }}>
-          <button
-            type="button"
-            role="combobox"
-            aria-expanded={showListMenu}
-            aria-haspopup="menu"
-            onClick={() => { playSound('buttonClick'); setShowListMenu((v) => !v); }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              background: 'none',
-              border: 'none',
-              padding: '0',
-              fontFamily: 'var(--pd-font-body)',
-              fontSize: '0.75rem',
-              color: 'var(--pd-color-text-secondary)',
-              cursor: 'pointer',
-              outline: 'none',
-            }}
-          >
-            {availableLists.find((l) => l.id === task.listId)?.name ?? ''}
-            <span className="material-icons" style={{ fontSize: '14px', lineHeight: 1 }}>arrow_drop_down</span>
-          </button>
-          {showListMenu && (
-            <PopoverMenu
-              align="left"
-              items={availableLists
-                .filter((l) => l.id !== task.listId)
-                .map((l) => ({ id: l.id, label: l.name }))}
-              onSelect={(listId) => {
-                playSound('buttonClick');
-                onMoveToList?.(task.id, listId);
-                setShowListMenu(false);
-              }}
-              onClose={() => { playSound('taskCancel'); setShowListMenu(false); }}
+      {/* Toolbar row — list selector (left) + delete icon (right) */}
+      {(onDelete || (task && availableLists && availableLists.length > 1)) && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: '32px' }}>
+          {/* List selector — edit mode only, multiple lists */}
+          {task && availableLists && availableLists.length > 1 ? (
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                role="combobox"
+                aria-expanded={showListMenu}
+                aria-haspopup="menu"
+                onClick={() => { playSound('buttonClick'); setShowListMenu((v) => !v); }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'none',
+                  border: 'none',
+                  padding: '0',
+                  fontFamily: 'var(--pd-font-body)',
+                  fontSize: '0.75rem',
+                  color: 'var(--pd-color-text-secondary)',
+                  cursor: 'pointer',
+                  outline: 'none',
+                }}
+              >
+                {availableLists.find((l) => l.id === task.listId)?.name ?? ''}
+                <span className="material-icons" style={{ fontSize: '14px', lineHeight: 1 }}>arrow_drop_down</span>
+              </button>
+              {showListMenu && (
+                <PopoverMenu
+                  align="left"
+                  items={availableLists
+                    .filter((l) => l.id !== task.listId)
+                    .map((l) => ({ id: l.id, label: l.name }))}
+                  onSelect={(listId) => {
+                    playSound('buttonClick');
+                    onMoveToList?.(task.id, listId);
+                    setShowListMenu(false);
+                  }}
+                  onClose={() => { playSound('taskCancel'); setShowListMenu(false); }}
+                />
+              )}
+            </div>
+          ) : <div />}
+          {/* Delete icon — edit mode only */}
+          {onDelete && (
+            <IconButton
+              variant="ghostDanger"
+              size="sm"
+              aria-label={lang === 'ja' ? '削除' : 'Delete'}
+              icon={<span className="material-icons" style={{ fontSize: '18px' }}>delete</span>}
+              soundKey="taskDelete"
+              onClick={onDelete}
             />
           )}
         </div>
@@ -301,6 +306,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
         placeholder={lang === 'ja' ? 'タスク名' : 'Task title'}
         onKeyDown={handleTitleKeyDown}
         ref={titleRef}
+        wrap={mobile}
       />
 
       {/* Details (memo) */}

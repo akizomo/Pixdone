@@ -104,6 +104,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
           onDelete={editTaskId ? () => onDeleteRequest(editTaskId) : undefined}
           availableLists={availableLists}
           onMoveToList={onMoveToList}
+          mobile
         />
       </BottomSheet>
     );
