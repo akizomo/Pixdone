@@ -7,6 +7,9 @@ import './BottomSheet.css';
 /** Minimum downward swipe distance (px) to trigger close */
 const SWIPE_CLOSE_THRESHOLD = 80;
 
+/** Close slide-down duration (ms) — must match inline transition below */
+const CLOSE_DURATION_MS = 280;
+
 export function BottomSheet({
   open,
   onClose,
@@ -17,43 +20,54 @@ export function BottomSheet({
 }: BottomSheetProps) {
   const [visible, setVisible] = useState(open);
   const [entered, setEntered] = useState(false);
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** When true, we drive the close animation via inline styles (immune to React batching) */
+  const [closing, setClosing] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
   const scrollYRef = useRef(0);
 
   // ── Swipe-to-dismiss state ──
   const [dragY, setDragY] = useState(0);
-  /** When closing via swipe, keep the current dragY so the sheet slides out from its position */
-  const [exitDragY, setExitDragY] = useState(0);
   const dragStartRef = useRef<{ y: number; time: number } | null>(null);
   const isDraggingRef = useRef(false);
 
+  // ── Open transition ──
   useEffect(() => {
     if (open) {
-      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-      setExitDragY(0);
+      setClosing(false);
       setVisible(true);
+      // Double rAF to guarantee browser paints the off-screen state before sliding in
       let id1: number, id2: number;
       id1 = requestAnimationFrame(() => {
         id2 = requestAnimationFrame(() => setEntered(true));
       });
       return () => { cancelAnimationFrame(id1); cancelAnimationFrame(id2); };
-    } else {
-      // Use rAF to guarantee the browser paints the "before" state (data-open="true")
-      // before we switch to "false". Without this, React can batch setEntered(false)
-      // with other state updates from the onClose chain, causing the browser to skip
-      // the intermediate paint and the CSS transition never fires.
-      // This mirrors the open path which also uses rAF for the same reason.
-      const rafId = requestAnimationFrame(() => {
-        setEntered(false);
-      });
-      closeTimerRef.current = setTimeout(() => { setVisible(false); setExitDragY(0); }, 350);
-      return () => {
-        cancelAnimationFrame(rafId);
-        if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-      };
+    } else if (entered || visible) {
+      // Trigger close animation via inline style (not CSS class)
+      setClosing(true);
+      setEntered(false);
     }
   }, [open]);
+
+  // ── Unmount after close transition ends ──
+  const handleTransitionEnd = useCallback((e: React.TransitionEvent) => {
+    // Only react to the sheet's own transform transition, not children's
+    if (e.target !== sheetRef.current || e.propertyName !== 'transform') return;
+    if (closing) {
+      setClosing(false);
+      setVisible(false);
+    }
+  }, [closing]);
+
+  // Safety fallback: if onTransitionEnd doesn't fire (e.g. display:none, unmount race),
+  // force unmount after duration + margin.
+  useEffect(() => {
+    if (!closing) return;
+    const timer = setTimeout(() => {
+      setClosing(false);
+      setVisible(false);
+    }, CLOSE_DURATION_MS + 100);
+    return () => clearTimeout(timer);
+  }, [closing]);
 
   useEffect(() => {
     if (!open) return;
@@ -157,8 +171,6 @@ export function BottomSheet({
     // Close if dragged past threshold OR fast flick (>0.4 px/ms velocity)
     const velocity = finalY / Math.max(elapsed, 1);
     if (finalY > SWIPE_CLOSE_THRESHOLD || velocity > 0.4) {
-      // Preserve drag position so the exit animation starts from here, not from top
-      setExitDragY(finalY);
       setDragY(0);
       playSound('taskCancel');
       onClose();
@@ -172,19 +184,31 @@ export function BottomSheet({
 
   if (!visible) return null;
 
-  // While dragging: no transition (follow the finger).
-  // Closing after swipe: slide to 100% from current position.
-  // Snap-back: let CSS transition handle the bounce back to 0.
-  const sheetStyle: React.CSSProperties = dragY > 0
-    ? { transform: `translateY(${dragY}px)`, transition: 'none' }
-    : exitDragY > 0 && !entered
-      ? { transform: `translateY(100%)`, transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)' }
-      : {};
+  // ── Inline styles: drive close animation imperatively ──
+  // This is immune to React 18's automatic batching — the style is applied
+  // synchronously in the render, so the browser always sees the transition.
+  let sheetStyle: React.CSSProperties;
+  let backdropStyle: React.CSSProperties;
 
-  // Backdrop opacity dims proportionally during drag
-  const backdropStyle: React.CSSProperties = dragY > 0
-    ? { opacity: Math.max(0, 1 - dragY / 300), transition: 'none' }
-    : {};
+  if (dragY > 0) {
+    // Dragging: follow the finger, no transition
+    sheetStyle = { transform: `translateY(${dragY}px)`, transition: 'none' };
+    backdropStyle = { opacity: Math.max(0, 1 - dragY / 300), transition: 'none' };
+  } else if (closing) {
+    // Closing (all paths): slide down via inline style
+    sheetStyle = {
+      transform: 'translateY(100%)',
+      transition: `transform ${CLOSE_DURATION_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+    };
+    backdropStyle = {
+      opacity: 0,
+      transition: `opacity ${CLOSE_DURATION_MS - 30}ms ease`,
+    };
+  } else {
+    // Open or opening: let CSS class handle via data-open
+    sheetStyle = {};
+    backdropStyle = {};
+  }
 
   return (
     <>
@@ -203,6 +227,7 @@ export function BottomSheet({
         className={['pxd-sheet', className].filter(Boolean).join(' ')}
         data-open={entered ? 'true' : 'false'}
         style={sheetStyle}
+        onTransitionEnd={handleTransitionEnd}
       >
         {/* Drag handle — visible swipe affordance */}
         <div

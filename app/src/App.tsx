@@ -615,13 +615,19 @@ function AppContent() {
     moveTask(taskId, targetListId);
   }, [moveTask]);
 
-  const availableListsForMove = lists
-    .filter((l) => l.id !== 'smash-list' && l.id !== currentList?.id)
-    .map((l) => ({ id: l.id, name: l.name }));
+  const availableListsForMove = useMemo(() =>
+    lists
+      .filter((l) => l.id !== 'smash-list' && l.id !== currentList?.id)
+      .map((l) => ({ id: l.id, name: l.name })),
+    [lists, currentList?.id],
+  );
 
-  const allListsForForm = lists
-    .filter((l) => l.id !== 'smash-list')
-    .map((l) => ({ id: l.id, name: l.name }));
+  const allListsForForm = useMemo(() =>
+    lists
+      .filter((l) => l.id !== 'smash-list')
+      .map((l) => ({ id: l.id, name: l.name })),
+    [lists],
+  );
 
   const runSmashShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
@@ -789,6 +795,7 @@ function AppContent() {
   });
 
   const suppressRowClickUntilRef = useRef(0);
+  const suppressOpenEdit = useCallback(() => Date.now() < suppressRowClickUntilRef.current, []);
   const inlineTaskFormRef = useRef<HTMLDivElement>(null);
 
   /* Desktop inline TaskForm: dismiss on outside tap (close-to-save for edits) */
@@ -1117,7 +1124,7 @@ function AppContent() {
               <>
                 <Chip variant="ghost" selected={lang === 'en'} onClick={() => { changeLang('en'); playSound('buttonClick'); }}>En</Chip>
                 <Chip variant="ghost" selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
-                <Button variant="primary" onClick={() => { playSound('buttonClick'); setSignupOpen(true); }}>{lang === 'ja' ? '無料ではじめる' : 'Sign up free'}</Button>
+                <Button variant="primary" onClick={() => { playSound('buttonClick'); setSignupOpen(true); }}>{lang === 'ja' ? '新規登録' : 'Sign up'}</Button>
               </>
             )}
           </div>
@@ -1471,7 +1478,7 @@ function AppContent() {
                         availableLists={availableListsForMove}
                         onTutorialSmashLinkClick={navigateToSmashList}
                         onTutorialFocusLinkClick={navigateToFocus}
-                        suppressOpenEdit={() => Date.now() < suppressRowClickUntilRef.current}
+                        suppressOpenEdit={suppressOpenEdit}
                         onReorderPointerDown={onRowPointerDown(activeIndex)}
                         onReorderTouchStart={onRowTouchStart(activeIndex)}
                         reorderSource={

@@ -1,4 +1,4 @@
-import { useState, type PointerEvent, type TouchEvent } from 'react';
+import { memo, useState, type PointerEvent, type TouchEvent } from 'react';
 import type { Task } from '../types/task';
 import { formatDueDate, getDueStatus } from '../lib/date';
 import { t } from '../lib/i18n';
@@ -43,7 +43,7 @@ const TUTORIAL_KEYS: Record<string, string> = {
   'tutorial-2': 'tutorialTask2',
 };
 
-export function TaskItem({
+export const TaskItem = memo(function TaskItem({
   task,
   isSmash = false,
   lang = 'en',
@@ -429,4 +429,4 @@ export function TaskItem({
       )}
     </div>
   );
-}
+});

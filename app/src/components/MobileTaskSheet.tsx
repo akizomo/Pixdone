@@ -43,13 +43,9 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
 
     const task = editTaskId ? tasks.find((t) => t.id === editTaskId) ?? undefined : undefined;
 
-    // Close with 1-frame delay so parent re-renders from save don't stomp the CSS transition.
-    const closeDeferred = useCallback(() => {
-      requestAnimationFrame(() => setOpen(false));
-    }, []);
-
-    // Immediate close — no data changes, safe to close immediately.
-    const closeImmediate = useCallback(() => {
+    // Close — BottomSheet now drives the close animation via inline styles,
+    // so immediate setOpen(false) is safe regardless of parent re-renders.
+    const close = useCallback(() => {
       setOpen(false);
     }, []);
 
@@ -79,13 +75,13 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
       }
       // Defer close by 1 frame so the parent re-render from onAddTask/onUpdateTask
       // settles before we trigger the BottomSheet close animation.
-      closeDeferred();
-    }, [mode, editTaskId, currentListId, onAddTask, onUpdateTask, closeDeferred]);
+      close();
+    }, [mode, editTaskId, currentListId, onAddTask, onUpdateTask, close]);
 
     const handleCancel = useCallback(() => {
       playSound('taskCancel');
-      closeImmediate();
-    }, [closeImmediate]);
+      close();
+    }, [close]);
 
     const title = mode === 'edit'
       ? (lang === 'ja' ? 'タスクを編集' : 'Edit task')
@@ -94,7 +90,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
     return (
       <BottomSheet
         open={open}
-        onClose={closeImmediate}
+        onClose={close}
         title={title}
       >
         <TaskForm
@@ -104,7 +100,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
           task={task}
           onSave={handleSave}
           onCancel={handleCancel}
-          onClose={closeImmediate}
+          onClose={close}
           onDelete={editTaskId ? () => onDeleteRequest(editTaskId) : undefined}
           availableLists={availableLists}
           onMoveToList={onMoveToList}
