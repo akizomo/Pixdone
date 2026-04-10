@@ -34,6 +34,12 @@ Key points to keep in mind:
 - `app/src/design-system/themes/` — theme definitions
 - `docs/` — documentation including BRD
 
+## Safety Rules (mandatory)
+
+- **外部サービスへの操作は事前確認必須**: Firebase, Stripe, DB, 外部APIに対してスクリプト実行・データ変更・一括操作を行う前に、必ず (1) 現在のプラン/クォータ/制限を確認 (2) 影響範囲をユーザーに説明 (3) 承認を得てから実行する。失敗時に安易にリトライしない。
+- **本番データに触れる操作は慎重に**: マイグレーション、データ移行、スキーマ変更は本番環境に直接影響する。ドライランや件数確認を先に行うこと。
+- **仕様を理解してから提案する**: BRD.md を読まずに機能提案やアーキテクチャ変更を勧めない。現状のコードと仕様の乖離がないか確認してから動く。
+
 ## Sound Rules (mandatory)
 
 Every interactive element **must** call `playSound(key)` from `services/sound.ts`. Use the sound token that matches the semantic action:

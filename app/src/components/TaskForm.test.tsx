@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
+import { getTodayYMD } from '../lib/date';
 
 afterEach(cleanup);
 
@@ -271,7 +272,7 @@ describe('TaskForm — Close-to-Save', () => {
       expect(onCancel).not.toHaveBeenCalled();
     });
 
-    it('explicitly calls onClose after auto-save (does not rely on onSave to close)', () => {
+    it('onSave handles closing — onClose is NOT called separately after auto-save', () => {
       const { onSave, onClose } = renderEditForm();
       const title = document.getElementById('task-title')!;
 
@@ -281,8 +282,8 @@ describe('TaskForm — Close-to-Save', () => {
       fireEvent.keyDown(title, { key: 'Escape' });
 
       expect(onSave).toHaveBeenCalledTimes(1);
-      // onClose must also be called to explicitly dismiss the form
-      expect(onClose).toHaveBeenCalledTimes(1);
+      // onClose is NOT called — onSave is responsible for closing
+      expect(onClose).not.toHaveBeenCalled();
     });
 
     it('auto-saves when Escape pressed with dirty details', () => {
@@ -404,7 +405,7 @@ describe('TaskForm — Close-to-Save', () => {
       fireEvent.keyDown(title, { key: 'Escape' });
 
       expect(onSave).toHaveBeenCalledWith(
-        expect.objectContaining({ dueDate: '2026-04-09' }),
+        expect.objectContaining({ dueDate: getTodayYMD() }),
       );
     });
 
