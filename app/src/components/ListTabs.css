@@ -38,7 +38,7 @@
   font-size: var(--pxd-font-size-sm);
   font-family: var(--pxd-font-body);
   font-weight: var(--pxd-font-weight-regular);
-  color: var(--pxd-color-text-secondary);
+  color: var(--pd-color-text-secondary);
   cursor: pointer;
   transition: background var(--pxd-motion-fast) ease,
               color var(--pxd-motion-fast) ease;
@@ -46,14 +46,14 @@
 
 @media (hover: hover) {
   .pd-list-tabs__tab:hover {
-    background: var(--pxd-color-action-ghost-hover);
-    color: var(--pxd-color-text-primary);
+    background: var(--pd-color-background-hover);
+    color: var(--pd-color-text-primary);
   }
 }
 
 .pd-list-tabs__tab--active {
-  border-bottom-color: var(--pxd-color-action-primary);
-  color: var(--pxd-color-text-primary);
+  border-bottom-color: var(--pd-color-accent-default);
+  color: var(--pd-color-text-primary);
   font-weight: var(--pxd-font-weight-semibold);
 }
 
@@ -63,15 +63,15 @@
   padding: 1px var(--pxd-space-1);
   font-size: 0.6875rem;
   border-radius: var(--pxd-radius-none);
-  border: var(--pxd-border-thin) solid var(--pxd-color-border-interactive);
-  background: var(--pxd-color-surface-secondary);
-  color: var(--pxd-color-text-secondary);
+  border: var(--pxd-border-thin) solid var(--pd-color-border-default);
+  background: var(--pd-color-background-elevated);
+  color: var(--pd-color-text-secondary);
 }
 
 .pd-list-tabs__count--active {
-  border-color: var(--pxd-color-action-primary);
-  background: var(--pxd-color-action-primary);
-  color: var(--pxd-color-text-inverse);
+  border-color: var(--pd-color-accent-default);
+  background: var(--pd-color-accent-default);
+  color: var(--pd-color-accent-text);
 }
 
 /* Add button */
@@ -82,10 +82,10 @@
   width: 28px;
   height: 28px;
   flex-shrink: 0;
-  border: var(--pxd-border-thin) solid var(--pxd-color-border-interactive);
+  border: var(--pxd-border-thin) solid var(--pd-color-border-default);
   border-radius: var(--pxd-radius-none);
   background: none;
-  color: var(--pxd-color-text-secondary);
+  color: var(--pd-color-text-secondary);
   cursor: pointer;
   font-size: 1rem;
   transition: background var(--pxd-motion-fast) ease,
@@ -94,7 +94,7 @@
 
 @media (hover: hover) {
   .pd-list-tabs__add:hover {
-    background: var(--pxd-color-action-ghost-hover);
-    color: var(--pxd-color-text-primary);
+    background: var(--pd-color-background-hover);
+    color: var(--pd-color-text-primary);
   }
 }

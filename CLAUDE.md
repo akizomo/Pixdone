@@ -50,15 +50,20 @@ UI は `app/src/design-system/` のコンポーネントとトークンを使っ
 - 画面固有の一回限りの UI は、DS コンポーネントを組み合わせて作る。共通パターンになりそうなら DS に昇格させる。
 
 ### トークンベース
-- CSS では `--pxd-*` セマンティックトークン（`tokens.css` で定義）を使う。生の色コード (`#fff`, `rgba(...)`) やマジックナンバー (`12px`, `0.15s`) を直書きしない。
-- 主なトークンプレフィックス:
-  - 色: `--pxd-color-{role}-{variant}` (例: `--pxd-color-text-primary`, `--pxd-color-action-primary`)
+- 生の色コード (`#fff`, `rgba(...)`) やマジックナンバー (`12px`, `0.15s`) を直書きしない。
+- **2つのプレフィックスの使い分け**:
+  - `--pd-*` — **テーマ対応**（色・フォント）。ThemeProvider + `.theme.ts` がテーマごとにオーバーライドする。**色は必ずこちらを使う。**
+  - `--pxd-*` — **テーマ不変**（構造値）。`tokens.css` で固定定義。テーマで変わらない。
+- 主なトークン:
+  - 色: `--pd-color-{role}-{variant}` (例: `--pd-color-text-primary`, `--pd-color-accent-default`)
+  - フォント: `--pd-font-brand` / `--pd-font-body`（テーマで変わる）
   - スペース: `--pxd-space-{n}` / `--pxd-layout-{size}`
   - ボーダー: `--pxd-border-{weight}` (thin=1px, base=2px, strong=3px)
   - 角丸: `--pxd-radius-{size}` (none, xs, sm, md, lg, xl, full)
-  - タイポ: `--pxd-font-body` / `--pxd-font-display`, `--pxd-font-size-{size}`, `--pxd-font-weight-{name}`
+  - タイポサイズ: `--pxd-font-size-{size}`, `--pxd-font-weight-{name}`
   - モーション: `--pxd-motion-{speed}`, `--pxd-easing-{name}`
   - シャドウ: `--pxd-shadow-{type}-{size}`
+- **`--pxd-color-*` は使わない**。テーマに連動しないため。色は必ず `--pd-color-*` を使う。
 
 ### インラインスタイル禁止
 - `style={{}}` は原則使わない。CSS クラス（コンポーネント名.css）を使う。

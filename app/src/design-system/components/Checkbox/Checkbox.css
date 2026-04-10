@@ -6,7 +6,7 @@
   justify-content: center;
   flex-shrink: 0;
   padding: 0;
-  border: var(--pxd-border-base) solid var(--pxd-color-border-interactive);
+  border: var(--pxd-border-base) solid var(--pd-color-border-default);
   border-radius: var(--pxd-radius-none);
   background: transparent;
   cursor: pointer;
@@ -16,7 +16,7 @@
 }
 
 .pxd-checkbox:focus-visible {
-  outline: var(--pxd-border-base) solid var(--pxd-color-focus-ring);
+  outline: var(--pxd-border-base) solid var(--pd-color-accent-default);
   outline-offset: var(--pxd-border-base);
 }
 
@@ -33,8 +33,8 @@
 
 /* Checked state */
 .pxd-checkbox--checked {
-  border-color: var(--pxd-color-action-primary);
-  background-color: var(--pxd-color-action-primary);
+  border-color: var(--pd-color-accent-default);
+  background-color: var(--pd-color-accent-default);
 }
 
 /* Check icon — Material Icons, always in DOM to prevent layout shift */
@@ -54,5 +54,5 @@
 }
 
 .pxd-checkbox--checked .pxd-checkbox__check {
-  color: var(--pxd-color-text-inverse);
+  color: var(--pd-color-accent-text);
 }

@@ -167,7 +167,7 @@
     color: var(--pd-color-accent-default);
   }
   .task-item__action-btn--delete:hover {
-    color: var(--pxd-color-feedback-danger);
+    color: var(--pd-color-semantic-danger);
   }
 }
 

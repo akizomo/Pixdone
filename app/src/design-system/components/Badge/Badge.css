@@ -17,26 +17,26 @@
 
 /* Variants */
 .pxd-badge--default {
-  color: var(--pxd-color-text-secondary);
-  border-color: var(--pxd-color-border-outline);
+  color: var(--pd-color-text-secondary);
+  border-color: var(--pd-color-border-default);
   background: transparent;
 }
 
 .pxd-badge--danger {
-  color: var(--pxd-color-text-danger);
-  border-color: var(--pxd-color-feedback-danger);
+  color: var(--pd-color-semantic-danger);
+  border-color: var(--pd-color-semantic-danger);
   background: transparent;
 }
 
 .pxd-badge--warning {
-  color: var(--pxd-color-text-warning);
-  border-color: var(--pxd-color-feedback-warning);
+  color: var(--pd-color-semantic-warning);
+  border-color: var(--pd-color-semantic-warning);
   background: transparent;
 }
 
 .pxd-badge--success {
-  color: var(--pxd-color-text-success);
-  border-color: var(--pxd-color-feedback-success);
+  color: var(--pd-color-semantic-success);
+  border-color: var(--pd-color-semantic-success);
   background: transparent;
 }
 

@@ -11,7 +11,7 @@
 .pd-list-header__title {
   font-size: 1.5rem;
   font-weight: var(--pxd-font-weight-bold);
-  color: var(--pxd-color-text-primary);
+  color: var(--pd-color-text-primary);
   margin: 0;
   font-family: var(--pd-font-brand);
   image-rendering: pixelated;
@@ -30,7 +30,7 @@
   border: none;
   border-radius: var(--pxd-radius-none);
   background: transparent;
-  color: var(--pxd-color-text-secondary);
+  color: var(--pd-color-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -41,6 +41,6 @@
 
 @media (hover: hover) {
   .pd-list-header__menu-btn:hover {
-    color: var(--pxd-color-text-primary);
+    color: var(--pd-color-text-primary);
   }
 }
