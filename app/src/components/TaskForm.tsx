@@ -56,6 +56,8 @@ function getPresetValue(r: RepeatConfig | undefined): RepeatPreset {
 export interface TaskFormHandle {
   /** Trigger close-to-save: auto-saves dirty edits, or just closes */
   close: () => void;
+  /** Save dirty data without triggering close/cancel callbacks. */
+  saveIfDirty: () => void;
   /** Close any open sub-menus (repeat, list selector). Returns true if something was dismissed. */
   dismissSubmenus: () => boolean;
 }
@@ -138,8 +140,22 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
     return dismissed;
   }, [showRepeat, showListMenu]);
 
+  // Save dirty data without triggering close/cancel callbacks
+  const saveIfDirty = useCallback(() => {
+    if (task && isDirty() && title.trim()) {
+      playSound('taskAdd');
+      onSave({
+        title: title.trim(),
+        details: details.trim() || undefined,
+        dueDate,
+        repeat,
+        subtasks,
+      });
+    }
+  }, [task, isDirty, title, details, dueDate, repeat, subtasks, onSave]);
+
   // Expose handleClose to parent via ref (for BottomSheet backdrop/close-button/outside-click)
-  useImperativeHandle(ref, () => ({ close: handleClose, dismissSubmenus }), [handleClose, dismissSubmenus]);
+  useImperativeHandle(ref, () => ({ close: handleClose, saveIfDirty, dismissSubmenus }), [handleClose, saveIfDirty, dismissSubmenus]);
 
   const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Escape') {

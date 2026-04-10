@@ -693,12 +693,15 @@ function AppContent() {
     closeMobileSheet();
   }, [closeMobileSheet]);
 
-  // Delegate close to TaskForm's close-to-save logic (for BottomSheet backdrop/close-button)
-  // If a sub-menu (repeat dropdown, list selector) is open, close it first and keep the sheet open.
+  // Close the BottomSheet directly (same pattern as ChallengeMenu).
+  // Save dirty data synchronously first, then close in one step.
   const handleTaskFormCloseViaSave = useCallback(() => {
     if (taskFormRef.current?.dismissSubmenus()) return;
-    taskFormRef.current ? taskFormRef.current.close() : handleTaskFormCancel();
-  }, [handleTaskFormCancel]);
+    taskFormRef.current?.saveIfDirty();
+    setMobileSheetOpen(false);
+    setTaskFormMode(null);
+    setTimeout(() => setMobileEditTaskId(null), 320);
+  }, []);
 
   const openAddTask = useCallback(() => {
     // Smash List: FAB acts as a quick smash (same as Space key)
@@ -760,6 +763,18 @@ function AppContent() {
     themeModalOpen ||
     listModal !== null ||
     mobileSheetOpen ||
+    deleteTaskConfirm !== null ||
+    focusZenOpen ||
+    inlineTaskFormOpen;
+
+  // FAB uses a separate flag that excludes mobileSheetOpen so that the FAB
+  // stays mounted (behind the z-400 sheet) during the close animation.
+  // Inserting/removing the FAB DOM node mid-transition was cancelling the
+  // BottomSheet slide-out CSS transition on some browsers.
+  const anyModalOpenExceptSheet =
+    signupOpen ||
+    themeModalOpen ||
+    listModal !== null ||
     deleteTaskConfirm !== null ||
     focusZenOpen ||
     inlineTaskFormOpen;
@@ -1579,7 +1594,7 @@ function AppContent() {
       </main>
 
       {/* Mobile FAB */}
-      {!anyModalOpen && isTasksScreen && !isSubPage && (
+      {!anyModalOpenExceptSheet && isTasksScreen && !isSubPage && (
         <button
           type="button"
           onClick={openAddTask}
