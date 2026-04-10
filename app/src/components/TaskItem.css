@@ -1,0 +1,187 @@
+/* TaskItem */
+
+.task-item-row {
+  display: flex;
+  align-items: flex-start;
+  background: var(--pd-color-background-default);
+  border: var(--pxd-border-base) solid var(--pd-color-border-default);
+  border-radius: var(--pxd-radius-none);
+  padding: 10px var(--pxd-space-3);
+  margin-bottom: var(--pxd-space-2);
+  cursor: pointer;
+  transition: transform var(--pxd-motion-base) ease,
+              box-shadow var(--pxd-motion-base) ease,
+              opacity var(--pxd-motion-base) ease;
+  box-shadow: var(--pxd-shadow-pixel-sm);
+  image-rendering: pixelated;
+  font-family: var(--pd-font-body);
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+}
+
+.task-item-row--completed {
+  opacity: 0.7;
+}
+
+.task-item-row--reorder-source {
+  background: var(--pd-color-background-hover);
+  border-color: var(--pd-color-accent-default);
+  opacity: 0.88;
+  transform: scale(0.985);
+  cursor: grabbing;
+}
+
+@media (hover: hover) {
+  .task-item-row:not(.task-item-row--reorder-source):hover {
+    transform: translate(-1px, -1px);
+    box-shadow: var(--pxd-shadow-pixel-md);
+    background-color: var(--pd-color-background-hover);
+  }
+}
+
+/* Checkbox zone — expanded tap target */
+.task-checkbox-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--pxd-tap-target-min);
+  min-height: var(--pxd-tap-target-min);
+  flex-shrink: 0;
+  margin: -6px var(--pxd-space-1) -6px -6px;
+  cursor: pointer;
+}
+
+/* Checkbox button */
+.task-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pxd-space-6);
+  height: var(--pxd-space-6);
+  flex-shrink: 0;
+  border: var(--pxd-border-base) solid var(--pd-color-border-default);
+  border-radius: var(--pxd-radius-none);
+  background: var(--pd-color-background-default);
+  cursor: pointer;
+  transition: transform var(--pxd-motion-base) ease,
+              box-shadow var(--pxd-motion-base) ease;
+  box-shadow: var(--pxd-shadow-pixel-sm);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: var(--pxd-font-weight-bold);
+  image-rendering: pixelated;
+}
+
+.task-checkbox--checked {
+  border-color: var(--pd-color-accent-default);
+  background: var(--pd-color-accent-default);
+}
+
+.task-checkbox__mark {
+  font-size: var(--pxd-font-size-sm);
+  line-height: 1;
+}
+
+/* Task body */
+.task-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-item__body--smash {
+  cursor: default;
+}
+
+.task-item__title {
+  display: block;
+  color: var(--pd-color-text-primary);
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-sm);
+  line-height: var(--pxd-line-height-snug);
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.task-item__title--completed {
+  color: var(--pd-color-text-muted);
+  text-decoration: line-through;
+}
+
+.task-item__link {
+  color: var(--pd-color-accent-default);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.task-item__link--completed {
+  text-decoration: line-through;
+}
+
+.task-item__details {
+  margin-top: 6px;
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-xs);
+  line-height: var(--pxd-line-height-snug);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.task-item__meta {
+  display: flex;
+  gap: 6px;
+  margin-top: var(--pxd-space-1);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Action buttons */
+.task-item-row-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+}
+
+.task-item__action-btn {
+  background: none;
+  border: none;
+  color: var(--pd-color-text-muted);
+  cursor: pointer;
+  padding: var(--pxd-space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: var(--pxd-radius-none);
+  transition: color var(--pxd-motion-fast) ease;
+}
+
+@media (hover: hover) {
+  .task-item__action-btn--move:hover {
+    color: var(--pd-color-accent-default);
+  }
+  .task-item__action-btn--delete:hover {
+    color: var(--pxd-color-feedback-danger);
+  }
+}
+
+.task-item__action-btn--active {
+  color: var(--pd-color-accent-default);
+}
+
+.task-item__action-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Badge icon inside meta badges */
+.task-item__badge-icon {
+  font-size: 11px;
+  line-height: 1;
+}
