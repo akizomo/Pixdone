@@ -3,7 +3,7 @@ import {
   type MutableRefObject, type ErrorInfo, type ReactNode,
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, Button, Chip, IconButton, ModalDialog, BottomSheet, ToastProvider, useToast, PopoverMenu } from './design-system';
+import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu } from './design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
   TaskForm, type TaskFormHandle, ListModal, AuthModal, BottomNav, FocusScreen,
@@ -35,6 +35,7 @@ import type { List } from './types/list';
 import type { Task } from './types/task';
 import type { BgmTrack } from './services/bgm';
 import { FocusZenMode } from './components/FocusZenMode';
+import { MobileTaskSheet, type MobileTaskSheetHandle } from './components/MobileTaskSheet';
 import { PricingPage } from './pages/PricingPage';
 import { AccountPage } from './pages/AccountPage';
 import { CollectionPage } from './pages/CollectionPage';
@@ -110,11 +111,12 @@ function AppContent() {
 
   // Desktop: null = closed, 'add' = new task, task.id = editing
   const [taskFormMode, setTaskFormMode] = useState<null | 'add' | string>(null);
-  // Mobile: BottomSheet open for task add/edit
-  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
-  const [mobileEditTaskId, setMobileEditTaskId] = useState<string | null>(null);
   // Ref to trigger close-to-save from parent (BottomSheet backdrop, outside-click, etc.)
   const taskFormRef = useRef<TaskFormHandle>(null);
+  // Mobile: self-contained BottomSheet (same pattern as ChallengeMenu)
+  const mobileTaskSheetRef = useRef<MobileTaskSheetHandle>(null);
+  // Synced from MobileTaskSheet for anyModalOpen (disables swipe/reorder while sheet is open)
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
   // Completed section
   const [completedExpanded, setCompletedExpanded] = useState(false);
@@ -150,7 +152,7 @@ function AppContent() {
 
   /* ---- Sync user plan to vanilla effect engine ---- */
   const { plan: userPlan, isPremium } = useThemeEntitlements();
-  const { ownedChallengeEffects, challengeProgressMap, optimisticIncrement } = useEffectProgress();
+  const { progress: effectProgressMap, ownedChallengeEffects, challengeProgressMap, optimisticIncrement } = useEffectProgress();
   const activeChallenge = useActiveChallenge(challengeProgressMap, ownedChallengeEffects);
   useEffect(() => {
     const w = window as unknown as {
@@ -164,17 +166,15 @@ function AppContent() {
   useEffect(() => {
     if (preferInlineTaskUi) return;
     if (taskFormMode === 'add') {
-      setMobileSheetOpen(true);
-      setMobileEditTaskId(null);
+      mobileTaskSheetRef.current?.openAdd(currentList?.id ?? '');
       setTaskFormMode(null);
       return;
     }
     if (taskFormMode) {
-      setMobileEditTaskId(taskFormMode);
-      setMobileSheetOpen(true);
+      mobileTaskSheetRef.current?.openEdit(taskFormMode);
       setTaskFormMode(null);
     }
-  }, [preferInlineTaskUi, taskFormMode]);
+  }, [preferInlineTaskUi, taskFormMode, currentList?.id]);
 
   /* ---- Sync document language for font rules ([lang=\"ja\"] selectors) ---- */
   useEffect(() => {
@@ -329,11 +329,11 @@ function AppContent() {
   const activeTasks = allTasks.filter((t) => !t.completed);
   const completedTasks = allTasks.filter((t) => t.completed);
 
+  // editingTask is only used for inline (desktop) editing now.
+  // Mobile editing is fully handled inside MobileTaskSheet.
   const editingTask =
     typeof taskFormMode === 'string' && taskFormMode !== 'add'
       ? allTasks.find((t) => t.id === taskFormMode) ?? null
-      : mobileEditTaskId
-      ? allTasks.find((t) => t.id === mobileEditTaskId) ?? null
       : null;
 
   /* ---- タブ表示順: スマッシュリストを常に一番左 ---- */
@@ -462,6 +462,15 @@ function AppContent() {
     });
   }, [lang, showToast]);
 
+  /* ---- Dev / QA: ?effect=<key> forces that effect on every task completion ---- */
+  const forcedEffectKey = useMemo(() => {
+    const p = new URLSearchParams(window.location.search);
+    const key = p.get('effect') ?? p.get('fx');
+    if (!key) return null;
+    // Only honour if the key exists in registry
+    return EFFECTS_REGISTRY.some(e => e.key === key) ? key : null;
+  }, []);
+
   /* ---- Task handlers ---- */
   const runCompleteShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
@@ -470,7 +479,7 @@ function AppContent() {
     const doComplete = () => {
       completeTask(taskId);
       setTaskFormMode(null);
-      setMobileSheetOpen(false);
+      mobileTaskSheetRef.current?.close();
     };
 
     // Find the task to gather analytics metadata
@@ -501,12 +510,13 @@ function AppContent() {
         });
       }
 
+      const finalKey = forcedEffectKey ?? selected?.key;
       runVanillaCompletionEffect(taskEl, () => {
         doComplete();
         if (isTutorialTask) {
           showTutorialToast(taskId, selected?.rarity);
         }
-      }, selected?.key);
+      }, finalKey);
     } else {
       doComplete();
       playSound('taskComplete');
@@ -525,13 +535,13 @@ function AppContent() {
     }
 
     if (!isTutorialTask) sendChallengeProgress(taskId);
-  }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast]);
+  }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast, forcedEffectKey]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
     const doComplete = () => {
       completeTask(taskId);
       setTaskFormMode(null);
-      setMobileSheetOpen(false);
+      mobileTaskSheetRef.current?.close();
     };
     window.setTimeout(doComplete, PERFECT_TIMING_STATE_DEFER_MS);
     sendChallengeProgress(taskId);
@@ -554,8 +564,7 @@ function AppContent() {
     setListSlide(null);
     setActiveList('smash-list');
     setTaskFormMode(null);
-    setMobileSheetOpen(false);
-    setMobileEditTaskId(null);
+    mobileTaskSheetRef.current?.close();
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         document.getElementById('pd-list-tab-smash')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -567,24 +576,20 @@ function AppContent() {
     playSound('buttonClick');
     setActiveScreen('focus');
     setTaskFormMode(null);
-    setMobileSheetOpen(false);
-    setMobileEditTaskId(null);
+    mobileTaskSheetRef.current?.close();
   }, []);
 
   const handleEdit = useCallback((taskId: string) => {
     if (preferInlineTaskUi) {
       // Inline editor (mouse / fine pointer — any viewport width)
       setTaskFormMode(taskId);
-      setMobileSheetOpen(false);
-      setMobileEditTaskId(null);
       requestAnimationFrame(() => {
         const el = document.querySelector(`[data-task-id="${taskId}"]`);
         el?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
       });
     } else {
       setTaskFormMode(null);
-      setMobileEditTaskId(taskId);
-      setMobileSheetOpen(true);
+      mobileTaskSheetRef.current?.openEdit(taskId);
     }
     playSound('taskEdit');
   }, [preferInlineTaskUi]);
@@ -593,8 +598,7 @@ function AppContent() {
     deleteTask(taskId);
     playSound('taskDelete');
     setTaskFormMode(null);
-    setMobileSheetOpen(false);
-    setMobileEditTaskId(null);
+    mobileTaskSheetRef.current?.close();
     setDeleteTaskConfirm(null);
   }, [deleteTask]);
 
@@ -625,7 +629,7 @@ function AppContent() {
 
     if (taskEl) {
       const pool = buildDrawPool(isPremium, visualTheme, activeEffects, ownedChallengeEffects);
-      const selectedKey = pool.length > 0 ? weightedRandomEffect(pool).key : undefined;
+      const selectedKey = forcedEffectKey ?? (pool.length > 0 ? weightedRandomEffect(pool).key : undefined);
       runVanillaCompletionEffect(taskEl, () => {
         doSmash();
       }, selectedKey);
@@ -634,7 +638,7 @@ function AppContent() {
       playSound('taskComplete');
     }
     // Smash List tasks are local-only dummies — do NOT count toward challenge progress.
-  }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects]);
+  }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, forcedEffectKey]);
 
   const runSmashFromPerfectTiming = useCallback((taskId: string) => {
     window.setTimeout(() => {
@@ -659,17 +663,10 @@ function AppContent() {
   };
   usePerfectTimingSetup(lists, perfectTimingBridgeRef);
 
-  /** Delay clearing edit-task id so BottomSheet content stays during slide-out animation */
-  const closeMobileSheet = useCallback(() => {
-    setTaskFormMode(null);
-    setMobileSheetOpen(false);
-    // Clear after the exit animation (300ms matches BottomSheet CSS transition)
-    setTimeout(() => setMobileEditTaskId(null), 320);
-  }, []);
-
+  // Inline (desktop) task form handlers — mobile is fully inside MobileTaskSheet
   const handleTaskFormSave = useCallback((fields: Partial<Task> & { title: string }) => {
-    const editId = taskFormMode !== 'add' && taskFormMode ? taskFormMode : mobileEditTaskId;
-    if (taskFormMode === 'add' || (mobileSheetOpen && !mobileEditTaskId)) {
+    const editId = taskFormMode !== 'add' && taskFormMode ? taskFormMode : null;
+    if (taskFormMode === 'add') {
       addTask(currentList!.id, fields);
       playSound('taskAdd');
       trackTaskAdd({
@@ -680,18 +677,17 @@ function AppContent() {
       updateTask(editId, fields);
       playSound('taskAdd');
     }
-    closeMobileSheet();
-  }, [taskFormMode, mobileSheetOpen, mobileEditTaskId, currentList, addTask, updateTask, closeMobileSheet]);
+    setTaskFormMode(null);
+  }, [taskFormMode, currentList, addTask, updateTask]);
 
   const handleTaskFormCancel = useCallback(() => {
     playSound('taskCancel');
-    closeMobileSheet();
-  }, [closeMobileSheet]);
+    setTaskFormMode(null);
+  }, []);
 
-  // Close form without sound (used by close-to-save: TaskForm handles save + sound internally)
   const handleTaskFormClose = useCallback(() => {
-    closeMobileSheet();
-  }, [closeMobileSheet]);
+    setTaskFormMode(null);
+  }, []);
 
   const openAddTask = useCallback(() => {
     // Smash List: FAB acts as a quick smash (same as Space key)
@@ -706,12 +702,8 @@ function AppContent() {
     playSound('buttonClick');
     if (preferInlineTaskUi) {
       setTaskFormMode('add');
-      setMobileSheetOpen(false);
-      setMobileEditTaskId(null);
     } else {
-      setTaskFormMode(null);
-      setMobileEditTaskId(null);
-      setMobileSheetOpen(true);
+      mobileTaskSheetRef.current?.openAdd(currentList?.id ?? '');
     }
   }, [isSmash, currentList, handleSmash, preferInlineTaskUi]);
 
@@ -773,8 +765,7 @@ function AppContent() {
 
     setActiveList(nextId);
     setTaskFormMode(null);
-    setMobileSheetOpen(false);
-    setMobileEditTaskId(null);
+    mobileTaskSheetRef.current?.close();
     setCompletedExpanded(false);
     playSound('buttonClick');
   }, [
@@ -782,8 +773,6 @@ function AppContent() {
     listTabsOrder,
     setActiveList,
     setTaskFormMode,
-    setMobileSheetOpen,
-    setMobileEditTaskId,
     setCompletedExpanded,
   ]);
 
@@ -1212,6 +1201,7 @@ function AppContent() {
             initialEffectKey={collectionInitialEffectKey}
             ownedChallengeEffects={ownedChallengeEffects}
             challengeProgressMap={challengeProgressMap}
+            effectProgressMap={effectProgressMap}
             onRequestEffect={() => navigate('/effect-request')}
           />
         ) : isFocusScreen ? (
@@ -1607,33 +1597,25 @@ function AppContent() {
         </button>
       )}
 
-      {/* Mobile BottomSheet for task add/edit — same pattern as ChallengeMenu */}
-      <BottomSheet
-        open={mobileSheetOpen && !preferInlineTaskUi}
-        onClose={() => {
-          if (taskFormRef.current?.dismissSubmenus()) return;
-          taskFormRef.current?.saveIfDirty();
-          setMobileSheetOpen(false);
-          setTaskFormMode(null);
-          setTimeout(() => setMobileEditTaskId(null), 320);
+      {/* Mobile BottomSheet for task add/edit — self-contained, same pattern as ChallengeMenu */}
+      <MobileTaskSheet
+        ref={mobileTaskSheetRef}
+        lang={lang}
+        tasks={allTasks}
+        currentListId={currentList?.id ?? ''}
+        onAddTask={(listId, fields) => {
+          addTask(listId, fields);
+          trackTaskAdd({
+            list_type: listId === 'smash-list' ? 'smash' : 'custom',
+            is_repeat: !!fields.repeat,
+          });
         }}
-        title={mobileEditTaskId
-          ? (lang === 'ja' ? 'タスクを編集' : 'Edit task')
-          : (lang === 'ja' ? 'タスクを追加' : 'Add a task')}
-      >
-        <TaskForm
-          ref={taskFormRef}
-          lang={lang}
-          listId={currentList?.id ?? ''}
-          task={mobileEditTaskId ? editingTask ?? undefined : undefined}
-          onSave={handleTaskFormSave}
-          onCancel={handleTaskFormCancel}
-          onClose={handleTaskFormClose}
-          onDelete={mobileEditTaskId ? () => handleDelete(mobileEditTaskId) : undefined}
-          availableLists={allListsForForm}
-          onMoveToList={handleMoveToList}
-        />
-      </BottomSheet>
+        onUpdateTask={updateTask}
+        onDeleteRequest={handleDelete}
+        onMoveToList={handleMoveToList}
+        availableLists={allListsForForm}
+        onOpenChange={setMobileSheetOpen}
+      />
 
       {/* List modal */}
       <ListModal
