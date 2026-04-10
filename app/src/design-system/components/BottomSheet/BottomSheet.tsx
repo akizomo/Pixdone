@@ -14,7 +14,6 @@ export function BottomSheet({
   children,
   className,
   bodyClassName,
-  silent,
 }: BottomSheetProps) {
   const [visible, setVisible] = useState(open);
   const [entered, setEntered] = useState(false);
@@ -153,7 +152,7 @@ export function BottomSheet({
       // Preserve drag position so the exit animation starts from here, not from top
       setExitDragY(finalY);
       setDragY(0);
-      if (!silent) playSound('taskCancel');
+      playSound('taskCancel');
       onClose();
     } else {
       // Snap back
@@ -161,7 +160,7 @@ export function BottomSheet({
     }
     dragStartRef.current = null;
     isDraggingRef.current = false;
-  }, [dragY, onClose, silent]);
+  }, [dragY, onClose]);
 
   if (!visible) return null;
 
@@ -185,7 +184,7 @@ export function BottomSheet({
         className="pxd-sheet-backdrop"
         data-open={entered ? 'true' : 'false'}
         style={backdropStyle}
-        onClick={() => { if (!silent) playSound('taskCancel'); onClose(); }}
+        onClick={() => { playSound('taskCancel'); onClose(); }}
         aria-hidden="true"
       />
       <div
@@ -220,7 +219,7 @@ export function BottomSheet({
             size="md"
             aria-label="Close"
             icon={<span className="material-icons">close</span>}
-            soundKey={silent ? undefined : 'taskCancel'}
+            soundKey="taskCancel"
             onClick={onClose}
             className="pxd-sheet-close"
           />

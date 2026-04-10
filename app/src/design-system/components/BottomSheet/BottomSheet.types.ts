@@ -2,6 +2,11 @@ import type { ReactNode } from 'react';
 
 export interface BottomSheetProps {
   open: boolean;
+  /**
+   * Must be `() => setOpen(false)` and nothing else.
+   * Do NOT add save/dismiss/sound logic here — it breaks CSS transitions.
+   * Use onSave/useEffect for side-effects on close.
+   */
   onClose: () => void;
   title?: string;
   children: ReactNode;
@@ -9,6 +14,4 @@ export interface BottomSheetProps {
   className?: string;
   /** Optional extra class on the sheet body */
   bodyClassName?: string;
-  /** When true, backdrop/close-button do NOT play their own sound (caller handles it) */
-  silent?: boolean;
 }
