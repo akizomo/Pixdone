@@ -5,7 +5,7 @@
   align-items: center;
   gap: 3px;
   padding: 1px 5px;
-  font-family: var(--pxd-font-body);
+  font-family: var(--pd-font-body);
   font-size: 0.6875rem;
   font-weight: var(--pxd-font-weight-regular);
   line-height: var(--pxd-line-height-snug);
@@ -15,7 +15,7 @@
   image-rendering: pixelated;
 }
 
-/* Variants */
+/* Variants — border uses subtle alpha, text uses full semantic color */
 .pxd-badge--default {
   color: var(--pd-color-text-secondary);
   border-color: var(--pd-color-border-default);
@@ -24,19 +24,19 @@
 
 .pxd-badge--danger {
   color: var(--pd-color-semantic-danger);
-  border-color: var(--pd-color-semantic-danger);
+  border-color: var(--pd-color-border-danger);
   background: transparent;
 }
 
 .pxd-badge--warning {
   color: var(--pd-color-semantic-warning);
-  border-color: var(--pd-color-semantic-warning);
+  border-color: var(--pd-color-border-warning);
   background: transparent;
 }
 
 .pxd-badge--success {
   color: var(--pd-color-semantic-success);
-  border-color: var(--pd-color-semantic-success);
+  border-color: var(--pd-color-border-success);
   background: transparent;
 }
 
