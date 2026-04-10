@@ -5,22 +5,16 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu } from './design-system';
 import {
-  ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel, ThemeSelector,
-  TaskForm, type TaskFormHandle, ListModal, AuthModal, BottomNav, FocusScreen,
-  UpsellModal,
+  ThemeSelector, ListModal, AuthModal, BottomNav,
 } from './components';
 import type { ListModalMode, ActiveScreen } from './components';
-import { SMASH_TITLES } from './features/useLists';
-import { ListsProvider, useListsContext } from './features/ListsContext';
-import { useKeyboardNav } from './hooks/useKeyboardNav';
+import { ListsProvider, useListsData, useListsActions } from './features/ListsContext';
+import { TasksScreen } from './screens/TasksScreen';
+import { FocusScreenContainer } from './screens/FocusScreenContainer';
 import { usePerfectTimingSetup, type PerfectTimingBridgeCallbacks } from './hooks/usePerfectTimingSetup';
 import { useMidnightRefresh } from './hooks/useMidnightRefresh';
-import { useTaskListSwipe } from './hooks/useTaskListSwipe';
-import { useActiveTaskLongPressReorder } from './hooks/useActiveTaskLongPressReorder';
 import { playSound, getSoundEnabled } from './services/sound';
 import { initSoundEngine } from './services/soundEngine';
-import { useFocusTimer } from './hooks/useFocusTimer';
-import { stopBgm, startBgm, isBgmOn, getBgmTrack, isBgmContextSuspended } from './services/bgm';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useThemeEntitlements } from './hooks/useThemeEntitlements';
 import { useEffectProgress } from './hooks/useEffectProgress';
@@ -34,9 +28,6 @@ import { resolveAnimationKey } from './data/effectEvolution';
 import './styles/task-animations.css';
 import type { List } from './types/list';
 import type { Task } from './types/task';
-import type { BgmTrack } from './services/bgm';
-import { FocusZenMode } from './components/FocusZenMode';
-import { MobileTaskSheet, type MobileTaskSheetHandle } from './components/MobileTaskSheet';
 import { PricingPage } from './pages/PricingPage';
 import { AccountPage } from './pages/AccountPage';
 import { CollectionPage } from './pages/CollectionPage';
@@ -76,15 +67,12 @@ function getFinePointerSnapshot(): boolean {
 }
 
 function AppContent() {
+  const { lists, activeListId, currentList } = useListsData();
   const {
-    lists, activeListId, setActiveList, currentList,
     addList, renameList, deleteList,
-    addTask, updateTask, deleteTask, completeTask, uncompleteTask,
-    moveTask,
-    reorderActiveTasks,
+    completeTask, uncompleteTask,
     resetRepeatingTasks,
-    listLimitUpsellOpen, closeListLimitUpsell,
-  } = useListsContext();
+  } = useListsActions();
 
   const { user, logout, syncServerSession } = useAuth();
   const navigate = useNavigate();
@@ -108,24 +96,8 @@ function AppContent() {
   // userMenuRef removed — PopoverMenu handles outside-click internally
   const [focusZenOpen, setFocusZenOpen] = useState(false);
 
-  // Desktop: null = closed, 'add' = new task, task.id = editing
-  const [taskFormMode, setTaskFormMode] = useState<null | 'add' | string>(null);
-  // Ref to trigger close-to-save from parent (BottomSheet backdrop, outside-click, etc.)
-  const taskFormRef = useRef<TaskFormHandle>(null);
-  // Mobile: self-contained BottomSheet (same pattern as ChallengeMenu)
-  const mobileTaskSheetRef = useRef<MobileTaskSheetHandle>(null);
-
-  // Completed section
-  const [completedExpanded, setCompletedExpanded] = useState(false);
-
-  // Swipe list-enter direction (applied only to a specific next activeListId)
-  const [listSlide, setListSlide] = useState<{ listId: string; from: 'left' | 'right' } | null>(null);
-
-  // List modal state
+  // List modal state (rendered in shell, triggered from TasksScreen via callback)
   const [listModal, setListModal] = useState<{ mode: ListModalMode; listId?: string } | null>(null);
-
-  // Delete task confirmation
-  const [deleteTaskConfirm, setDeleteTaskConfirm] = useState<string | null>(null); // taskId
 
   // Stripe purchase redirect banner
   const [purchaseBanner, setPurchaseBanner] = useState<'plus_success' | null>(null);
@@ -158,20 +130,6 @@ function AppContent() {
     w.taskAnimationEffects?.comicEffects?.setUserPlan(userPlan);
   }, [userPlan]);
 
-
-  /* ---- Touch-first UI: viewport narrow while inline was open → BottomSheet ---- */
-  useEffect(() => {
-    if (preferInlineTaskUi) return;
-    if (taskFormMode === 'add') {
-      mobileTaskSheetRef.current?.openAdd();
-      setTaskFormMode(null);
-      return;
-    }
-    if (taskFormMode) {
-      mobileTaskSheetRef.current?.openEdit(taskFormMode);
-      setTaskFormMode(null);
-    }
-  }, [preferInlineTaskUi, taskFormMode, currentList?.id]);
 
   /* ---- Sync document language for font rules ([lang=\"ja\"] selectors) ---- */
   useEffect(() => {
@@ -265,10 +223,6 @@ function AppContent() {
   }, [user, lists, renameList]);
 
   /* ---- Derived ---- */
-  const isSmash =
-    activeListId === 'smash-list' ||
-    currentList?.id === 'smash-list' ||
-    currentList?.name === '💥 Smash List';
   const isTutorial = currentList?.id === 'default';
 
   const isFocusScreen = activeScreen === 'focus';
@@ -325,42 +279,6 @@ function AppContent() {
     w.taskAnimationEffects?.comicEffects?.setActiveEffects(activeEffects);
   }, [activeEffects]);
 
-  const allTasks = currentList?.tasks ?? [];
-  const activeTasks = allTasks.filter((t) => !t.completed);
-  const completedTasks = allTasks.filter((t) => t.completed);
-
-  // editingTask is only used for inline (desktop) editing now.
-  // Mobile editing is fully handled inside MobileTaskSheet.
-  const editingTask =
-    typeof taskFormMode === 'string' && taskFormMode !== 'add'
-      ? allTasks.find((t) => t.id === taskFormMode) ?? null
-      : null;
-
-  /* ---- タブ表示順: スマッシュリストを常に一番左 ---- */
-  const listTabsOrder = useMemo(() => {
-    const smash = lists.find((l) => l.id === 'smash-list' || l.name === '💥 Smash List');
-    const rest = lists.filter((l) => l !== smash);
-    return smash ? [smash, ...rest] : lists;
-  }, [lists]);
-
-  /* ---- Keyboard nav ---- */
-  useKeyboardNav({
-    lists: listTabsOrder,
-    activeListId,
-    onSelect: (id) => { setListSlide(null); setActiveList(id); setTaskFormMode(null); },
-    onSound: () => playSound('buttonClick'),
-  });
-
-  /* ---- Tab labels: 未ログイン時は「チュートリアル」、ログイン時は「マイタスク」 ---- */
-  const getTabLabel = (list: List) => {
-    if (list.id === 'smash-list' || list.name === '💥 Smash List') return '💥';
-    if (list.id === 'default') {
-      return user ? t('myTasks', lang) : t('tutorial', lang);
-    }
-    return list.name;
-  };
-
-  const getTabCount = (list: List) => list.tasks.filter((t) => !t.completed).length;
 
   /* ---- Challenge progress: optimistic + deduplicate + retry on 401 ---- */
   const countedTaskIds = useRef(new Set<string>());
@@ -478,8 +396,6 @@ function AppContent() {
 
     const doComplete = () => {
       completeTask(taskId);
-      setTaskFormMode(null);
-      mobileTaskSheetRef.current?.close();
     };
 
     // Find the task to gather analytics metadata
@@ -540,12 +456,7 @@ function AppContent() {
   }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast, forcedEffectKey]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
-    const doComplete = () => {
-      completeTask(taskId);
-      setTaskFormMode(null);
-      mobileTaskSheetRef.current?.close();
-    };
-    window.setTimeout(doComplete, PERFECT_TIMING_STATE_DEFER_MS);
+    window.setTimeout(() => completeTask(taskId), PERFECT_TIMING_STATE_DEFER_MS);
     sendChallengeProgress(taskId);
   }, [completeTask, sendChallengeProgress]);
 
@@ -563,10 +474,8 @@ function AppContent() {
   const navigateToSmashList = useCallback(() => {
     playSound('buttonClick');
     setActiveScreen('tasks');
-    setListSlide(null);
     setActiveList('smash-list');
-    setTaskFormMode(null);
-    mobileTaskSheetRef.current?.close();
+    // TasksScreen resets its own state (taskFormMode, mobileSheet) via useEffect on activeListId change
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         document.getElementById('pd-list-tab-smash')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -577,56 +486,8 @@ function AppContent() {
   const navigateToFocus = useCallback(() => {
     playSound('buttonClick');
     setActiveScreen('focus');
-    setTaskFormMode(null);
-    mobileTaskSheetRef.current?.close();
   }, []);
 
-  const handleEdit = useCallback((taskId: string) => {
-    if (preferInlineTaskUi) {
-      // Inline editor (mouse / fine pointer — any viewport width)
-      setTaskFormMode(taskId);
-      requestAnimationFrame(() => {
-        const el = document.querySelector(`[data-task-id="${taskId}"]`);
-        el?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
-      });
-    } else {
-      setTaskFormMode(null);
-      mobileTaskSheetRef.current?.openEdit(taskId);
-    }
-    playSound('taskEdit');
-  }, [preferInlineTaskUi]);
-
-  const doDelete = useCallback((taskId: string) => {
-    deleteTask(taskId);
-    playSound('taskDelete');
-    setTaskFormMode(null);
-    mobileTaskSheetRef.current?.close();
-    setDeleteTaskConfirm(null);
-  }, [deleteTask]);
-
-  const handleDelete = useCallback((taskId: string) => {
-    playSound('buttonClick');
-    setDeleteTaskConfirm(taskId);
-  }, []);
-
-  const handleMoveToList = useCallback((taskId: string, targetListId: string) => {
-    playSound('buttonClick');
-    moveTask(taskId, targetListId);
-  }, [moveTask]);
-
-  const availableListsForMove = useMemo(() =>
-    lists
-      .filter((l) => l.id !== 'smash-list' && l.id !== currentList?.id)
-      .map((l) => ({ id: l.id, name: l.name })),
-    [lists, currentList?.id],
-  );
-
-  const allListsForForm = useMemo(() =>
-    lists
-      .filter((l) => l.id !== 'smash-list')
-      .map((l) => ({ id: l.id, name: l.name })),
-    [lists],
-  );
 
   const runSmashShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
@@ -673,49 +534,6 @@ function AppContent() {
   };
   usePerfectTimingSetup(lists, perfectTimingBridgeRef);
 
-  // Inline (desktop) task form handlers — mobile is fully inside MobileTaskSheet
-  const handleTaskFormSave = useCallback((fields: Partial<Task> & { title: string }) => {
-    const editId = taskFormMode !== 'add' && taskFormMode ? taskFormMode : null;
-    if (taskFormMode === 'add') {
-      addTask(currentList!.id, fields);
-      playSound('taskAdd');
-      trackTaskAdd({
-        list_type: currentList?.id === 'smash-list' ? 'smash' : 'custom',
-        is_repeat: !!fields.repeat,
-      });
-    } else if (editId) {
-      updateTask(editId, fields);
-      playSound('taskAdd');
-    }
-    setTaskFormMode(null);
-  }, [taskFormMode, currentList, addTask, updateTask]);
-
-  const handleTaskFormCancel = useCallback(() => {
-    playSound('taskCancel');
-    setTaskFormMode(null);
-  }, []);
-
-  const handleTaskFormClose = useCallback(() => {
-    setTaskFormMode(null);
-  }, []);
-
-  const openAddTask = useCallback(() => {
-    // Smash List: FAB acts as a quick smash (same as Space key)
-    if (isSmash) {
-      const first = (currentList?.tasks ?? []).find((t) => !t.completed);
-      if (first) {
-        handleSmash(first.id);
-      }
-      return;
-    }
-    // Other lists: open task add UI
-    playSound('buttonClick');
-    if (preferInlineTaskUi) {
-      setTaskFormMode('add');
-    } else {
-      mobileTaskSheetRef.current?.openAdd();
-    }
-  }, [isSmash, currentList, handleSmash, preferInlineTaskUi]);
 
   /* ---- Sound toggle (vanilla: sync ComicEffectsManager.setSoundEnabled so effect sounds match) ---- */
   const toggleSound = () => {
@@ -749,229 +567,12 @@ function AppContent() {
     setListModal(null);
   }, [listModal, addList, renameList, deleteList, lists]);
 
-  const inlineTaskFormOpen = preferInlineTaskUi && taskFormMode !== null;
-  // mobileSheetOpen is NOT included here — MobileTaskSheet is fully self-contained
-  // (same as ChallengeMenu). The z-400 sheet covers everything so swipe/reorder
-  // can't fire while it's open anyway.
-  const anyModalOpen =
+  const anyShellModalOpen =
     signupOpen ||
     themeModalOpen ||
     listModal !== null ||
-    deleteTaskConfirm !== null ||
-    focusZenOpen ||
-    inlineTaskFormOpen;
+    focusZenOpen;
 
-  const handleSwipe = useCallback((dir: 'left' | 'right') => {
-    const currentIdx = listTabsOrder.findIndex((l) => l.id === activeListId);
-    if (currentIdx < 0) return;
-
-    const nextIdx = dir === 'left' ? currentIdx + 1 : currentIdx - 1;
-    if (nextIdx < 0 || nextIdx >= listTabsOrder.length) return;
-
-    const nextId = listTabsOrder[nextIdx]?.id;
-    if (!nextId) return;
-
-    // Swipe left => next list, new list should enter from the right.
-    const from = dir === 'left' ? 'right' : 'left';
-    setListSlide({ listId: nextId, from });
-
-    setActiveList(nextId);
-    setTaskFormMode(null);
-    mobileTaskSheetRef.current?.close();
-    setCompletedExpanded(false);
-    playSound('buttonClick');
-  }, [
-    activeListId,
-    listTabsOrder,
-    setActiveList,
-    setTaskFormMode,
-    setCompletedExpanded,
-  ]);
-
-  const swipeRef = useTaskListSwipe({
-    enabled: !isDesktop && !anyModalOpen && !isFocusScreen,
-    onSwipe: handleSwipe,
-  });
-
-  const suppressRowClickUntilRef = useRef(0);
-  const suppressOpenEdit = useCallback(() => Date.now() < suppressRowClickUntilRef.current, []);
-  const inlineTaskFormRef = useRef<HTMLDivElement>(null);
-
-  /* Desktop inline TaskForm: dismiss on outside tap (close-to-save for edits) */
-  useEffect(() => {
-    if (!inlineTaskFormOpen) return;
-    let downHandler: ((e: MouseEvent) => void) | null = null;
-    const tid = window.setTimeout(() => {
-      downHandler = (e: MouseEvent) => {
-        const panel = inlineTaskFormRef.current;
-        const t = e.target as Node;
-        if (!panel || panel.contains(t)) return;
-        const addSection = document.querySelector('.pd-add-task-section');
-        if (taskFormMode === 'add' && addSection?.contains(t)) return;
-        // If a sub-menu (repeat dropdown, list selector) is open, close it first
-        // and keep the form open. Next outside-click will close the form.
-        if (taskFormRef.current?.dismissSubmenus()) return;
-        // Use close-to-save: auto-saves dirty edits, falls back to cancel for new tasks
-        taskFormRef.current ? taskFormRef.current.close() : handleTaskFormCancel();
-      };
-      document.addEventListener('pointerdown', downHandler, true);
-    }, 0);
-    return () => {
-      window.clearTimeout(tid);
-      if (downHandler) document.removeEventListener('pointerdown', downHandler, true);
-    };
-  }, [inlineTaskFormOpen, taskFormMode, handleTaskFormCancel]);
-
-  const handleReorderActive = useCallback(
-    (from: number, to: number) => {
-      const lid = currentList?.id;
-      if (!lid || from === to) return;
-      reorderActiveTasks(lid, from, to);
-      playSound('buttonClick');
-    },
-    [currentList?.id, reorderActiveTasks],
-  );
-
-  const onReorderModeStart = useCallback(() => {
-    playSound('taskEdit');
-  }, []);
-
-  const onReorderHoverSlotChange = useCallback(() => {
-    playSound('buttonClick');
-  }, []);
-
-  const { containerRef: activeReorderContainerRef, onRowPointerDown, onRowTouchStart, dragState: activeReorderDrag } =
-    useActiveTaskLongPressReorder({
-      enabled:
-        !anyModalOpen &&
-        !isFocusScreen &&
-        !isSmash &&
-        activeTasks.length >= 2 &&
-        activeScreen === 'tasks',
-      slotCount: activeTasks.length,
-      onReorder: handleReorderActive,
-      suppressRowClickUntilRef,
-      onReorderModeStart,
-      onHoverSlotChange: onReorderHoverSlotChange,
-    });
-
-  const setMainScrollRef = useCallback(
-    (el: HTMLDivElement | null) => {
-      (swipeRef as MutableRefObject<HTMLDivElement | null>).current = el;
-      activeReorderContainerRef.current = el;
-    },
-    [swipeRef, activeReorderContainerRef],
-  );
-
-  const listSlideClass =
-    listSlide && listSlide.listId === activeListId
-      ? listSlide.from === 'left'
-        ? 'pd-list-enter--from-left'
-        : 'pd-list-enter--from-right'
-      : '';
-
-  /* ---- Focus timer state (persist across navigation) ---- */
-  const [focusMode, setFocusMode] = useState<'pomodoro' | 'shortBreak' | 'longBreak'>('pomodoro');
-  const [focusMinutes, setFocusMinutes] = useState(25);
-  const [focusPomodoroCount, setFocusPomodoroCount] = useState(0); // 0..3
-  const [bgmOn, setBgmOnState] = useState<boolean>(() => isBgmOn());
-  const [bgmTrack, setBgmTrackState] = useState<BgmTrack>(() => getBgmTrack());
-  const [, setBgmMenuOpen] = useState(false);
-  const prevBgmShouldPlayRef = useRef(false);
-  const prevBgmTrackRef = useRef<BgmTrack>(bgmTrack);
-  const focusModeRef = useRef(focusMode);
-  useEffect(() => { focusModeRef.current = focusMode; }, [focusMode]);
-  const focusCountRef = useRef(focusPomodoroCount);
-  useEffect(() => { focusCountRef.current = focusPomodoroCount; }, [focusPomodoroCount]);
-
-  const focusTimer = useFocusTimer(() => {
-    const m = focusModeRef.current;
-    if (m === 'pomodoro') playSound('focusPomodoroComplete');
-    else playSound('focusBreakComplete');
-    stopBgm();
-
-    if (m === 'pomodoro') {
-      // Count completed pomodoros; after 4 pomodoro-shortBreak cycles, trigger longBreak
-      // on the SHORT BREAK end (not immediately after the 4th pomodoro end).
-      const nextCount = (focusCountRef.current + 1) % 4;
-      setFocusPomodoroCount(nextCount);
-      setFocusMode('shortBreak');
-      setFocusMinutes(5);
-      focusTimerRef.current?.reset(5 * 60);
-      return;
-    }
-
-    if (m === 'shortBreak') {
-      if (focusCountRef.current === 0) {
-        setFocusMode('longBreak');
-        setFocusMinutes(15);
-        focusTimerRef.current?.reset(15 * 60);
-        return;
-      }
-    }
-
-    // longBreak or remaining short breaks -> next pomodoro
-    setFocusMode('pomodoro');
-    setFocusMinutes(25);
-    focusTimerRef.current?.reset(25 * 60);
-  });
-  // Store the latest focusTimer instance for onTimerEnd callback usage.
-  // (Initialize with null to satisfy lint immutability constraints.)
-  const focusTimerRef = useRef<ReturnType<typeof useFocusTimer> | null>(null);
-  useEffect(() => { focusTimerRef.current = focusTimer; }, [focusTimer]);
-
-  // Safety: ensure BGM is stopped on timer reaching 0
-  useEffect(() => {
-    if (focusTimer.remaining === 0) {
-      stopBgm();
-    }
-  }, [focusTimer.remaining]);
-
-  // Fail-safe: never keep BGM while timer is not running.
-  useEffect(() => {
-    if (focusTimer.timerState !== 'running') {
-      stopBgm();
-    }
-  }, [focusTimer.timerState]);
-
-  // Single playback authority with explicit switch semantics:
-  // - running + BGM ON + remaining>0 + pomodoro mode only: play (no BGM during breaks)
-  // - track change while playing: always stop old -> start new
-  // - otherwise: stop
-  useEffect(() => {
-    const shouldPlay =
-      bgmOn &&
-      focusMode === 'pomodoro' &&
-      focusTimer.timerState === 'running' &&
-      focusTimer.remaining > 0;
-    const wasPlaying = prevBgmShouldPlayRef.current;
-    const prevTrack = prevBgmTrackRef.current;
-
-    if (!shouldPlay) {
-      stopBgm();
-      prevBgmShouldPlayRef.current = shouldPlay;
-      prevBgmTrackRef.current = bgmTrack;
-      return;
-    }
-
-    // Extra safety: if AudioContext is suspended (some PWA background flows),
-    // re-start the track from scratch.
-    if (shouldPlay && isBgmContextSuspended()) {
-      stopBgm();
-      startBgm(bgmTrack);
-      prevBgmShouldPlayRef.current = true;
-      prevBgmTrackRef.current = bgmTrack;
-      return;
-    } else if (!wasPlaying) {
-      startBgm(bgmTrack);
-    } else if (prevTrack !== bgmTrack) {
-      stopBgm();
-      startBgm(bgmTrack);
-    }
-
-    prevBgmShouldPlayRef.current = shouldPlay;
-    prevBgmTrackRef.current = bgmTrack;
-  }, [bgmOn, bgmTrack, focusMode, focusTimer.timerState, focusTimer.remaining]);
 
   /* ---- Render ---- */
 
@@ -1145,16 +746,6 @@ function AppContent() {
               : 'calc(56px + env(safe-area-inset-bottom))',
         }}
       >
-      {!isFocusScreen && !isCollectionScreen && !isSubPage && (
-        <ListTabs
-          lists={listTabsOrder}
-          activeListId={activeListId}
-          onSelect={(id) => { setListSlide(null); setActiveList(id); setTaskFormMode(null); playSound('buttonClick'); }}
-          onAddList={() => { playSound('buttonClick'); setListModal({ mode: 'add' }); }}
-          getTabLabel={getTabLabel}
-          getTabCount={getTabCount}
-        />
-      )}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, paddingBottom: '48px' }}>
         {pathname === '/pricing' ? (
           <PricingPage />
@@ -1180,416 +771,34 @@ function AppContent() {
             onRequestEffect={() => navigate('/effect-request')}
           />
         ) : isFocusScreen ? (
-          <FocusScreen
-            lists={lists}
+          <FocusScreenContainer
             lang={lang}
-            canAdjustMinutes={!!user}
-            onCompleteTask={handleComplete}
-            onEditTask={handleEdit}
-            mode={focusMode}
-            minutes={focusMinutes}
-            pomodoroCount={focusPomodoroCount}
-            timerState={focusTimer.timerState}
-            remaining={focusTimer.remaining}
-            bgmOn={bgmOn}
-            bgmTrack={bgmTrack}
-            onBgmChange={({ bgmOn: nextOn, track: nextTrack }) => {
-              setBgmOnState(nextOn);
-              setBgmTrackState(nextTrack);
-            }}
-            onBgmMenuOpenChange={setBgmMenuOpen}
-            onOpenZenMode={() => { playSound('buttonClick'); setFocusZenOpen(true); }}
-            onSwitchMode={(m) => {
-              playSound('buttonClick');
-              setFocusMode(m);
-              const nextMin = m === 'pomodoro' ? 25 : m === 'shortBreak' ? 5 : 15;
-              setFocusMinutes(nextMin);
-              focusTimer.reset(nextMin * 60);
-              stopBgm();
-              setBgmMenuOpen(false);
-            }}
-            onAdjustMinutes={(deltaMin) => {
-              if (!user || focusTimer.timerState !== 'idle') return;
-              playSound('buttonClick');
-              const next = Math.min(60, Math.max(1, focusMinutes + deltaMin));
-              setFocusMinutes(next);
-              focusTimer.reset(next * 60);
-            }}
-            onStart={() => { playSound('buttonClick'); focusTimer.start(); }}
-            onPause={() => { playSound('buttonClick'); focusTimer.pause(); stopBgm(); }}
-            onResume={() => { playSound('buttonClick'); focusTimer.resume(); }}
-            onSkipBreak={() => {
-              if (!(focusMode === 'shortBreak' || focusMode === 'longBreak')) return;
-              playSound('taskCancel');
-              stopBgm();
-              setFocusMode('pomodoro');
-              setFocusMinutes(25);
-              focusTimer.reset(25 * 60);
-              setBgmMenuOpen(false);
-            }}
-            onCompleteFocus={() => {
-              playSound('taskComplete');
-              setFocusMode('shortBreak');
-              setFocusMinutes(5);
-              focusTimer.reset(5 * 60);
-              stopBgm();
-              setBgmMenuOpen(false);
-            }}
-            onTutorialSmashLinkClick={navigateToSmashList}
-            onTutorialFocusLinkClick={navigateToFocus}
+            user={user}
+            onComplete={handleComplete}
+            onEdit={handleEdit}
+            onNavigateToSmashList={navigateToSmashList}
+            onNavigateToFocus={navigateToFocus}
+            focusZenOpen={focusZenOpen}
+            onFocusZenOpenChange={setFocusZenOpen}
           />
         ) : (
-          <>
-            <ListHeader
-              title={isTutorial ? t('tutorial', lang) : (currentList?.id === 'default' ? t('myTasks', lang) : (currentList?.name ?? ''))}
-              showMenu={!isTutorial && !isSmash}
-              lang={lang}
-              onRename={() => setListModal({ mode: 'rename', listId: currentList?.id })}
-              onDelete={() => setListModal({ mode: 'delete', listId: currentList?.id })}
-            />
-
-            {/* Add task button (desktop only) / inline form */}
-            {!isSmash && !isTutorial && (
-              <div style={{ paddingBottom: '8px' }} className="pd-add-task-section">
-                <button
-                  type="button"
-                  onClick={openAddTask}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    width: '100%',
-                    background: 'var(--pd-color-background-elevated)',
-                    border: '2px solid var(--pd-color-border-default)',
-                    borderRadius: 0,
-                    color: 'var(--pd-color-text-secondary)',
-                    fontSize: '0.875rem',
-                    cursor: 'pointer',
-                    padding: '12px 16px',
-                    textAlign: 'left',
-                    boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
-                    imageRendering: 'pixelated',
-                    fontFamily: 'var(--pd-font-body)',
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    const el = e.currentTarget;
-                    el.style.background = 'var(--pd-color-background-hover)';
-                    el.style.color = 'var(--pd-color-text-primary)';
-                    el.style.borderColor = 'var(--pd-color-accent-default)';
-                    el.style.transform = 'translate(-1px, -1px)';
-                    el.style.boxShadow = '3px 3px 0px var(--pd-color-shadow-default)';
-                  }}
-                  onMouseLeave={(e) => {
-                    const el = e.currentTarget;
-                    el.style.background = 'var(--pd-color-background-elevated)';
-                    el.style.color = 'var(--pd-color-text-secondary)';
-                    el.style.borderColor = 'var(--pd-color-border-default)';
-                    el.style.transform = '';
-                    el.style.boxShadow = '2px 2px 0px var(--pd-color-shadow-default)';
-                  }}
-                >
-                  <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>add</span>
-                  {lang === 'ja' ? 'タスクを追加' : 'Add a task'}
-                </button>
-              </div>
-            )}
-
-            <div
-              ref={setMainScrollRef}
-              key={activeListId}
-              className={['pd-task-area', 'pd-list-enter', 'pd-list-swipe', listSlideClass].filter(Boolean).join(' ')}
-              style={{ flex: 1, overflowY: 'auto' }}
-            >
-              {isSmash ? (
-                <SmashListPanel
-                  subtitle={t('smashListSubtitle', lang)}
-                  hint={hasFinePointer ? t('smashListHint', lang) : undefined}
-                  tasks={currentList?.tasks ?? []}
-                  onSmash={handleSmash}
-                  getDisplayTitle={(task: Task) => {
-                    if (typeof task.smashIdx === 'number') {
-                      return SMASH_TITLES[lang][task.smashIdx] ?? task.title;
-                    }
-                    return task.title;
-                  }}
-                />
-              ) : !user && isTutorial && activeTasks.length === 0 ? (
-                <div>
-                  <TutorialPanel
-                    headline={lang === 'ja' ? 'チュートリアル完了！' : "You've completed the tutorial!"}
-                    subtext=""
-                    featuresLabel={lang === 'ja' ? 'サインアップで使えること' : 'What you unlock for free'}
-                    freeFeatures={lang === 'ja' ? [
-                      { icon: '💾', label: 'データ保存・同期' },
-                      { icon: '📋', label: '柔軟なタスク管理（リスト・リピート）' },
-                      { icon: '⏱', label: 'タイマー設定' },
-                      { icon: '🏆', label: 'チャレンジでエフェクトを集める' },
-                    ] : [
-                      { icon: '💾', label: 'Save & sync' },
-                      { icon: '📋', label: 'Flexible task management (lists & repeats)' },
-                      { icon: '⏱', label: 'Timer settings' },
-                      { icon: '🏆', label: 'Challenges & effect collection' },
-                    ]}
-                    buttonLabel={lang === 'ja' ? 'サインアップ（無料）' : 'Sign up — free'}
-                    onSignUp={() => setSignupOpen(true)}
-                  />
-              {completedTasks.length > 0 && (
-                <div style={{ marginTop: '24px' }}>
-                  <button
-                    type="button"
-                    onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      width: '100%', background: 'none', border: 'none',
-                      cursor: 'pointer', padding: '8px 4px',
-                      color: 'var(--pd-color-text-secondary)',
-                      fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
-                      textAlign: 'left',
-                    }}
-                  >
-                    <span style={{
-                      fontSize: '0.625rem', transition: 'transform 0.2s',
-                      transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                      display: 'inline-block',
-                    }}>▶</span>
-                    {lang === 'ja' ? `完了済み (${completedTasks.length})` : `Completed (${completedTasks.length})`}
-                  </button>
-                  {completedExpanded && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
-                      {completedTasks.map((task) => (
-                        <TaskItem
-                          key={task.id}
-                          task={task}
-                          lang={lang}
-                          onComplete={handleUncomplete}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
-                          onTutorialSmashLinkClick={navigateToSmashList}
-                          onTutorialFocusLinkClick={navigateToFocus}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ) : allTasks.length === 0 && taskFormMode !== 'add' ? (
-            /* AC 14.1: No tasks at all – "READY?" (vanilla parity: game-start-empty) */
-            <div className="game-start-empty">
-              <div className="game-start-content">
-                <div className="ready-text">{t('emptyReady', lang)}</div>
-                <div className="start-instruction">{t('emptyReadySub', lang)}</div>
-              </div>
-            </div>
-          ) : activeTasks.length === 0 && completedTasks.length > 0 && taskFormMode !== 'add' ? (
-            /* AC 14.2: All done – sleeping pixel character (vanilla parity: empty-state) */
-            <div className="empty-state">
-              <div className="empty-illustration">
-                <div className="pixel-character">
-                  <div className="sleep-bubble">
-                    <div className="bubble-text">zzz...</div>
-                  </div>
-                </div>
-              </div>
-              <p>{t('emptyRest', lang)}</p>
-              <p style={{ marginBottom: '24px' }}>{t('emptyRestSub', lang)}</p>
-              {/* Still show completed tasks collapsed */}
-              <div style={{ textAlign: 'left' }}>
-                <button
-                  type="button"
-                  onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    width: '100%', background: 'none', border: 'none',
-                    cursor: 'pointer', padding: '8px 4px',
-                    color: 'var(--pd-color-text-secondary)',
-                    fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', textAlign: 'left',
-                  }}
-                >
-                  <span style={{ fontSize: '0.625rem', transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}>▶</span>
-                  {lang === 'ja' ? `完了済み (${completedTasks.length})` : `Completed (${completedTasks.length})`}
-                </button>
-                {completedExpanded && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
-                    {completedTasks.map((task) => (
-                      <TaskItem key={task.id} task={task} lang={lang} onComplete={handleUncomplete} onEdit={handleEdit} onDelete={handleDelete} onTutorialSmashLinkClick={navigateToSmashList} onTutorialFocusLinkClick={navigateToFocus} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div>
-              {/* Active tasks */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {taskFormMode === 'add' && (
-                  <div ref={inlineTaskFormRef} style={{ paddingTop: '16px', paddingBottom: '16px' }}>
-                    <TaskForm
-                      ref={taskFormRef}
-                      lang={lang}
-                      listId={currentList?.id ?? ''}
-                      onSave={handleTaskFormSave}
-                      onCancel={handleTaskFormCancel}
-                    />
-                  </div>
-                )}
-                {activeTasks.map((task, activeIndex) => (
-                  <div key={task.id} data-active-reorder-slot>
-                    {activeReorderDrag.active && activeReorderDrag.hoverIndex === activeIndex && (
-                      <div
-                        aria-hidden
-                        className="pd-active-reorder-insert-line"
-                        style={{
-                          height: '4px',
-                          background: 'var(--pd-color-accent-default)',
-                          marginBottom: '6px',
-                          boxShadow: '0 0 0 1px var(--pd-color-border-default)',
-                          flexShrink: 0,
-                          borderRadius: 0,
-                          imageRendering: 'pixelated',
-                        }}
-                      />
-                    )}
-                    {taskFormMode === task.id && editingTask ? (
-                      <div ref={inlineTaskFormRef} style={{ paddingTop: '16px', paddingBottom: '16px' }}>
-                        <TaskForm
-                          ref={taskFormRef}
-                          lang={lang}
-                          listId={currentList?.id ?? ''}
-                          task={editingTask}
-                          onSave={handleTaskFormSave}
-                          onCancel={handleTaskFormCancel}
-                          onClose={handleTaskFormClose}
-                          onDelete={() => handleDelete(task.id)}
-                          availableLists={allListsForForm}
-                          onMoveToList={handleMoveToList}
-                        />
-                      </div>
-                    ) : (
-                      <TaskItem
-                        task={task}
-                        lang={lang}
-                        onComplete={handleComplete}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onMoveToList={handleMoveToList}
-                        availableLists={availableListsForMove}
-                        onTutorialSmashLinkClick={navigateToSmashList}
-                        onTutorialFocusLinkClick={navigateToFocus}
-                        suppressOpenEdit={suppressOpenEdit}
-                        onReorderPointerDown={onRowPointerDown(activeIndex)}
-                        onReorderTouchStart={onRowTouchStart(activeIndex)}
-                        reorderSource={
-                          activeReorderDrag.active && activeReorderDrag.fromIndex === activeIndex
-                        }
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Completed tasks section */}
-              {completedTasks.length > 0 && (
-                <div style={{ marginTop: '16px' }}>
-                  <button
-                    type="button"
-                    onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      width: '100%', background: 'none', border: 'none',
-                      cursor: 'pointer', padding: '8px 4px',
-                      color: 'var(--pd-color-text-secondary)',
-                      fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
-                      textAlign: 'left',
-                    }}
-                  >
-                    <span style={{
-                      fontSize: '0.625rem', transition: 'transform 0.2s',
-                      transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                      display: 'inline-block',
-                    }}>▶</span>
-                    {lang === 'ja' ? `完了済み (${completedTasks.length})` : `Completed (${completedTasks.length})`}
-                  </button>
-                  {completedExpanded && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
-                      {completedTasks.map((task) => (
-                        <TaskItem
-                          key={task.id}
-                          task={task}
-                          lang={lang}
-                          onComplete={handleUncomplete}
-                          onEdit={handleEdit}
-                          onDelete={handleDelete}
-                          onTutorialSmashLinkClick={navigateToSmashList}
-                          onTutorialFocusLinkClick={navigateToFocus}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-                </div>
-              )}
-            </div>
-          </>
+          <TasksScreen
+            lang={lang}
+            user={user}
+            isDesktop={isDesktop}
+            hasFinePointer={hasFinePointer}
+            onComplete={handleComplete}
+            onUncomplete={handleUncomplete}
+            onSmash={handleSmash}
+            onNavigateToSmashList={navigateToSmashList}
+            onNavigateToFocus={navigateToFocus}
+            onOpenSignup={() => setSignupOpen(true)}
+            onOpenListModal={setListModal}
+            anyShellModalOpen={anyShellModalOpen}
+          />
         )}
       </main>
 
-      {/* Mobile FAB */}
-      {!anyModalOpen && isTasksScreen && !isSubPage && (
-        <button
-          type="button"
-          onClick={openAddTask}
-          aria-label={lang === 'ja' ? 'タスクを追加' : 'Add a task'}
-          className={
-            isSmash
-              ? 'pd-mobile-fab pd-mobile-fab--smash'
-              : 'pd-mobile-fab'
-          }
-          style={{
-            width: '56px',
-            height: '56px',
-            borderRadius: '50%',
-            background: isSmash ? 'white' : 'var(--accent-color)',
-            color: isSmash ? 'var(--pxd-color-brand-smash)' : 'var(--pd-color-accent-text)',
-            border: isSmash ? 'none' : '2px solid var(--pd-color-accent-default)',
-            boxShadow: isSmash ? undefined : '2px 2px 0px var(--pd-color-shadow-default)',
-            display: 'none', // shown via CSS media query
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            zIndex: 300,
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-          }}
-        >
-          {isSmash
-            ? <span aria-hidden="true">💥</span>
-            : <span className="material-icons" aria-hidden="true" style={{ fontSize: '24px', lineHeight: 1 }}>add</span>
-          }
-        </button>
-      )}
-
-      {/* Mobile BottomSheet for task add/edit — self-contained, same pattern as ChallengeMenu */}
-      <MobileTaskSheet
-        ref={mobileTaskSheetRef}
-        lang={lang}
-        tasks={allTasks}
-        currentListId={currentList?.id ?? ''}
-        onAddTask={(listId, fields) => {
-          addTask(listId, fields);
-          trackTaskAdd({
-            list_type: listId === 'smash-list' ? 'smash' : 'custom',
-            is_repeat: !!fields.repeat,
-          });
-        }}
-        onUpdateTask={updateTask}
-        onDeleteRequest={handleDelete}
-        onMoveToList={handleMoveToList}
-        availableLists={allListsForForm}
-      />
 
       {/* List modal */}
       <ListModal
@@ -1691,69 +900,6 @@ function AppContent() {
         />
       )}
 
-      {/* Focus Zen mode (full-screen, hides header/bottom nav) */}
-      {focusZenOpen && (
-        <FocusZenMode
-          lang={lang}
-          mode={focusMode}
-          timerState={focusTimer.timerState}
-          remaining={focusTimer.remaining}
-          totalSeconds={focusMinutes * 60}
-          bgmOn={bgmOn}
-          bgmTrack={bgmTrack}
-          onBgmChange={({ bgmOn: nextOn, track: nextTrack }) => {
-            setBgmOnState(nextOn);
-            setBgmTrackState(nextTrack);
-          }}
-          onBgmMenuOpenChange={setBgmMenuOpen}
-          onClose={() => { playSound('taskCancel'); setFocusZenOpen(false); setBgmMenuOpen(false); }}
-          onStart={() => { playSound('buttonClick'); focusTimer.start(); }}
-          onPause={() => { playSound('buttonClick'); focusTimer.pause(); stopBgm(); }}
-          onResume={() => { playSound('buttonClick'); focusTimer.resume(); }}
-          onSkipBreak={() => {
-            if (!(focusMode === 'shortBreak' || focusMode === 'longBreak')) return;
-            playSound('taskCancel');
-            stopBgm();
-            setFocusMode('pomodoro');
-            setFocusMinutes(25);
-            focusTimer.reset(25 * 60);
-            setBgmMenuOpen(false);
-          }}
-          onCompleteFocus={() => {
-            playSound('taskComplete');
-            setFocusMode('shortBreak');
-            setFocusMinutes(5);
-            focusTimer.reset(5 * 60);
-            stopBgm();
-            setBgmMenuOpen(false);
-          }}
-        />
-      )}
-
-      {/* Delete task confirmation */}
-      <ModalDialog
-        open={deleteTaskConfirm !== null}
-        onClose={() => { playSound('taskCancel'); setDeleteTaskConfirm(null); }}
-        title={t('deleteTask', lang)}
-        actions={
-          <>
-            <Button variant="secondary" onClick={() => { playSound('taskCancel'); setDeleteTaskConfirm(null); }}>{t('cancel', lang)}</Button>
-            <Button variant="danger" onClick={() => deleteTaskConfirm && doDelete(deleteTaskConfirm)}>{t('delete', lang)}</Button>
-          </>
-        }
-      >
-        <p style={{ color: 'var(--pd-color-text-secondary)', fontFamily: 'var(--pd-font-body)' }}>
-          {t('deleteTaskConfirm', lang)}
-        </p>
-      </ModalDialog>
-
-      {/* List limit upsell */}
-      <UpsellModal
-        open={listLimitUpsellOpen}
-        onClose={closeListLimitUpsell}
-        reason="list-limit"
-        lang={lang}
-      />
 
       {/* Stripe purchase success banner */}
       {purchaseBanner === 'plus_success' && (
