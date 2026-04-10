@@ -39,9 +39,17 @@ export function BottomSheet({
       });
       return () => { cancelAnimationFrame(id1); cancelAnimationFrame(id2); };
     } else {
-      setEntered(false);
-      closeTimerRef.current = setTimeout(() => { setVisible(false); setExitDragY(0); }, 300);
+      // Use rAF to guarantee the browser paints the "before" state (data-open="true")
+      // before we switch to "false". Without this, React can batch setEntered(false)
+      // with other state updates from the onClose chain, causing the browser to skip
+      // the intermediate paint and the CSS transition never fires.
+      // This mirrors the open path which also uses rAF for the same reason.
+      const rafId = requestAnimationFrame(() => {
+        setEntered(false);
+      });
+      closeTimerRef.current = setTimeout(() => { setVisible(false); setExitDragY(0); }, 350);
       return () => {
+        cancelAnimationFrame(rafId);
         if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
       };
     }
