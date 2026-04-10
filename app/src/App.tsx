@@ -26,7 +26,6 @@ import { useThemeEntitlements } from './hooks/useThemeEntitlements';
 import { useEffectProgress } from './hooks/useEffectProgress';
 import { useActiveChallenge } from './hooks/useActiveChallenge';
 import { ChallengeMenu } from './components/ChallengeMenu';
-import { MaintenanceNotice } from './components/MaintenanceNotice';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
 import { trackTaskComplete, trackTaskAdd, trackListCreate, trackEffectTriggered, trackChallengeUnlocked } from './services/analytics';
@@ -1747,9 +1746,6 @@ function AppContent() {
           {t('deleteTaskConfirm', lang)}
         </p>
       </ModalDialog>
-
-      {/* Temporary maintenance notice — remove after Firestore quota recovery */}
-      <MaintenanceNotice user={user} lang={lang} />
 
       {/* List limit upsell */}
       <UpsellModal
