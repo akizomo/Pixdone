@@ -68,9 +68,11 @@
   color: var(--pd-color-text-secondary);
 }
 
+/* accent-filled: darker shade that guarantees AA (4.5:1) with white text.
+   Dark #6D52F0 → 5.10, Light #5B43D6 → 6.52 */
 .pd-list-tabs__count--active {
-  border-color: var(--pd-color-accent-default);
-  background: var(--pd-color-accent-default);
+  border-color: var(--pd-color-accent-filled);
+  background: var(--pd-color-accent-filled);
   color: var(--pd-color-accent-text);
 }
 
