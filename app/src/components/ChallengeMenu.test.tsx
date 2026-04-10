@@ -40,7 +40,7 @@ const makeChallenge = (overrides: Partial<ActiveChallenge> = {}): ActiveChalleng
     key: 'punch',
     name: 'Punch',
     rarity: 'RARE',
-    themes: ['arcade'],
+    homeThemes: ['arcade'],
     access: 'challenge',
     description: { en: "A fighter's punch sends it flying.", ja: 'ファイターのパンチで吹き飛ぶ。' },
     evolutionStages: 1,
