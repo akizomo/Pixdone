@@ -69,31 +69,43 @@
   --pxd-orange-700: #CC6600;
 
   /* ── Green ───────────────────────────────────────────────────────────────── */
+  --pxd-green-200: #4ADE80;  /* dark mode semantic-success text (AA on dark bg) */
+  --pxd-green-250: #22C55E;  /* dark mode semantic-success hover */
   --pxd-green-300: #7EE3A7;
   --pxd-green-350: #5CE896;  /* dark mode text-success  */
   --pxd-green-400: #4CD98A;  /* dark mode feedback-success */
   --pxd-green-500: #35C26B;
   --pxd-green-700: #1D8F4A;
+  --pxd-green-800: #166534;  /* light mode semantic-success hover */
+  --pxd-green-850: #15803D;  /* light mode semantic-success text (AA on white) */
 
   /* ── Yellow ──────────────────────────────────────────────────────────────── */
+  --pxd-yellow-200: #FACC15;  /* dark mode semantic-warning text (AA on dark bg) */
   --pxd-yellow-300: #FFD86B;
   --pxd-yellow-500: #F5B82E;
   --pxd-yellow-700: #B78112;
+  --pxd-yellow-900: #854D0E;  /* light mode semantic-warning text (AA on white) */
 
   /* ── Red ─────────────────────────────────────────────────────────────────── */
+  --pxd-red-200: #FF6B6B;    /* dark mode semantic-danger text (AA on dark bg) */
   --pxd-red-300: #FF9C96;    /* brand smash */
   --pxd-red-400: #FF7070;    /* dark mode danger (text / feedback / border) */
   --pxd-red-500: #E85D5D;
   --pxd-red-700: #B93D3D;
+  --pxd-red-800: #C53030;    /* light mode semantic-danger text (AA on white) */
 
   /* ── Purple ──────────────────────────────────────────────────────────────── */
   --pxd-purple-50:  #F3F1FF;  /* light mode action-secondary hover bg   */
   --pxd-purple-100: #E6E1FF;  /* light mode action-secondary pressed bg */
+  --pxd-purple-200: #B794F6;  /* dark mode accent hover */
+  --pxd-purple-250: #A78BFA;  /* dark mode accent default (AA text on dark bg) */
   --pxd-purple-300: #B79CFF;
   --pxd-purple-400: #A590FF;  /* dark mode text-accent & action hover   */
   --pxd-purple-500: #7B61FF;
+  --pxd-purple-550: #6D52F0;  /* dark mode accent filled (AA for white text) */
   --pxd-purple-600: #6B52F0;
   --pxd-purple-700: #5B43D6;
+  --pxd-purple-750: #4C37C0;  /* light mode accent hover */
 
   /* ── Pink ────────────────────────────────────────────────────────────────── */
   --pxd-pink-300: #FF9DE1;

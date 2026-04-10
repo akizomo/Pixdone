@@ -4,12 +4,26 @@
  */
 export const tokens = {
   color: {
-    background: { default: '#202124', elevated: '#28292d', hover: '#3c4043' },
-    text: { primary: '#e8eaed', secondary: '#9aa0a6', muted: '#70757a' },
+    // Dark mode semantics — each value maps to a --pxd-* primitive
+    background: { default: '#202124', elevated: '#28292d', hover: '#3c4043' }, // gray-900, gray-800-ish, gray-700-ish
+    text: { primary: '#e8eaed', secondary: '#9aa0a6', muted: '#70757a' },     // ink-50, gray-500, gray-400
     border: { default: '#3c4043', danger: 'rgba(255, 107, 107, 0.35)', warning: 'rgba(250, 204, 21, 0.35)', success: 'rgba(74, 222, 128, 0.35)' },
-    accent: { default: '#A78BFA', hover: '#B794F6', subtle: 'rgba(167, 139, 250, 0.15)', filled: '#6D52F0', text: '#ffffff' },
+    accent: {
+      default: '#A78BFA', // purple-250 — AA 5.92 on dark bg
+      hover: '#B794F6',   // purple-200
+      subtle: 'rgba(167, 139, 250, 0.15)',
+      filled: '#6D52F0',  // purple-550 — AA 5.10 for white text
+      text: '#ffffff',
+    },
     shadow: { default: 'rgba(0, 0, 0, 0.3)' },
-    semantic: { success: '#4ADE80', successHover: '#22C55E', successText: '#ffffff', danger: '#FF6B6B', dangerText: '#ffffff', warning: '#FACC15' },
+    semantic: {
+      success: '#4ADE80',      // green-200 — AA 9.24 on dark bg
+      successHover: '#22C55E', // green-250
+      successText: '#ffffff',
+      danger: '#FF6B6B',       // red-200 — AA 5.80 on dark bg
+      dangerText: '#ffffff',
+      warning: '#FACC15',      // yellow-200 — AA 10.51 on dark bg
+    },
     overlay: { backdrop: 'rgba(0, 0, 0, 0.5)' },
     focus: { ring: 'rgba(123, 97, 255, 0.2)', insetShadow: 'rgba(0, 0, 0, 0.1)' },
     smash: {
@@ -21,12 +35,26 @@ export const tokens = {
     },
   },
   colorLight: {
-    background: { default: '#ffffff', elevated: '#f8f9fa', hover: '#f1f3f4' },
-    text: { primary: '#202124', secondary: '#5f6368', muted: '#70757a' },
+    // Light mode semantics — each value maps to a --pxd-* primitive
+    background: { default: '#ffffff', elevated: '#f8f9fa', hover: '#f1f3f4' }, // white, gray-50, gray-100
+    text: { primary: '#202124', secondary: '#5f6368', muted: '#70757a' },     // gray-900, gray-600, gray-500
     border: { default: '#dadce0', danger: 'rgba(197, 48, 48, 0.3)', warning: 'rgba(146, 96, 10, 0.3)', success: 'rgba(21, 128, 61, 0.3)' },
-    accent: { default: '#5B43D6', hover: '#4C37C0', subtle: 'rgba(91, 67, 214, 0.10)', filled: '#5B43D6', text: '#ffffff' },
+    accent: {
+      default: '#5B43D6', // purple-700 — AA 6.52 on white
+      hover: '#4C37C0',   // purple-750
+      subtle: 'rgba(91, 67, 214, 0.10)',
+      filled: '#5B43D6',  // purple-700 — AA 6.52 for white text
+      text: '#ffffff',
+    },
     shadow: { default: 'rgba(0, 0, 0, 0.1)' },
-    semantic: { success: '#15803D', successHover: '#166534', successText: '#ffffff', danger: '#C53030', dangerText: '#ffffff', warning: '#854D0E' },
+    semantic: {
+      success: '#15803D',      // green-850 — AA 5.02 on white
+      successHover: '#166534', // green-800
+      successText: '#ffffff',
+      danger: '#C53030',       // red-800 — AA 5.47 on white
+      dangerText: '#ffffff',
+      warning: '#854D0E',      // yellow-900 — AA 6.85 on white
+    },
     focus: { ring: 'rgba(123, 97, 255, 0.2)', insetShadow: 'rgba(0, 0, 0, 0.1)' },
     smash: {
       border: '#2396B2',
@@ -45,8 +73,8 @@ export const tokens = {
   },
   typography: {
     fontFamily: {
-      brand: "'VT323', 'Courier New', monospace",
-      brandJa: "'PixelMplus10', 'VT323', 'Courier New', monospace",
+      brand: "'Pixelify Sans', 'VT323', 'Courier New', monospace",
+      brandJa: "'PixelMplus10', 'Pixelify Sans', 'VT323', 'Courier New', monospace",
       body: "'Inter', system-ui, sans-serif",
     },
     scale: {
