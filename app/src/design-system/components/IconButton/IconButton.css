@@ -129,11 +129,12 @@
 }
 
 .pxd-icon-button--ghost:hover:not(:disabled) {
-  background-color: var(--pxd-color-action-ghost-hover);
+  background-color: var(--pd-color-background-hover);
 }
 
 .pxd-icon-button--ghost:active:not(:disabled) {
-  background-color: var(--pxd-color-action-ghost-pressed);
+  background-color: var(--pd-color-background-hover);
+  opacity: 0.85;
 }
 
 .pxd-icon-button--danger {
@@ -161,11 +162,12 @@
 }
 
 .pxd-icon-button--ghost-danger:hover:not(:disabled) {
-  background-color: var(--pxd-color-action-ghost-hover);
+  background-color: var(--pd-color-background-hover);
   color: var(--pxd-color-feedback-danger);
 }
 
 .pxd-icon-button--ghost-danger:active:not(:disabled) {
-  background-color: var(--pxd-color-action-ghost-pressed);
+  background-color: var(--pd-color-background-hover);
   color: var(--pxd-color-feedback-danger);
+  opacity: 0.85;
 }

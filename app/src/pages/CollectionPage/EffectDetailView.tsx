@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { DemoTaskItem } from './DemoTaskItem';
 import { EFFECTS_REGISTRY, isEffectLocked, canDeactivateEffect } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
+import { playSound } from '../../services/sound';
 import { Toggle } from '../../design-system';
 import { badgeColor } from './rarityColors';
 
@@ -71,7 +72,7 @@ export function EffectDetailView({
         gap: '10px',
         flexShrink: 0,
       }}>
-        <button type="button" onClick={onClose} aria-label={lang === 'ja' ? '戻る' : 'Back'}
+        <button type="button" onClick={() => { playSound('taskCancel'); onClose(); }} aria-label={lang === 'ja' ? '戻る' : 'Back'}
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--pd-color-text-primary)', flexShrink: 0 }}>
           <span className="material-icons" style={{ fontSize: '24px' }}>arrow_back</span>
         </button>
@@ -177,7 +178,7 @@ export function EffectDetailView({
         {isLocked && effect.access === 'premium' && (
           <button
             type="button"
-            onClick={() => navigate('/pricing')}
+            onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}
             style={{
               padding: '12px',
               fontFamily: 'var(--pd-font-brand)',

@@ -25,3 +25,5 @@ export type { ToggleProps } from './Toggle/Toggle.types';
 export { PopoverMenu } from './PopoverMenu/PopoverMenu';
 export type { PopoverMenuProps, PopoverMenuItem } from './PopoverMenu/PopoverMenu.types';
 export { ToastProvider, useToast } from './Toast/Toast';
+export { TextLink } from './TextLink/TextLink';
+export type { TextLinkProps, TextLinkSize } from './TextLink/TextLink.types';

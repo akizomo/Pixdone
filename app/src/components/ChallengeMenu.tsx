@@ -216,6 +216,7 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
           aria-label={label}
           title={label}
           icon={<span className="material-icons">emoji_events</span>}
+
           onClick={() => setOpen(true)}
         />
         {isCompleted && (

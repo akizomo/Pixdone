@@ -3,7 +3,7 @@ import {
   type ErrorInfo, type ReactNode,
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu } from './design-system';
+import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu, TextLink } from './design-system';
 import {
   ThemeSelector, ListModal, AuthModal, BottomNav,
 } from './components';
@@ -25,6 +25,7 @@ import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChalleng
 import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect, buildTutorialDrawPool, weightedRandomEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
 import { resolveAnimationKey } from './data/effectEvolution';
 import './styles/task-animations.css';
+import './App.css';
 import type { Task } from './types/task';
 import { PricingPage } from './pages/PricingPage';
 import { AccountPage } from './pages/AccountPage';
@@ -622,6 +623,7 @@ function AppContent() {
               aria-label={user ? (lang === 'ja' ? 'テーマを変更' : 'Change theme') : (lang === 'ja' ? 'サインアップしてテーマ変更' : 'Sign up to change theme')}
               title={user ? (lang === 'ja' ? 'テーマを変更' : 'Change theme') : (lang === 'ja' ? 'サインアップしてテーマ変更' : 'Sign up to change theme')}
               icon={<span className="material-icons">palette</span>}
+
               onClick={() => {
                 if (!user) {
                   setSignupOpen(true);
@@ -640,6 +642,7 @@ function AppContent() {
                   aria-label={user.email ?? 'Account'}
                   title={user.email ?? 'Account'}
                   icon={<span className="material-icons">person</span>}
+    
                   onClick={() => setUserMenuOpen((v) => !v)}
                 />
                 {userMenuOpen && (
@@ -659,56 +662,31 @@ function AppContent() {
                     className="pxd-user-menu"
                   >
                     {/* Email + plan badge */}
-                    <div style={{
-                      padding: '10px 14px',
-                      borderBottom: '1px solid var(--pd-color-border-default)',
-                    }}>
-                      <div style={{
-                        fontSize: '0.75rem',
-                        color: 'var(--pd-color-text-secondary)',
-                        fontFamily: 'var(--pd-font-body)',
-                        wordBreak: 'break-all',
-                        marginBottom: '8px',
-                      }}>
+                    <div className="user-menu-account">
+                      <div className="user-menu-account__email">
                         {user.email}
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {/* Plan badge */}
-                        <span style={{
-                          fontFamily: 'var(--pd-font-brand)',
-                          fontSize: '0.6rem',
-                          letterSpacing: '1px',
-                          padding: '2px 7px',
-                          border: `1px solid ${userPlan === 'plus' ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
-                          color: userPlan === 'plus' ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-muted)',
-                          background: userPlan === 'plus' ? 'var(--pd-color-accent-subtle)' : 'transparent',
-                        }}>
+                      <div className="user-menu-account__plan-row">
+                        <span className={`user-menu-account__badge${userPlan === 'plus' ? ' user-menu-account__badge--plus' : ''}`}>
                           {userPlan === 'plus' ? 'PIXDONE+' : 'FREE'}
                         </span>
-                        {/* Upgrade CTA (free only) */}
-                        {userPlan !== 'plus' && (
-                          <Button variant="primary" size="sm" onClick={() => { setUserMenuOpen(false); navigate('/pricing'); }}>
-                            {lang === 'ja' ? 'アップグレード →' : 'UPGRADE →'}
-                          </Button>
-                        )}
-                        {/* Manage account (plus only) */}
-                        {userPlan === 'plus' && (
-                          <Button variant="secondary" size="sm" onClick={() => { setUserMenuOpen(false); navigate('/account'); }}>
-                            {lang === 'ja' ? '管理 →' : 'MANAGE →'}
-                          </Button>
-                        )}
+                        <TextLink
+                          size="sm"
+                          onClick={() => { setUserMenuOpen(false); navigate(userPlan !== 'plus' ? '/pricing' : '/account'); }}
+                        >
+                          {userPlan !== 'plus'
+                            ? (lang === 'ja' ? '変更' : 'Change')
+                            : (lang === 'ja' ? '管理' : 'Manage')}
+                        </TextLink>
                       </div>
                     </div>
                     {/* Language */}
-                    <div style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '10px 14px', borderBottom: '1px solid var(--pd-color-border-default)',
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--pd-color-text-primary)', fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem' }}>
-                        <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>language</span>
+                    <div className="user-menu-lang">
+                      <div className="user-menu-lang__label">
+                        <span className="material-icons">language</span>
                         {lang === 'ja' ? '言語' : 'Language'}
                       </div>
-                      <div style={{ display: 'flex', gap: '6px' }}>
+                      <div className="user-menu-lang__chips">
                         <Chip variant="ghost" selected={lang === 'en'} onClick={() => { changeLang('en'); playSound('buttonClick'); }}>En</Chip>
                         <Chip variant="ghost" selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
                       </div>

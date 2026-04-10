@@ -1,4 +1,5 @@
 import { t } from '../lib/i18n';
+import { playSound } from '../services/sound';
 import './BottomNav.css';
 
 export type ActiveScreen = 'tasks' | 'focus' | 'collection';
@@ -34,7 +35,7 @@ export function BottomNav({ activeScreen, onSelect, lang, showCollection = true 
             role="tab"
             aria-selected={isActive}
             className={`pd-bottom-nav__tab${isActive ? ' pd-bottom-nav__tab--active' : ''}`}
-            onClick={() => onSelect(tab.id)}
+            onClick={() => { playSound('buttonClick'); onSelect(tab.id); }}
           >
             <span className="material-icons pd-bottom-nav__icon">{tab.icon}</span>
             <span className="pd-bottom-nav__label">{t(tab.labelKey, lang)}</span>

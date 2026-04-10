@@ -1,0 +1,52 @@
+/* TextLink – inline text-style link / button */
+
+.pxd-text-link {
+  display: inline;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: var(--pd-font-body);
+  color: var(--pd-color-text-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--pd-color-border-default);
+  transition: color var(--pxd-motion-fast, 120ms) ease,
+              text-decoration-color var(--pxd-motion-fast, 120ms) ease;
+}
+
+.pxd-text-link:focus {
+  outline: none;
+}
+
+.pxd-text-link:focus-visible {
+  outline: 2px solid var(--pd-color-accent-default);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .pxd-text-link:hover:not(:disabled) {
+    color: var(--pd-color-accent-default);
+    text-decoration-color: var(--pd-color-accent-default);
+  }
+}
+
+.pxd-text-link:active:not(:disabled) {
+  opacity: 0.8;
+}
+
+.pxd-text-link:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ---- Sizes ---- */
+
+.pxd-text-link--sm {
+  font-size: var(--pxd-font-size-xs, 0.75rem);
+}
+
+.pxd-text-link--md {
+  font-size: var(--pxd-font-size-sm, 0.875rem);
+}

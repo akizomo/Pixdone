@@ -176,9 +176,9 @@ export function FocusScreen({
                   {isRunning ? (lang === 'ja' ? '一時停止' : 'Pause') : (lang === 'ja' ? '再開' : 'Resume')}
                 </Button>
                 {isBreakMode ? (
-                  <Button variant="secondary" onClick={onSkipBreak}>{t('skipBreak', lang)}</Button>
+                  <Button variant="secondary" soundKey="taskCancel" onClick={onSkipBreak}>{t('skipBreak', lang)}</Button>
                 ) : (
-                  <Button onClick={onCompleteFocus}>{lang === 'ja' ? '完了' : 'Complete'}</Button>
+                  <Button soundKey="taskComplete" onClick={onCompleteFocus}>{lang === 'ja' ? '完了' : 'Complete'}</Button>
                 )}
               </div>
             )}
@@ -268,7 +268,6 @@ function AdjustButton({ onClick, direction }: { onClick: () => void; direction: 
       aria-label={labelJa + ' / ' + labelEn}
       icon={<span style={{ fontSize: '0.75rem', lineHeight: 1 }}>{symbol}</span>}
       onClick={onClick}
-      soundKey="buttonClick"
     />
   );
 }

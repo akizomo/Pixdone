@@ -55,10 +55,11 @@ export function ListModal({ open, mode, initialName = '', lang, onConfirm, onClo
       title={title}
       actions={
         <>
-          <Button variant="secondary" size="sm" onClick={onClose}>{t('cancel', lang)}</Button>
+          <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={onClose}>{t('cancel', lang)}</Button>
           <Button
             variant={mode === 'delete' ? 'danger' : 'primary'}
             size="sm"
+            soundKey={mode === 'delete' ? 'taskDelete' : 'taskComplete'}
             onClick={handleConfirm}
           >
             {mode === 'delete' ? t('delete', lang) : t('save', lang)}

@@ -353,7 +353,7 @@ export function TasksScreen({
         <div style={{ paddingBottom: '8px' }} className="pd-add-task-section">
           <button
             type="button"
-            onClick={openAddTask}
+            onClick={() => { playSound('taskAdd'); openAddTask(); }}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -637,7 +637,7 @@ export function TasksScreen({
       {!anyModalOpen && (
         <button
           type="button"
-          onClick={openAddTask}
+          onClick={() => { playSound('taskAdd'); openAddTask(); }}
           aria-label={lang === 'ja' ? '\u30BF\u30B9\u30AF\u3092\u8FFD\u52A0' : 'Add a task'}
           className={
             isSmash
@@ -696,7 +696,7 @@ export function TasksScreen({
         actions={
           <>
             <Button variant="secondary" onClick={() => { playSound('taskCancel'); setDeleteTaskConfirm(null); }}>{t('cancel', lang)}</Button>
-            <Button variant="danger" onClick={() => deleteTaskConfirm && doDelete(deleteTaskConfirm)}>{t('delete', lang)}</Button>
+            <Button variant="danger" soundKey="taskDelete" onClick={() => deleteTaskConfirm && doDelete(deleteTaskConfirm)}>{t('delete', lang)}</Button>
           </>
         }
       >

@@ -139,7 +139,7 @@ export const TaskItem = memo(function TaskItem({
                 <a
                   href="#pd-list-tab-smash"
                   className={`task-item__link${task.completed ? ' task-item__link--completed' : ''}`}
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); onTutorialSmashLinkClick(); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); playSound('buttonClick'); onTutorialSmashLinkClick(); }}
                 >
                   {t('tutorialTask3Link', lang)}
                 </a>
@@ -155,7 +155,7 @@ export const TaskItem = memo(function TaskItem({
                 <a
                   href="#pd-nav-focus"
                   className={`task-item__link${task.completed ? ' task-item__link--completed' : ''}`}
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); onTutorialFocusLinkClick(); }}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); playSound('buttonClick'); onTutorialFocusLinkClick(); }}
                 >
                   {t('tutorialTask4Link', lang)}
                 </a>
@@ -231,7 +231,7 @@ export const TaskItem = memo(function TaskItem({
             <button
               type="button"
               className="task-item__action-btn task-item__action-btn--delete"
-              onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
+              onClick={(e) => { e.stopPropagation(); playSound('taskDelete'); onDelete(task.id); }}
               aria-label="Delete task"
             >
               <span className="material-icons task-item__action-icon">delete</span>

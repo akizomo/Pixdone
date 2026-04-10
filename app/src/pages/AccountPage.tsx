@@ -191,7 +191,7 @@ export function AccountPage() {
               )}
 
               {!cancelledUntil && (
-                <Button variant="secondary" size="sm" loading={cancelling} onClick={handleCancel}>
+                <Button variant="secondary" size="sm" soundKey="taskDelete" loading={cancelling} onClick={handleCancel}>
                   {isJa ? 'プランをキャンセル' : 'CANCEL PLAN'}
                 </Button>
               )}

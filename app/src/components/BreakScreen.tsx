@@ -44,7 +44,7 @@ export function BreakScreen({ lang, onSkip }: BreakScreenProps) {
       </div>
 
       <div className="pd-break__skip">
-        <Button variant="secondary" onClick={onSkip}>{t('skipBreak', lang)}</Button>
+        <Button variant="secondary" soundKey="taskCancel" onClick={onSkip}>{t('skipBreak', lang)}</Button>
       </div>
     </div>
   );

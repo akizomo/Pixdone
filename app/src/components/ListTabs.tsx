@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import type { List } from '../types/list';
+import { playSound } from '../services/sound';
 import './ListTabs.css';
 
 export interface ListTabsProps {
@@ -52,7 +53,7 @@ export function ListTabs({
               aria-selected={isActive}
               aria-label={showCount ? `${getTabLabel(list)}, ${count} tasks` : undefined}
               className={`pd-list-tabs__tab${isActive ? ' pd-list-tabs__tab--active' : ''}`}
-              onClick={() => onSelect(list.id)}
+              onClick={() => { playSound('buttonClick'); onSelect(list.id); }}
             >
               <span>{getTabLabel(list)}</span>
               {showCount && (
@@ -70,7 +71,7 @@ export function ListTabs({
       <button
         type="button"
         className="pd-list-tabs__add"
-        onClick={onAddList}
+        onClick={() => { playSound('taskAdd'); onAddList(); }}
         aria-label="Add list"
       >
         +

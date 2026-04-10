@@ -123,7 +123,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
       title={title}
       actions={
         <>
-          <Button variant="secondary" onClick={onClose} disabled={loading}>
+          <Button variant="secondary" soundKey="taskCancel" onClick={onClose} disabled={loading}>
             {lang === 'ja' ? 'キャンセル' : 'Cancel'}
           </Button>
           <Button variant="primary" onClick={handleSubmit} disabled={loading}>
@@ -138,7 +138,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
           <>
             <button
               type="button"
-              onClick={handleGoogleSignIn}
+              onClick={() => { playSound('buttonClick'); handleGoogleSignIn(); }}
               disabled={loading}
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',

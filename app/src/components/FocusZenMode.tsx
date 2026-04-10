@@ -197,11 +197,11 @@ export function FocusZenMode({
                     : (lang === 'ja' ? '再開' : 'Resume')}
                 </Button>
                 {isBreakMode ? (
-                  <Button variant="secondary" onClick={onSkipBreak} style={{ minWidth: '140px' }}>
+                  <Button variant="secondary" soundKey="taskCancel" onClick={onSkipBreak} style={{ minWidth: '140px' }}>
                     {lang === 'ja' ? '休憩をスキップ' : 'Skip break'}
                   </Button>
                 ) : (
-                  <Button onClick={onCompleteFocus} style={{ minWidth: '140px' }}>
+                  <Button soundKey="taskComplete" onClick={onCompleteFocus} style={{ minWidth: '140px' }}>
                     {lang === 'ja' ? '完了' : 'Complete'}
                   </Button>
                 )}
