@@ -462,7 +462,7 @@ const timerBlockStyle: React.CSSProperties = {
 };
 
 const timerDisplayStyle: React.CSSProperties = {
-  fontFamily: 'var(--pd-font-brand)',
+  fontFamily: "'VT323', 'Courier New', monospace",
   fontSize: 'clamp(4rem, 20vw, 7rem)',
   color: 'var(--pd-color-text-primary)',
   letterSpacing: '0.04em',
