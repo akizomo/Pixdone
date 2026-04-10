@@ -60,7 +60,7 @@ class ComicEffectsManager {
         this.arcadeRareEffects = ["tornado", "shatter", "spinOff", "crumpleThrow"];
         this.synthwaveRareEffects = ["glitchSlide", "neonWarp"];
         // Epic effects — Plus only (5%)
-        this.superRareEffects = ["rainbowSmash", "freeze"];
+        this.superRareEffects = ["rainbowSmash", "freeze", "bomb"];
         this.synthwaveSuperRareEffects = ["neonBigBang"];
         this.epicChance = 0.05;  // 5%
         this.rareChance = 0.15;  // next 10% (0.05–0.15)
