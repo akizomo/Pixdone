@@ -8,7 +8,7 @@
  * which animation variant to play.
  */
 
-import { EFFECTS_REGISTRY, type EffectDef } from './effectsRegistry';
+import { EFFECTS_REGISTRY } from './effectsRegistry';
 
 // ── Animation key resolution ─────────────────────────────────────────────────
 
