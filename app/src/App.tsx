@@ -69,6 +69,7 @@ function getFinePointerSnapshot(): boolean {
 function AppContent() {
   const { lists, activeListId, currentList } = useListsData();
   const {
+    setActiveList,
     addList, renameList, deleteList,
     completeTask, uncompleteTask,
     resetRepeatingTasks,
