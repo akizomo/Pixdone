@@ -96,13 +96,6 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
       setOpen(false);
     }, []);
 
-    // ── Close handler for BottomSheet — identical to ChallengeMenu ──
-    const handleSheetClose = useCallback(() => {
-      if (taskFormRef.current?.dismissSubmenus()) return;
-      taskFormRef.current?.saveIfDirty();
-      setOpen(false);
-    }, []);
-
     const title = mode === 'edit'
       ? (lang === 'ja' ? 'タスクを編集' : 'Edit task')
       : (lang === 'ja' ? 'タスクを追加' : 'Add a task');
@@ -110,7 +103,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
     return (
       <BottomSheet
         open={open}
-        onClose={handleSheetClose}
+        onClose={() => setOpen(false)}
         title={title}
       >
         <TaskForm
