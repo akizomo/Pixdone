@@ -287,7 +287,9 @@ function loadActiveId(lists: List[]): string {
     const raw = localStorage.getItem(ACTIVE_KEY);
     if (raw && lists.some((l) => l.id === raw)) return raw;
   } catch { /* ignore */ }
-  return lists[0]?.id ?? 'default';
+  // Default to the first normal list, not Smash List
+  const firstNormal = lists.find((l) => l.id !== 'smash-list');
+  return firstNormal?.id ?? lists[0]?.id ?? 'default';
 }
 
 export function useLists() {
@@ -327,12 +329,13 @@ export function useLists() {
   /**
    * After reload or Firestore sync, activeId may point at a deleted / optimistic id that no longer
    * exists in `lists`. Then no tab matches, swipe findIndex is -1, and UI looks broken.
-   * Snap to the first available list (Smash is prepended by ensureVirtualSmashList).
+   * Snap to the first normal list (skip Smash List).
    */
   useEffect(() => {
     if (lists.length === 0) return;
     if (lists.some((l) => l.id === activeId)) return;
-    const fallback = lists[0]?.id;
+    const firstNormal = lists.find((l) => l.id !== 'smash-list');
+    const fallback = firstNormal?.id ?? lists[0]?.id;
     if (fallback) {
       setActiveList(fallback);
     }
