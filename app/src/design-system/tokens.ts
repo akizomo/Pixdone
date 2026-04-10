@@ -6,10 +6,10 @@ export const tokens = {
   color: {
     background: { default: '#202124', elevated: '#28292d', hover: '#3c4043' },
     text: { primary: '#e8eaed', secondary: '#9aa0a6', muted: '#70757a' },
-    border: { default: '#3c4043', danger: 'rgba(234, 67, 53, 0.4)', warning: 'rgba(251, 188, 4, 0.4)', success: 'rgba(52, 168, 83, 0.4)' },
-    accent: { default: '#7B61FF', hover: '#A590FF', subtle: 'rgba(123, 97, 255, 0.15)', text: '#ffffff' },
+    border: { default: '#3c4043', danger: 'rgba(255, 107, 107, 0.35)', warning: 'rgba(250, 204, 21, 0.35)', success: 'rgba(74, 222, 128, 0.35)' },
+    accent: { default: '#A78BFA', hover: '#B794F6', subtle: 'rgba(167, 139, 250, 0.15)', text: '#ffffff' },
     shadow: { default: 'rgba(0, 0, 0, 0.3)' },
-    semantic: { success: '#34a853', successHover: '#2e7d32', successText: '#ffffff', danger: '#ea4335', dangerText: '#ffffff', warning: '#fbbc04' },
+    semantic: { success: '#4ADE80', successHover: '#22C55E', successText: '#ffffff', danger: '#FF6B6B', dangerText: '#ffffff', warning: '#FACC15' },
     overlay: { backdrop: 'rgba(0, 0, 0, 0.5)' },
     focus: { ring: 'rgba(123, 97, 255, 0.2)', insetShadow: 'rgba(0, 0, 0, 0.1)' },
     smash: {
@@ -23,10 +23,10 @@ export const tokens = {
   colorLight: {
     background: { default: '#ffffff', elevated: '#f8f9fa', hover: '#f1f3f4' },
     text: { primary: '#202124', secondary: '#5f6368', muted: '#70757a' },
-    border: { default: '#dadce0', danger: 'rgba(234, 67, 53, 0.35)', warning: 'rgba(251, 188, 4, 0.35)', success: 'rgba(52, 168, 83, 0.35)' },
-    accent: { default: '#7B61FF', hover: '#6B52F0', subtle: 'rgba(123, 97, 255, 0.12)', text: '#ffffff' },
+    border: { default: '#dadce0', danger: 'rgba(197, 48, 48, 0.3)', warning: 'rgba(146, 96, 10, 0.3)', success: 'rgba(21, 128, 61, 0.3)' },
+    accent: { default: '#5B43D6', hover: '#4C37C0', subtle: 'rgba(91, 67, 214, 0.10)', text: '#ffffff' },
     shadow: { default: 'rgba(0, 0, 0, 0.1)' },
-    semantic: { success: '#34a853', successHover: '#2e7d32', successText: '#ffffff', danger: '#ea4335', dangerText: '#ffffff', warning: '#fbbc04' },
+    semantic: { success: '#15803D', successHover: '#166534', successText: '#ffffff', danger: '#C53030', dangerText: '#ffffff', warning: '#854D0E' },
     focus: { ring: 'rgba(123, 97, 255, 0.2)', insetShadow: 'rgba(0, 0, 0, 0.1)' },
     smash: {
       border: '#2396B2',
