@@ -1,0 +1,249 @@
+/* TaskForm */
+
+.pd-task-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pxd-space-3);
+}
+
+/* Toolbar: list selector (left) + delete (right) */
+.pd-task-form__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--pxd-space-8);
+}
+
+/* List selector combobox trigger */
+.pd-task-form__list-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pxd-space-1);
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+  cursor: pointer;
+  outline: none;
+}
+
+.pd-task-form__list-trigger .material-icons {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Date / repeat chip row */
+.pd-task-form__chip-row {
+  display: flex;
+  gap: var(--pxd-space-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pd-task-form__chip-icon {
+  font-size: 16px;
+  line-height: 1;
+  vertical-align: middle;
+  margin-right: var(--pxd-space-1);
+}
+
+/* Hidden native date input */
+.pd-task-form__date-input-hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+/* Repeat dropdown */
+.pd-task-form__repeat-wrapper {
+  position: relative;
+}
+
+.pd-task-form__repeat-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.pd-task-form__repeat-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  z-index: 100;
+  background: var(--pd-color-background-elevated);
+  border: var(--pxd-border-base) solid var(--pd-color-border-default);
+  box-shadow: var(--pxd-shadow-pixel-md);
+  min-width: 180px;
+}
+
+/* Repeat preset item */
+.pd-task-form__repeat-preset {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--pxd-space-2) var(--pxd-space-3);
+  background: transparent;
+  border: none;
+  border-bottom: var(--pxd-border-thin) solid var(--pd-color-border-default);
+  color: var(--pd-color-text-primary);
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-sm);
+  cursor: pointer;
+}
+
+.pd-task-form__repeat-preset--active {
+  background: var(--pd-color-accent-subtle);
+  color: var(--pd-color-accent-default);
+}
+
+/* Custom repeat panel */
+.pd-task-form__repeat-custom {
+  padding: 10px var(--pxd-space-3);
+}
+
+.pd-task-form__repeat-custom-header {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-1);
+  margin-bottom: 10px;
+}
+
+.pd-task-form__repeat-custom-back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: var(--pd-color-text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+.pd-task-form__repeat-custom-title {
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-sm);
+  font-weight: var(--pxd-font-weight-bold);
+  color: var(--pd-color-text-primary);
+}
+
+.pd-task-form__repeat-custom-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: var(--pxd-space-2);
+}
+
+.pd-task-form__repeat-custom-input {
+  width: 48px;
+  padding: var(--pxd-space-1) 6px;
+  border: var(--pxd-border-base) solid var(--pd-color-border-default);
+  border-radius: var(--pxd-radius-none);
+  font-family: var(--pd-font-body);
+  font-size: 0.8125rem;
+  text-align: center;
+  background: var(--pd-color-background-default);
+  color: var(--pd-color-text-primary);
+}
+
+.pd-task-form__repeat-custom-select {
+  padding: var(--pxd-space-1) 6px;
+  border: var(--pxd-border-base) solid var(--pd-color-border-default);
+  border-radius: var(--pxd-radius-none);
+  font-family: var(--pd-font-body);
+  font-size: 0.8125rem;
+  background: var(--pd-color-background-default);
+  color: var(--pd-color-text-primary);
+  cursor: pointer;
+}
+
+/* Weekday toggles */
+.pd-task-form__weekday-row {
+  display: flex;
+  gap: var(--pxd-space-1);
+  flex-wrap: wrap;
+  margin-bottom: var(--pxd-space-2);
+}
+
+.pd-task-form__weekday-btn {
+  width: var(--pxd-space-8);
+  height: var(--pxd-space-8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--pxd-border-base) solid var(--pd-color-border-default);
+  background: transparent;
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-xs);
+  cursor: pointer;
+  border-radius: var(--pxd-radius-none);
+}
+
+.pd-task-form__weekday-btn--active {
+  border-color: var(--pd-color-accent-default);
+  background: var(--pd-color-accent-subtle);
+  color: var(--pd-color-accent-default);
+}
+
+/* Apply button (custom repeat) */
+.pd-task-form__repeat-apply {
+  width: 100%;
+  padding: 6px;
+  border: var(--pxd-border-base) solid var(--pd-color-accent-filled);
+  background: var(--pd-color-accent-filled);
+  color: var(--pd-color-accent-text);
+  font-family: var(--pd-font-body);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  border-radius: var(--pxd-radius-none);
+}
+
+/* Subtask list */
+.pd-task-form__subtask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pd-task-form__subtask-row {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-2);
+}
+
+.pd-task-form__subtask-text {
+  flex: 1;
+  font-size: 0.8125rem;
+  font-family: var(--pd-font-body);
+  color: var(--pd-color-text-primary);
+  cursor: text;
+  padding: 6px 0;
+  min-height: var(--pxd-tap-target-min);
+  display: flex;
+  align-items: center;
+}
+
+.pd-task-form__subtask-text--done {
+  text-decoration: line-through;
+}
+
+.pd-task-form__subtask-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--pd-color-text-muted);
+  display: flex;
+  align-items: center;
+}
+
+/* Actions row */
+.pd-task-form__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pxd-space-3);
+  margin-top: var(--pxd-space-1);
+}
