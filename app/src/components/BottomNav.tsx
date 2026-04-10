@@ -33,40 +33,11 @@ export function BottomNav({ activeScreen, onSelect, lang, showCollection = true 
             type="button"
             role="tab"
             aria-selected={isActive}
+            className={`pd-bottom-nav__tab${isActive ? ' pd-bottom-nav__tab--active' : ''}`}
             onClick={() => onSelect(tab.id)}
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '2px',
-              background: 'none',
-              border: 'none',
-              borderTop: '3px solid transparent',
-              color: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-secondary)',
-              cursor: 'pointer',
-              padding: '6px 0 4px',
-              transition: 'color 0.15s',
-              fontFamily: 'var(--pd-font-body)',
-            }}
-            onMouseEnter={(e) => {
-              if (!isActive) {
-                (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-primary)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive) {
-                (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-secondary)';
-              }
-            }}
           >
-            <span className="material-icons" style={{ fontSize: '22px', lineHeight: 1 }}>
-              {tab.icon}
-            </span>
-            <span style={{ fontSize: '0.625rem', fontWeight: isActive ? 600 : 400, lineHeight: 1 }}>
-              {t(tab.labelKey, lang)}
-            </span>
+            <span className="material-icons pd-bottom-nav__icon">{tab.icon}</span>
+            <span className="pd-bottom-nav__label">{t(tab.labelKey, lang)}</span>
           </button>
         );
       })}

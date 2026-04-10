@@ -1,0 +1,100 @@
+/* ListTabs */
+
+.pd-list-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-2);
+  width: 100%;
+}
+
+.pd-list-tabs__scroll {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+/* Hide scrollbar */
+.pd-list-tabs__scroll::-webkit-scrollbar {
+  display: none;
+}
+.pd-list-tabs__scroll {
+  scrollbar-width: none;
+}
+
+/* Tab button */
+.pd-list-tabs__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-1);
+  padding: 6px var(--pxd-space-2);
+  border: none;
+  border-bottom: var(--pxd-border-base) solid transparent;
+  background: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: var(--pxd-font-size-sm);
+  font-family: var(--pxd-font-body);
+  font-weight: var(--pxd-font-weight-regular);
+  color: var(--pxd-color-text-secondary);
+  cursor: pointer;
+  transition: background var(--pxd-motion-fast) ease,
+              color var(--pxd-motion-fast) ease;
+}
+
+@media (hover: hover) {
+  .pd-list-tabs__tab:hover {
+    background: var(--pxd-color-action-ghost-hover);
+    color: var(--pxd-color-text-primary);
+  }
+}
+
+.pd-list-tabs__tab--active {
+  border-bottom-color: var(--pxd-color-action-primary);
+  color: var(--pxd-color-text-primary);
+  font-weight: var(--pxd-font-weight-semibold);
+}
+
+/* Count badge */
+.pd-list-tabs__count {
+  margin-left: 2px;
+  padding: 1px var(--pxd-space-1);
+  font-size: 0.6875rem;
+  border-radius: var(--pxd-radius-none);
+  border: var(--pxd-border-thin) solid var(--pxd-color-border-interactive);
+  background: var(--pxd-color-surface-secondary);
+  color: var(--pxd-color-text-secondary);
+}
+
+.pd-list-tabs__count--active {
+  border-color: var(--pxd-color-action-primary);
+  background: var(--pxd-color-action-primary);
+  color: var(--pxd-color-text-inverse);
+}
+
+/* Add button */
+.pd-list-tabs__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: var(--pxd-border-thin) solid var(--pxd-color-border-interactive);
+  border-radius: var(--pxd-radius-none);
+  background: none;
+  color: var(--pxd-color-text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background var(--pxd-motion-fast) ease,
+              color var(--pxd-motion-fast) ease;
+}
+
+@media (hover: hover) {
+  .pd-list-tabs__add:hover {
+    background: var(--pxd-color-action-ghost-hover);
+    color: var(--pxd-color-text-primary);
+  }
+}

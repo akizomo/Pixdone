@@ -3,6 +3,7 @@ import { t } from '../lib/i18n';
 import { playSound } from '../services/sound';
 import { PopoverMenu } from '../design-system';
 import type { PopoverMenuItem } from '../design-system/components/PopoverMenu/PopoverMenu.types';
+import './ListHeader.css';
 
 export interface ListHeaderProps {
   title: string;
@@ -30,56 +31,17 @@ export function ListHeader({ title, showMenu, lang = 'en', onRename, onDelete }:
   };
 
   return (
-    <div
-      className="pd-list-header"
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '12px 0',
-        marginBottom: '4px',
-      }}
-    >
-      <h2
-        style={{
-          fontSize: '1.5rem',
-          fontWeight: 700,
-          color: 'var(--pd-color-text-primary)',
-          margin: 0,
-          fontFamily: 'var(--pd-font-brand)',
-          imageRendering: 'pixelated',
-          letterSpacing: '1px',
-          textTransform: 'uppercase',
-          textShadow: '1px 1px 0px var(--pd-color-shadow-default)',
-        }}
-      >
-        {title}
-      </h2>
+    <div className="pd-list-header">
+      <h2 className="pd-list-header__title">{title}</h2>
 
       {showMenu && (
-        <div style={{ position: 'relative' }}>
+        <div className="pd-list-header__menu">
           <button
             type="button"
+            className="pd-list-header__menu-btn"
             onClick={() => { playSound('buttonClick'); setMenuOpen((v) => !v); }}
             aria-label="List options"
             aria-expanded={menuOpen}
-            style={{
-              width: '28px',
-              height: '28px',
-              border: 'none',
-              borderRadius: 0,
-              background: 'transparent',
-              color: 'var(--pd-color-text-secondary)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '0.75rem',
-              imageRendering: 'pixelated',
-              transition: 'color 0.2s ease',
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-primary)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-secondary)'; }}
           >
             <span className="material-icons" style={{ fontSize: '20px', lineHeight: 1 }}>more_vert</span>
           </button>

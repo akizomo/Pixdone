@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import type { List } from '../types/list';
+import './ListTabs.css';
 
 export interface ListTabsProps {
   lists: List[];
@@ -31,12 +32,11 @@ export function ListTabs({
   }, [activeListId]);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+    <div className="pd-list-tabs">
       <div
         ref={scrollRef}
         role="tablist"
-        className="pd-list-tabs-scroll"
-        style={{ display: 'flex', alignItems: 'center', gap: '2px', flex: 1, minWidth: 0, overflowX: 'auto' }}
+        className="pd-list-tabs__scroll"
       >
         {lists.map((list) => {
           const isActive = list.id === activeListId;
@@ -51,48 +51,14 @@ export function ListTabs({
               role="tab"
               aria-selected={isActive}
               aria-label={showCount ? `${getTabLabel(list)}, ${count} tasks` : undefined}
+              className={`pd-list-tabs__tab${isActive ? ' pd-list-tabs__tab--active' : ''}`}
               onClick={() => onSelect(list.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '6px 8px',
-                borderBottom: `2px solid ${isActive ? 'var(--pd-color-accent-default)' : 'transparent'}`,
-                borderTop: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
-                background: 'none',
-                flexShrink: 0,
-                whiteSpace: 'nowrap',
-                fontSize: '0.875rem',
-                fontFamily: 'var(--pd-font-body)',
-                color: isActive ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
-                fontWeight: isActive ? 600 : 400,
-                cursor: 'pointer',
-                transition: 'background 0.15s, color 0.15s',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)';
-                (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-primary)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = 'none';
-                (e.currentTarget as HTMLButtonElement).style.color = isActive ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)';
-              }}
             >
               <span>{getTabLabel(list)}</span>
               {showCount && (
                 <span
                   aria-hidden="true"
-                  style={{
-                    marginLeft: '2px',
-                    padding: '1px 4px',
-                    fontSize: '0.6875rem',
-                    borderRadius: 0,
-                    border: `1px solid ${isActive ? 'var(--pd-color-accent-default)' : 'var(--pxd-color-border-interactive)'}`,
-                    background: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-background-elevated)',
-                    color: isActive ? 'var(--pd-color-accent-text)' : 'var(--pd-color-text-secondary)',
-                  }}
+                  className={`pd-list-tabs__count${isActive ? ' pd-list-tabs__count--active' : ''}`}
                 >
                   {count}
                 </span>
@@ -103,30 +69,9 @@ export function ListTabs({
       </div>
       <button
         type="button"
+        className="pd-list-tabs__add"
         onClick={onAddList}
         aria-label="Add list"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '28px',
-          height: '28px',
-          flexShrink: 0,
-          border: '1px solid var(--pxd-color-border-interactive)',
-          borderRadius: 0,
-          background: 'none',
-          color: 'var(--pd-color-text-secondary)',
-          cursor: 'pointer',
-          fontSize: '1rem',
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = 'var(--pd-color-background-hover)';
-          (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-primary)';
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = 'none';
-          (e.currentTarget as HTMLButtonElement).style.color = 'var(--pd-color-text-secondary)';
-        }}
       >
         +
       </button>
