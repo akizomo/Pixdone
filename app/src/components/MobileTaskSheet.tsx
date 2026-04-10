@@ -31,8 +31,6 @@ interface MobileTaskSheetProps {
   onDeleteRequest: (taskId: string) => void;
   onMoveToList: (taskId: string, targetListId: string) => void;
   availableLists: Array<{ id: string; name: string }>;
-  /** Called when the sheet finishes closing (for tracking, etc.) */
-  onDidClose?: () => void;
   /** Called after a new task is added (for analytics) */
   onDidAddTask?: (fields: Partial<Task> & { title: string }) => void;
   /** Syncs open state back to parent (for anyModalOpen, etc.) */
@@ -41,7 +39,7 @@ interface MobileTaskSheetProps {
 
 export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheetProps>(
   function MobileTaskSheet(
-    { lang, tasks, currentListId, onAddTask, onUpdateTask, onDeleteRequest, onMoveToList, availableLists, onDidClose, onDidAddTask, onOpenChange },
+    { lang, tasks, currentListId, onAddTask, onUpdateTask, onDeleteRequest, onMoveToList, availableLists, onDidAddTask, onOpenChange },
     ref,
   ) {
     // ── Own open state — exactly like ChallengeMenu ──
@@ -58,7 +56,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
 
     // ── Imperative API for parent ──
     useImperativeHandle(ref, () => ({
-      openAdd(listId: string) {
+      openAdd(_listId: string) {
         setEditTaskId(null);
         setMode('add');
         setOpen(true);

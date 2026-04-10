@@ -16,19 +16,20 @@ import './CollectionPage.css';
 type FilterKey = 'ALL' | EffectRarity | 'OWNED' | 'CHALLENGE';
 const FILTERS: FilterKey[] = ['ALL', 'COMMON', 'RARE', 'EPIC', 'OWNED', 'CHALLENGE'];
 
-interface CollectionPageProps {
+export interface CollectionPageProps {
   lang: 'en' | 'ja';
   isPremium: boolean;
   activeEffects: string[];
   setActiveEffects: (keys: string[]) => void;
   activeTheme: ThemeKey;
-  changeTheme: (key: ThemeKey) => void;
+  changeTheme: (key: ThemeKey) => void | Promise<void>;
   colorMode: 'light' | 'dark';
   initialTab?: 'effects' | 'themes';
   initialEffectKey?: string | null;
   ownedChallengeEffects?: string[];
   challengeProgressMap?: Record<string, number>;
-  onRequestEffect?: () => void;
+  effectProgressMap?: Record<string, import('../../hooks/useEffectProgress').EffectProgressEntry>;
+  onRequestEffect?: () => void | Promise<void>;
 }
 
 export function CollectionPage({
@@ -43,6 +44,7 @@ export function CollectionPage({
   initialEffectKey = null,
   ownedChallengeEffects = [],
   challengeProgressMap = {},
+  effectProgressMap = {},
   onRequestEffect,
 }: CollectionPageProps) {
   const [activeTab, setActiveTab] = useState<'effects' | 'themes'>(initialTab);
@@ -261,6 +263,7 @@ export function CollectionPage({
                 isPremium={isPremium}
                 activeEffects={activeEffects}
                 ownedChallengeEffects={ownedChallengeEffects}
+                effectProgressMap={effectProgressMap}
                 lang={lang}
                 onSelect={setSelectedEffect}
                 selectedEffect={selectedEffect}
@@ -291,6 +294,7 @@ export function CollectionPage({
                 setActiveEffects={setActiveEffects}
                 ownedChallengeEffects={ownedChallengeEffects}
                 challengeProgressMap={challengeProgressMap}
+                effectProgressMap={effectProgressMap}
                 lang={lang}
               />
             ) : activeTab === 'themes' && selectedTheme ? (
@@ -394,6 +398,7 @@ export function CollectionPage({
                 setActiveEffects={setActiveEffects}
                 ownedChallengeEffects={ownedChallengeEffects}
                 challengeProgressMap={challengeProgressMap}
+                effectProgressMap={effectProgressMap}
                 lang={lang}
                 indexLabel={selectedEffectIndex >= 0 ? `${selectedEffectIndex + 1}/${mobileEffects.length}` : ''}
                 onPrev={goPrevEffect}

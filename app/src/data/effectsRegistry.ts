@@ -42,11 +42,12 @@ export const EFFECTS_REGISTRY: EffectDef[] = [
   { key: 'crumpleThrow', name: 'Crumple Throw', rarity: 'RARE', themes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Crumples up like paper and gets tossed.',     ja: 'くしゃっと丸めて投げ捨て。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── RARE — Arcade: CHALLENGE ──────────────────────────────────────────────
-  { key: 'punch', name: 'Punch', rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: "A fighter's punch sends it flying.", ja: 'ファイターのパンチで吹き飛ぶ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: new Date('2026-05-31T23:59:59+09:00'), challengeUnlockThreshold: 30 },
+  { key: 'punch', name: 'Fighter Kick', rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: "A fighter's kick sends it flying.", ja: 'ファイターのキックで吹き飛ぶ。' }, evolutionStages: 2, evolutionCondition: 'cumulative_completions_50', evolutionThreshold: 50, challengeDeadline: new Date('2026-05-31T23:59:59+09:00'), challengeUnlockThreshold: 20 },
 
   // ── RARE — Synthwave (premium) ────────────────────────────────────────────
   { key: 'glitchSlide', name: 'Glitch Slide', rarity: 'RARE', themes: ['synthwave'], access: 'premium', description: { en: 'Glitches out with neon artifacts.', ja: 'ネオンのノイズでグリッチ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
   { key: 'neonWarp',    name: 'Neon Warp',    rarity: 'RARE', themes: ['synthwave'], access: 'premium', description: { en: 'Warps through a neon portal.',       ja: 'ネオンポータルでワープ。'     }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'scanDrone',   name: 'Scan Drone',   rarity: 'RARE', themes: ['synthwave'], access: 'premium', description: { en: 'A drone scans and pixelates the task.', ja: 'ドローンがスキャンしてピクセル分解。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── RARE — Forest Bit (premium) ───────────────────────────────────────────
   { key: 'leafScatter',  name: 'Leaf Scatter',  rarity: 'RARE', themes: ['forestbit'], access: 'premium', description: { en: 'A gust of leaves scatters across the screen.', ja: '葉っぱが舞い散る。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },

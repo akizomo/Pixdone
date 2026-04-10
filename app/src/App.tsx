@@ -30,6 +30,7 @@ import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { t } from './lib/i18n';
 import { trackTaskComplete, trackTaskAdd, trackListCreate, trackEffectTriggered, trackChallengeUnlocked } from './services/analytics';
 import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect, buildTutorialDrawPool, weightedRandomEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
+import { resolveAnimationKey } from './data/effectEvolution';
 import './styles/task-animations.css';
 import type { List } from './types/list';
 import type { Task } from './types/task';
@@ -510,7 +511,9 @@ function AppContent() {
         });
       }
 
-      const finalKey = forcedEffectKey ?? selected?.key;
+      const baseKey = forcedEffectKey ?? selected?.key;
+      const equippedLvl = baseKey ? (effectProgressMap[baseKey]?.equippedLevel ?? 1) : 1;
+      const finalKey = baseKey ? resolveAnimationKey(baseKey, equippedLvl) : undefined;
       runVanillaCompletionEffect(taskEl, () => {
         doComplete();
         if (isTutorialTask) {
@@ -629,7 +632,9 @@ function AppContent() {
 
     if (taskEl) {
       const pool = buildDrawPool(isPremium, visualTheme, activeEffects, ownedChallengeEffects);
-      const selectedKey = forcedEffectKey ?? (pool.length > 0 ? weightedRandomEffect(pool).key : undefined);
+      const baseSmashKey = forcedEffectKey ?? (pool.length > 0 ? weightedRandomEffect(pool).key : undefined);
+      const smashLvl = baseSmashKey ? (effectProgressMap[baseSmashKey]?.equippedLevel ?? 1) : 1;
+      const selectedKey = baseSmashKey ? resolveAnimationKey(baseSmashKey, smashLvl) : undefined;
       runVanillaCompletionEffect(taskEl, () => {
         doSmash();
       }, selectedKey);

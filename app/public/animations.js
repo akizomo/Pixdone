@@ -1419,6 +1419,12 @@ class ComicEffectsManager {
                 this.playNeonWarpSound();
                 this.playHapticFeedback("medium");
                 break;
+            case "scanDrone":
+                this.effectLock = true;
+                this.createScanDroneEffect(taskElement, rect);
+                this.playScanDroneSound();
+                this.playHapticFeedback("medium");
+                break;
             case "neonBigBang":
                 this.effectLock = true;
                 this.createNeonBigBangEffect(taskElement, rect);
@@ -1458,6 +1464,11 @@ class ComicEffectsManager {
             case "punch":
                 this.effectLock = true;
                 this.createFighterPunchEffect(taskElement, rect);
+                this.playHapticFeedback("strong");
+                break;
+            case "punchLv2":
+                this.effectLock = true;
+                this.createFighterKickLv2Effect(taskElement, rect);
                 this.playHapticFeedback("strong");
                 break;
             case "bomb":
@@ -2891,6 +2902,80 @@ class ComicEffectsManager {
                     gainNode.disconnect();
                     return;
                 }
+                case "punchLv2": {
+                    // Lv2: Deeper, heavier impact — enhanced version of Lv1 sound
+                    const t = audioContext.currentTime;
+
+                    // Layer 1: Sub-bass thud (deeper than Lv1)
+                    const lv2Thud = audioContext.createOscillator();
+                    const lv2ThudGain = audioContext.createGain();
+                    lv2Thud.connect(lv2ThudGain);
+                    lv2ThudGain.connect(audioContext.destination);
+                    lv2Thud.type = 'square';
+                    lv2Thud.frequency.setValueAtTime(100, t);
+                    lv2Thud.frequency.exponentialRampToValueAtTime(30, t + 0.25);
+                    lv2ThudGain.gain.setValueAtTime(0.7, t);
+                    lv2ThudGain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+                    lv2Thud.start(t);
+                    lv2Thud.stop(t + 0.3);
+                    lv2Thud.onended = () => { try { lv2Thud.disconnect(); lv2ThudGain.disconnect(); } catch(e){} };
+
+                    // Layer 2: Sharp crack (wider freq sweep)
+                    const lv2Crack = audioContext.createOscillator();
+                    const lv2CrackGain = audioContext.createGain();
+                    lv2Crack.connect(lv2CrackGain);
+                    lv2CrackGain.connect(audioContext.destination);
+                    lv2Crack.type = 'sawtooth';
+                    lv2Crack.frequency.setValueAtTime(1200, t);
+                    lv2Crack.frequency.exponentialRampToValueAtTime(120, t + 0.08);
+                    lv2CrackGain.gain.setValueAtTime(0.45, t);
+                    lv2CrackGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+                    lv2Crack.start(t);
+                    lv2Crack.stop(t + 0.1);
+                    lv2Crack.onended = () => { try { lv2Crack.disconnect(); lv2CrackGain.disconnect(); } catch(e){} };
+
+                    // Layer 3: White noise burst (heavier)
+                    const lv2NoiseDuration = 0.16;
+                    const lv2NoiseBuffer = audioContext.createBuffer(1, Math.ceil(audioContext.sampleRate * lv2NoiseDuration), audioContext.sampleRate);
+                    const lv2NoiseData = lv2NoiseBuffer.getChannelData(0);
+                    for (let i = 0; i < lv2NoiseData.length; i++) {
+                        lv2NoiseData[i] = Math.random() * 2 - 1;
+                    }
+                    const lv2NoiseSource = audioContext.createBufferSource();
+                    lv2NoiseSource.buffer = lv2NoiseBuffer;
+                    const lv2NoiseFilter = audioContext.createBiquadFilter();
+                    lv2NoiseFilter.type = 'bandpass';
+                    lv2NoiseFilter.frequency.value = 800;
+                    lv2NoiseFilter.Q.value = 0.6;
+                    const lv2NoiseGain = audioContext.createGain();
+                    lv2NoiseSource.connect(lv2NoiseFilter);
+                    lv2NoiseFilter.connect(lv2NoiseGain);
+                    lv2NoiseGain.connect(audioContext.destination);
+                    lv2NoiseGain.gain.setValueAtTime(0.55, t);
+                    lv2NoiseGain.gain.exponentialRampToValueAtTime(0.001, t + lv2NoiseDuration);
+                    lv2NoiseSource.start(t);
+                    lv2NoiseSource.stop(t + lv2NoiseDuration);
+                    lv2NoiseSource.onended = () => { try { lv2NoiseSource.disconnect(); lv2NoiseFilter.disconnect(); lv2NoiseGain.disconnect(); } catch(e){} };
+
+                    // Layer 4: Secondary shockwave bass boom (Lv2 exclusive, 160ms after impact)
+                    const lv2Boom = audioContext.createOscillator();
+                    const lv2BoomGain = audioContext.createGain();
+                    lv2Boom.connect(lv2BoomGain);
+                    lv2BoomGain.connect(audioContext.destination);
+                    lv2Boom.type = 'sine';
+                    lv2Boom.frequency.setValueAtTime(60, t + 0.16);
+                    lv2Boom.frequency.exponentialRampToValueAtTime(25, t + 0.38);
+                    lv2BoomGain.gain.setValueAtTime(0, t);
+                    lv2BoomGain.gain.setValueAtTime(0.5, t + 0.16);
+                    lv2BoomGain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+                    lv2Boom.start(t + 0.16);
+                    lv2Boom.stop(t + 0.4);
+                    lv2Boom.onended = () => { try { lv2Boom.disconnect(); lv2BoomGain.disconnect(); } catch(e){} };
+
+                    oscillator.disconnect();
+                    gainNode.disconnect();
+                    return;
+                }
                 default:
                     return;
             }
@@ -4102,6 +4187,61 @@ class ComicEffectsManager {
         } catch (e) {}
     }
 
+    playScanDroneSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+
+            // Layer 1: Drone hum (low sine, 0–0.4s)
+            const humOsc  = ctx.createOscillator();
+            const humGain = ctx.createGain();
+            humOsc.connect(humGain);
+            humGain.connect(ctx.destination);
+            humOsc.type = "sine";
+            humOsc.frequency.setValueAtTime(120, now);
+            humOsc.frequency.setValueAtTime(125, now + 0.1);
+            humOsc.frequency.setValueAtTime(118, now + 0.2);
+            humGain.gain.setValueAtTime(0, now);
+            humGain.gain.linearRampToValueAtTime(0.06, now + 0.08);
+            humGain.gain.setValueAtTime(0.06, now + 0.35);
+            humGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+            humOsc.start(now);
+            humOsc.stop(now + 0.5);
+
+            // Layer 2: Scan sweep (sawtooth up-sweep, 0.4–0.7s)
+            const scanOsc  = ctx.createOscillator();
+            const scanGain = ctx.createGain();
+            scanOsc.connect(scanGain);
+            scanGain.connect(ctx.destination);
+            scanOsc.type = "sawtooth";
+            scanOsc.frequency.setValueAtTime(400, now + 0.4);
+            scanOsc.frequency.exponentialRampToValueAtTime(2000, now + 0.7);
+            scanGain.gain.setValueAtTime(0.05, now + 0.4);
+            scanGain.gain.exponentialRampToValueAtTime(0.001, now + 0.72);
+            scanOsc.start(now + 0.4);
+            scanOsc.stop(now + 0.72);
+
+            // Layer 3: Decompose burst (noise-like rapid square bursts, 0.7–0.95s)
+            const burstFreqs = [220, 880, 330, 1100, 165, 660];
+            burstFreqs.forEach((freq, i) => {
+                const t = now + 0.7 + i * 0.035;
+                const osc  = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = "square";
+                osc.frequency.setValueAtTime(freq, t);
+                gain.gain.setValueAtTime(0.04, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+                osc.start(t);
+                osc.stop(t + 0.04);
+            });
+        } catch (e) {}
+    }
+
     playNeonBigBangSound() {
         if (this.soundEnabled === false) return;
         try {
@@ -4988,6 +5128,563 @@ class ComicEffectsManager {
             document.body.appendChild(p);
             setTimeout(() => p.remove(), 600);
         }
+    }
+
+    // ── Fighter Kick Lv2 (Enhanced evolution of Punch Lv1) ─────────────
+    // Timeline:
+    //   0ms      fighter slides in from left (same as Lv1)
+    //   340ms    DOUBLE impact — kick hit with bigger flash + more particles
+    //   380ms    "ULTIMATE!" text (larger, with glow)
+    //   500ms    Secondary shockwave burst (Lv2 exclusive)
+    //   800ms    fighter slides out
+    //   1400ms   cleanup
+    createFighterKickLv2Effect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement?.getBoundingClientRect?.() || { top: 0, left: 0, width: 100, height: 40 };
+
+        const W = window.innerWidth;
+        const FIGHTER_SIZE = Math.round(Math.min(110, Math.max(60, W * 0.16)));
+
+        const GAP = -14;
+        const punchX = Math.max(4, rect.left - FIGHTER_SIZE - GAP);
+        const taskBottom = rect.top + rect.height;
+        const SINK = 10;
+        const fighterTop = taskBottom - FIGHTER_SIZE + SINK;
+
+        // ── Create fighter img (reuse punch GIF) ────────────────────
+        const fighter = document.createElement('img');
+        fighter.src = '/fighter-punch.gif?' + Date.now();
+        fighter.alt = '';
+        fighter.setAttribute('aria-hidden', 'true');
+        const offscreenDx = -(punchX + FIGHTER_SIZE + 40);
+        fighter.style.cssText = [
+            'position:fixed',
+            `left:${punchX}px`,
+            `top:${fighterTop}px`,
+            `width:${FIGHTER_SIZE}px`,
+            `height:${FIGHTER_SIZE}px`,
+            'object-fit:contain',
+            'image-rendering:pixelated',
+            'pointer-events:none',
+            'z-index:100000',
+            `transform:translateX(${offscreenDx}px)`,
+            'will-change:transform',
+        ].join(';');
+        document.body.appendChild(fighter);
+
+        // ── Slide-in (faster, more aggressive) ──────────────────────
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                fighter.style.transition = 'transform 240ms cubic-bezier(0.10, 0, 0.2, 1)';
+                fighter.style.transform  = 'translateX(0)';
+            });
+        });
+
+        // ── Primary Impact (340ms) ──────────────────────────────────
+        setTimeout(() => {
+            const impactX = punchX + FIGHTER_SIZE;
+            const impactY = rect.top + rect.height / 2;
+
+            // Bigger flash
+            setTimeout(() => this._spawnSFImpactFlashLv2(impactX, impactY, rect.height), 40);
+
+            // More sparks (doubled)
+            this._spawnSFSparksLv2(impactX, impactY);
+
+            // More particles (doubled, bigger)
+            this._spawnSFParticlesLv2(impactX, impactY);
+
+            // Stronger screen shake (5-hit)
+            const shakeEl = document.querySelector('.pd-app-container')
+                         || document.querySelector('#root')
+                         || document.querySelector('main');
+            if (shakeEl) {
+                const shake = (dx, dy, delay) => setTimeout(() => {
+                    shakeEl.style.transition = 'transform 40ms steps(1, end)';
+                    shakeEl.style.transform  = `translate(${dx}px, ${dy}px)`;
+                }, delay);
+                shake(7, -2, 0); shake(-6, 3, 50); shake(5, -3, 100); shake(-4, 2, 150); shake(2, -1, 200); shake(0, 0, 250);
+                setTimeout(() => { shakeEl.style.transition = ''; shakeEl.style.transform = ''; }, 280);
+            }
+
+        }, 340);
+
+        // Sound fires early to compensate for audio latency
+        setTimeout(() => this.playSound('punchLv2'), 310);
+
+        // ── "ULTIMATE!" impact text (380ms) — glowing, larger ───────
+        setTimeout(() => {
+            const label = document.createElement('div');
+            label.className = 'punch-text';
+            label.textContent = 'ULTIMATE!';
+            label.style.left = (rect.left + rect.width / 2) + 'px';
+            label.style.top  = (rect.top - 14) + 'px';
+            label.style.fontSize = 'clamp(1.8rem, 7vw, 3rem)';
+            label.style.textShadow = '0 0 12px #ffcc00, 0 0 24px #ff6600, 0 0 36px #ff3300';
+            document.body.appendChild(label);
+            setTimeout(() => label.remove(), 1100);
+
+            setTimeout(() => {
+                if (taskElement) taskElement.style.opacity = '0';
+            }, 50);
+        }, 380);
+
+        // ── Secondary shockwave (Lv2 exclusive, 500ms) ──────────────
+        setTimeout(() => {
+            const impactX = punchX + FIGHTER_SIZE;
+            const impactY = rect.top + rect.height / 2;
+            this._spawnShockwave(impactX, impactY);
+        }, 500);
+
+        // ── Slide-out left (800ms) ──────────────────────────────────
+        setTimeout(() => {
+            fighter.style.transition = 'transform 300ms cubic-bezier(0.7, 0, 1, 0.5)';
+            fighter.style.transform  = `translateX(${offscreenDx}px)`;
+        }, 800);
+
+        // ── Cleanup (1400ms) ────────────────────────────────────────
+        setTimeout(() => {
+            fighter.remove();
+            this.effectLock = false;
+        }, 1400);
+    }
+
+    // Lv2: Bigger impact flash with double ring
+    _spawnSFImpactFlashLv2(cx, cy, taskH) {
+        const SIZE = Math.max(80, taskH * 3);
+        const flash = document.createElement('div');
+        flash.className = 'sf-impact-flash';
+        flash.style.cssText = [
+            `left:${cx}px`, `top:${cy}px`,
+            `width:${SIZE}px`, `height:${SIZE}px`,
+            'background:radial-gradient(circle, #ffffff 0%, #ffee00 25%, #ff6600 55%, #ff0000 75%, transparent 100%)',
+        ].join(';');
+        document.body.appendChild(flash);
+        setTimeout(() => flash.remove(), 400);
+
+        // Second, wider ring (Lv2 exclusive)
+        setTimeout(() => {
+            const ring = document.createElement('div');
+            ring.className = 'sf-impact-flash';
+            const RING_SIZE = SIZE * 1.5;
+            ring.style.cssText = [
+                `left:${cx}px`, `top:${cy}px`,
+                `width:${RING_SIZE}px`, `height:${RING_SIZE}px`,
+                'background:radial-gradient(circle, transparent 40%, #ffcc00 60%, transparent 80%)',
+            ].join(';');
+            document.body.appendChild(ring);
+            setTimeout(() => ring.remove(), 350);
+        }, 60);
+    }
+
+    // Lv2: More sparks, wider spread
+    _spawnSFSparksLv2(cx, cy) {
+        const ANGLES = [-60, -45, -30, -15, 0, 15, 30, 45, 60, 75, -70, 80, -80, 85];
+        const COLORS = ['#ffffff', '#ffee00', '#ffaa00', '#ff6600', '#ff0000', '#ffffff', '#ffee00'];
+
+        ANGLES.forEach((deg, i) => {
+            const rad  = (deg * Math.PI) / 180;
+            const len  = 28 + (i % 3) * 12;
+            const spark = document.createElement('div');
+            spark.className = 'sf-spark';
+            spark.style.cssText = [
+                `left:${cx}px`,
+                `top:${cy}px`,
+                `width:${len}px`,
+                `background:${COLORS[i % COLORS.length]}`,
+                `transform:rotate(${deg}deg)`,
+                `box-shadow:0 0 4px 2px ${COLORS[i % COLORS.length]}`,
+            ].join(';');
+            const dist = 80 + i * 10;
+            spark.style.setProperty('--spark-dx', Math.round(Math.cos(rad) * dist) + 'px');
+            spark.style.animationDelay = (i * 12) + 'ms';
+            document.body.appendChild(spark);
+            setTimeout(() => spark.remove(), 600);
+        });
+    }
+
+    // Lv2: More and bigger particles
+    _spawnSFParticlesLv2(cx, cy) {
+        const COLORS = ['#ffe000', '#ff3300', '#ff8800', '#ffffff', '#ffcc00', '#ff4466', '#ff0000', '#ffee00'];
+        const COUNT  = 28;
+
+        for (let i = 0; i < COUNT; i++) {
+            const deg = -100 + (200 / COUNT) * i;
+            const rad = (deg * Math.PI) / 180;
+            const dist = 50 + Math.floor(Math.random() * 80);
+
+            const p = document.createElement('div');
+            p.className = 'punch-particle';
+            const sz = [4, 6, 8, 10][i % 4] + 'px';
+            p.style.width    = sz;
+            p.style.height   = sz;
+            p.style.background = COLORS[i % COLORS.length];
+            p.style.left     = cx + 'px';
+            p.style.top      = cy + 'px';
+            p.style.setProperty('--pdx', Math.round(Math.cos(rad) * dist) + 'px');
+            p.style.setProperty('--pdy', Math.round(Math.sin(rad) * dist) + 'px');
+            p.style.animationDuration = (480 + i * 6) + 'ms';
+            p.style.animationDelay    = (i * 8) + 'ms';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 700);
+        }
+    }
+
+    // Lv2 exclusive: expanding shockwave ring
+    _spawnShockwave(cx, cy) {
+        const ring = document.createElement('div');
+        ring.style.cssText = [
+            'position:fixed',
+            `left:${cx}px`, `top:${cy}px`,
+            'width:20px', 'height:20px',
+            'border:3px solid #ffcc00',
+            'border-radius:50%',
+            'pointer-events:none',
+            'z-index:100001',
+            'transform:translate(-50%, -50%) scale(1)',
+            'opacity:0.8',
+            'will-change:transform, opacity',
+        ].join(';');
+        document.body.appendChild(ring);
+
+        requestAnimationFrame(() => {
+            ring.style.transition = 'transform 400ms cubic-bezier(0.15, 0, 0.3, 1), opacity 400ms ease-out';
+            ring.style.transform  = 'translate(-50%, -50%) scale(12)';
+            ring.style.opacity    = '0';
+        });
+
+        setTimeout(() => ring.remove(), 500);
+    }
+
+    // ── Scan Drone Effect (Synthwave Rare) ─────────────────────────────
+    // Timeline (total ~1.1s):
+    //   Phase 1 (0–200ms):   Drone flies in from top-right to above task centre
+    //   Phase 2 (200–400ms): Hover with subtle ±3px oscillation
+    //   Phase 3 (400–700ms): Scan line sweeps top→bottom across task
+    //   Phase 4 (700–1000ms): Task pixelates into 4×4 blocks that scatter
+    //   Phase 5 (1000–1100ms): Drone exits top-right, cleanup
+    createScanDroneEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement?.getBoundingClientRect?.() || { top: 0, left: 0, width: 200, height: 44 };
+        const W = window.innerWidth;
+
+        const DRONE_SIZE = Math.round(Math.min(96, Math.max(52, W * 0.14)));
+        const MAGENTA = '#ff2d78';
+
+        // Drone target: centred above task
+        const droneTgtX = rect.left + rect.width / 2 - DRONE_SIZE / 2;
+        const droneTgtY = rect.top - DRONE_SIZE - 8;
+
+        // ── Phase 1: Create drone img & fly in ────────────────────────
+        const drone = document.createElement('img');
+        drone.src = '/sprites/scan-drone.gif?' + Date.now();
+        drone.alt = '';
+        drone.setAttribute('aria-hidden', 'true');
+        drone.style.cssText = [
+            'position:fixed',
+            `left:${W + 50}px`,
+            `top:-30px`,
+            `width:${DRONE_SIZE}px`,
+            `height:${DRONE_SIZE}px`,
+            'object-fit:contain',
+            'image-rendering:pixelated',
+            'pointer-events:none',
+            'z-index:100001',
+            'will-change:transform,left,top',
+            'transition:left 200ms cubic-bezier(0.0,0.0,0.2,1),top 200ms cubic-bezier(0.0,0.0,0.2,1)',
+        ].join(';');
+        document.body.appendChild(drone);
+
+        // Trigger fly-in
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                drone.style.left = droneTgtX + 'px';
+                drone.style.top  = droneTgtY + 'px';
+            });
+        });
+
+        // ── Phase 2: Hover oscillation (200–400ms) ────────────────────
+        let hoverRAF = 0;
+        const hoverStart = performance.now() + 200;
+        const hoverEnd   = hoverStart + 200;
+        const doHover = (now) => {
+            if (now < hoverStart) { hoverRAF = requestAnimationFrame(doHover); return; }
+            if (now > hoverEnd) return;
+            const osc = Math.sin((now - hoverStart) / 40 * Math.PI) * 3;
+            drone.style.transform = `translateY(${osc}px)`;
+            hoverRAF = requestAnimationFrame(doHover);
+        };
+        hoverRAF = requestAnimationFrame(doHover);
+
+        // ── Phase 3: Laser beams + scan line (400–700ms) ──────────────
+        setTimeout(() => {
+            drone.style.transition = 'none';
+
+            // Read drone's actual rendered position (includes hover transform)
+            // Origin at ~60% height of sprite — where the drone body sits (not the bottom edge)
+            const droneRect = drone.getBoundingClientRect();
+            const laserOriginX = droneRect.left + droneRect.width / 2;
+            const laserOriginY = droneRect.top + droneRect.height * 0.7;
+
+            // Two laser beams: left edge and right edge of task
+            const beamTargets = [
+                { x: rect.left, label: 'L' },
+                { x: rect.left + rect.width, label: 'R' },
+            ];
+
+            const beams = beamTargets.map(({ x }) => {
+                const dx = x - laserOriginX;
+                const dy = rect.top - laserOriginY;
+                const len = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+                const beam = document.createElement('div');
+                beam.style.cssText = [
+                    'position:fixed',
+                    `left:${laserOriginX}px`,
+                    `top:${laserOriginY}px`,
+                    'width:0px',
+                    'height:2px',
+                    `background:linear-gradient(90deg, ${MAGENTA}, rgba(255,45,120,0.3))`,
+                    `box-shadow:0 0 4px ${MAGENTA}, 0 0 8px ${MAGENTA}`,
+                    'pointer-events:none',
+                    'z-index:100000',
+                    'transform-origin:0 50%',
+                    `transform:rotate(${angle}deg)`,
+                    'transition:width 120ms cubic-bezier(0.0,0.0,0.2,1)',
+                    'opacity:0.9',
+                ].join(';');
+                document.body.appendChild(beam);
+
+                // Extend beam
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        beam.style.width = len + 'px';
+                    });
+                });
+                return { beam, len };
+            });
+
+            // Scan line sweeps top→bottom (starts after beams reach task ~120ms)
+            setTimeout(() => {
+                const line = document.createElement('div');
+                line.style.cssText = [
+                    'position:fixed',
+                    `left:${rect.left}px`,
+                    `top:${rect.top}px`,
+                    `width:${rect.width}px`,
+                    'height:2px',
+                    `background:${MAGENTA}`,
+                    `box-shadow:0 0 6px ${MAGENTA}, 0 0 12px rgba(255,45,120,0.4)`,
+                    'pointer-events:none',
+                    'z-index:100000',
+                    'transition:top 180ms linear',
+                ].join(';');
+                document.body.appendChild(line);
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        line.style.top = (rect.top + rect.height) + 'px';
+                    });
+                });
+
+                setTimeout(() => line.remove(), 200);
+            }, 120);
+
+            // Remove beams after scan completes
+            setTimeout(() => {
+                beams.forEach(({ beam }) => {
+                    beam.style.transition = 'opacity 60ms ease-out';
+                    beam.style.opacity = '0';
+                });
+                setTimeout(() => beams.forEach(({ beam }) => beam.remove()), 80);
+            }, 280);
+        }, 400);
+
+        // ── Phase 4: Pixel decomposition (700–1000ms) ─────────────────
+        setTimeout(() => {
+            cancelAnimationFrame(hoverRAF);
+
+            // Capture task into an offscreen canvas
+            const BLOCK = 4; // px per block
+            const cols = Math.ceil(rect.width / BLOCK);
+            const rows = Math.ceil(rect.height / BLOCK);
+
+            // Use html2canvas-free approach: draw the clone into a canvas via foreignObject SVG
+            // Fallback: generate coloured blocks from computed background
+            const blocks = [];
+            const taskBg = window.getComputedStyle(taskElement).backgroundColor || 'rgba(30,30,40,1)';
+
+            // Generate pixel blocks using canvas capture of the element
+            try {
+                const cvs = document.createElement('canvas');
+                cvs.width = rect.width;
+                cvs.height = rect.height;
+                const ctx2d = cvs.getContext('2d');
+
+                // Draw the task element via SVG foreignObject
+                const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${rect.width}" height="${rect.height}">
+                    <foreignObject width="100%" height="100%">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="background:${taskBg};width:${rect.width}px;height:${rect.height}px"></div>
+                    </foreignObject>
+                </svg>`;
+                const img = new Image();
+                const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                img.onload = () => {
+                    ctx2d.drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                    this._scatterPixelBlocks(ctx2d, cvs, rect, BLOCK, cols, rows);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    // Fallback: solid-color blocks
+                    this._scatterSolidBlocks(rect, BLOCK, cols, rows, taskBg);
+                };
+                img.src = url;
+            } catch (_) {
+                this._scatterSolidBlocks(rect, BLOCK, cols, rows, taskBg);
+            }
+
+            // Hide original task clone
+            if (taskElement) taskElement.style.opacity = '0';
+        }, 700);
+
+        // ── Phase 5: Drone exit (1000–1100ms) ────────────────────────
+        setTimeout(() => {
+            drone.style.transition = 'left 100ms cubic-bezier(0.4,0.0,1,1),top 100ms cubic-bezier(0.4,0.0,1,1)';
+            drone.style.left = (W + 50) + 'px';
+            drone.style.top  = '-30px';
+        }, 1000);
+
+        // ── Cleanup ──────────────────────────────────────────────────
+        setTimeout(() => {
+            drone.remove();
+            this.effectLock = false;
+        }, 1150);
+    }
+
+    /**
+     * Scatter pixel blocks extracted from a canvas capture.
+     */
+    _scatterPixelBlocks(ctx2d, cvs, rect, BLOCK, cols, rows) {
+        let imgData;
+        try {
+            imgData = ctx2d.getImageData(0, 0, cvs.width, cvs.height);
+        } catch (_) {
+            // Tainted canvas fallback
+            const bg = 'rgba(30,30,40,1)';
+            this._scatterSolidBlocks(rect, BLOCK, cols, rows, bg);
+            return;
+        }
+
+        const frag = document.createDocumentFragment();
+        const blocks = [];
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                // Sample colour at block centre
+                const sx = Math.min(c * BLOCK + BLOCK / 2, cvs.width  - 1);
+                const sy = Math.min(r * BLOCK + BLOCK / 2, cvs.height - 1);
+                const idx = (Math.floor(sy) * cvs.width + Math.floor(sx)) * 4;
+                const red   = imgData.data[idx];
+                const green = imgData.data[idx + 1];
+                const blue  = imgData.data[idx + 2];
+                const alpha = imgData.data[idx + 3];
+                if (alpha < 10) continue; // skip transparent
+
+                const el = document.createElement('div');
+                const bx = rect.left + c * BLOCK;
+                const by = rect.top  + r * BLOCK;
+                const angle = Math.random() * 360;
+                const dist  = 40 + Math.random() * 80;
+                const dx = Math.cos(angle * Math.PI / 180) * dist;
+                const dy = Math.sin(angle * Math.PI / 180) * dist;
+                const rot = Math.floor(Math.random() * 360);
+
+                el.style.cssText = [
+                    'position:fixed',
+                    `left:${bx}px`,
+                    `top:${by}px`,
+                    `width:${BLOCK}px`,
+                    `height:${BLOCK}px`,
+                    `background:rgba(${red},${green},${blue},${alpha / 255})`,
+                    'pointer-events:none',
+                    'z-index:100000',
+                    'will-change:transform,opacity',
+                    `transition:transform 300ms cubic-bezier(0.0,0.0,0.2,1),opacity 300ms cubic-bezier(0.0,0.0,0.2,1)`,
+                ].join(';');
+                frag.appendChild(el);
+                blocks.push({ el, dx, dy, rot });
+            }
+        }
+        document.body.appendChild(frag);
+
+        // Trigger scatter
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                blocks.forEach(({ el, dx, dy, rot }) => {
+                    el.style.transform = `translate(${dx}px,${dy}px) rotate(${rot}deg)`;
+                    el.style.opacity = '0';
+                });
+            });
+        });
+
+        // Cleanup blocks
+        setTimeout(() => {
+            blocks.forEach(({ el }) => el.remove());
+        }, 350);
+    }
+
+    /**
+     * Fallback: scatter solid-colour blocks when canvas capture fails.
+     */
+    _scatterSolidBlocks(rect, BLOCK, cols, rows, bgColor) {
+        const frag = document.createDocumentFragment();
+        const blocks = [];
+        // Parse rgb/rgba or use neon tint
+        const colors = [bgColor, '#ff2d78', '#00fff0', '#ff2dff'];
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const el = document.createElement('div');
+                const bx = rect.left + c * BLOCK;
+                const by = rect.top  + r * BLOCK;
+                const angle = Math.random() * 360;
+                const dist  = 40 + Math.random() * 80;
+                const dx = Math.cos(angle * Math.PI / 180) * dist;
+                const dy = Math.sin(angle * Math.PI / 180) * dist;
+                const rot = Math.floor(Math.random() * 360);
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                el.style.cssText = [
+                    'position:fixed',
+                    `left:${bx}px`,
+                    `top:${by}px`,
+                    `width:${BLOCK}px`,
+                    `height:${BLOCK}px`,
+                    `background:${color}`,
+                    'pointer-events:none',
+                    'z-index:100000',
+                    'will-change:transform,opacity',
+                    `transition:transform 300ms cubic-bezier(0.0,0.0,0.2,1),opacity 300ms cubic-bezier(0.0,0.0,0.2,1)`,
+                ].join(';');
+                frag.appendChild(el);
+                blocks.push({ el, dx, dy, rot });
+            }
+        }
+        document.body.appendChild(frag);
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                blocks.forEach(({ el, dx, dy, rot }) => {
+                    el.style.transform = `translate(${dx}px,${dy}px) rotate(${rot}deg)`;
+                    el.style.opacity = '0';
+                });
+            });
+        });
+
+        setTimeout(() => {
+            blocks.forEach(({ el }) => el.remove());
+        }, 350);
     }
 
     createGiantTreeGrowEffect(taskElement, optionalRect) {
