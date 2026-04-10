@@ -12,6 +12,7 @@ import type { Task } from '../types/task';
 import type { FocusTimerState } from '../hooks/useFocusTimer';
 import { useWakeLock } from '../hooks/useWakeLock';
 import type { BgmTrack } from '../services/bgm';
+import './FocusScreen.css';
 
 export type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -37,11 +38,8 @@ export interface FocusScreenProps {
   onResume: () => void;
   onSkipBreak: () => void;
   onCompleteFocus: () => void;
-  /** When false, minute ▲▼ controls are hidden (e.g. logged-out guests). Default true. */
   canAdjustMinutes?: boolean;
-  /** Tutorial task 3: jump to Smash List tab on main screen. */
   onTutorialSmashLinkClick?: () => void;
-  /** Tutorial task 4: jump to Focus screen. */
   onTutorialFocusLinkClick?: () => void;
 }
 
@@ -54,7 +52,6 @@ function formatTime(seconds: number): string {
 }
 
 function TimeDigits({ value }: { value: string }) {
-  // Fixed-width per digit like timer apps (each glyph gets its own slot).
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center' }}>
       {value.split('').map((ch, i) => (
@@ -75,29 +72,10 @@ function TimeDigits({ value }: { value: string }) {
 }
 
 export function FocusScreen({
-  lists,
-  lang,
-  onCompleteTask,
-  onEditTask,
-  mode,
-  minutes,
-  timerState,
-  remaining,
-  bgmOn,
-  bgmTrack,
-  onBgmChange,
-  onBgmMenuOpenChange,
-  onOpenZenMode,
-  onSwitchMode,
-  onAdjustMinutes,
-  onStart,
-  onPause,
-  onResume,
-  onSkipBreak,
-  onCompleteFocus,
-  canAdjustMinutes = true,
-  onTutorialSmashLinkClick,
-  onTutorialFocusLinkClick,
+  lists, lang, onCompleteTask, onEditTask, mode, minutes, timerState, remaining,
+  bgmOn, bgmTrack, onBgmChange, onBgmMenuOpenChange, onOpenZenMode,
+  onSwitchMode, onAdjustMinutes, onStart, onPause, onResume, onSkipBreak,
+  onCompleteFocus, canAdjustMinutes = true, onTutorialSmashLinkClick, onTutorialFocusLinkClick,
 }: FocusScreenProps) {
   useWakeLock(timerState === 'running');
   const [taskPanelMode, setTaskPanelMode] = useState<'today' | 'lists'>('today');
@@ -105,13 +83,9 @@ export function FocusScreen({
   const SMALL_STEPS = [1, 3, 5] as const;
 
   const nextMinutesByArrow = (current: number, dir: -1 | 1): number => {
-    // Spec:
-    // - Up to 5 minutes: 1 → 3 → 5 (and reverse)
-    // - After that: +/- 5 minutes
     if (current < 5) {
       const sorted = [...SMALL_STEPS];
       const idx = sorted.findIndex((v) => v === current);
-      // If current isn't exactly 1/3/5 (shouldn't happen often), snap within the small range.
       if (idx === -1) {
         if (dir === 1) return current <= 1 ? 1 : current <= 3 ? 3 : 5;
         return current <= 1 ? 1 : current <= 3 ? 1 : 3;
@@ -119,16 +93,11 @@ export function FocusScreen({
       const nextIdx = Math.max(0, Math.min(sorted.length - 1, idx + dir));
       return sorted[nextIdx];
     }
-
-    if (current === 5) {
-      return dir === 1 ? 10 : 3;
-    }
-
+    if (current === 5) return dir === 1 ? 10 : 3;
     if (dir === 1) return current + 5;
     return Math.max(5, current - 5);
   };
 
-  // keep selected list valid when lists change
   useEffect(() => {
     const nextFocusLists = lists.filter((l) => !(l.id === 'smash-list' || l.name === '💥 Smash List'));
     if (!selectedListId || !nextFocusLists.some((l) => l.id === selectedListId)) {
@@ -137,281 +106,147 @@ export function FocusScreen({
   }, [lists, selectedListId]);
 
   const isBreakMode = mode === 'shortBreak' || mode === 'longBreak';
-
   const isRunning = timerState === 'running';
   const isPaused = timerState === 'paused';
-
-  // Today tasks across all lists (pomodoro only)
   const today = getTodayYMD();
   const focusLists = lists.filter((l) => !(l.id === 'smash-list' || l.name === '💥 Smash List'));
-  const todayTasks: Task[] = focusLists
-    .flatMap((l) => l.tasks)
-    .filter((task) => !task.completed && task.dueDate !== null && task.dueDate <= today);
+  const todayTasks: Task[] = focusLists.flatMap((l) => l.tasks).filter((task) => !task.completed && task.dueDate !== null && task.dueDate <= today);
   const selectedList = focusLists.find((l) => l.id === selectedListId) ?? null;
   const listTasks: Task[] = (selectedList?.tasks ?? []).filter((task) => !task.completed);
 
   return (
-    <div style={containerStyle}>
+    <div className="pd-focus">
       {/* Timer panel */}
-      <div style={timerBlockStyle} className="pd-focus-timer-block">
-        {/* Row 1: action buttons — right-aligned, always visible */}
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', padding: '0 10px', flexShrink: 0 }}>
-          <div style={{ display: 'flex', gap: '8px' }}>
+      <div className="pd-focus__timer-block">
+        <div className="pd-focus__top-actions">
+          <div className="pd-focus__top-actions-inner">
             <IconButton
-              variant="ghost"
-              size="sm"
+              variant="ghost" size="sm"
               aria-label={lang === 'ja' ? '全画面でフォーカス' : 'Full screen focus'}
               icon={<span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>fullscreen</span>}
               onClick={onOpenZenMode}
             />
             {mode === 'pomodoro' && (
-              <BgmControl
-                lang={lang}
-                bgmOn={bgmOn}
-                track={bgmTrack}
-                onChange={onBgmChange}
-                onMenuOpenChange={onBgmMenuOpenChange}
-                variant="ghost"
-              />
+              <BgmControl lang={lang} bgmOn={bgmOn} track={bgmTrack} onChange={onBgmChange} onMenuOpenChange={onBgmMenuOpenChange} variant="ghost" />
             )}
           </div>
         </div>
 
-        {/* Row 2+: chips + timer + CTA — vertically centered in remaining space */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '8px 0' }}>
-          {/* Mode chips */}
+        <div className="pd-focus__timer-body">
           <div
             aria-hidden={timerState !== 'idle'}
-            className="pd-focus-mode-chips"
-            style={{
-              display: 'flex',
-              gap: '8px',
-              marginBottom: '20px',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              visibility: timerState === 'idle' ? 'visible' : 'hidden',
-              pointerEvents: timerState === 'idle' ? 'auto' : 'none',
-              minHeight: '28px',
-            }}
+            className={`pd-focus__mode-chips${timerState !== 'idle' ? ' pd-focus__mode-chips--hidden' : ''}`}
           >
             {MODES.map((m) => (
-              <Chip
-                key={m}
-                selected={mode === m}
-                onClick={() => onSwitchMode(m)}
-              >
-                {t(m, lang)}
-              </Chip>
+              <Chip key={m} selected={mode === m} onClick={() => onSwitchMode(m)}>{t(m, lang)}</Chip>
             ))}
           </div>
 
-          {/* Time display with adjust arrows (idle only, logged-in) */}
           {timerState === 'idle' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="pd-focus__adjust-row">
+              <div className="pd-focus__adjust-inner">
                 {canAdjustMinutes && (
-                  <AdjustButton
-                    direction="down"
-                    onClick={() => {
-                      const next = nextMinutesByArrow(minutes, -1);
-                      onAdjustMinutes(next - minutes);
-                    }}
-                  />
+                  <AdjustButton direction="down" onClick={() => { const next = nextMinutesByArrow(minutes, -1); onAdjustMinutes(next - minutes); }} />
                 )}
-                <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>
+                <div className="pd-focus__timer-display"><TimeDigits value={formatTime(remaining)} /></div>
                 {canAdjustMinutes && (
-                  <AdjustButton
-                    direction="up"
-                    onClick={() => {
-                      const next = nextMinutesByArrow(minutes, 1);
-                      onAdjustMinutes(next - minutes);
-                    }}
-                  />
+                  <AdjustButton direction="up" onClick={() => { const next = nextMinutesByArrow(minutes, 1); onAdjustMinutes(next - minutes); }} />
                 )}
               </div>
               {!canAdjustMinutes && (
-                <p
-                  style={{
-                    margin: 0,
-                    maxWidth: '280px',
-                    textAlign: 'center',
-                    fontFamily: 'var(--pd-font-body)',
-                    fontSize: '0.75rem',
-                    color: 'var(--pd-color-text-secondary)',
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {t('focusDurationLoginHint', lang)}
-                </p>
+                <p className="pd-focus__login-hint">{t('focusDurationLoginHint', lang)}</p>
               )}
             </div>
           ) : (
-            <div style={timerDisplayStyle} className="pd-focus-timer-display"><TimeDigits value={formatTime(remaining)} /></div>
+            <div className="pd-focus__timer-display"><TimeDigits value={formatTime(remaining)} /></div>
           )}
 
           {mode === 'pomodoro' && (
-            <div style={{ width: '100%', maxWidth: '340px', padding: '0 4px', marginTop: '12px' }}>
-              <PacmanProgress
-                remaining={remaining}
-                totalSeconds={minutes * 60}
-                timerState={timerState}
-              />
+            <div className="pd-focus__progress">
+              <PacmanProgress remaining={remaining} totalSeconds={minutes * 60} timerState={timerState} />
             </div>
           )}
 
-          {/* CTA buttons */}
-          <div style={{ marginTop: '20px' }}>
+          <div className="pd-focus__cta">
             {timerState === 'idle' ? (
               <Button onClick={onStart} style={{ minWidth: '120px' }}>Start</Button>
             ) : (
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                <Button
-                  variant="secondary"
-                  onClick={isRunning ? onPause : onResume}
-                >
-                  {isRunning
-                    ? (lang === 'ja' ? '一時停止' : 'Pause')
-                    : (lang === 'ja' ? '再開' : 'Resume')}
+              <div className="pd-focus__cta-row">
+                <Button variant="secondary" onClick={isRunning ? onPause : onResume}>
+                  {isRunning ? (lang === 'ja' ? '一時停止' : 'Pause') : (lang === 'ja' ? '再開' : 'Resume')}
                 </Button>
                 {isBreakMode ? (
-                  <Button variant="secondary" onClick={onSkipBreak}>
-                    {t('skipBreak', lang)}
-                  </Button>
+                  <Button variant="secondary" onClick={onSkipBreak}>{t('skipBreak', lang)}</Button>
                 ) : (
-                  <Button onClick={onCompleteFocus}>
-                    {lang === 'ja' ? '完了' : 'Complete'}
-                  </Button>
+                  <Button onClick={onCompleteFocus}>{lang === 'ja' ? '完了' : 'Complete'}</Button>
                 )}
               </div>
             )}
           </div>
         </div>
-
       </div>
 
-      {/* Break: Pixel Breaker game (short/long break while running or paused) */}
+      {/* Break game */}
       {isBreakMode && (isRunning || isPaused) && (
-        <div style={{ marginBottom: '24px' }}>
-          <p style={{
-            margin: '0 0 10px',
-            fontFamily: 'var(--pd-font-body)',
-            fontSize: '0.875rem',
-            color: 'var(--pd-color-text-secondary)',
-            lineHeight: 1.4,
-          }}>
-            {t('breakGamePitch', lang)}
-          </p>
+        <div className="pd-focus__break-game">
+          <p className="pd-focus__break-pitch">{t('breakGamePitch', lang)}</p>
           <PixelBreaker lang={lang} />
         </div>
       )}
 
-      {/* Today's Tasks (pomodoro mode only) */}
+      {/* Task panel (pomodoro only) */}
       {mode === 'pomodoro' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
-            <h3 style={{ ...sectionTitleStyle, marginBottom: 0 }}>{t('todayTasks', lang)}</h3>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              {(['today', 'lists'] as const).map((k) => {
-                const active = taskPanelMode === k;
-                return (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() => { playSound('buttonClick'); setTaskPanelMode(k); }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      padding: 0,
-                      cursor: 'pointer',
-                      fontFamily: 'var(--pd-font-body)',
-                      fontSize: '0.75rem',
-                      color: active ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
-                      fontWeight: active ? 700 : 500,
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    {t(k === 'today' ? 'focusTasksToday' : 'focusTasksLists', lang)}
-                  </button>
-                );
-              })}
+          <div className="pd-focus__task-header">
+            <h3 className="pd-focus__section-title">{t('todayTasks', lang)}</h3>
+            <div className="pd-focus__panel-toggle">
+              {(['today', 'lists'] as const).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  className={`pd-focus__panel-btn${taskPanelMode === k ? ' pd-focus__panel-btn--active' : ''}`}
+                  onClick={() => { playSound('buttonClick'); setTaskPanelMode(k); }}
+                >
+                  {t(k === 'today' ? 'focusTasksToday' : 'focusTasksLists', lang)}
+                </button>
+              ))}
             </div>
           </div>
 
           {taskPanelMode === 'today' ? (
             todayTasks.length === 0 ? (
-              <div style={emptyTasksStyle}>{t('noTodayTasks', lang)}</div>
+              <div className="pd-focus__empty-tasks">{t('noTodayTasks', lang)}</div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="pd-focus__task-list">
                 {todayTasks.map((task) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    lang={lang}
-                    onComplete={onCompleteTask}
-                    onEdit={onEditTask ?? (() => {})}
-                    onTutorialSmashLinkClick={onTutorialSmashLinkClick}
-                    onTutorialFocusLinkClick={onTutorialFocusLinkClick}
-                  />
+                  <TaskItem key={task.id} task={task} lang={lang} onComplete={onCompleteTask} onEdit={onEditTask ?? (() => {})}
+                    onTutorialSmashLinkClick={onTutorialSmashLinkClick} onTutorialFocusLinkClick={onTutorialFocusLinkClick} />
                 ))}
               </div>
             )
           ) : (
             <div>
-              <div
-                role="tablist"
-                aria-label={lang === 'ja' ? 'リスト切り替え' : 'List switcher'}
-                style={{
-                  display: 'flex',
-                  gap: '10px',
-                  alignItems: 'center',
-                  overflowX: 'auto',
-                  paddingBottom: '6px',
-                  marginBottom: '12px',
-                  WebkitOverflowScrolling: 'touch',
-                }}
-              >
-                {focusLists.map((l) => {
-                  const active = l.id === selectedListId;
-                  return (
-                    <button
-                      key={l.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={active}
-                      onClick={() => { playSound('buttonClick'); setSelectedListId(l.id); }}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: '2px 0',
-                        cursor: 'pointer',
-                        fontFamily: 'var(--pd-font-body)',
-                        fontSize: '0.75rem',
-                        whiteSpace: 'nowrap',
-                        color: active ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
-                        borderBottom: `2px solid ${active ? 'var(--pd-color-accent-default)' : 'transparent'}`,
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {l.name}
-                    </button>
-                  );
-                })}
+              <div className="pd-focus__list-tabs" role="tablist" aria-label={lang === 'ja' ? 'リスト切り替え' : 'List switcher'}>
+                {focusLists.map((l) => (
+                  <button
+                    key={l.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={l.id === selectedListId}
+                    className={`pd-focus__list-tab${l.id === selectedListId ? ' pd-focus__list-tab--active' : ''}`}
+                    onClick={() => { playSound('buttonClick'); setSelectedListId(l.id); }}
+                  >
+                    {l.name}
+                  </button>
+                ))}
               </div>
-
               {listTasks.length === 0 ? (
-                <div style={emptyTasksStyle}>{t('focusNoListTasks', lang)}</div>
+                <div className="pd-focus__empty-tasks">{t('focusNoListTasks', lang)}</div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="pd-focus__task-list">
                   {listTasks.slice(0, 12).map((task) => (
-                    <TaskItem
-                      key={task.id}
-                      task={task}
-                      lang={lang}
-                      onComplete={onCompleteTask}
-                      onEdit={onEditTask ?? (() => {})}
-                      onTutorialSmashLinkClick={onTutorialSmashLinkClick}
-                      onTutorialFocusLinkClick={onTutorialFocusLinkClick}
-                    />
+                    <TaskItem key={task.id} task={task} lang={lang} onComplete={onCompleteTask} onEdit={onEditTask ?? (() => {})}
+                      onTutorialSmashLinkClick={onTutorialSmashLinkClick} onTutorialFocusLinkClick={onTutorialFocusLinkClick} />
                   ))}
                 </div>
               )}
@@ -423,15 +258,13 @@ export function FocusScreen({
   );
 }
 
-/* ▲/▼ adjust button */
 function AdjustButton({ onClick, direction }: { onClick: () => void; direction: 'up' | 'down' }) {
   const labelJa = direction === 'up' ? '時間を増やす' : '時間を減らす';
   const labelEn = direction === 'up' ? 'Increase minutes' : 'Decrease minutes';
   const symbol = direction === 'up' ? '▲' : '▼';
   return (
     <IconButton
-      variant="ghost"
-      size="sm"
+      variant="ghost" size="sm"
       aria-label={labelJa + ' / ' + labelEn}
       icon={<span style={{ fontSize: '0.75rem', lineHeight: 1 }}>{symbol}</span>}
       onClick={onClick}
@@ -439,59 +272,3 @@ function AdjustButton({ onClick, direction }: { onClick: () => void; direction: 
     />
   );
 }
-
-/* Styles */
-const containerStyle: React.CSSProperties = {
-  padding: '24px 0',
-  display: 'flex',
-  flexDirection: 'column',
-  minHeight: 0,
-};
-
-const timerBlockStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  marginBottom: '24px',
-  padding: '10px 0 16px',
-  background: 'var(--pd-color-background-elevated)',
-  border: '2px solid var(--pd-color-border-default)',
-  boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
-  // Mobile UX: reserve ~40% viewport so controls don't sit too high
-  minHeight: 'min(360px, 40vh)',
-};
-
-const timerDisplayStyle: React.CSSProperties = {
-  fontFamily: "'VT323', 'Courier New', monospace",
-  fontSize: 'clamp(4rem, 20vw, 7rem)',
-  color: 'var(--pd-color-text-primary)',
-  letterSpacing: '0.04em',
-  lineHeight: 1,
-  // Theme-safe layout: keep baseline/metrics from shifting the block height
-  height: '1em',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  overflow: 'hidden',
-  paddingTop: '0.04em',
-  // Keep whole time block stable
-  minWidth: '5ch', // "MM:SS"
-};
-
-const sectionTitleStyle: React.CSSProperties = {
-  fontFamily: 'var(--pd-font-body)',
-  fontSize: '0.75rem',
-  color: 'var(--pd-color-text-secondary)',
-  marginBottom: '12px',
-  letterSpacing: '0.1em',
-  textTransform: 'uppercase',
-};
-
-const emptyTasksStyle: React.CSSProperties = {
-  fontFamily: 'var(--pd-font-body)',
-  fontSize: '0.875rem',
-  color: 'var(--pd-color-text-secondary)',
-  padding: '24px',
-  textAlign: 'center',
-  border: '2px dashed var(--pd-color-border-default)',
-};

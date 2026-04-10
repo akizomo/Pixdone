@@ -1,0 +1,210 @@
+/* FocusScreen */
+
+.pd-focus {
+  padding: var(--pxd-space-6) 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.pd-focus__timer-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--pxd-space-6);
+  padding: 10px 0 var(--pxd-space-4);
+  background: var(--pd-color-background-elevated);
+  border: var(--pxd-border-base) solid var(--pd-color-border-default);
+  box-shadow: var(--pxd-shadow-pixel-md);
+  min-height: min(360px, 40vh);
+}
+
+.pd-focus__top-actions {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 10px;
+  flex-shrink: 0;
+}
+
+.pd-focus__top-actions-inner {
+  display: flex;
+  gap: var(--pxd-space-2);
+}
+
+.pd-focus__timer-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--pxd-space-2) 0;
+}
+
+.pd-focus__mode-chips {
+  display: flex;
+  gap: var(--pxd-space-2);
+  margin-bottom: var(--pxd-space-5);
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 28px;
+}
+
+.pd-focus__mode-chips--hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.pd-focus__timer-display {
+  font-family: var(--pd-font-brand);
+  font-size: clamp(4rem, 20vw, 7rem);
+  color: var(--pd-color-text-primary);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  height: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding-top: 0.04em;
+  min-width: 5ch;
+}
+
+.pd-focus__adjust-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.pd-focus__adjust-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-2);
+}
+
+.pd-focus__login-hint {
+  margin: 0;
+  max-width: 280px;
+  text-align: center;
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+  line-height: 1.4;
+}
+
+.pd-focus__progress {
+  width: 100%;
+  max-width: 340px;
+  padding: 0 var(--pxd-space-1);
+  margin-top: var(--pxd-space-3);
+}
+
+.pd-focus__cta {
+  margin-top: var(--pxd-space-5);
+}
+
+.pd-focus__cta-row {
+  display: flex;
+  gap: var(--pxd-space-3);
+  justify-content: center;
+}
+
+/* Break game section */
+.pd-focus__break-game {
+  margin-bottom: var(--pxd-space-6);
+}
+
+.pd-focus__break-pitch {
+  margin: 0 0 10px;
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  line-height: 1.4;
+}
+
+/* Task panel */
+.pd-focus__task-header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--pxd-space-3);
+  align-items: center;
+  margin-bottom: var(--pxd-space-3);
+}
+
+.pd-focus__section-title {
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.pd-focus__panel-toggle {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pd-focus__panel-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+  font-weight: var(--pxd-font-weight-medium);
+  line-height: 1.2;
+}
+
+.pd-focus__panel-btn--active {
+  color: var(--pd-color-text-primary);
+  font-weight: var(--pxd-font-weight-bold);
+}
+
+.pd-focus__empty-tasks {
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  padding: var(--pxd-space-6);
+  text-align: center;
+  border: var(--pxd-border-base) dashed var(--pd-color-border-default);
+}
+
+.pd-focus__task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pxd-space-2);
+}
+
+/* List tabs in lists panel */
+.pd-focus__list-tabs {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: var(--pxd-space-3);
+  -webkit-overflow-scrolling: touch;
+}
+
+.pd-focus__list-tab {
+  background: none;
+  border: none;
+  padding: 2px 0;
+  cursor: pointer;
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-xs);
+  white-space: nowrap;
+  color: var(--pd-color-text-secondary);
+  border-bottom: var(--pxd-border-base) solid transparent;
+  line-height: 1.2;
+}
+
+.pd-focus__list-tab--active {
+  color: var(--pd-color-text-primary);
+  border-bottom-color: var(--pd-color-accent-default);
+}

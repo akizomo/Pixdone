@@ -1,0 +1,89 @@
+/* FocusZenMode — full-screen focus overlay */
+
+.pd-zen-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--pd-color-overlay-backdrop);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.pd-zen-backdrop--entered {
+  opacity: 1;
+}
+
+.pd-zen-backdrop--leaving {
+  transition: opacity 0.25s ease;
+}
+
+.pd-zen-dialog {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  z-index: 2001;
+  display: flex;
+  flex-direction: column;
+  background: var(--pd-color-background-default);
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  padding-bottom: env(safe-area-inset-bottom);
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+.pd-zen-dialog--entered {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.pd-zen-dialog--leaving {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.pd-zen-close {
+  position: absolute;
+  top: var(--pxd-space-3);
+  right: var(--pxd-space-3);
+  z-index: 1;
+}
+
+.pd-zen-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+  padding: var(--pxd-space-5) var(--pxd-space-4);
+  background: var(--pd-color-background-default);
+}
+
+.pd-zen-bgm {
+  margin-bottom: var(--pxd-space-2);
+}
+
+.pd-zen-timer {
+  font-family: var(--pd-font-brand);
+  font-size: clamp(4.5rem, 20vw, 8rem);
+  color: var(--pd-color-text-primary);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-align: center;
+  user-select: none;
+}
+
+.pd-zen-progress {
+  width: 100%;
+  max-width: 340px;
+  padding: 0 var(--pxd-space-1);
+}
+
+.pd-zen-actions {
+  display: flex;
+  gap: var(--pxd-space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
