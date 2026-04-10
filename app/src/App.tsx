@@ -776,7 +776,7 @@ function AppContent() {
             lang={lang}
             user={user}
             onComplete={handleComplete}
-            onEdit={handleEdit}
+            onEdit={() => setActiveScreen('tasks')}
             onNavigateToSmashList={navigateToSmashList}
             onNavigateToFocus={navigateToFocus}
             focusZenOpen={focusZenOpen}
