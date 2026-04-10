@@ -85,7 +85,6 @@ const preview: Preview = {
                 background: 'var(--pxd-color-surface-page)',
                 color: 'var(--pxd-color-text-primary)',
                 boxSizing: 'border-box',
-                minHeight: '100vh',
               }}
             >
               <Story />
