@@ -10,7 +10,7 @@
   border-style: solid;
   border-radius: 0;
   font-family: var(--pd-font-brand);
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   image-rendering: pixelated;
   transition: all 0.2s ease;
@@ -33,14 +33,14 @@
 /* ---- Sizes ---- */
 
 .pxd-button--sm {
-  padding: 4px 8px;
-  font-size: 0.75rem;
+  padding: 4px 10px;
+  font-size: 0.875rem;
   min-height: 28px;
 }
 
 .pxd-button--md {
-  padding: 8px 12px;
-  font-size: 0.875rem;
+  padding: 8px 14px;
+  font-size: 1rem;
   min-height: 36px;
 }
 

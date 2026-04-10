@@ -51,6 +51,7 @@
   background: none;
   border: 1px solid var(--pd-color-accent-default);
   font-family: var(--pd-font-brand);
+  font-weight: 700;
   font-size: 0.7rem;
   letter-spacing: 1px;
   color: var(--pd-color-accent-default);

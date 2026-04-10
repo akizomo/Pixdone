@@ -5,10 +5,10 @@
   align-items: center;
   gap: 4px;
   box-sizing: border-box;
-  padding: 2px 8px;
+  padding: 4px 10px;
   font-family: var(--pd-font-brand);
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: 700;
+  font-size: 1rem;
   border-width: 2px;
   border-style: solid;
   border-radius: 0;
@@ -80,13 +80,13 @@
 
 /* Size overrides */
 .pxd-chip--sm {
-  padding: 1px 6px;
-  font-size: 0.75rem;
+  padding: 2px 8px;
+  font-size: 0.875rem;
 }
 
 .pxd-chip--md {
-  padding: 2px 8px;
-  font-size: 0.875rem;
+  padding: 4px 10px;
+  font-size: 1rem;
 }
 
 /* Semantic variants (kept minimal) */

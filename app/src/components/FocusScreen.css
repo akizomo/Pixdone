@@ -57,7 +57,7 @@
 }
 
 .pd-focus__timer-display {
-  font-family: var(--pd-font-brand);
+  font-family: 'VT323', 'Courier New', monospace;
   font-size: clamp(4rem, 20vw, 7rem);
   color: var(--pd-color-text-primary);
   letter-spacing: 0.04em;

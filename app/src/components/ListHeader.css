@@ -14,6 +14,7 @@
   color: var(--pd-color-text-primary);
   margin: 0;
   font-family: var(--pd-font-brand);
+  font-weight: 700;
   image-rendering: pixelated;
   letter-spacing: 1px;
   text-transform: uppercase;

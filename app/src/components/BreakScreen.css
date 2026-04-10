@@ -10,6 +10,7 @@
 
 .pd-break__title {
   font-family: var(--pd-font-brand);
+  font-weight: 700;
   font-size: 1.25rem;
   color: var(--pd-color-text-secondary);
   letter-spacing: 0.15em;
@@ -27,7 +28,7 @@
 }
 
 .pd-break__timer-display {
-  font-family: var(--pd-font-brand);
+  font-family: 'VT323', 'Courier New', monospace;
   font-size: 3rem;
   color: var(--pd-color-text-primary);
   letter-spacing: 0.05em;
@@ -56,6 +57,7 @@
 
 .pd-break__canvas-title {
   font-family: var(--pd-font-brand);
+  font-weight: 700;
   font-size: 1rem;
   color: var(--pd-color-text-secondary);
   letter-spacing: 0.1em;
