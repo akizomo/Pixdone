@@ -17,6 +17,7 @@ import type { Task, Subtask } from '../types/task';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
+import { hasActiveRepeat, getNextDueDate } from '../lib/repeat';
 
 const STORAGE_KEY = 'pixdone_lists_v1';
 const ACTIVE_KEY = 'pixdone_active_v1';
@@ -651,17 +652,27 @@ export function useLists() {
   const completeTask = useCallback((taskId: string) => {
     const task = lists.flatMap((l) => l.tasks).find((t) => t.id === taskId);
     const isSmashTask = task?.listId === 'smash-list';
+    const isRepeating = task && hasActiveRepeat(task.repeat);
+
+    // For repeating tasks, calculate the next due date from the current due date (or today).
+    const nextDueDate = isRepeating
+      ? getNextDueDate(task.repeat!, task.dueDate ? new Date(task.dueDate) : new Date())
+      : null;
 
     setLists((prev) =>
       prev.map((l) => {
         const isSmash = l.id === 'smash-list' || l.name === '💥 Smash List';
-        const updated = l.tasks.map((t) =>
-          t.id === taskId
-            ? { ...t, completed: true, completedAt: new Date().toISOString() }
-            : t,
-        );
+        const updated = l.tasks.map((t) => {
+          if (t.id !== taskId) return t;
+          return {
+            ...t,
+            completed: true,
+            completedAt: new Date().toISOString(),
+            // Stash the next due date so the midnight reset knows when to uncomplete.
+            ...(nextDueDate ? { dueDate: nextDueDate } : {}),
+          };
+        });
         if (isSmash) {
-          // Smash List is local-only; always replenish to keep 3 active tasks.
           return { ...l, tasks: replenishSmashList(updated, 'smash-list') };
         }
         return { ...l, tasks: updated };
@@ -671,7 +682,9 @@ export function useLists() {
     if (user && !isSmashTask) {
       (async () => {
         const ref = doc(db, 'tasks', taskId);
-        await updateDoc(ref, { completed: true });
+        const updates: Record<string, unknown> = { completed: true };
+        if (nextDueDate) updates.dueDate = nextDueDate;
+        await updateDoc(ref, updates);
       })();
     }
   }, [setLists, user, lists]);
@@ -839,6 +852,59 @@ export function useLists() {
     [setLists, user],
   );
 
+  /**
+   * Reset completed repeating tasks whose dueDate has arrived (i.e. ≤ today).
+   * Called at midnight and on initial load.
+   */
+  const resetRepeatingTasks = useCallback(() => {
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    setLists((prev) =>
+      prev.map((l) => {
+        let changed = false;
+        const tasks = l.tasks.map((t) => {
+          if (!t.completed || !hasActiveRepeat(t.repeat)) return t;
+          // Uncomplete if the next due date is today or in the past
+          if (t.dueDate && t.dueDate <= todayStr) {
+            changed = true;
+            // Also reset subtasks
+            const resetSubtasks = t.subtasks?.map((s) => ({ ...s, done: false }));
+            return {
+              ...t,
+              completed: false,
+              completedAt: undefined,
+              ...(resetSubtasks ? { subtasks: resetSubtasks } : {}),
+            };
+          }
+          return t;
+        });
+        if (!changed) return l;
+
+        // Sync to Firestore
+        if (user) {
+          tasks.forEach((t) => {
+            const orig = l.tasks.find((o) => o.id === t.id);
+            if (orig && orig.completed && !t.completed) {
+              const ref = doc(db, 'tasks', t.id);
+              const updates: Record<string, unknown> = { completed: false };
+              if (t.subtasks) updates.subtasks = t.subtasks;
+              updateDoc(ref, updates).catch(() => {});
+            }
+          });
+        }
+
+        return { ...l, tasks };
+      }),
+    );
+  }, [setLists, user]);
+
+  // Run reset on mount and whenever lists change from Firestore sync
+  useEffect(() => {
+    resetRepeatingTasks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const currentList = lists.find((l) => l.id === activeId) ?? lists[0];
 
   return {
@@ -860,6 +926,7 @@ export function useLists() {
     deleteSubtask,
     moveTask,
     reorderActiveTasks,
+    resetRepeatingTasks,
     listLimitUpsellOpen,
     closeListLimitUpsell: () => setListLimitUpsellOpen(false),
   };

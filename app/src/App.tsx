@@ -85,6 +85,7 @@ function AppContent() {
     addTask, updateTask, deleteTask, completeTask, uncompleteTask,
     moveTask,
     reorderActiveTasks,
+    resetRepeatingTasks,
     listLimitUpsellOpen, closeListLimitUpsell,
   } = useLists();
 
@@ -199,8 +200,11 @@ function AppContent() {
     }
   }, [user, activeScreen]);
 
-  /* ---- Midnight refresh ---- */
-  useMidnightRefresh();
+  /* ---- Midnight refresh — also reset repeating tasks ---- */
+  const midnightTick = useMidnightRefresh();
+  useEffect(() => {
+    if (midnightTick > 0) resetRepeatingTasks();
+  }, [midnightTick, resetRepeatingTasks]);
 
   /* ---- Stripe purchase redirect + auth open ---- */
   useEffect(() => {
