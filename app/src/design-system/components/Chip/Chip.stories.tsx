@@ -61,3 +61,22 @@ export const FilterExample: Story = {
   ),
   parameters: { docs: { description: { story: 'Filter chips with one selected.' } } },
 };
+
+export const BodyFont: Story = {
+  name: 'Font: body',
+  args: { font: 'body', children: 'Today' },
+  parameters: { docs: { description: { story: 'Body font variant for form chips (date, repeat, etc.).' } } },
+};
+
+export const BodyFontFormChips: Story = {
+  name: 'Form Chips (body font)',
+  render: () => (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+      <Chip font="body" selected>Today</Chip>
+      <Chip font="body">Tomorrow</Chip>
+      <Chip font="body">Date</Chip>
+      <Chip font="body">Repeat</Chip>
+    </div>
+  ),
+  parameters: { docs: { description: { story: 'TaskForm-style chips using body font for readability.' } } },
+};

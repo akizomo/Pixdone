@@ -15,6 +15,7 @@ const variantMap = {
 export function Chip({
   variant = 'neutral',
   size = 'md',
+  font = 'brand',
   selected = false,
   removable = false,
   onRemove,
@@ -27,6 +28,7 @@ export function Chip({
     'pxd-chip',
     sizeMap[size],
     variantMap[variant],
+    font === 'body' ? 'pxd-chip--font-body' : '',
     selected ? 'pxd-chip--selected' : '',
     className,
   ]

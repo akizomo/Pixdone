@@ -1,0 +1,49 @@
+/* Badge — small metadata labels (overdue, today, repeat, etc.) */
+
+.pxd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 5px;
+  font-family: var(--pxd-font-body);
+  font-size: 0.6875rem;
+  font-weight: var(--pxd-font-weight-regular);
+  line-height: var(--pxd-line-height-snug);
+  border: var(--pxd-border-thin) solid;
+  border-radius: var(--pxd-radius-none);
+  white-space: nowrap;
+  image-rendering: pixelated;
+}
+
+/* Variants */
+.pxd-badge--default {
+  color: var(--pxd-color-text-secondary);
+  border-color: var(--pxd-color-border-outline);
+  background: transparent;
+}
+
+.pxd-badge--danger {
+  color: var(--pxd-color-text-danger);
+  border-color: var(--pxd-color-feedback-danger);
+  background: transparent;
+}
+
+.pxd-badge--warning {
+  color: var(--pxd-color-text-warning);
+  border-color: var(--pxd-color-feedback-warning);
+  background: transparent;
+}
+
+.pxd-badge--success {
+  color: var(--pxd-color-text-success);
+  border-color: var(--pxd-color-feedback-success);
+  background: transparent;
+}
+
+/* Icon slot */
+.pxd-badge__icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--pxd-font-size-xs);
+  line-height: 1;
+}

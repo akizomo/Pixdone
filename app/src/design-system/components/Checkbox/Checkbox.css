@@ -1,0 +1,58 @@
+/* Checkbox — pixel art checkbox */
+
+.pxd-checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: var(--pxd-border-base) solid var(--pxd-color-border-interactive);
+  border-radius: var(--pxd-radius-none);
+  background: transparent;
+  cursor: pointer;
+  image-rendering: pixelated;
+  transition: border-color var(--pxd-motion-fast) ease,
+              background-color var(--pxd-motion-fast) ease;
+}
+
+.pxd-checkbox:focus-visible {
+  outline: var(--pxd-border-base) solid var(--pxd-color-focus-ring);
+  outline-offset: var(--pxd-border-base);
+}
+
+/* Sizes */
+.pxd-checkbox--sm {
+  width: 18px;
+  height: 18px;
+}
+
+.pxd-checkbox--md {
+  width: var(--pxd-space-6);
+  height: var(--pxd-space-6);
+}
+
+/* Checked state */
+.pxd-checkbox--checked {
+  border-color: var(--pxd-color-action-primary);
+  background-color: var(--pxd-color-action-primary);
+}
+
+/* Check icon — Material Icons, always in DOM to prevent layout shift */
+.pxd-checkbox__check {
+  color: transparent;
+  line-height: 1;
+  user-select: none;
+  transition: color var(--pxd-motion-fast) ease;
+}
+
+.pxd-checkbox--sm .pxd-checkbox__check {
+  font-size: 14px;
+}
+
+.pxd-checkbox--md .pxd-checkbox__check {
+  font-size: 18px;
+}
+
+.pxd-checkbox--checked .pxd-checkbox__check {
+  color: var(--pxd-color-text-inverse);
+}
