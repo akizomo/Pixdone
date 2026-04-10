@@ -25,7 +25,5 @@ export { PixelBreaker } from './PixelBreaker';
 export type { PixelBreakerProps } from './PixelBreaker';
 export { BgmControl } from './BgmControl';
 export type { BgmControlProps } from './BgmControl';
-export { WhatsNewDialog, hasSeenWhatsNew, markWhatsNewSeen, WHATS_NEW_VERSION } from './WhatsNewDialog';
-export type { WhatsNewDialogProps } from './WhatsNewDialog';
 export { UpsellModal } from './UpsellModal';
 export type { UpsellReason } from './UpsellModal';

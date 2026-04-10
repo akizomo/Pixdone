@@ -6,3 +6,5 @@ dist/
 # Firebase サービスアカウント（秘密鍵）— リポジトリに入れない
 *-firebase-adminsdk-*.json
 .pnpm-store/
+.vercel
+.env*.local

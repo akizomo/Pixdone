@@ -10,9 +10,11 @@ export function setupGoogleAuth(app: Express) {
     return;
   }
 
-  const callbackURL = `https://${process.env.REPLIT_DOMAINS}/api/auth/google/callback`;
+  const callbackURL = process.env.GOOGLE_CALLBACK_URL
+    ?? (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}/api/auth/google/callback`
+      : 'http://localhost:5000/api/auth/google/callback');
   console.log('Setting up Google OAuth authentication...');
-  console.log('Google Client ID:', process.env.GOOGLE_CLIENT_ID);
   console.log('Callback URL:', callbackURL);
 
   // Google OAuth Strategy

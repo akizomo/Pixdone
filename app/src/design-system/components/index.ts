@@ -16,8 +16,6 @@ export { ModalDialog } from './ModalDialog/ModalDialog';
 export type { ModalDialogProps } from './ModalDialog/ModalDialog.types';
 export { BottomSheet } from './BottomSheet/BottomSheet';
 export type { BottomSheetProps } from './BottomSheet/BottomSheet.types';
-export { Select } from './Select/Select';
-export type { SelectProps, SelectOption, SelectSize } from './Select/Select.types';
 export { Toggle } from './Toggle/Toggle';
 export type { ToggleProps } from './Toggle/Toggle.types';
 export { PopoverMenu } from './PopoverMenu/PopoverMenu';

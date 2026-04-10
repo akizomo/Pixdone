@@ -68,7 +68,7 @@ export const EFFECTS_REGISTRY: EffectDef[] = [
 ];
 
 /** Fallback effect key when the draw pool is empty */
-export const FALLBACK_EFFECT_KEY = 'explode';
+const FALLBACK_EFFECT_KEY = 'explode';
 
 /** All free_unlocked effects (available to every user) */
 export const COMMON_EFFECTS = EFFECTS_REGISTRY.filter(ef => ef.access === 'free_unlocked');
@@ -234,14 +234,14 @@ export function pickGuaranteedRareOrEpic(pool: EffectDef[]): EffectDef {
 
 // ── Theme preview helpers ─────────────────────────────────────────────────────
 
-export function getThemeLimitedEffectKeys(themeKey: ThemeKey): string[] {
+function getThemeLimitedEffectKeys(themeKey: ThemeKey): string[] {
   return EFFECTS_REGISTRY
     .filter(ef => ef.themes !== 'all')
     .filter(ef => (ef.themes as ThemeKey[]).includes(themeKey))
     .map(ef => ef.key);
 }
 
-export function getThemeExclusiveEffectKeys(themeKey: ThemeKey): string[] {
+function getThemeExclusiveEffectKeys(themeKey: ThemeKey): string[] {
   return EFFECTS_REGISTRY
     .filter(ef => Array.isArray(ef.themes))
     .filter(ef => (ef.themes as ThemeKey[]).length === 1 && (ef.themes as ThemeKey[])[0] === themeKey)

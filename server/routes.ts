@@ -12,7 +12,7 @@ import { StartupError } from "./startupError.js";
 import { assertDeploymentEnv } from "./validateDeploymentEnv.js";
 import { setupFirebaseSessionRoute } from "./firebaseSessionRoute.js";
 
-/** Passport session user id: Replit OIDC uses `claims.sub`; Google OAuth stores DB user with `id`. */
+/** Passport session user id: OIDC uses `claims.sub`; Google OAuth stores DB user with `id`. */
 function getSessionUserId(req: any): string | undefined {
   const u = req.user as any;
   if (!u) return undefined;
@@ -27,21 +27,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 起動時に SELECT 1 を必須にしない（1回失敗で全 API が SERVER_INIT_FAILED になるのを防ぐ）。
   // 接続確認は GET /api/health / GET /health で行う。
   console.log("📗 Routes registering (DB check deferred to /api/health)");
-
-  // Legacy URL redirect middleware
-  app.use((req, res, next) => {
-    const host = req.get('host');
-    const protocol = req.get('x-forwarded-proto') || req.protocol;
-
-    // 古いドメインからのアクセスを検出
-    if (host === 'pixtask.replit.app') {
-      const newUrl = `https://PixDone.replit.app${req.originalUrl}`;
-      console.log(`🔄 Redirecting from legacy URL: ${protocol}://${host}${req.originalUrl} -> ${newUrl}`);
-      return res.redirect(301, newUrl);
-    }
-
-    next();
-  });
 
   // API Health check endpoint for deployment (JSON response)
   app.get('/api/health', async (req, res) => {
@@ -107,13 +92,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   try {
     console.log("🔐 Setting up authentication...");
     await setupAuth(app);
-    console.log("✅ Replit Auth setup successful");
+    console.log("✅ Auth setup successful");
   } catch (error: unknown) {
-    console.error("❌ Replit Auth setup failed:", error);
+    console.error("❌ Auth setup failed:", error);
     const msg = error instanceof Error ? error.message : String(error);
     throw new StartupError(
       "AUTH_SETUP",
-      `Replit Auth setup failed: ${msg}`,
+      `Auth setup failed: ${msg}`,
       { cause: error },
     );
   }

@@ -17,7 +17,7 @@ console.log(`🔌 Port: ${process.env.PORT || 5000}`);
 
 // Validate required environment variables
 const requiredEnvVars = ['DATABASE_URL'];
-const optionalEnvVars = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'SESSION_SECRET', 'REPLIT_DOMAINS'];
+const optionalEnvVars = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'SESSION_SECRET'];
 
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 const missingOptionalVars = optionalEnvVars.filter(envVar => !process.env[envVar]);
@@ -44,24 +44,9 @@ app.use(helmet({
   contentSecurityPolicy: false,
 }));
 
-// CORS - allow all Replit domains
+// CORS — session auth が保護するため origin は全許可
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    // Allow all Replit domains
-    if (origin.includes('.replit.app') || origin.includes('.replit.dev') || origin.includes('replit.com')) {
-      return callback(null, true);
-    }
-
-    // Allow localhost for development
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-
-    callback(null, true);
-  },
+  origin: (_origin, callback) => callback(null, true),
   credentials: true,
 }));
 
