@@ -12,6 +12,7 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
+import { trackLogin, trackSignUp, setAnalyticsUserId } from '../services/analytics';
 
 export type ServerSessionSyncResult =
   | { ok: true }
@@ -108,6 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
+      setAnalyticsUserId(u?.uid ?? null);
     });
     return unsub;
   }, []);
@@ -128,17 +130,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await signOut(auth);
       throw new Error('email_not_verified');
     }
+    trackLogin({ method: 'email' });
     await runServerSessionSync(cred.user);
   };
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     const cred = await signInWithPopup(auth, provider);
+    const meta = cred.user.metadata;
+    const isNewUser = !!(meta.creationTime && meta.lastSignInTime && meta.creationTime === meta.lastSignInTime);
+    if (isNewUser) {
+      trackSignUp({ method: 'google' });
+    } else {
+      trackLogin({ method: 'google' });
+    }
     await runServerSessionSync(cred.user);
   };
 
   const register = async (email: string, password: string) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
+    trackSignUp({ method: 'email' });
     await sendEmailVerification(cred.user);
     await signOut(auth);
   };

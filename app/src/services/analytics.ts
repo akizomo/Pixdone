@@ -11,13 +11,19 @@
  *   list_create     リスト作成
  *
  * ── エンゲージメント ──
- *   theme_switch       テーマ切り替え
- *   effect_triggered   完了エフェクト発生
- *   pomodoro_complete  ポモドーロ完了
- *   challenge_unlocked チャレンジ達成
+ *   theme_switch           テーマ切り替え
+ *   effect_triggered       完了エフェクト発生
+ *   pomodoro_complete      ポモドーロ完了
+ *   challenge_unlocked     チャレンジ達成
+ *   screen_view            画面遷移
+ *   tutorial_task_complete チュートリアルタスク完了
+ *
+ * ── 認証 ──
+ *   sign_up 新規登録
+ *   login   ログイン
  */
 
-import { logEvent as firebaseLogEvent } from 'firebase/analytics';
+import { logEvent as firebaseLogEvent, setUserId as firebaseSetUserId } from 'firebase/analytics';
 import { analytics } from '../lib/firebase';
 
 // ────────────────────────────────────────
@@ -59,6 +65,24 @@ interface ChallengeUnlockedParams {
   challenge_id: string;
   effect_id: string;
   tasks_completed: number;
+}
+
+type AuthMethod = 'email' | 'google';
+
+interface SignUpParams {
+  method: AuthMethod;
+}
+
+interface LoginParams {
+  method: AuthMethod;
+}
+
+interface ScreenViewParams {
+  screen_name: 'tasks' | 'focus' | 'collection';
+}
+
+interface TutorialTaskCompleteParams {
+  tutorial_step: 'tutorial-1' | 'tutorial-2' | 'tutorial-3';
 }
 
 // ────────────────────────────────────────
@@ -116,4 +140,40 @@ export function trackPomodoroComplete(params: PomodoroCompleteParams) {
 /** チャレンジ達成（エフェクトアンロック） */
 export function trackChallengeUnlocked(params: ChallengeUnlockedParams) {
   track('challenge_unlocked', params);
+}
+
+/** 新規登録（GA4 推奨イベント） */
+export function trackSignUp(params: SignUpParams) {
+  track('sign_up', params);
+}
+
+/** ログイン（GA4 推奨イベント） */
+export function trackLogin(params: LoginParams) {
+  track('login', params);
+}
+
+/** 画面遷移 */
+export function trackScreenView(params: ScreenViewParams) {
+  track('screen_view', params);
+}
+
+/** チュートリアルタスク完了 */
+export function trackTutorialTaskComplete(params: TutorialTaskCompleteParams) {
+  track('tutorial_task_complete', params);
+}
+
+/**
+ * GA4 の user_id を設定。ログイン時に Firebase uid を渡し、
+ * ログアウト時は null を渡す。事前セッションと紐づく。
+ */
+export function setAnalyticsUserId(uid: string | null) {
+  if (!analytics) return;
+  if (typeof window !== 'undefined' && window.localStorage?.getItem('pd_no_track') === '1') return;
+  try {
+    firebaseSetUserId(analytics, uid ?? '');
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn('[analytics] setUserId failed:', err);
+    }
+  }
 }

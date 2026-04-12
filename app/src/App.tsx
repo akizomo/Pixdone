@@ -21,7 +21,7 @@ import { useEffectProgress } from './hooks/useEffectProgress';
 import { useActiveChallenge } from './hooks/useActiveChallenge';
 import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
-import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked } from './services/analytics';
+import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked, trackScreenView, trackTutorialTaskComplete } from './services/analytics';
 import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect, buildTutorialDrawPool, weightedRandomEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
 import { resolveAnimationKey } from './data/effectEvolution';
 import './styles/task-animations.css';
@@ -104,6 +104,9 @@ function AppContent() {
 
   /* ---- Screen navigation ---- */
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
+  useEffect(() => {
+    trackScreenView({ screen_name: activeScreen });
+  }, [activeScreen]);
   const hasFinePointer = useSyncExternalStore(subscribeFinePointer, getFinePointerSnapshot, () => true);
   const isDesktop = hasFinePointer;
 
@@ -448,6 +451,8 @@ function AppContent() {
         is_repeat: !!(task as Task | undefined)?.repeat,
         has_subtasks: !!((task as Task | undefined)?.subtasks?.length),
       });
+    } else if (taskId === 'tutorial-1' || taskId === 'tutorial-2' || taskId === 'tutorial-3') {
+      trackTutorialTaskComplete({ tutorial_step: taskId });
     }
 
     if (!isTutorialTask) sendChallengeProgress(taskId);
