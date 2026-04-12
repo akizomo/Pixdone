@@ -74,7 +74,7 @@ class ComicEffectsManager {
 
         // Synthwave theme: treat its "normal" effects as rare.
         // Common effects remain available so Synthwave isn't "rare-only".
-        this.synthwaveRareEffects = ["glitchSlide", "neonWarp"];
+        this.synthwaveRareEffects = ["glitchSlide", "neonWarp", "laserCutter"];
         this.synthwaveSuperRareEffects = ["neonBigBang"];
 
         // Forest Bit theme: nature-themed rare effects.
@@ -1429,6 +1429,12 @@ class ComicEffectsManager {
                 this.effectLock = true;
                 this.createScanDroneEffect(taskElement, rect);
                 this.playScanDroneSound();
+                this.playHapticFeedback("medium");
+                break;
+            case "laserCutter":
+                this.effectLock = true;
+                this.createLaserCutterEffect(taskElement, rect);
+                this.playLaserCutterSound();
                 this.playHapticFeedback("medium");
                 break;
             case "neonBigBang":
@@ -3729,6 +3735,115 @@ class ComicEffectsManager {
         }, DUR + 150);
     }
 
+    // Laser Cutter — neon laser slices the task horizontally, halves drift apart.
+    createLaserCutterEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+            this.effectLock = false;
+            return;
+        }
+
+        const MAGENTA = "#ff2d78";
+        const BEAM_SWEEP = 150;   // 0 → 0.15s: laser horizontal sweep
+        const SEPARATE   = 50;    // 0.15 → 0.20s: halves separate vertically
+        const SLIDE      = 500;   // 0.20 → 0.70s: halves slide outward + fade
+        const TOTAL      = BEAM_SWEEP + SEPARATE + SLIDE;
+
+        const centerY = rect.top + rect.height / 2;
+
+        // ── Phase 1: Full-viewport horizontal laser beam ──────────────
+        const beam = document.createElement("div");
+        beam.setAttribute("aria-hidden", "true");
+        beam.style.cssText = [
+            "position:fixed",
+            "left:0",
+            `top:${centerY - 1}px`,
+            "width:0px",
+            "height:2px",
+            `background:linear-gradient(90deg, rgba(255,45,120,0), ${MAGENTA} 20%, #fff 50%, ${MAGENTA} 80%, rgba(255,45,120,0))`,
+            `box-shadow:0 0 6px ${MAGENTA}, 0 0 14px ${MAGENTA}, 0 0 24px rgba(255,45,120,0.6)`,
+            "pointer-events:none",
+            "z-index:100000",
+            "will-change:width",
+            `transition:width ${BEAM_SWEEP}ms linear`,
+        ].join(";");
+        document.body.appendChild(beam);
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                beam.style.width = window.innerWidth + "px";
+            });
+        });
+
+        // Hide the original task — the two clip-path halves stand in for it
+        const prevVisibility = taskElement.style.visibility;
+        taskElement.style.visibility = "hidden";
+
+        // ── Phase 2 (at 150ms): create top/bottom halves via clip-path ─
+        setTimeout(() => {
+            const baseStyles = [
+                "position:fixed",
+                `left:${rect.left}px`,
+                `top:${rect.top}px`,
+                `width:${rect.width}px`,
+                `height:${rect.height}px`,
+                "margin:0",
+                "pointer-events:none",
+                "z-index:99999",
+                "box-sizing:border-box",
+                "will-change:transform,opacity",
+                `transition:transform ${SEPARATE}ms ease-out`,
+            ].join(";");
+
+            const topHalf = taskElement.cloneNode(true);
+            topHalf.removeAttribute("id");
+            topHalf.style.cssText = baseStyles + ";clip-path:inset(0 0 50% 0);-webkit-clip-path:inset(0 0 50% 0);filter:drop-shadow(0 1px 0 " + MAGENTA + ") drop-shadow(0 0 6px rgba(255,45,120,0.8))";
+            document.body.appendChild(topHalf);
+
+            const bottomHalf = taskElement.cloneNode(true);
+            bottomHalf.removeAttribute("id");
+            bottomHalf.style.cssText = baseStyles + ";clip-path:inset(50% 0 0 0);-webkit-clip-path:inset(50% 0 0 0);filter:drop-shadow(0 -1px 0 " + MAGENTA + ") drop-shadow(0 0 6px rgba(255,45,120,0.8))";
+            document.body.appendChild(bottomHalf);
+
+            // Vertical separation (+/- 8px)
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    topHalf.style.transform = "translate(0px, -8px)";
+                    bottomHalf.style.transform = "translate(0px, 8px)";
+                });
+            });
+
+            // ── Phase 3 (at 150+50=200ms): slide outward + fade out ─
+            setTimeout(() => {
+                topHalf.style.transition = `transform ${SLIDE}ms ease-in, opacity ${SLIDE}ms ease-in`;
+                bottomHalf.style.transition = `transform ${SLIDE}ms ease-in, opacity ${SLIDE}ms ease-in`;
+                topHalf.style.transform = "translate(-40px, -8px)";
+                topHalf.style.opacity = "0";
+                bottomHalf.style.transform = "translate(40px, 8px)";
+                bottomHalf.style.opacity = "0";
+            }, SEPARATE);
+
+            // Cleanup halves
+            setTimeout(() => {
+                topHalf.remove();
+                bottomHalf.remove();
+            }, SEPARATE + SLIDE + 40);
+        }, BEAM_SWEEP);
+
+        // Beam fade-out shortly after sweep completes
+        setTimeout(() => {
+            beam.style.transition = "opacity 80ms ease-out";
+            beam.style.opacity = "0";
+        }, BEAM_SWEEP + 60);
+        setTimeout(() => beam.remove(), BEAM_SWEEP + 180);
+
+        // Final cleanup
+        setTimeout(() => {
+            taskElement.style.visibility = prevVisibility;
+            this.effectLock = false;
+        }, TOTAL + 60);
+    }
+
     createNeonWarpEffect(taskElement, optionalRect) {
         const rect = optionalRect || taskElement.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) return;
@@ -4114,6 +4229,58 @@ class ComicEffectsManager {
     }
 
     // ── Synthwave effect sounds ────────────────────────────────────────────
+
+    playLaserCutterSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const now = ctx.currentTime;
+
+            // Layer 1: High-freq laser zap — descending sweep over the sweep duration
+            const zap = ctx.createOscillator();
+            const zapGain = ctx.createGain();
+            zap.connect(zapGain);
+            zapGain.connect(ctx.destination);
+            zap.type = "sawtooth";
+            zap.frequency.setValueAtTime(5200, now);
+            zap.frequency.exponentialRampToValueAtTime(900, now + 0.15);
+            zapGain.gain.setValueAtTime(0.0001, now);
+            zapGain.gain.exponentialRampToValueAtTime(0.09, now + 0.01);
+            zapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+            zap.start(now);
+            zap.stop(now + 0.19);
+
+            // Layer 2: Metallic slice — short square blip at cut moment
+            const slice = ctx.createOscillator();
+            const sliceGain = ctx.createGain();
+            slice.connect(sliceGain);
+            sliceGain.connect(ctx.destination);
+            slice.type = "square";
+            slice.frequency.setValueAtTime(1800, now + 0.14);
+            slice.frequency.exponentialRampToValueAtTime(600, now + 0.22);
+            sliceGain.gain.setValueAtTime(0.0001, now + 0.14);
+            sliceGain.gain.exponentialRampToValueAtTime(0.08, now + 0.155);
+            sliceGain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+            slice.start(now + 0.14);
+            slice.stop(now + 0.25);
+
+            // Layer 3: Sub rumble for physicality at separation
+            const sub = ctx.createOscillator();
+            const subGain = ctx.createGain();
+            sub.connect(subGain);
+            subGain.connect(ctx.destination);
+            sub.type = "sine";
+            sub.frequency.setValueAtTime(80, now + 0.18);
+            sub.frequency.exponentialRampToValueAtTime(40, now + 0.45);
+            subGain.gain.setValueAtTime(0.0001, now + 0.18);
+            subGain.gain.exponentialRampToValueAtTime(0.07, now + 0.2);
+            subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+            sub.start(now + 0.18);
+            sub.stop(now + 0.52);
+        } catch (e) {}
+    }
 
     playGlitchSlideSound() {
         if (this.soundEnabled === false) return;
