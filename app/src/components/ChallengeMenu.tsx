@@ -13,6 +13,12 @@ const urgentPulseStyle = `
 }
 `;
 
+const challengeButtonStyle = `
+[data-challenge-menu="true"] .pxd-icon-button {
+  border-radius: 50%;
+}
+`;
+
 /** Map effect key → preview GIF path */
 const EFFECT_GIF_MAP: Record<string, string> = {
   fighter: '/fighter-punch.gif',
@@ -209,16 +215,22 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
   return (
     <>
       {isUrgent && <style>{urgentPulseStyle}</style>}
-      <div data-urgent={isUrgent ? 'true' : undefined} style={{ position: 'relative', display: 'inline-flex' }}>
+      <style>{challengeButtonStyle}</style>
+      <div
+        data-challenge-menu="true"
+        data-urgent={isUrgent ? 'true' : undefined}
+        style={{ position: 'relative', display: 'inline-flex' }}
+      >
         <IconButton
           variant="ghost"
           size="sm"
-          aria-label={label}
+          aria-label={`${label} ${Math.round(pct)}%`}
           title={label}
           icon={<span className="material-icons">emoji_events</span>}
 
           onClick={() => setOpen(true)}
         />
+        <ChallengeProgressRing pct={pct} isCompleted={isCompleted} />
         {isCompleted && (
           <span
             data-testid="challenge-badge"
@@ -262,5 +274,56 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
         </div>
       )}
     </>
+  );
+}
+
+interface ChallengeProgressRingProps {
+  pct: number;
+  isCompleted: boolean;
+}
+
+function ChallengeProgressRing({ pct, isCompleted }: ChallengeProgressRingProps) {
+  const size = 40;
+  const stroke = 2;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const clamped = Math.max(0, Math.min(pct, 100));
+  const offset = circumference * (1 - clamped / 100);
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      aria-hidden="true"
+      style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%) rotate(-90deg)',
+        pointerEvents: 'none',
+      }}
+    >
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="var(--pd-color-border-default)"
+        strokeWidth={stroke}
+        opacity={0.5}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="var(--pd-color-accent-default)"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={isCompleted ? 0 : offset}
+        style={{ transition: 'stroke-dashoffset 0.4s ease' }}
+      />
+    </svg>
   );
 }
