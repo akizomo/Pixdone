@@ -6,6 +6,10 @@
   "outputDirectory": "app/dist",
   "rewrites": [
     { "source": "/api/link-preview", "destination": "/api/link-preview" },
+    { "source": "/api/cron/stripe-to-notion", "destination": "/api/cron/stripe-to-notion" },
+    { "source": "/api/cron/firebase-to-notion", "destination": "/api/cron/firebase-to-notion" },
+    { "source": "/api/cron/x-to-notion", "destination": "/api/cron/x-to-notion" },
+    { "source": "/api/cron/tiktok-to-notion", "destination": "/api/cron/tiktok-to-notion" },
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/health", "destination": "/api/index" },
     { "source": "/app", "destination": "/api/index" },
@@ -13,5 +17,11 @@
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
+  ],
+  "crons": [
+    { "path": "/api/cron/stripe-to-notion", "schedule": "0 0 1 * *" },
+    { "path": "/api/cron/firebase-to-notion", "schedule": "0 0 1 * *" },
+    { "path": "/api/cron/x-to-notion", "schedule": "0 0 * * 1" },
+    { "path": "/api/cron/tiktok-to-notion", "schedule": "0 0 * * 1" }
   ]
 }
