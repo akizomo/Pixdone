@@ -131,7 +131,8 @@ export function canDeactivateEffect(
  *
  * - free_unlocked + theme match → always included (if activated)
  * - premium + theme match + isPremium → included (if activated)
- * - challenge + within deadline + owned → included (if activated)
+ * - challenge + owned → always included (even after deadline)
+ * - challenge + not owned + expired + isPremium → included (treated as premium)
  * - Falls back to all free_unlocked 'all'-theme effects if pool is empty
  */
 export function buildDrawPool(
@@ -153,9 +154,11 @@ export function buildDrawPool(
       if (ef.access === 'free_unlocked') return true;
       if (ef.access === 'premium') return isPremium;
       if (ef.access === 'challenge') {
+        if (ownedChallengeEffects.includes(ef.key)) return true;
         const withinDeadline =
           !ef.challengeDeadline || now <= ef.challengeDeadline.getTime();
-        return withinDeadline && ownedChallengeEffects.includes(ef.key);
+        if (withinDeadline) return false;
+        return isPremium;
       }
       return false;
     });
