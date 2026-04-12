@@ -224,8 +224,8 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
         <IconButton
           variant="ghost"
           size="sm"
-          aria-label={`${label} ${Math.round(pct)}%`}
-          title={label}
+          aria-label={label}
+          title={`${label} ${Math.round(pct)}%`}
           icon={<span className="material-icons">emoji_events</span>}
 
           onClick={() => setOpen(true)}

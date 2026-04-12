@@ -47,6 +47,36 @@ function clearCache(): void {
   try { localStorage.removeItem(CACHE_KEY); } catch { /* ignore */ }
 }
 
+/**
+ * Pure merge: combine server rows with local (optimistic) state.
+ *
+ * Rules:
+ * - If server has the row: take server values, but keep max(local, server) for challengeProgress.
+ * - If server does NOT have the row: preserve local. This prevents day-2 resets when a write
+ *   is still pending or a transient server error drops a row from the response.
+ *
+ * 以前は server に行が無いと local が捨てられ、POST 失敗 → 翌日の GET 空レスポンス →
+ * キャッシュの進捗リセット、という致命バグがあった。
+ */
+export function mergeEffectProgress(
+  local: Record<string, EffectProgressEntry>,
+  serverRows: EffectProgressEntry[],
+): Record<string, EffectProgressEntry> {
+  const map: Record<string, EffectProgressEntry> = {};
+  for (const row of serverRows) map[row.effectId] = row;
+
+  const merged: Record<string, EffectProgressEntry> = { ...map };
+  for (const [id, localEntry] of Object.entries(local)) {
+    const server = merged[id];
+    if (!server) {
+      merged[id] = localEntry;
+    } else if (localEntry.challengeProgress > server.challengeProgress) {
+      merged[id] = { ...server, challengeProgress: localEntry.challengeProgress };
+    }
+  }
+  return merged;
+}
+
 export function useEffectProgress(): UseEffectProgressResult {
   const { user, loading: authLoading, serverSessionReady } = useAuth();
   // キャッシュから初期化 → リロード時に即座に前回の値を表示
@@ -81,18 +111,9 @@ export function useEffectProgress(): UseEffectProgressResult {
       if (!resp.ok) return; // キャッシュの値を維持
       const rows: EffectProgressEntry[] = await resp.json();
       if (cancelledRef.current) return;
-      const map: Record<string, EffectProgressEntry> = {};
-      for (const row of rows) map[row.effectId] = row;
 
-      // サーバーデータとローカル楽観更新をマージ — 進捗は大きい方を採用
       setProgress(prev => {
-        const merged: Record<string, EffectProgressEntry> = { ...map };
-        for (const [id, local] of Object.entries(prev)) {
-          const server = merged[id];
-          if (server && local.challengeProgress > server.challengeProgress) {
-            merged[id] = { ...server, challengeProgress: local.challengeProgress };
-          }
-        }
+        const merged = mergeEffectProgress(prev, rows);
         saveToCache(merged);
         return merged;
       });
