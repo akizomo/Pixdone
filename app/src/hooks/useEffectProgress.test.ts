@@ -51,6 +51,27 @@ describe('mergeEffectProgress', () => {
     expect(result.fighter.challengeProgress).toBe(5);
   });
 
+  it('keeps owned=true when local has it but server does not (sticky owned)', () => {
+    // Scenario: user hit threshold locally (optimistic owned=true), POST failed,
+    // server has row but owned=false. Merge must preserve owned=true.
+    const local = {
+      fighter: makeEntry('fighter', 20, { owned: true, earnedAt: '2026-04-12T00:00:00Z' }),
+    };
+    const server = [makeEntry('fighter', 15, { owned: false, earnedAt: null })];
+    const result = mergeEffectProgress(local, server);
+    expect(result.fighter.owned).toBe(true);
+    expect(result.fighter.challengeProgress).toBe(20);
+    expect(result.fighter.earnedAt).toBe('2026-04-12T00:00:00Z');
+  });
+
+  it('uses server owned when local has owned=false', () => {
+    const local = { fighter: makeEntry('fighter', 20, { owned: false }) };
+    const server = [makeEntry('fighter', 20, { owned: true, earnedAt: '2026-04-10T00:00:00Z' })];
+    const result = mergeEffectProgress(local, server);
+    expect(result.fighter.owned).toBe(true);
+    expect(result.fighter.earnedAt).toBe('2026-04-10T00:00:00Z');
+  });
+
   it('handles mixed case: one effect server-only, one local-only, one overlapping', () => {
     const local = {
       fighter: makeEntry('fighter', 10), // overlapping, local ahead

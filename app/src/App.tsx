@@ -74,7 +74,7 @@ function AppContent() {
     resetRepeatingTasks,
   } = useListsActions();
 
-  const { user, logout, syncServerSession } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/effect-request';
@@ -281,65 +281,44 @@ function AppContent() {
   }, [activeEffects]);
 
 
-  /* ---- Challenge progress: optimistic + deduplicate + retry on 401 ---- */
+  /* ---- Challenge progress: optimistic + persistent replay queue ---- */
+  // Dedup within a single session (prevents UI double-count if same task fires twice fast).
+  // The persistent pending queue in useEffectProgress handles cross-session retry.
   const countedTaskIds = useRef(new Set<string>());
 
   const sendChallengeProgress = useCallback((taskId: string) => {
     if (countedTaskIds.current.has(taskId)) return;
     countedTaskIds.current.add(taskId);
 
-    // Optimistic: bump local progress instantly so the UI updates before the API responds
-    if (activeChallenge && !activeChallenge.isCompleted) {
-      optimisticIncrement(activeChallenge.effect.key);
+    if (!activeChallenge || activeChallenge.isCompleted) return;
 
-      // Detect completion: current progress (before increment) + 1 == threshold
-      if (activeChallenge.progress + 1 >= activeChallenge.threshold) {
-        trackChallengeUnlocked({
-          challenge_id: activeChallenge.effect.key,
-          effect_id: activeChallenge.effect.key,
-          tasks_completed: activeChallenge.threshold,
-        });
-        const effectName = activeChallenge.effect.name;
-        showToast({
-          message: lang === 'ja'
-            ? `チャレンジ達成！「${effectName}」を獲得しました`
-            : `Challenge complete! You earned "${effectName}"`,
-          action: {
-            label: lang === 'ja' ? '確認' : 'VIEW',
-            onClick: () => {
-              setCollectionInitialTab('effects');
-              setCollectionInitialEffectKey(activeChallenge.effect.key);
-              setActiveScreen('collection');
-            },
+    // Optimistic: bump local progress + owned (if threshold reached) + queue pending POST
+    optimisticIncrement(activeChallenge.effect.key, activeChallenge.threshold);
+
+    // Detect completion for UX (toast + analytics)
+    if (activeChallenge.progress + 1 >= activeChallenge.threshold) {
+      trackChallengeUnlocked({
+        challenge_id: activeChallenge.effect.key,
+        effect_id: activeChallenge.effect.key,
+        tasks_completed: activeChallenge.threshold,
+      });
+      const effectName = activeChallenge.effect.name;
+      showToast({
+        message: lang === 'ja'
+          ? `チャレンジ達成！「${effectName}」を獲得しました`
+          : `Challenge complete! You earned "${effectName}"`,
+        action: {
+          label: lang === 'ja' ? '確認' : 'VIEW',
+          onClick: () => {
+            setCollectionInitialTab('effects');
+            setCollectionInitialEffectKey(activeChallenge.effect.key);
+            setActiveScreen('collection');
           },
-          duration: 8000,
-        });
-      }
+        },
+        duration: 8000,
+      });
     }
-
-    const postTaskComplete = () =>
-      fetch('/api/effect-progress/task-complete', { method: 'POST', credentials: 'include' });
-
-    const attempt = (retries: number) => {
-      postTaskComplete()
-        .then(r => {
-          if (r.status === 401 && retries > 0) {
-            // セッション未確立の可能性 → 再同期してからリトライ
-            syncServerSession().then(() => {
-              setTimeout(() => attempt(retries - 1), 500);
-            });
-            return;
-          }
-          if (!r.ok) {
-            console.warn('[Challenge] task-complete failed:', r.status);
-          }
-          // optimistic increment が既にローカル状態を更新済み — refetch 不要
-          // 次回マウント時にサーバーと自動マージされる
-        })
-        .catch(e => console.warn('[Challenge] task-complete error:', e));
-    };
-    attempt(3);
-  }, [activeChallenge, optimisticIncrement, showToast, lang, syncServerSession]);
+  }, [activeChallenge, optimisticIncrement, showToast, lang]);
 
   /* ---- Tutorial toast messages (per task) ---- */
   const showTutorialToast = useCallback((taskId: string, effectRarity?: string) => {

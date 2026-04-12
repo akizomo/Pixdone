@@ -12,7 +12,7 @@ import {
   type EffectProgressRow,
 } from "../shared/schema.js";
 import { db } from "./db.js";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { ACTIVE_CHALLENGE_EFFECTS, EVOLVABLE_EFFECTS } from "./constants/challengeEffects.js";
 
 // Interface for storage operations
@@ -235,46 +235,43 @@ class DatabaseStorage implements IStorage {
     const now = Date.now();
 
     // ── 1. Challenge unlock progress ──────────────────────────────────────────
+    // Atomic upsert: サーバー側で現在値+1 を計算し、閾値到達で owned を自動フリップ。
+    // read-modify-write パターンだと同一ユーザーの高速連続 POST でレースし +1 が lost する。
     for (const challenge of ACTIVE_CHALLENGE_EFFECTS) {
       if (now > challenge.deadline.getTime()) continue; // 期限切れはスキップ
 
-      const [existing] = await db
-        .select()
-        .from(effectProgress)
-        .where(and(
-          eq(effectProgress.userId, userId),
-          eq(effectProgress.effectId, challenge.effectId),
-        ));
+      const threshold = challenge.threshold;
 
-      if (existing?.owned) continue; // 既に所持済み
-
-      const currentProgress = existing?.challengeProgress ?? 0;
-      const newProgress = currentProgress + 1;
-      const justUnlocked = newProgress >= challenge.threshold;
-
-      await db
+      const [returned] = await db
         .insert(effectProgress)
         .values({
           userId,
           effectId: challenge.effectId,
-          owned: justUnlocked,
+          owned: 1 >= threshold,
           equippedLevel: 1,
           evolutionProgress: 0,
-          challengeProgress: newProgress,
-          earnedAt: justUnlocked ? new Date() : null,
+          challengeProgress: 1,
+          earnedAt: 1 >= threshold ? new Date() : null,
           updatedAt: new Date(),
         })
         .onConflictDoUpdate({
           target: [effectProgress.userId, effectProgress.effectId],
+          // 既に owned=true なら何も変更しない (challengeProgress も止める)
+          setWhere: sql`${effectProgress.owned} = false`,
           set: {
-            challengeProgress: newProgress,
-            owned: justUnlocked,
-            earnedAt: justUnlocked ? new Date() : (existing?.earnedAt ?? null),
-            updatedAt: new Date(),
+            challengeProgress: sql`${effectProgress.challengeProgress} + 1`,
+            owned: sql`(${effectProgress.challengeProgress} + 1) >= ${threshold}`,
+            earnedAt: sql`CASE WHEN (${effectProgress.challengeProgress} + 1) >= ${threshold} THEN NOW() ELSE ${effectProgress.earnedAt} END`,
+            updatedAt: sql`NOW()`,
           },
-        });
+        })
+        .returning();
 
-      if (justUnlocked) unlockedEffectIds.push(challenge.effectId);
+      if (returned?.owned && returned.challengeProgress >= threshold) {
+        // owned が新しく true になった場合のみ unlock 通知。既に owned のケース(上記 setWhere で無視)
+        // は returning が空になるので含まれない。
+        unlockedEffectIds.push(challenge.effectId);
+      }
     }
 
     // ── 2. Evolution progress for owned evolving effects ──────────────────────
