@@ -67,6 +67,7 @@ interface ChallengeUnlockedParams {
 
 function track(eventName: string, params?: object) {
   if (!analytics) return;
+  if (typeof window !== 'undefined' && window.localStorage?.getItem('pd_no_track') === '1') return;
 
   try {
     firebaseLogEvent(analytics, eventName, params as Record<string, unknown> | undefined);
