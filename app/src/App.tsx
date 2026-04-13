@@ -446,7 +446,7 @@ function AppContent() {
           showTutorialToast(taskId, selected?.rarity);
         } else {
           showToast({
-            message: getCompletionToastMessage(selected?.key, lang),
+            message: getCompletionToastMessage(baseKey, lang),
             action: { label: getUndoLabel(lang), onClick: () => uncompleteTask(taskId) },
             duration: 5000,
           });
