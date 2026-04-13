@@ -32,6 +32,8 @@ const CACHE_KEY = 'pd-effect-progress';
 const PENDING_KEY = 'pd-effect-pending';
 /** Safety cap: drain at most this many pending POSTs per flush invocation. */
 const PENDING_FLUSH_CAP = 50;
+/** Minimum gap between visibility/focus-triggered refetches (ms). */
+const REFETCH_THROTTLE_MS = 5_000;
 
 /** localStorage に進捗をキャッシュ */
 function saveToCache(data: Record<string, EffectProgressEntry>): void {
@@ -255,6 +257,31 @@ export function useEffectProgress(): UseEffectProgressResult {
     hasFetchedRef.current = false;
     await fetchProgress();
   }, [fetchProgress]);
+
+  // Cross-device sync: on tab visibility/focus, refetch from server so
+  // a tab that's been left open picks up progress made on another device
+  // (or another tab). Throttled to avoid thrashing on rapid focus changes.
+  const lastRefetchAtRef = useRef(0);
+  const refetchRef = useRef(refetch);
+  useEffect(() => { refetchRef.current = refetch; }, [refetch]);
+
+  useEffect(() => {
+    if (!user || !serverSessionReady) return;
+    const maybeRefetch = () => {
+      if (document.visibilityState !== 'visible') return;
+      const now = Date.now();
+      if (now - lastRefetchAtRef.current < REFETCH_THROTTLE_MS) return;
+      lastRefetchAtRef.current = now;
+      void refetchRef.current();
+      void flushPendingRef.current?.();
+    };
+    document.addEventListener('visibilitychange', maybeRefetch);
+    window.addEventListener('focus', maybeRefetch);
+    return () => {
+      document.removeEventListener('visibilitychange', maybeRefetch);
+      window.removeEventListener('focus', maybeRefetch);
+    };
+  }, [user, serverSessionReady]);
 
   const ownedChallengeEffects = useMemo(
     () => Object.values(progress).filter(e => e.owned).map(e => e.effectId),
