@@ -67,6 +67,7 @@ class ComicEffectsManager {
             "spinOff",
             "crumpleThrow",
             "fighter",
+            "chomp",
         ];
 
         // Super rare pool (Plus-only roll)
@@ -998,6 +999,7 @@ class ComicEffectsManager {
         const forcePunch = params && params.get("effect") === "fighter";
         const forcePunchLv2 = params && params.get("effect") === "fighterLv2";
         const forceBomb  = params && params.get("effect") === "bomb";
+        const forceChomp = params && params.get("effect") === "chomp";
 
         // URL-param forced effects should override any equipped/active effects.
         if (forceBomb) {
@@ -1013,6 +1015,11 @@ class ComicEffectsManager {
         if (forcePunch) {
             console.log("👊 Fighter Lv1 Punch (forced by ?effect=fighter)");
             this.playEffect("fighter", taskElement, effectRect);
+            return;
+        }
+        if (forceChomp) {
+            console.log("😋 Chomp (forced by ?effect=chomp)");
+            this.playEffect("chomp", taskElement, effectRect);
             return;
         }
         if (forceFreeze) {
@@ -1477,6 +1484,11 @@ class ComicEffectsManager {
                 this.effectLock = true;
                 this.createFighterPunchEffect(taskElement, rect);
                 this.playHapticFeedback("strong");
+                break;
+            case "chomp":
+                this.effectLock = true;
+                this.createChompEffect(taskElement, rect);
+                this.playHapticFeedback("medium");
                 break;
             case "fighterLv2":
                 this.effectLock = true;
@@ -6622,6 +6634,308 @@ class ComicEffectsManager {
         } catch (e) {
             document.removeEventListener("visibilitychange", visibilityCleanup);
             unlock();
+        }
+    }
+
+    // ── Chomp (Arcade Rare) ─────────────────────────────────────────────
+    // Vertical-strip eating effect.
+    // Each strip is a `overflow:hidden` wrapper sized to stripW × H,
+    // containing an absolutely-positioned full task clone offset by
+    // -idx*stripW. This guarantees correct 1/N slicing (bulletproof vs
+    // clip-path). As Pac's mouth passes each strip, the wrapper tumbles
+    // down with random rotation + fades to 0.
+    createChompEffect(taskElement, optionalRect) {
+        const rect = optionalRect || taskElement.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+            this.effectLock = false;
+            return;
+        }
+
+        const self = this;
+        const W = rect.width;
+        const H = rect.height;
+
+        // Pac sprite: 8x8 pixel frames (0=empty, 1=body, 2=eye), facing right.
+        const FRAME_OPEN = [
+            [0,0,1,1,1,1,0,0],
+            [0,1,1,1,2,1,1,0],
+            [1,1,1,1,1,0,0,0],
+            [1,1,1,0,0,0,0,0],
+            [1,1,1,0,0,0,0,0],
+            [1,1,1,1,1,0,0,0],
+            [0,1,1,1,1,1,1,0],
+            [0,0,1,1,1,1,0,0],
+        ];
+        const FRAME_CLOSED = [
+            [0,0,1,1,1,1,0,0],
+            [0,1,1,1,2,1,1,0],
+            [1,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1],
+            [0,1,1,1,1,1,1,0],
+            [0,0,1,1,1,1,0,0],
+        ];
+
+        const SPRITE_TARGET = Math.max(32, Math.min(72, H * 1.0));
+        const PX = Math.max(3, Math.floor(SPRITE_TARGET / 8));
+        const CHAR = 8 * PX;
+        const BODY_COLOR = "#fbbc04";
+        const EYE_COLOR = "#202124";
+
+        // ── Strip count: one per ~10px of task width ─────────────────────
+        const N = Math.max(12, Math.min(30, Math.round(W / 10)));
+        const stripW = W / N;
+
+        // ── Create strip wrappers with inner absolute clones ─────────────
+        // wrapper: overflow:hidden "window" sized to stripW × H at exact
+        //          column position
+        // inner:   full-width task clone shifted left by -i*stripW so only
+        //          this column shows through the wrapper
+        const strips = [];
+        for (let i = 0; i < N; i++) {
+            const colLeft = rect.left + i * stripW;
+
+            const wrapper = document.createElement("div");
+            // +1px width overlap prevents sub-pixel seams between strips
+            wrapper.setAttribute("style", [
+                "position:fixed !important",
+                `left:${colLeft}px !important`,
+                `top:${rect.top}px !important`,
+                `width:${stripW + 1}px !important`,
+                `height:${H}px !important`,
+                "margin:0 !important",
+                "padding:0 !important",
+                "border:0 !important",
+                "background:transparent !important",
+                "pointer-events:none !important",
+                "z-index:100000 !important",
+                "overflow:hidden !important",
+                "visibility:visible !important",
+                "opacity:1",
+                "transform:translate(0px,0px) rotate(0deg)",
+                "transform-origin:50% 50%",
+                "will-change:transform,opacity",
+            ].join(";"));
+
+            const inner = taskElement.cloneNode(true);
+            inner.removeAttribute("id");
+            inner.removeAttribute("style");
+            inner.setAttribute("style", [
+                "position:absolute !important",
+                `left:${-i * stripW}px !important`,
+                "top:0 !important",
+                `width:${W}px !important`,
+                `height:${H}px !important`,
+                "margin:0 !important",
+                "pointer-events:none !important",
+                "visibility:visible !important",
+                "opacity:1 !important",
+                "transform:none !important",
+                "box-sizing:border-box !important",
+            ].join(";"));
+
+            wrapper.appendChild(inner);
+            document.body.appendChild(wrapper);
+            strips.push({ el: wrapper, idx: i, eaten: false });
+        }
+
+        // Hide the source task so the strips are the only visible version.
+        const prevVis = taskElement.style.visibility;
+        taskElement.style.setProperty("visibility", "hidden", "important");
+
+        // Force a reflow so the subsequent transition additions + final
+        // state changes animate instead of jumping.
+        void strips[0].el.offsetHeight;
+
+        // Now add the transition property on every wrapper.
+        for (const s of strips) {
+            s.el.style.transition =
+                "transform 420ms cubic-bezier(0.55, 0.06, 0.68, 0.19), opacity 420ms ease-in";
+        }
+
+        // ── Pac-Man SVG sprite ───────────────────────────────────────────
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("width", String(CHAR));
+        svg.setAttribute("height", String(CHAR));
+        svg.setAttribute("viewBox", `0 0 ${CHAR} ${CHAR}`);
+        svg.setAttribute("shape-rendering", "crispEdges");
+        svg.setAttribute("style", [
+            "position:fixed",
+            "left:0",
+            "top:0",
+            "pointer-events:none",
+            "z-index:100001",
+            "will-change:transform",
+        ].join(";"));
+        document.body.appendChild(svg);
+
+        const renderSprite = (frame) => {
+            while (svg.firstChild) svg.removeChild(svg.firstChild);
+            for (let ry = 0; ry < 8; ry++) {
+                for (let cx = 0; cx < 8; cx++) {
+                    const v = frame[ry][cx];
+                    if (v === 0) continue;
+                    const r = document.createElementNS(svgNS, "rect");
+                    r.setAttribute("x", String(cx * PX));
+                    r.setAttribute("y", String(ry * PX));
+                    r.setAttribute("width", String(PX));
+                    r.setAttribute("height", String(PX));
+                    r.setAttribute("fill", v === 2 ? EYE_COLOR : BODY_COLOR);
+                    svg.appendChild(r);
+                }
+            }
+        };
+        renderSprite(FRAME_OPEN);
+
+        // ── Timing ───────────────────────────────────────────────────────
+        const T_APPROACH = 280;
+        const T_EAT = 520;
+        const T_LEAVE = 180;
+        const T_AFTER = 360; // let last strip finish falling
+        const TOTAL = T_APPROACH + T_EAT + T_LEAVE + T_AFTER;
+
+        const fromRight = Math.random() < 0.5;
+        const approachStartX = fromRight ? window.innerWidth + CHAR : -CHAR;
+        const leaveEndX = fromRight ? -CHAR * 2 : window.innerWidth + CHAR * 2;
+        // Pac sweeps from one edge of the task to the other, slightly
+        // overhanging so the mouth reaches all strips.
+        const eatStartX = fromRight
+            ? rect.left + W - CHAR * 0.3
+            : rect.left - CHAR * 0.7;
+        const eatEndX = fromRight
+            ? rect.left - CHAR * 0.7
+            : rect.left + W - CHAR * 0.3;
+        const centerY = rect.top + H / 2;
+        const charY = centerY - CHAR / 2;
+
+        // Eat a strip: random tumble fall + fade.
+        const eatStrip = (s) => {
+            if (s.eaten) return;
+            s.eaten = true;
+            const dx = (Math.random() - 0.5) * 40;
+            const dy = 100 + Math.random() * 60;
+            const rot = (Math.random() - 0.5) * 120;
+            s.el.style.transform =
+                `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+            s.el.style.opacity = "0";
+            self.playChompBlip();
+        };
+
+        const start = performance.now();
+        let lastMouthToggle = 0;
+        let mouthOpen = true;
+
+        const tick = (now) => {
+            const elapsed = now - start;
+
+            if (now - lastMouthToggle > 85) {
+                mouthOpen = !mouthOpen;
+                lastMouthToggle = now;
+                renderSprite(mouthOpen ? FRAME_OPEN : FRAME_CLOSED);
+            }
+
+            let charX;
+            if (elapsed < T_APPROACH) {
+                const p = elapsed / T_APPROACH;
+                charX = approachStartX + (eatStartX - approachStartX) * p;
+            } else if (elapsed < T_APPROACH + T_EAT) {
+                const p = (elapsed - T_APPROACH) / T_EAT;
+                charX = eatStartX + (eatEndX - eatStartX) * p;
+            } else if (elapsed < T_APPROACH + T_EAT + T_LEAVE) {
+                const p = (elapsed - T_APPROACH - T_EAT) / T_LEAVE;
+                charX = eatEndX + (leaveEndX - eatEndX) * p;
+                for (const s of strips) if (!s.eaten) eatStrip(s);
+            } else {
+                charX = leaveEndX;
+            }
+
+            // Mouth tip viewport x. fromRight → facing left, mouth on left.
+            const mouthX = fromRight
+                ? charX + PX * 2
+                : charX + CHAR - PX * 2;
+
+            // Eat any strip whose center the mouth has just passed.
+            if (elapsed >= T_APPROACH && elapsed < T_APPROACH + T_EAT) {
+                const stripW = W / N;
+                for (const s of strips) {
+                    if (s.eaten) continue;
+                    const sCx = rect.left + (s.idx + 0.5) * stripW;
+                    if (fromRight ? mouthX <= sCx : mouthX >= sCx) {
+                        eatStrip(s);
+                    }
+                }
+            }
+
+            svg.style.transform = fromRight
+                ? `translate(${charX + CHAR}px, ${charY}px) scaleX(-1)`
+                : `translate(${charX}px, ${charY}px)`;
+
+            if (elapsed < TOTAL) {
+                requestAnimationFrame(tick);
+            } else {
+                svg.remove();
+                for (const s of strips) s.el.remove();
+                taskElement.style.visibility = prevVis;
+                self.effectLock = false;
+            }
+        };
+
+        this.playChompSound();
+        requestAnimationFrame(tick);
+    }
+
+    // Single "nom" blip — played when a strip is eaten.
+    playChompBlip() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const t = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            osc.type = "square";
+            osc.frequency.setValueAtTime(Math.random() < 0.5 ? 300 : 540, t);
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(0.05, t + 0.003);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+            osc.connect(g);
+            g.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.04);
+        } catch (e) {
+            // ignore
+        }
+    }
+
+    // Played once at effect start — background chomp rhythm.
+    playChompSound() {
+        if (this.soundEnabled === false) return;
+        try {
+            if (!this.audioContext || !this.audioContextReady) return;
+            if (this.audioContext.state === "suspended") this.audioContext.resume();
+            const ctx = this.audioContext;
+            const base = ctx.currentTime;
+
+            // Footsteps during approach (3 ticks)
+            for (let i = 0; i < 3; i++) {
+                const t = base + i * 0.08;
+                const osc = ctx.createOscillator();
+                const g = ctx.createGain();
+                osc.type = "square";
+                osc.frequency.setValueAtTime(680, t);
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.exponentialRampToValueAtTime(0.03, t + 0.002);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + 0.025);
+                osc.connect(g);
+                g.connect(ctx.destination);
+                osc.start(t);
+                osc.stop(t + 0.03);
+            }
+        } catch (e) {
+            // ignore
         }
     }
 }

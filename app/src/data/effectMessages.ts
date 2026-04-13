@@ -16,25 +16,28 @@ const UNDO_LABEL: LocalizedMessage = {
 };
 
 const EFFECT_COMPLETION_MESSAGES: Record<string, LocalizedMessage> = {
-  // RARE
-  shatter:      { ja: 'タスクを粉砕した。',               en: 'Shattered the task.' },
-  spinOff:      { ja: 'タスクをスピンで吹き飛ばした。',   en: 'Spun the task right off.' },
-  crumpleThrow: { ja: 'タスクをくしゃっと投げ捨てた。',   en: 'Crumpled and tossed the task.' },
-  fighter:      { ja: 'タスクを殴り倒した。',             en: 'Knocked the task out cold.' },
-  glitchSlide:  { ja: 'タスクをグリッチさせた。',         en: 'Glitched the task away.' },
-  neonWarp:     { ja: 'タスクをワープ送りにした。',       en: 'Warped the task out.' },
-  scanDrone:    { ja: 'タスクをスキャンして分解した。',   en: 'Scanned the task into pixels.' },
-  laserCutter:  { ja: 'タスクを真っ二つにした。',         en: 'Sliced the task in two.' },
-  leafScatter:  { ja: 'タスクを風に散らした。',           en: 'Scattered the task to the wind.' },
-  butterflyFly: { ja: '蝶がタスクを運び去った。',         en: 'Butterflies carried the task away.' },
-  fireflyBurst: { ja: 'ホタルの光がタスクを包んだ。',     en: 'Fireflies burst the task away.' },
-  // EPIC
-  rainbowSmash:  { ja: '虹色の一撃でタスクを粉砕した。',  en: 'Rainbow-smashed the task.' },
-  freeze:        { ja: 'タスクを凍らせて砕いた。',        en: 'Froze and shattered the task.' },
-  bomb:          { ja: 'タスクを爆破した。',              en: 'Bombed the task.' },
-  giantTreeGrow: { ja: '巨大な木がタスクを飲み込んだ。',  en: 'A giant tree swallowed the task.' },
-  owlBlink:      { ja: 'フクロウがタスクを消し去った。',  en: 'The owl blinked the task away.' },
-  neonBigBang:   { ja: '超新星がタスクを飲み込んだ。',    en: "Supernova'd the task." },
+  // RARE — 攻撃系
+  shatter:      { ja: 'タスクを粉々にしました。',           en: 'Shattered the task.' },
+  spinOff:      { ja: 'タスクをスピンで飛ばしました。',     en: 'Spun the task right off.' },
+  crumpleThrow: { ja: 'タスクをくしゃっと丸めました。',     en: 'Crumpled and tossed the task.' },
+  fighter:      { ja: 'タスクをパンチしました。',           en: 'Punched the task out.' },
+  chomp:        { ja: 'タスクをパクッと食べました。',       en: 'Devoured the task whole.' },
+  glitchSlide:  { ja: 'タスクをグリッチで消しました。',     en: 'Glitched the task away.' },
+  neonWarp:     { ja: 'タスクをワープで飛ばしました。',     en: 'Warped the task out.' },
+  scanDrone:    { ja: 'タスクをスキャンで分解しました。',   en: 'Scanned the task into pixels.' },
+  laserCutter:  { ja: 'タスクをレーザーでカットしました。', en: 'Sliced the task in two.' },
+  // RARE — 祝福系
+  leafScatter:  { ja: '木の葉がタスクを運んでいきました。', en: 'Leaves carried the task away.' },
+  butterflyFly: { ja: '蝶がタスクを運んでいきました。',     en: 'Butterflies carried the task away.' },
+  fireflyBurst: { ja: '蛍がタスクを照らしました。',         en: 'Fireflies lit up the task.' },
+  // EPIC — 攻撃系
+  bomb:          { ja: 'タスクをドカンと消しました。',        en: 'Bombed the task.' },
+  freeze:        { ja: 'タスクを凍らせました。',              en: 'Froze the task.' },
+  neonBigBang:   { ja: 'タスクをビッグバンで消し去りました。', en: "Supernova'd the task." },
+  // EPIC — 祝福系
+  rainbowSmash:  { ja: '虹がタスクを見送りました。',          en: 'A rainbow saw the task off.' },
+  giantTreeGrow: { ja: '大木がタスクを包みました。',          en: 'A giant tree wrapped up the task.' },
+  owlBlink:      { ja: 'フクロウがタスクを見送りました。',    en: 'The owl saw the task off.' },
 };
 
 export function getCompletionToastMessage(effectKey: string | undefined, lang: Lang): string {

@@ -36,13 +36,17 @@ export const EFFECTS_REGISTRY: EffectDef[] = [
   { key: 'wobble',     name: 'Wobble',      rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Wobbles wildly before vanishing.',    ja: 'ぐらぐら揺れて消える。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
   { key: 'fadeOut',    name: 'Fade Out',    rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Fades gracefully into the void.',     ja: 'ふわっとフェードして消える。'     }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
-  // ── RARE — Arcade + Forestbit (premium) ──────────────────────────────────
-  { key: 'shatter',      name: 'Shatter',       rarity: 'RARE', themes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Shatters into a thousand pieces.',            ja: '粉々に砕け散る。'               }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'spinOff',      name: 'Spin Off',      rarity: 'RARE', themes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Spins off the screen at full speed.',          ja: '高速スピンで画面外へ。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
-  { key: 'crumpleThrow', name: 'Crumple Throw', rarity: 'RARE', themes: ['arcade', 'forestbit'], access: 'premium', description: { en: 'Crumples up like paper and gets tossed.',     ja: 'くしゃっと丸めて投げ捨て。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  // TODO(BRD): shatter / spinOff / crumpleThrow は legacy app/public/animations.js で色をハードコード (#9aa0a6, #fbbc04)。
+  // COMMON に昇格したので、本来は --pd-color-* トークン化が必要。React/TS 移植時に合わせて対応する。
+  { key: 'shatter',      name: 'Shatter',       rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Shatters into a thousand pieces.',            ja: '粉々に砕け散る。'               }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'spinOff',      name: 'Spin Off',      rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Spins off the screen at full speed.',          ja: '高速スピンで画面外へ。'         }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
+  { key: 'crumpleThrow', name: 'Crumple Throw', rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Crumples up like paper and gets tossed.',     ja: 'くしゃっと丸めて投げ捨て。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── RARE — Arcade: CHALLENGE ──────────────────────────────────────────────
   { key: 'fighter', name: 'Fighter', rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: "A fighter's punch sends it flying.", ja: 'ファイターのパンチで吹き飛ぶ。' }, evolutionStages: 2, evolutionCondition: 'cumulative_completions_50', evolutionThreshold: 50, challengeDeadline: new Date('2026-05-31T23:59:59+09:00'), challengeUnlockThreshold: 20 },
+
+  // ── RARE — Arcade (premium) ───────────────────────────────────────────────
+  { key: 'chomp', name: 'Chomp', rarity: 'RARE', themes: ['arcade'], access: 'premium', description: { en: 'A pixel chomper runs in and bites the task away.', ja: 'ピクセルくんが走ってきてタスクをかじり取る。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── RARE — Synthwave (premium) ────────────────────────────────────────────
   { key: 'glitchSlide', name: 'Glitch Slide', rarity: 'RARE', themes: ['synthwave'], access: 'premium', description: { en: 'Glitches out with neon artifacts.', ja: 'ネオンのノイズでグリッチ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
