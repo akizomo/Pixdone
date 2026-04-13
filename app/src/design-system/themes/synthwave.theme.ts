@@ -145,6 +145,7 @@ export const synthwaveTheme: VisualTheme = {
       '--pd-color-accent-default': 'var(--pxd-sw-neon-cyan-300)',
       '--pd-color-accent-hover':   'var(--pxd-sw-neon-cyan-500)',
       '--pd-color-accent-subtle':  'color-mix(in srgb, var(--pxd-sw-neon-cyan-300) 12%, transparent)',
+      '--pd-color-accent-filled':  'var(--pxd-sw-neon-cyan-300)', // bright cyan fill, paired with navy text
       '--pd-color-accent-text':    'var(--pxd-sw-navy-950)',   // dark text on bright cyan
 
       // Shadows were too magenta-heavy; use neutral purple-muted instead
@@ -261,6 +262,7 @@ export const synthwaveTheme: VisualTheme = {
       '--pd-color-accent-default': 'var(--pxd-teal-500)',
       '--pd-color-accent-hover':   'var(--pxd-teal-700)',
       '--pd-color-accent-subtle':  'color-mix(in srgb, var(--pxd-teal-500) 12%, transparent)',
+      '--pd-color-accent-filled':  'var(--pxd-teal-500)', // dark teal fill, paired with white text (8:1)
       '--pd-color-accent-text':    'var(--pxd-white)',   // white text on dark teal (8:1)
 
       '--pd-color-shadow-default': 'color-mix(in srgb, var(--pxd-magenta-700) 25%, transparent)',

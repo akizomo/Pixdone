@@ -24,6 +24,7 @@ import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked, trackScreenView, trackTutorialTaskComplete } from './services/analytics';
 import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect, buildTutorialDrawPool, weightedRandomEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
 import { resolveAnimationKey } from './data/effectEvolution';
+import { getCompletionToastMessage, getUndoLabel } from './data/effectMessages';
 import './styles/task-animations.css';
 import './App.css';
 import type { Task } from './types/task';
@@ -413,6 +414,12 @@ function AppContent() {
         doComplete();
         if (isTutorialTask) {
           showTutorialToast(taskId, selected?.rarity);
+        } else {
+          showToast({
+            message: getCompletionToastMessage(selected?.key, lang),
+            action: { label: getUndoLabel(lang), onClick: () => uncompleteTask(taskId) },
+            duration: 5000,
+          });
         }
       }, finalKey);
     } else {
@@ -420,6 +427,12 @@ function AppContent() {
       playSound('taskComplete');
       if (isTutorialTask) {
         showTutorialToast(taskId);
+      } else {
+        showToast({
+          message: getCompletionToastMessage(undefined, lang),
+          action: { label: getUndoLabel(lang), onClick: () => uncompleteTask(taskId) },
+          duration: 5000,
+        });
       }
     }
 
@@ -435,7 +448,7 @@ function AppContent() {
     }
 
     if (!isTutorialTask) sendChallengeProgress(taskId);
-  }, [completeTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast, forcedEffectKey]);
+  }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast, forcedEffectKey, showToast, lang]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
     window.setTimeout(() => completeTask(taskId), PERFECT_TIMING_STATE_DEFER_MS);

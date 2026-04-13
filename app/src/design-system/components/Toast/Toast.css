@@ -47,20 +47,20 @@
 
 .pxd-toast__action {
   flex-shrink: 0;
-  padding: 4px 10px;
+  padding: 4px 6px;
   background: none;
-  border: 1px solid var(--pd-color-accent-default);
+  border: none;
   font-family: var(--pd-font-brand);
   font-weight: 700;
   font-size: 0.7rem;
   letter-spacing: 1px;
   color: var(--pd-color-accent-default);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: opacity 0.15s;
 }
 
 .pxd-toast__action:hover {
-  background: var(--pd-color-accent-subtle);
+  opacity: 0.7;
 }
 
 .pxd-toast__close {

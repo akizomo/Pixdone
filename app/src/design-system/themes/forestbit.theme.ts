@@ -128,6 +128,7 @@ export const forestbitTheme: VisualTheme = {
       '--pd-color-accent-default': 'var(--pxd-fb-glow-300)',
       '--pd-color-accent-hover':   'var(--pxd-fb-glow-500)',
       '--pd-color-accent-subtle':  'color-mix(in srgb, var(--pxd-fb-glow-300) 12%, transparent)',
+      '--pd-color-accent-filled':  'var(--pxd-fb-glow-300)', // bright glow fill, paired with night text
       '--pd-color-accent-text':    'var(--pxd-fb-night-950)',   // dark text on bright glow
 
       '--pd-color-shadow-default': 'color-mix(in srgb, var(--pxd-fb-glow-300) 15%, transparent)',
@@ -262,6 +263,7 @@ export const forestbitTheme: VisualTheme = {
       '--pd-color-accent-default': 'var(--pxd-fb-leaf-700)',
       '--pd-color-accent-hover':   'var(--pxd-fb-leaf-900)',
       '--pd-color-accent-subtle':  'color-mix(in srgb, var(--pxd-fb-leaf-700) 12%, transparent)',
+      '--pd-color-accent-filled':  'var(--pxd-fb-leaf-700)', // dark green fill, paired with white text (5.9:1 ✓)
       '--pd-color-accent-text':    '#ffffff',   // white on dark green (5.9:1 ✓)
 
       '--pd-color-shadow-default': 'color-mix(in srgb, var(--pxd-fb-leaf-700) 22%, transparent)',
