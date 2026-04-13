@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { TaskItem } from '../../components/TaskItem';
 import type { Task } from '../../types/task';
 
@@ -39,17 +39,55 @@ function DemoRow({
   );
 }
 
+const DEMO_TITLES_JA = [
+  '洗濯物をたたむ',
+  'メールに返信する',
+  '牛乳を買う',
+  'ゴミを出す',
+  '本を1章読む',
+  '部屋を片付ける',
+  'ストレッチする',
+  '水を飲む',
+  '明日の予定を確認',
+  '机の上を整理',
+];
+
+const DEMO_TITLES_EN = [
+  'Fold the laundry',
+  'Reply to emails',
+  'Buy milk',
+  'Take out the trash',
+  'Read one chapter',
+  'Tidy up the room',
+  'Do some stretches',
+  'Drink water',
+  'Review tomorrow’s plan',
+  'Clean the desk',
+];
+
+function pickTitle(lang: 'en' | 'ja', prev?: string) {
+  const pool = lang === 'ja' ? DEMO_TITLES_JA : DEMO_TITLES_EN;
+  if (pool.length <= 1) return pool[0];
+  let next = pool[Math.floor(Math.random() * pool.length)];
+  while (next === prev) next = pool[Math.floor(Math.random() * pool.length)];
+  return next;
+}
+
 export function ThemeHomePreview({ lang, onTriggerEffect }: ThemeHomePreviewProps) {
-  const demoTasks = useMemo<Task[]>(() => ([
+  const [title, setTitle] = useState<string>(() => pickTitle(lang));
+  const demoTasks: Task[] = [
     {
       id: 'demo-1',
-      // Keep the original short copy (same as the old DemoTaskItem).
-      title: lang === 'ja' ? '叩いてみて！' : 'Smash me!',
+      title,
       completed: false,
       dueDate: null,
       listId: 'demo',
     },
-  ]), [lang]);
+  ];
+  const handleTrigger = useCallback((el: HTMLElement) => {
+    onTriggerEffect(el);
+    setTitle((prev) => pickTitle(lang, prev));
+  }, [onTriggerEffect, lang]);
 
   return (
     <div style={{ width: '100%', maxWidth: '560px' }}>
@@ -136,7 +174,7 @@ export function ThemeHomePreview({ lang, onTriggerEffect }: ThemeHomePreviewProp
               key={t.id}
               task={t}
               lang={lang}
-              onTriggerEffect={onTriggerEffect}
+              onTriggerEffect={handleTrigger}
             />
           ))}
         </div>
