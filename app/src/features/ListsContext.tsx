@@ -10,7 +10,7 @@
  */
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { useLists } from './useLists';
-import type { List } from '../types/list';
+import type { List, SortMode } from '../types/list';
 import type { Task } from '../types/task';
 
 // ── Data context (changes when lists/activeId change) ──────────────────────
@@ -32,6 +32,7 @@ interface ListsActionsValue {
   addList: (name: string) => void;
   renameList: (listId: string, name: string) => void;
   deleteList: (listId: string, allLists: List[]) => void;
+  setListSortMode: (listId: string, sortMode: SortMode) => void;
   addTask: (listId: string, fields: Partial<Task> & { title: string }) => Task;
   updateTask: (taskId: string, fields: Partial<Task>) => void;
   deleteTask: (taskId: string) => void;
@@ -60,6 +61,7 @@ export function ListsProvider({ children }: { children: ReactNode }) {
     addList,
     renameList,
     deleteList,
+    setListSortMode,
     addTask,
     updateTask,
     deleteTask,
@@ -88,6 +90,7 @@ export function ListsProvider({ children }: { children: ReactNode }) {
     addList,
     renameList,
     deleteList,
+    setListSortMode,
     addTask,
     updateTask,
     deleteTask,
@@ -101,7 +104,7 @@ export function ListsProvider({ children }: { children: ReactNode }) {
     resetRepeatingTasks,
     closeListLimitUpsell,
   }), [
-    setLists, setActiveList, addList, renameList, deleteList,
+    setLists, setActiveList, addList, renameList, deleteList, setListSortMode,
     addTask, updateTask, deleteTask, completeTask, uncompleteTask,
     addSubtask, toggleSubtask, deleteSubtask,
     moveTask, reorderActiveTasks, resetRepeatingTasks, closeListLimitUpsell,

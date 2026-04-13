@@ -124,17 +124,17 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
                   type="button"
                   role="menuitem"
                   onClick={() => handleTrackSelect(tr.id)}
-                  className={`pxd-popover-menu__item${isActive ? ' pxd-popover-menu__item--active' : ''}`}
+                  className={`pxd-popover-menu__item${isActive ? ' pxd-popover-menu__item--selected' : ''}`}
                   style={{
                     background: isActive ? 'var(--pd-color-background-hover)' : undefined,
                     border: 'none',
                     borderBottom: 'none',
                   }}
                 >
-                  <span className="material-icons" style={{ fontSize: '14px', lineHeight: 1, color: 'var(--pd-color-accent-default)', opacity: isActive ? 1 : 0 }}>
-                    check
-                  </span>
-                  {lang === 'ja' ? tr.labelJa : tr.labelEn}
+                  <span className="pxd-popover-menu__label">{lang === 'ja' ? tr.labelJa : tr.labelEn}</span>
+                  {isActive && (
+                    <span className="material-icons pxd-popover-menu__check" aria-hidden>check</span>
+                  )}
                 </button>
               );
             })}

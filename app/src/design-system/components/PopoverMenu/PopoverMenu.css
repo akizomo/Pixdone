@@ -111,6 +111,25 @@
   flex-shrink: 0;
 }
 
+/* Label fills available space so check sits at the right edge */
+.pxd-popover-menu__label {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Trailing checkmark (selected state) */
+.pxd-popover-menu__check {
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+  color: var(--pd-color-accent-default);
+  margin-left: 8px;
+}
+
+.pxd-popover-menu__item--selected {
+  color: var(--pd-color-text-primary);
+}
+
 /* ── Animation ── */
 
 @keyframes pxd-popover-menu-in {

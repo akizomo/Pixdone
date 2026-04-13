@@ -376,10 +376,16 @@ export function useLists() {
         const nextFromFirestore: List[] = snap.docs
           .map((d) => {
             const data = d.data() as any;
+            const rawSort = data.sortMode;
+            const sortMode: List['sortMode'] =
+              rawSort === 'manual' || rawSort === 'dueDate' || rawSort === 'priority' || rawSort === 'createdAt' || rawSort === 'alphabetical'
+                ? rawSort
+                : undefined;
             return {
               id: d.id,
               name: data.name ?? 'My Tasks',
               tasks: tasksById.get(d.id) ?? [],
+              sortMode,
             };
           })
           // If user once created a Firestore "Smash List", ignore it; we keep Smash local-only.
@@ -409,6 +415,11 @@ export function useLists() {
         } else {
           dueDate = null;
         }
+        const rawPriority = data.priority;
+        const priority: Task['priority'] =
+          rawPriority === 'high' || rawPriority === 'medium' || rawPriority === 'low'
+            ? rawPriority
+            : undefined;
         const task: Task = {
           id: d.id,
           title: data.title ?? '',
@@ -418,6 +429,7 @@ export function useLists() {
           repeat: data.repeat ?? 'none',
           subtasks: data.subtasks ?? [],
           listId,
+          priority,
           sortOrder: typeof data.sortOrder === 'number' ? data.sortOrder : undefined,
         };
         if (!tasksByList[listId]) tasksByList[listId] = [];
@@ -519,6 +531,18 @@ export function useLists() {
     }
   }, [setLists, setActiveList, user, isPremium, lists]);
 
+  const setListSortMode = useCallback((listId: string, sortMode: NonNullable<List['sortMode']>) => {
+    setLists((prev) => prev.map((l) => (l.id === listId ? { ...l, sortMode } : l)));
+    if (user && listId !== 'smash-list') {
+      (async () => {
+        try {
+          const ref = doc(db, 'lists', listId);
+          await updateDoc(ref, { sortMode });
+        } catch { /* optimistic UI already applied */ }
+      })();
+    }
+  }, [setLists, user]);
+
   const renameList = useCallback((listId: string, name: string) => {
     if (user) {
       setLists((prev) => prev.map((l) => (l.id === listId ? { ...l, name } : l)));
@@ -565,6 +589,7 @@ export function useLists() {
       repeat: fields.repeat ?? 'none',
       subtasks: fields.subtasks ?? [],
       listId,
+      priority: fields.priority,
     };
 
     let created: Task = base;
@@ -600,6 +625,7 @@ export function useLists() {
           completed: base.completed,
           createdAt: Timestamp.now(),
           sortOrder: sortOrderForDb,
+          ...(base.priority ? { priority: base.priority } : {}),
         });
       })();
     }
@@ -630,6 +656,7 @@ export function useLists() {
         if ('subtasks' in fields) patch.subtasks = fields.subtasks ?? [];
         if ('completed' in fields && fields.completed !== undefined) patch.completed = fields.completed;
         if ('sortOrder' in fields && fields.sortOrder !== undefined) patch.sortOrder = fields.sortOrder;
+        if ('priority' in fields) patch.priority = fields.priority ?? null;
         if (Object.keys(patch).length === 0) return;
         try {
           await updateDoc(ref, patch as Record<string, unknown>);
@@ -927,6 +954,7 @@ export function useLists() {
     addList,
     renameList,
     deleteList,
+    setListSortMode,
     addTask,
     updateTask,
     deleteTask,

@@ -50,7 +50,7 @@ export function PopoverMenu({
           type="button"
           role="menuitem"
           disabled={item.disabled}
-          className={`pxd-popover-menu__item${item.danger ? ' pxd-popover-menu__item--danger' : ''}`}
+          className={`pxd-popover-menu__item${item.danger ? ' pxd-popover-menu__item--danger' : ''}${item.selected ? ' pxd-popover-menu__item--selected' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
             onSelect(item.id);
@@ -59,7 +59,10 @@ export function PopoverMenu({
           {item.icon && (
             <span className="material-icons pxd-popover-menu__icon">{item.icon}</span>
           )}
-          {item.label}
+          <span className="pxd-popover-menu__label">{item.label}</span>
+          {item.selected && (
+            <span className="material-icons pxd-popover-menu__check" aria-hidden>check</span>
+          )}
         </button>
       ))}
     </div>

@@ -7,6 +7,8 @@ export interface PopoverMenuItem {
   /** Danger-styled item (e.g. delete). */
   danger?: boolean;
   disabled?: boolean;
+  /** Renders a trailing checkmark in accent color (e.g. selected sort mode). */
+  selected?: boolean;
 }
 
 export interface PopoverMenuProps {

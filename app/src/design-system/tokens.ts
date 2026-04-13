@@ -24,6 +24,12 @@ export const tokens = {
       dangerText: '#ffffff',
       warning: '#FACC15',      // yellow-200 — AA 10.51 on dark bg
     },
+    // Task priority swatches (dark mode). White icon on top.
+    priority: {
+      high:   '#FF6B6B', // red-200
+      medium: '#FF8C1A', // orange-500
+      low:    '#43CBEA', // cyan-500
+    },
     overlay: { backdrop: 'rgba(0, 0, 0, 0.5)' },
     focus: { ring: 'rgba(123, 97, 255, 0.2)', insetShadow: 'rgba(0, 0, 0, 0.1)' },
     smash: {
@@ -54,6 +60,12 @@ export const tokens = {
       danger: '#C53030',       // red-800 — AA 5.47 on white
       dangerText: '#ffffff',
       warning: '#854D0E',      // yellow-900 — AA 6.85 on white
+    },
+    // Task priority swatches (light mode). White icon on top.
+    priority: {
+      high:   '#C53030', // red-800
+      medium: '#CC6600', // orange-700
+      low:    '#2396B2', // cyan-700
     },
     focus: { ring: 'rgba(123, 97, 255, 0.2)', insetShadow: 'rgba(0, 0, 0, 0.1)' },
     smash: {

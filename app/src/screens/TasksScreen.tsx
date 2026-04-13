@@ -55,7 +55,7 @@ export function TasksScreen({
   const { lists, activeListId, currentList, listLimitUpsellOpen } = useListsData();
   const {
     addTask, updateTask, deleteTask, moveTask,
-    reorderActiveTasks, setActiveList, closeListLimitUpsell,
+    reorderActiveTasks, setActiveList, closeListLimitUpsell, setListSortMode,
   } = useListsActions();
 
   // ── Local state ──────────────────────────────────────────────────────────
@@ -72,7 +72,35 @@ export function TasksScreen({
 
   // ── Derived values ────────────────────────────────────────────────────────
   const allTasks = currentList?.tasks ?? [];
-  const activeTasks = allTasks.filter((t) => !t.completed);
+  const sortMode = currentList?.sortMode ?? 'manual';
+  const rawActiveTasks = allTasks.filter((t) => !t.completed);
+  const activeTasks = useMemo(() => {
+    if (sortMode === 'manual') return rawActiveTasks;
+    const arr = [...rawActiveTasks];
+    const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
+    const cmpStr = (a: string, b: string) => a.localeCompare(b);
+    arr.sort((a, b) => {
+      switch (sortMode) {
+        case 'dueDate': {
+          const ad = a.dueDate ?? '\uffff';
+          const bd = b.dueDate ?? '\uffff';
+          return cmpStr(ad, bd) || (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+        }
+        case 'priority': {
+          const ap = a.priority ? PRIORITY_RANK[a.priority] : 3;
+          const bp = b.priority ? PRIORITY_RANK[b.priority] : 3;
+          return ap - bp || (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+        }
+        case 'createdAt':
+          return cmpStr(b.id, a.id);
+        case 'alphabetical':
+          return cmpStr(a.title, b.title);
+        default:
+          return 0;
+      }
+    });
+    return arr;
+  }, [rawActiveTasks, sortMode]);
   const completedTasks = allTasks.filter((t) => t.completed);
 
   const editingTask =
@@ -311,6 +339,7 @@ export function TasksScreen({
       enabled:
         !anyModalOpen &&
         !isSmash &&
+        sortMode === 'manual' &&
         activeTasks.length >= 2,
       slotCount: activeTasks.length,
       onReorder: handleReorderActive,
@@ -348,6 +377,8 @@ export function TasksScreen({
         title={isTutorial ? t('tutorial', lang) : (currentList?.id === 'default' ? t('myTasks', lang) : (currentList?.name ?? ''))}
         showMenu={!isTutorial && !isSmash}
         lang={lang}
+        sortMode={sortMode}
+        onChangeSort={!isSmash && currentList ? (mode) => setListSortMode(currentList.id, mode) : undefined}
         onRename={() => onOpenListModal({ mode: 'rename', listId: currentList?.id })}
         onDelete={() => onOpenListModal({ mode: 'delete', listId: currentList?.id })}
       />

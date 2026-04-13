@@ -26,7 +26,7 @@ export interface Task {
   completed: boolean;
   completedAt?: string;
   dueDate: string | null;
-  priority?: string;
+  priority?: 'high' | 'medium' | 'low';
   details?: string;
   repeat?: RepeatConfig;
   subtasks?: Subtask[];

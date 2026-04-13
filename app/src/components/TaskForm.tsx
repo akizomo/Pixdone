@@ -63,10 +63,12 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
   const [dueDate, setDueDate] = useState<string | null>(task?.dueDate ?? null);
   const [repeat, setRepeat] = useState<RepeatConfig>(task?.repeat ?? 'none');
   const [showRepeat, setShowRepeat] = useState(false);
+  const [showPriority, setShowPriority] = useState(false);
   const [showCustom, setShowCustom] = useState(isCustomRepeat(task?.repeat));
   const [customInterval, setCustomInterval] = useState<number>(isCustomRepeat(task?.repeat) ? task.repeat.interval : 1);
   const [customUnit, setCustomUnit] = useState<CustomRepeat['unit']>(isCustomRepeat(task?.repeat) ? task.repeat.unit : 'week');
   const [customWeekDays, setCustomWeekDays] = useState<number[]>(isCustomRepeat(task?.repeat) ? (task.repeat.weekDays ?? []) : []);
+  const [priority, setPriority] = useState<Task['priority']>(task?.priority);
   const [subtasks, setSubtasks] = useState(task?.subtasks ?? []);
   const [newSubtask, setNewSubtask] = useState('');
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
@@ -84,8 +86,8 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
   const handleSave = useCallback(() => {
     const trimmed = title.trim();
     if (!trimmed) { onCancel(); return; }
-    onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
-  }, [title, details, dueDate, repeat, subtasks, onSave, onCancel]);
+    onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks, priority });
+  }, [title, details, dueDate, repeat, subtasks, priority, onSave, onCancel]);
 
   const isDirty = useCallback(() => {
     if (!task) return false;
@@ -94,44 +96,46 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
       (details.trim() || '') !== (task.details ?? '') ||
       dueDate !== (task.dueDate ?? null) ||
       JSON.stringify(repeat) !== JSON.stringify(task.repeat ?? 'none') ||
-      JSON.stringify(subtasks) !== JSON.stringify(task.subtasks ?? [])
+      JSON.stringify(subtasks) !== JSON.stringify(task.subtasks ?? []) ||
+      (priority ?? null) !== (task.priority ?? null)
     );
-  }, [title, details, dueDate, repeat, subtasks, task]);
+  }, [title, details, dueDate, repeat, subtasks, priority, task]);
 
   const handleClose = useCallback(() => {
     const trimmed = title.trim();
     if (task && isDirty() && trimmed) {
       playSound('taskAdd');
-      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
+      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks, priority });
     } else if (task) {
       (onClose ?? onCancel)();
     } else if (trimmed) {
       // Add mode: auto-save instead of discarding
       playSound('taskAdd');
-      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
+      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks, priority });
     } else {
       onCancel();
     }
-  }, [task, isDirty, title, details, dueDate, repeat, subtasks, onSave, onClose, onCancel]);
+  }, [task, isDirty, title, details, dueDate, repeat, subtasks, priority, onSave, onClose, onCancel]);
 
   const dismissSubmenus = useCallback(() => {
     let dismissed = false;
     if (showRepeat) { setShowRepeat(false); setShowCustom(false); dismissed = true; }
+    if (showPriority) { setShowPriority(false); dismissed = true; }
     if (showListMenu) { setShowListMenu(false); dismissed = true; }
     return dismissed;
-  }, [showRepeat, showListMenu]);
+  }, [showRepeat, showPriority, showListMenu]);
 
   const saveIfDirty = useCallback(() => {
     const trimmed = title.trim();
     if (task && isDirty() && trimmed) {
       playSound('taskAdd');
-      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
+      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks, priority });
     } else if (!task && trimmed) {
       // Add mode: persist on dismissal so user input isn't lost
       playSound('taskAdd');
-      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
+      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks, priority });
     }
-  }, [task, isDirty, title, details, dueDate, repeat, subtasks, onSave]);
+  }, [task, isDirty, title, details, dueDate, repeat, subtasks, priority, onSave]);
 
   useImperativeHandle(ref, () => ({ close: handleClose, saveIfDirty, dismissSubmenus }), [handleClose, saveIfDirty, dismissSubmenus]);
 
@@ -365,6 +369,46 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
                     </button>
                   </>
                 )}
+              </div>
+            </>
+          )}
+        </div>
+        {/* Priority */}
+        <div className="pd-task-form__repeat-wrapper">
+          <Chip
+            font="body"
+            selected={!!priority}
+            onClick={() => setShowPriority((v) => !v)}
+          >
+            <span className={`material-icons pd-task-form__chip-icon pd-task-form__priority-icon${priority ? ` pd-task-form__priority-icon--${priority}` : ''}`}>
+              {priority === 'high' ? 'arrow_upward' : priority === 'low' ? 'arrow_downward' : priority === 'medium' ? 'remove' : 'flag'}
+            </span>
+            {priority ? t(`priority${priority.charAt(0).toUpperCase()}${priority.slice(1)}`, lang) : t('priority', lang)}
+          </Chip>
+          {showPriority && (
+            <>
+              <div className="pd-task-form__repeat-backdrop" onClick={() => { playSound('taskCancel'); setShowPriority(false); }} />
+              <div className="pd-task-form__repeat-dropdown">
+                {([
+                  { value: undefined, key: 'priorityNone', icon: null, iconClass: '' },
+                  { value: 'high' as const, key: 'priorityHigh', icon: 'arrow_upward', iconClass: 'pd-task-form__priority-icon--high' },
+                  { value: 'medium' as const, key: 'priorityMedium', icon: 'remove', iconClass: 'pd-task-form__priority-icon--medium' },
+                  { value: 'low' as const, key: 'priorityLow', icon: 'arrow_downward', iconClass: 'pd-task-form__priority-icon--low' },
+                ]).map((opt) => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    className={`pd-task-form__repeat-preset${(priority ?? undefined) === opt.value ? ' pd-task-form__repeat-preset--active' : ''}`}
+                    onClick={() => { playSound('buttonClick'); setPriority(opt.value); setShowPriority(false); }}
+                  >
+                    {opt.icon && (
+                      <span className={`material-icons pd-task-form__chip-icon pd-task-form__priority-icon ${opt.iconClass}`}>
+                        {opt.icon}
+                      </span>
+                    )}
+                    {t(opt.key, lang)}
+                  </button>
+                ))}
               </div>
             </>
           )}

@@ -131,6 +131,18 @@ export const TaskItem = memo(function TaskItem({
         </button>
       </div>
 
+      {/* Priority badge */}
+      {task.priority && (
+        <span
+          className={`task-item__priority task-item__priority--${task.priority}`}
+          aria-label={`priority-${task.priority}`}
+        >
+          <span className="material-icons task-item__priority-icon">
+            {task.priority === 'high' ? 'arrow_upward' : task.priority === 'low' ? 'arrow_downward' : 'remove'}
+          </span>
+        </span>
+      )}
+
       {/* Task body */}
       <div className={`task-item__body${isSmash ? ' task-item__body--smash' : ''}`}>
         <span className={`task-item__title${task.completed ? ' task-item__title--completed' : ''}`}>

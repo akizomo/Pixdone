@@ -21,6 +21,12 @@
   text-shadow: 1px 1px 0px var(--pxd-shadow-pixel-sm);
 }
 
+.pd-list-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-1);
+}
+
 .pd-list-header__menu {
   position: relative;
 }

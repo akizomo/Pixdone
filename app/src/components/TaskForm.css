@@ -34,6 +34,20 @@
   line-height: 1;
 }
 
+/* Priority icon colors inside chips */
+.pd-task-form__priority-icon {
+  font-weight: bold;
+}
+.pd-task-form__priority-icon--high {
+  color: var(--pd-color-priority-high);
+}
+.pd-task-form__priority-icon--medium {
+  color: var(--pd-color-priority-medium);
+}
+.pd-task-form__priority-icon--low {
+  color: var(--pd-color-priority-low);
+}
+
 /* Date / repeat chip row */
 .pd-task-form__chip-row {
   display: flex;
