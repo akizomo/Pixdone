@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import './index.css'
 import App from './App.tsx'
+import { initPixelCursor } from './utils/pixelCursor'
 
 // Initialize vanilla task completion effects (animations.js loaded via index.html)
 declare global {
@@ -17,6 +18,7 @@ declare global {
   }
 }
 if (typeof window !== 'undefined') {
+  initPixelCursor();
   const init = () => {
     if (window.TaskAnimationEffects && !window.taskAnimationEffects) {
       window.taskAnimationEffects = new window.TaskAnimationEffects();
