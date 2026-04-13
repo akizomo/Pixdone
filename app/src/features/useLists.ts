@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   collection,
   query,
@@ -285,9 +285,9 @@ function loadLists(): List[] {
 function loadActiveId(lists: List[]): string {
   try {
     const raw = localStorage.getItem(ACTIVE_KEY);
-    if (raw && lists.some((l) => l.id === raw)) return raw;
+    if (raw && raw !== 'smash-list' && lists.some((l) => l.id === raw)) return raw;
   } catch { /* ignore */ }
-  return lists[0]?.id ?? 'default';
+  return lists.some((l) => l.id === 'default') ? 'default' : (lists[0]?.id ?? 'default');
 }
 
 export function useLists() {
@@ -323,6 +323,17 @@ export function useLists() {
       try { localStorage.setItem(ACTIVE_KEY, activeId); } catch { /* ignore */ }
     }
   }, [activeId, user]);
+
+  const prevUserRef = useRef(user);
+  useEffect(() => {
+    const prev = prevUserRef.current;
+    prevUserRef.current = user;
+    if (prev && !user) {
+      const fresh = loadLists();
+      setListsState(fresh);
+      setActiveId(fresh.some((l) => l.id === 'default') ? 'default' : (fresh[0]?.id ?? 'default'));
+    }
+  }, [user]);
 
   /**
    * After reload or Firestore sync, activeId may point at a deleted / optimistic id that no longer
