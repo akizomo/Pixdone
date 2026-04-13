@@ -105,6 +105,35 @@ export function CollectionPage({
     setSelectedEffect(mobileEffects[nextIdx]?.key ?? null);
   };
 
+  // ── Keyboard navigation (← / →) when an effect is selected ──────────────
+  useEffect(() => {
+    if (activeTab !== 'effects') return;
+    if (!selectedEffect) return;
+    const visible = isDesktop ? desktopEffects : mobileEffects;
+    if (visible.length <= 1) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      // Don't hijack typing in inputs / editable areas
+      const tgt = e.target as HTMLElement | null;
+      if (tgt) {
+        const tag = tgt.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        if (tgt.isContentEditable) return;
+      }
+      const idx = visible.findIndex((x) => x.key === selectedEffect);
+      if (idx < 0) return;
+      e.preventDefault();
+      playSound('buttonClick');
+      const delta = e.key === 'ArrowLeft' ? -1 : 1;
+      const nextIdx = (idx + delta + visible.length) % visible.length;
+      setSelectedEffect(visible[nextIdx]?.key ?? null);
+    };
+
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeTab, selectedEffect, isDesktop, desktopEffects, mobileEffects]);
+
   // ── Theme navigation (mobile sheet) ────────────────────────────────────────
   const selectedThemeIndex = useMemo(() => {
     if (!selectedTheme) return -1;
