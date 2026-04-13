@@ -7,7 +7,7 @@
  *   - save は close と分離: 先にデータを保存し、rAF で1フレーム遅延させてから close
  *     (親の再レンダーが CSS transition を潰さないようにする)
  */
-import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { BottomSheet } from '../design-system/components/BottomSheet/BottomSheet';
 import { TaskForm } from './TaskForm';
 import type { TaskFormHandle } from './TaskForm';
@@ -40,6 +40,11 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
     const [mode, setMode] = useState<'add' | 'edit'>('add');
     const [editTaskId, setEditTaskId] = useState<string | null>(null);
     const taskFormRef = useRef<TaskFormHandle>(null);
+    // Skip the auto-save-on-dismiss path when the close was triggered by
+    // an explicit save (Save button) or by an imperative force-close
+    // (delete confirmed, list switch, etc).
+    const skipAutoSaveRef = useRef(false);
+    const prevOpenRef = useRef(false);
 
     const task = editTaskId ? tasks.find((t) => t.id === editTaskId) ?? undefined : undefined;
 
@@ -53,19 +58,39 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
       openAdd() {
         setEditTaskId(null);
         setMode('add');
+        skipAutoSaveRef.current = false;
         setOpen(true);
       },
       openEdit(taskId: string) {
         setEditTaskId(taskId);
         setMode('edit');
+        skipAutoSaveRef.current = false;
         setOpen(true);
       },
       close() {
+        // Imperative close = forced (delete / navigation) — no auto-save.
+        skipAutoSaveRef.current = true;
         setOpen(false);
       },
     }), []);
 
+    // Auto-save on user-initiated dismissal (backdrop / swipe / Esc / X).
+    // Per the BottomSheet rule, onClose stays a 1-liner; we react in an
+    // effect after `open` flips to false. The TaskForm is still mounted
+    // during the close animation, so the ref is valid here.
+    useEffect(() => {
+      if (prevOpenRef.current && !open) {
+        if (!skipAutoSaveRef.current) {
+          taskFormRef.current?.saveIfDirty();
+        }
+        skipAutoSaveRef.current = false;
+      }
+      prevOpenRef.current = open;
+    }, [open]);
+
     const handleSave = useCallback((fields: Partial<Task> & { title: string }) => {
+      // Save was already explicit — don't double-fire from the dismissal effect.
+      skipAutoSaveRef.current = true;
       if (mode === 'add') {
         onAddTask(currentListId, fields);
         playSound('taskAdd');

@@ -99,11 +99,16 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
   }, [title, details, dueDate, repeat, subtasks, task]);
 
   const handleClose = useCallback(() => {
-    if (task && isDirty() && title.trim()) {
+    const trimmed = title.trim();
+    if (task && isDirty() && trimmed) {
       playSound('taskAdd');
-      onSave({ title: title.trim(), details: details.trim() || undefined, dueDate, repeat, subtasks });
+      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
     } else if (task) {
       (onClose ?? onCancel)();
+    } else if (trimmed) {
+      // Add mode: auto-save instead of discarding
+      playSound('taskAdd');
+      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
     } else {
       onCancel();
     }
@@ -117,9 +122,14 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
   }, [showRepeat, showListMenu]);
 
   const saveIfDirty = useCallback(() => {
-    if (task && isDirty() && title.trim()) {
+    const trimmed = title.trim();
+    if (task && isDirty() && trimmed) {
       playSound('taskAdd');
-      onSave({ title: title.trim(), details: details.trim() || undefined, dueDate, repeat, subtasks });
+      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
+    } else if (!task && trimmed) {
+      // Add mode: persist on dismissal so user input isn't lost
+      playSound('taskAdd');
+      onSave({ title: trimmed, details: details.trim() || undefined, dueDate, repeat, subtasks });
     }
   }, [task, isDirty, title, details, dueDate, repeat, subtasks, onSave]);
 

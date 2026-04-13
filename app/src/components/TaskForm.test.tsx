@@ -329,10 +329,10 @@ describe('TaskForm — Close-to-Save', () => {
     });
   });
 
-  // ── Escape key on new task → traditional cancel ──
+  // ── Escape key on new task → auto-save when title present ──
 
-  describe('Escape key on new task form (no auto-save)', () => {
-    it('calls onCancel (not onSave) even with typed content', () => {
+  describe('Escape key on new task form (auto-save)', () => {
+    it('saves typed content instead of discarding it', () => {
       const props = {
         lang: 'en' as const,
         listId: 'list-1',
@@ -347,10 +347,29 @@ describe('TaskForm — Close-to-Save', () => {
 
       fireEvent.keyDown(title, { key: 'Escape' });
 
-      // New task: Escape calls onCancel (with sound), not silent onClose
+      // New task with content: Escape now saves rather than cancels.
+      expect(props.onSave).toHaveBeenCalledTimes(1);
+      expect(props.onSave).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'New task' }),
+      );
+      expect(props.onCancel).not.toHaveBeenCalled();
+    });
+
+    it('cancels when title is empty', () => {
+      const props = {
+        lang: 'en' as const,
+        listId: 'list-1',
+        onSave: vi.fn(),
+        onCancel: vi.fn(),
+        onClose: vi.fn(),
+      };
+      render(<TaskForm {...props} />);
+      const title = document.getElementById('task-title')!;
+
+      fireEvent.keyDown(title, { key: 'Escape' });
+
       expect(props.onCancel).toHaveBeenCalledTimes(1);
       expect(props.onSave).not.toHaveBeenCalled();
-      expect(props.onClose).not.toHaveBeenCalled();
     });
   });
 
