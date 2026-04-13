@@ -269,6 +269,36 @@ function AppContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* ---- 所有エフェクトは新規獲得時に自動で active にする ----
+   * 一度 active 化したキーは seen に記録し、ユーザーが手動で OFF にした後に
+   * 再び強制 ON にならないようにする。
+   */
+  const autoActivatedOwnedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('pd-auto-activated-owned');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) autoActivatedOwnedRef.current = new Set(parsed as string[]);
+      }
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    if (!ownedChallengeEffects || ownedChallengeEffects.length === 0) return;
+    const seen = autoActivatedOwnedRef.current;
+    const allowed = new Set(EFFECTS_REGISTRY.map((e) => e.key));
+    const toAdd = ownedChallengeEffects.filter((k) => allowed.has(k) && !seen.has(k));
+    if (toAdd.length === 0) return;
+    toAdd.forEach((k) => seen.add(k));
+    try {
+      localStorage.setItem('pd-auto-activated-owned', JSON.stringify(Array.from(seen)));
+    } catch { /* ignore */ }
+    const missing = toAdd.filter((k) => !activeEffects.includes(k));
+    if (missing.length > 0) {
+      setActiveEffects([...activeEffects, ...missing]);
+    }
+  }, [ownedChallengeEffects, activeEffects, setActiveEffects]);
+
   /* ---- Collection tab initial state (for "See all" deep-link) ---- */
   const [collectionInitialTab, setCollectionInitialTab] = useState<'effects' | 'themes'>('effects');
   const [collectionInitialEffectKey, setCollectionInitialEffectKey] = useState<string | null>(null);
