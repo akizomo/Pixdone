@@ -338,6 +338,10 @@ export function TasksScreen({
         onAddList={() => { playSound('buttonClick'); onOpenListModal({ mode: 'add' }); }}
         getTabLabel={getTabLabel}
         getTabCount={getTabCount}
+        lang={lang}
+        onRenameList={isDesktop ? (listId) => onOpenListModal({ mode: 'rename', listId }) : undefined}
+        onDeleteList={isDesktop ? (listId) => onOpenListModal({ mode: 'delete', listId }) : undefined}
+        canContextMenu={(list) => list.id !== 'smash-list' && !list.id.startsWith('tutorial')}
       />
 
       <ListHeader
