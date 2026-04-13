@@ -1,4 +1,4 @@
-import { memo, useState, type PointerEvent, type TouchEvent } from 'react';
+import { memo, useState, type PointerEvent, type ReactNode, type TouchEvent } from 'react';
 import type { Task } from '../types/task';
 import { formatDueDate, getDueStatus } from '../lib/date';
 import { t } from '../lib/i18n';
@@ -24,6 +24,7 @@ export interface TaskItemProps {
   reorderSource?: boolean;
   onTutorialSmashLinkClick?: () => void;
   onTutorialFocusLinkClick?: () => void;
+  titleSlot?: ReactNode;
 }
 
 const TUTORIAL_KEYS: Record<string, string> = {
@@ -47,6 +48,7 @@ export const TaskItem = memo(function TaskItem({
   reorderSource = false,
   onTutorialSmashLinkClick,
   onTutorialFocusLinkClick,
+  titleSlot,
 }: TaskItemProps) {
   const [showMoveMenu, setShowMoveMenu] = useState(false);
   const displayTitle = TUTORIAL_KEYS[task.id] ? t(TUTORIAL_KEYS[task.id], lang) : task.title;
@@ -132,7 +134,7 @@ export const TaskItem = memo(function TaskItem({
       {/* Task body */}
       <div className={`task-item__body${isSmash ? ' task-item__body--smash' : ''}`}>
         <span className={`task-item__title${task.completed ? ' task-item__title--completed' : ''}`}>
-          {isTutorialSmashTask ? (
+          {titleSlot ? titleSlot : isTutorialSmashTask ? (
             <>
               {t('tutorialTask3Before', lang)}
               {onTutorialSmashLinkClick ? (
