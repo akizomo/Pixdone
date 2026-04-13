@@ -400,10 +400,6 @@ export function applyPixelCursors(): void {
 
 // --- Hover dispatcher -------------------------------------------------------
 
-type Matcher =
-  | { type: 'keyword'; kinds: Record<string, CursorKind> }
-  | { type: 'auto' };
-
 const KEYWORD_TO_KIND: Record<string, CursorKind> = {
   'default': 'default',
   'pointer': 'pointer',
