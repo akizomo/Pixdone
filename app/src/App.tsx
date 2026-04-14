@@ -31,11 +31,18 @@ import './App.css';
 import type { Task } from './types/task';
 import { PricingPage } from './pages/PricingPage';
 import { AccountPage } from './pages/AccountPage';
+import { FeedbackPage } from './pages/FeedbackPage';
 import { CollectionPage } from './pages/CollectionPage';
 import { EffectRequestPage } from './pages/EffectRequestPage';
 import { LandingPage } from './pages/LandingPage';
 import { EffectCapturePage } from './pages/EffectCapturePage';
 import { useUserTheme } from './hooks/useUserTheme';
+import {
+  recordAppOpen as recordPhAppOpen,
+  shouldShowPhBanner,
+  dismissPhBanner,
+  PH_REVIEW_URL,
+} from './services/phReviewBanner';
 
 /**
  * Desktop UI: at least one fine pointer (mouse/trackpad). No viewport width involved —
@@ -81,7 +88,7 @@ function AppContent() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/effect-request';
+  const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/effect-request' || pathname === '/feedback';
 
   const [lang, setLang] = useState<'en' | 'ja'>(() => detectDefaultLang());
 
@@ -91,6 +98,7 @@ function AppContent() {
   }, []);
 
   // UI state
+  const [phBannerOpen, setPhBannerOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
   const [authInitialMode, setAuthInitialMode] = useState<'signup' | 'login'>('signup');
   const [plusIntroOpen, setPlusIntroOpen] = useState(false);
@@ -121,6 +129,11 @@ function AppContent() {
     initSoundEngine();
     setSoundMuted(!getSoundEnabled());
   }, []);
+
+  /* ---- PH review banner: record today's app-open for authenticated users ---- */
+  useEffect(() => {
+    if (user) recordPhAppOpen();
+  }, [user]);
 
   const { showToast } = useToast();
 
@@ -480,6 +493,10 @@ function AppContent() {
     }
 
     if (!isTutorialTask) sendChallengeProgress(taskId);
+
+    if (!isTutorialTask && user && shouldShowPhBanner()) {
+      window.setTimeout(() => setPhBannerOpen(true), 1600);
+    }
   }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast, forcedEffectKey, showToast, lang]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
@@ -712,11 +729,13 @@ function AppContent() {
                     items={[
                       { id: 'sound', label: soundMuted ? (lang === 'ja' ? 'サウンドオフ' : 'Sound off') : (lang === 'ja' ? 'サウンドオン' : 'Sound on'), icon: soundMuted ? 'volume_off' : 'volume_up' },
                       { id: 'support', label: lang === 'ja' ? 'Support PixDone' : 'Support PixDone', icon: 'favorite' },
+                      { id: 'feedback', label: lang === 'ja' ? 'フィードバック' : 'Feedback', icon: 'chat_bubble_outline' },
                       { id: 'logout', label: lang === 'ja' ? 'ログアウト' : 'Log out', icon: 'logout' },
                     ]}
                     onSelect={(id) => {
                       if (id === 'sound') { toggleSound(); return; }
                       if (id === 'support') { playSound('buttonClick'); window.open('https://buymeacoffee.com/akizomo', '_blank', 'noopener,noreferrer'); return; }
+                      if (id === 'feedback') { playSound('buttonClick'); setUserMenuOpen(false); navigate('/feedback'); return; }
                       if (id === 'logout') { setUserMenuOpen(false); playSound('taskComplete'); logout(); }
                     }}
                     onClose={() => { playSound('taskCancel'); setUserMenuOpen(false); }}
@@ -788,6 +807,8 @@ function AppContent() {
           <PricingPage />
         ) : pathname === '/account' ? (
           <AccountPage />
+        ) : pathname === '/feedback' ? (
+          <FeedbackPage />
         ) : pathname === '/effect-request' ? (
           <EffectRequestPage />
         ) : isCollectionScreen ? (
@@ -850,6 +871,46 @@ function AppContent() {
         onConfirm={handleListModalConfirm}
         onClose={() => { playSound('taskCancel'); setListModal(null); }}
       />
+
+      {/* PH review request banner — shown once after first smash on day 3+ */}
+      <ModalDialog
+        open={phBannerOpen}
+        onClose={() => setPhBannerOpen(false)}
+        title={lang === 'ja' ? 'PixDone を気に入ってくれた？' : 'Enjoying PixDone?'}
+        aria-label="Product Hunt review request"
+        actions={
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
+            <Button
+              variant="secondary"
+              size="sm"
+              soundKey="taskCancel"
+              onClick={() => {
+                dismissPhBanner();
+                setPhBannerOpen(false);
+              }}
+            >
+              {lang === 'ja' ? 'あとで' : 'LATER'}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => {
+                dismissPhBanner();
+                setPhBannerOpen(false);
+                window.open(PH_REVIEW_URL, '_blank', 'noopener,noreferrer');
+              }}
+            >
+              {lang === 'ja' ? 'レビューを書く' : 'WRITE A REVIEW'}
+            </Button>
+          </div>
+        }
+      >
+        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--pd-color-text-secondary)', lineHeight: 1.6 }}>
+          {lang === 'ja'
+            ? 'Product Hunt でレビューを書いてくれると、開発を続ける大きな力になります！'
+            : 'A quick review on Product Hunt would mean the world and help us keep building!'}
+        </p>
+      </ModalDialog>
 
       {/* Theme modal */}
       <ModalDialog
