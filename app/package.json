@@ -13,7 +13,8 @@
     "test:watch": "vitest --project unit",
     "test:coverage": "vitest run --project unit --coverage",
     "storybook": "CI=true storybook dev -p 6006 -h 127.0.0.1",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "capture-effects": "node scripts/capture-effect-shots.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

@@ -33,6 +33,8 @@ import { PricingPage } from './pages/PricingPage';
 import { AccountPage } from './pages/AccountPage';
 import { CollectionPage } from './pages/CollectionPage';
 import { EffectRequestPage } from './pages/EffectRequestPage';
+import { LandingPage } from './pages/LandingPage';
+import { EffectCapturePage } from './pages/EffectCapturePage';
 import { useUserTheme } from './hooks/useUserTheme';
 
 /**
@@ -90,6 +92,7 @@ function AppContent() {
 
   // UI state
   const [signupOpen, setSignupOpen] = useState(false);
+  const [authInitialMode, setAuthInitialMode] = useState<'signup' | 'login'>('signup');
   const [plusIntroOpen, setPlusIntroOpen] = useState(false);
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -605,6 +608,39 @@ function AppContent() {
     setActiveScreen('tasks');
   };
 
+  const openAuth = (mode: 'signup' | 'login') => {
+    playSound('buttonClick');
+    setAuthInitialMode(mode);
+    setSignupOpen(true);
+  };
+
+  /* ---- Dev-only effect capture page for Playwright screenshots ---- */
+  if (import.meta.env.DEV && pathname === '/__capture-effects') {
+    return <EffectCapturePage />;
+  }
+
+  /* ---- Unauthenticated landing page — rendered standalone, full-width, no app chrome ---- */
+  if (!user && pathname === '/') {
+    return (
+      <>
+        <LandingPage
+          lang={lang}
+          onChangeLang={changeLang}
+          onOpenLogin={() => openAuth('login')}
+          onOpenSignup={() => openAuth('signup')}
+        />
+        <AuthModal
+          open={signupOpen}
+          onClose={() => { playSound('taskCancel'); setSignupOpen(false); }}
+          onLoginSuccess={() => setSignupOpen(false)}
+          lang={lang}
+          initialMode={authInitialMode}
+          onSignupSuccess={() => setPlusIntroOpen(true)}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       {/* Global header — full width, outside pd-app-container */}
@@ -834,6 +870,7 @@ function AppContent() {
         onClose={() => { playSound('taskCancel'); setSignupOpen(false); }}
         onLoginSuccess={() => setSignupOpen(false)}
         lang={lang}
+        initialMode={authInitialMode}
         onSignupSuccess={() => setPlusIntroOpen(true)}
       />
 
@@ -1034,6 +1071,18 @@ function AppContent() {
           </span>
           <span>© 2026 PixDone</span>
         </div>
+        <a
+          href="https://www.producthunt.com/products/pixdone-todo-app-with-pixel-effects?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-pixdone"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1119592&theme=light&t=1776156649500"
+            alt="PixDone - Earn random pixel rewards every time you smash a task | Product Hunt"
+            width={250}
+            height={54}
+          />
+        </a>
       </footer>
       {/* Footer legal links intentionally shown even when menu hides them. */}
     </div>
