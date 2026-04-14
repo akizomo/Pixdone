@@ -3,11 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
 import { Button } from '../design-system';
-
-type Lang = 'en' | 'ja';
-function detectLang(): Lang {
-  try { return (localStorage.getItem('pixdone-lang') as Lang) ?? 'en'; } catch { return 'en'; }
-}
+import { detectDefaultLang, type Lang } from '../lib/i18n';
 
 const MAX_CHARS = 300;
 
@@ -19,7 +15,7 @@ export function EffectRequestPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const lang = detectLang();
+  const lang: Lang = detectDefaultLang();
   const isJa = lang === 'ja';
 
   const handleSubmit = async () => {

@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
 import { Button } from '../design-system';
+import { detectDefaultLang, type Lang } from '../lib/i18n';
 
 
 const FREE_FEATURES = [
@@ -23,12 +24,6 @@ const PLUS_FEATURES = [
   { en: 'Monthly effect request (1/month)', ja: 'エフェクトリクエスト（月1回）' },
 ];
 
-type Lang = 'en' | 'ja';
-
-function detectLang(): Lang {
-  try { return (localStorage.getItem('pixdone-lang') as Lang) ?? 'en'; } catch { return 'en'; }
-}
-
 export function PricingPage() {
   const navigate = useNavigate();
   const { user, syncServerSession } = useAuth();
@@ -36,7 +31,7 @@ export function PricingPage() {
   const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [loading, setLoading] = useState(false);
   const [successBanner, setSuccessBanner] = useState(false);
-  const lang = detectLang();
+  const lang: Lang = detectDefaultLang();
   const isJa = lang === 'ja';
 
   // ?purchase=plus_success banner

@@ -182,3 +182,21 @@ const translations: Record<string, Record<string, string>> = {
 export function t(key: string, lang: 'en' | 'ja'): string {
   return translations[lang]?.[key] ?? translations['en']?.[key] ?? key;
 }
+
+export type Lang = 'en' | 'ja';
+
+export function detectDefaultLang(): Lang {
+  try {
+    const stored = localStorage.getItem('pixdone-lang') as Lang | null;
+    if (stored === 'en' || stored === 'ja') return stored;
+  } catch { /* ignore */ }
+  try {
+    const candidates: string[] = [];
+    if (typeof navigator !== 'undefined') {
+      if (Array.isArray(navigator.languages)) candidates.push(...navigator.languages);
+      if (navigator.language) candidates.push(navigator.language);
+    }
+    if (candidates.some((l) => l.toLowerCase().startsWith('ja'))) return 'ja';
+  } catch { /* ignore */ }
+  return 'en';
+}

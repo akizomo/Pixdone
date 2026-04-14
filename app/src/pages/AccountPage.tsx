@@ -4,12 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
 import { Button } from '../design-system';
-
-type Lang = 'en' | 'ja';
-
-function detectLang(): Lang {
-  try { return (localStorage.getItem('pixdone-lang') as Lang) ?? 'en'; } catch { return 'en'; }
-}
+import { detectDefaultLang, type Lang } from '../lib/i18n';
 
 function formatDate(iso: string | null, lang: Lang): string {
   if (!iso) return '';
@@ -28,7 +23,7 @@ export function AccountPage() {
   const { plan, billingCycle, currentPeriodEnd } = useThemeEntitlements();
   const [cancelling, setCancelling] = useState(false);
   const [cancelledUntil, setCancelledUntil] = useState<string | null>(null);
-  const lang = detectLang();
+  const lang: Lang = detectDefaultLang();
   const isJa = lang === 'ja';
   const isPlusUser = plan === 'plus';
 

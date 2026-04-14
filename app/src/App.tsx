@@ -13,6 +13,7 @@ import { TasksScreen } from './screens/TasksScreen';
 import { FocusScreenContainer } from './screens/FocusScreenContainer';
 import { usePerfectTimingSetup, type PerfectTimingBridgeCallbacks } from './hooks/usePerfectTimingSetup';
 import { useMidnightRefresh } from './hooks/useMidnightRefresh';
+import { detectDefaultLang } from './lib/i18n';
 import { playSound, getSoundEnabled } from './services/sound';
 import { initSoundEngine } from './services/soundEngine';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -80,9 +81,7 @@ function AppContent() {
   const { pathname } = useLocation();
   const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/effect-request';
 
-  const [lang, setLang] = useState<'en' | 'ja'>(() => {
-    try { return (localStorage.getItem('pixdone-lang') as 'en' | 'ja') ?? 'en'; } catch { return 'en'; }
-  });
+  const [lang, setLang] = useState<'en' | 'ja'>(() => detectDefaultLang());
 
   const changeLang = useCallback((l: 'en' | 'ja') => {
     setLang(l);
