@@ -3,6 +3,7 @@ import {
   tasks,
   taskLists,
   effectProgress,
+  effectRequests,
   type User,
   type UpsertUser,
   type Task,
@@ -10,9 +11,10 @@ import {
   type InsertTask,
   type InsertTaskList,
   type EffectProgressRow,
+  type EffectRequest,
 } from "../shared/schema.js";
 import { db } from "./db.js";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, gte, desc, sql } from "drizzle-orm";
 import { ACTIVE_CHALLENGE_EFFECTS, EVOLVABLE_EFFECTS } from "./constants/challengeEffects.js";
 
 // Interface for storage operations
@@ -50,6 +52,10 @@ interface IStorage {
   // Effect progress operations
   getUserEffectProgress(userId: string): Promise<EffectProgressRow[]>;
   processChallengeProgressOnTaskComplete(userId: string): Promise<{ unlockedEffectIds: string[]; evolvedEffectIds: string[] }>;
+
+  // Effect request operations
+  createEffectRequest(userId: string, description: string): Promise<EffectRequest>;
+  countEffectRequestsSince(userId: string, since: Date): Promise<number>;
 }
 
 class DatabaseStorage implements IStorage {
@@ -315,6 +321,27 @@ class DatabaseStorage implements IStorage {
     }
 
     return { unlockedEffectIds, evolvedEffectIds };
+  }
+
+  // Effect request operations
+
+  async createEffectRequest(userId: string, description: string): Promise<EffectRequest> {
+    const [row] = await db
+      .insert(effectRequests)
+      .values({ userId, description })
+      .returning();
+    return row;
+  }
+
+  async countEffectRequestsSince(userId: string, since: Date): Promise<number> {
+    const [row] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(effectRequests)
+      .where(and(
+        eq(effectRequests.userId, userId),
+        gte(effectRequests.createdAt, since),
+      ));
+    return row?.count ?? 0;
   }
 }
 

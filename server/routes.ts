@@ -506,6 +506,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Effect requests: PixDone+ members can submit effect ideas, 1 per calendar month
+  app.post('/api/effect-requests', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getSessionUserId(req);
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+      const isPremium = await storage.isPremium(userId);
+      if (!isPremium) {
+        return res.status(403).json({
+          error: "PREMIUM_REQUIRED",
+          message: "PixDone+ members only",
+        });
+      }
+
+      const rawDescription = typeof req.body?.description === 'string' ? req.body.description : '';
+      const description = rawDescription.trim();
+      if (!description) {
+        return res.status(400).json({ message: "Description is required" });
+      }
+      if (description.length > 300) {
+        return res.status(400).json({ message: "Description is too long (max 300 chars)" });
+      }
+
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      monthStart.setHours(0, 0, 0, 0);
+      const countThisMonth = await storage.countEffectRequestsSince(userId, monthStart);
+      if (countThisMonth >= 1) {
+        return res.status(429).json({
+          error: "RATE_LIMIT",
+          message: "You can only submit one request per month",
+        });
+      }
+
+      const request = await storage.createEffectRequest(userId, description);
+      res.json({ id: request.id, createdAt: request.createdAt });
+    } catch (error) {
+      console.error("Error creating effect request:", error);
+      res.status(500).json({ message: "Failed to submit effect request" });
+    }
+  });
+
   // Link preview: fetch URL and return og:title, og:image (no auth required for unfurl)
   app.get('/api/link-preview', async (req, res) => {
     const url = typeof req.query.url === 'string' ? req.query.url.trim() : '';

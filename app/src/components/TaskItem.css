@@ -82,26 +82,18 @@
   line-height: 1;
 }
 
-/* Priority badge — small filled square next to checkbox */
+/* Priority indicator — colored arrow icon, inline in meta row */
 .task-item__priority {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
   flex-shrink: 0;
-  margin: 3px var(--pxd-space-1) 0 0;
-  border: var(--pxd-border-thin) solid rgba(0, 0, 0, 0.25);
-  border-radius: var(--pxd-radius-none);
-  box-shadow: var(--pxd-shadow-pixel-sm);
-  image-rendering: pixelated;
-  color: #ffffff;
 }
-.task-item__priority--high   { background: var(--pd-color-priority-high); }
-.task-item__priority--medium { background: var(--pd-color-priority-medium); }
-.task-item__priority--low    { background: var(--pd-color-priority-low); }
+.task-item__priority--high   { color: var(--pd-color-priority-high); }
+.task-item__priority--medium { color: var(--pd-color-priority-medium); }
+.task-item__priority--low    { color: var(--pd-color-priority-low); }
 .task-item__priority-icon {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1;
   font-weight: bold;
 }

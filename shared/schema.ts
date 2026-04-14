@@ -74,6 +74,16 @@ export const tasks = pgTable("tasks", {
   completedAt: timestamp("completed_at"),
 });
 
+// Effect requests table (PixDone+ users submit effect ideas; rate-limited to 1/month)
+export const effectRequests = pgTable("effect_requests", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => [
+  index("idx_effect_requests_user_created").on(t.userId, t.createdAt),
+]);
+
 // Effect progress table
 export const effectProgress = pgTable("effect_progress", {
   id: serial("id").primaryKey(),
@@ -122,3 +132,5 @@ export type InsertTask = typeof tasks.$inferInsert;
 export type InsertTaskList = typeof taskLists.$inferInsert;
 export type EffectProgressRow = typeof effectProgress.$inferSelect;
 export type InsertEffectProgress = typeof effectProgress.$inferInsert;
+export type EffectRequest = typeof effectRequests.$inferSelect;
+export type InsertEffectRequest = typeof effectRequests.$inferInsert;

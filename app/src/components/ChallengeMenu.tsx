@@ -33,12 +33,37 @@ interface ChallengeMenuProps {
 }
 
 const AUTO_SHOW_KEY = 'pd-challenge-auto-shown';
+const COMPLETED_SEEN_KEY = 'pd-challenge-completed-seen';
 
 export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMenuProps) {
   const [open, setOpen] = useState(false);
+  const [completedSeen, setCompletedSeen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(DESKTOP_MQ).matches : false,
   );
+
+  // Track whether the user has already opened the menu since this challenge completed.
+  useEffect(() => {
+    if (!challenge?.isCompleted) {
+      setCompletedSeen(false);
+      return;
+    }
+    try {
+      const seen = localStorage.getItem(`${COMPLETED_SEEN_KEY}-${challenge.effect.key}`);
+      setCompletedSeen(!!seen);
+    } catch (_) {
+      setCompletedSeen(false);
+    }
+  }, [challenge?.effect.key, challenge?.isCompleted]);
+
+  // When the menu is opened while completed, mark as seen and hide the red badge.
+  useEffect(() => {
+    if (!open || !challenge?.isCompleted || completedSeen) return;
+    try {
+      localStorage.setItem(`${COMPLETED_SEEN_KEY}-${challenge.effect.key}`, '1');
+    } catch (_) { /* ignore */ }
+    setCompletedSeen(true);
+  }, [open, challenge?.effect.key, challenge?.isCompleted, completedSeen]);
 
   useEffect(() => {
     const mq = window.matchMedia(DESKTOP_MQ);
@@ -87,23 +112,23 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
   // ── Shared content ────────────────────────────────────────────────────
   const content = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* GIF preview + motivational message (only when not yet completed) */}
-      {!isCompleted && (
-        <div style={{ textAlign: 'center' }}>
-          {gifSrc && (
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <img
-                src={gifSrc}
-                alt={effect.name}
-                style={{
-                  width: 200,
-                  height: 'auto',
-                  imageRendering: 'pixelated',
-                  marginBottom: 12,
-                }}
-              />
-            </div>
-          )}
+      {/* GIF preview + motivational message */}
+      <div style={{ textAlign: 'center' }}>
+        {gifSrc && (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <img
+              src={gifSrc}
+              alt={effect.name}
+              style={{
+                width: 200,
+                height: 'auto',
+                imageRendering: 'pixelated',
+                marginBottom: 12,
+              }}
+            />
+          </div>
+        )}
+        {!isCompleted && (
           <p style={{
             fontFamily: 'var(--pd-font-brand)',
             fontSize: '0.85rem',
@@ -114,8 +139,8 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
             {motivationalLine1}<br />
             {motivationalLine2}
           </p>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Effect name + rarity + deadline */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -230,8 +255,8 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
 
           onClick={() => setOpen(true)}
         />
-        <ChallengeProgressRing pct={pct} isCompleted={isCompleted} />
-        {isCompleted && (
+        {!isCompleted && <ChallengeProgressRing pct={pct} isCompleted={isCompleted} />}
+        {isCompleted && !completedSeen && (
           <span
             data-testid="challenge-badge"
             style={{
@@ -241,7 +266,7 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
               width: 8,
               height: 8,
               borderRadius: '50%',
-              background: 'var(--pd-color-accent-default)',
+              background: 'var(--pd-color-feedback-error)',
             }}
           />
         )}
