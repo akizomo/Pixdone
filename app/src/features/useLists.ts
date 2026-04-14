@@ -401,6 +401,10 @@ export function useLists() {
 
     const unsubTasks = onSnapshot(tasksQuery, (snap) => {
       const tasksByList: Record<string, Task[]> = {};
+      // Tasks whose repeat deadline has arrived: uncomplete + write back.
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const toResetOnServer: { id: string; subtasks?: Subtask[] }[] = [];
 
       snap.docs.forEach((d) => {
         const data = d.data() as any;
@@ -420,14 +424,25 @@ export function useLists() {
           rawPriority === 'high' || rawPriority === 'medium' || rawPriority === 'low'
             ? rawPriority
             : undefined;
+        let completed = !!data.completed;
+        let subtasks = data.subtasks ?? [];
+        // Repeating task auto-reset: if completed and next dueDate has arrived, revive it.
+        if (completed && hasActiveRepeat(data.repeat) && dueDate && dueDate <= todayStr) {
+          completed = false;
+          const resetSubs = Array.isArray(subtasks)
+            ? (subtasks as Subtask[]).map((s) => ({ ...s, done: false }))
+            : [];
+          subtasks = resetSubs;
+          toResetOnServer.push({ id: d.id, subtasks: resetSubs });
+        }
         const task: Task = {
           id: d.id,
           title: data.title ?? '',
-          completed: !!data.completed,
+          completed,
           dueDate,
           details: data.details ?? '',
           repeat: data.repeat ?? 'none',
-          subtasks: data.subtasks ?? [],
+          subtasks,
           listId,
           priority,
           sortOrder: typeof data.sortOrder === 'number' ? data.sortOrder : undefined,
@@ -443,6 +458,14 @@ export function useLists() {
           return { ...l, tasks: orderTasksForList(raw) };
         }),
       );
+
+      // Write-back to Firestore (fire-and-forget; optimistic UI already applied).
+      for (const r of toResetOnServer) {
+        const ref = doc(db, 'tasks', r.id);
+        const updates: Record<string, unknown> = { completed: false };
+        if (r.subtasks) updates.subtasks = r.subtasks;
+        updateDoc(ref, updates).catch(() => {});
+      }
     });
 
     return () => {
