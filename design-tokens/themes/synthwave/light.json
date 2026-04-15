@@ -1,0 +1,832 @@
+{
+  "sw": {
+    "dangerLight": {
+      "$value": "#CC0033",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-danger-light",
+          "set": "themeSynthwaveLight"
+        }
+      }
+    },
+    "successLight": {
+      "$value": "#006644",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-success-light",
+          "set": "themeSynthwaveLight"
+        }
+      }
+    },
+    "successLightHover": {
+      "$value": "#004422",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-success-light-hover",
+          "set": "themeSynthwaveLight"
+        }
+      }
+    },
+    "amberLight": {
+      "$value": "#996600",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-amber-light",
+          "set": "themeSynthwaveLight"
+        }
+      }
+    },
+    "smashTextLight": {
+      "$value": "#8800AA",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-smash-text-light",
+          "set": "themeSynthwaveLight"
+        }
+      }
+    },
+    "smashHintLight": {
+      "$value": "#AA44AA",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-smash-hint-light",
+          "set": "themeSynthwaveLight"
+        }
+      }
+    },
+    "smashGradStartLight": {
+      "$value": "#F0E6FF",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-smash-grad-start-light",
+          "set": "themeSynthwaveLight"
+        }
+      }
+    },
+    "smashGradEndLight": {
+      "$value": "#E0D0FF",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-smash-grad-end-light",
+          "set": "themeSynthwaveLight"
+        }
+      }
+    }
+  },
+  "color": {
+    "surface": {
+      "page": {
+        "$value": "{color.lavender.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "pageAlt": {
+        "$value": "{color.lavender.100}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page-alt",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "primary": {
+        "$value": "{color.lavender.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-primary",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.lavender.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-secondary",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "raised": {
+        "$value": "{color.base.white}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-raised",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "overlay": {
+        "$value": "{color.violet.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-overlay",
+            "set": "themeSynthwaveLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.6500",
+            "space": "srgb"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{color.violet.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-inverse",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{color.lavender.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-disabled",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      }
+    },
+    "text": {
+      "primary": {
+        "$value": "{color.violet.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-primary",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.violet.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-secondary",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "tertiary": {
+        "$value": "{color.violet.600}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-tertiary",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{color.lavender.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-inverse",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{color.violet.600}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-disabled",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "accent": {
+        "$value": "{color.teal.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-accent",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "success": {
+        "$value": "{sw.successLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-success",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{sw.amberLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-warning",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{sw.dangerLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-danger",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      }
+    },
+    "border": {
+      "outlineVariant": {
+        "$value": "{color.magenta.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline-variant",
+            "set": "themeSynthwaveLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.2000",
+            "space": "srgb"
+          }
+        }
+      },
+      "outline": {
+        "$value": "{color.magenta.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline",
+            "set": "themeSynthwaveLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.4000",
+            "space": "srgb"
+          }
+        }
+      },
+      "interactive": {
+        "$value": "{color.magenta.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "interactiveActive": {
+        "$value": "{color.magenta.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive-active",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{color.lavender.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-inverse",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "focus": {
+        "$value": "{color.teal.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-focus",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{sw.dangerLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-danger",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      }
+    },
+    "feedback": {
+      "info": {
+        "$value": "{color.teal.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-info",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "success": {
+        "$value": "{sw.successLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-success",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{sw.amberLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-warning",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{sw.dangerLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-danger",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      }
+    },
+    "action": {
+      "primary": {
+        "$value": "{color.teal.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "primaryHover": {
+        "$value": "{color.teal.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-hover",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "primaryPressed": {
+        "$value": "{color.teal.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-pressed",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.lavender.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "secondaryHover": {
+        "$value": "{color.lavender.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-hover",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "secondaryPressed": {
+        "$value": "{color.lavender.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-pressed",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "ghostHover": {
+        "$value": "{color.magenta.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-hover",
+            "set": "themeSynthwaveLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.1000",
+            "space": "srgb"
+          }
+        }
+      },
+      "ghostPressed": {
+        "$value": "{color.magenta.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-pressed",
+            "set": "themeSynthwaveLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.2000",
+            "space": "srgb"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{color.lavender.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-disabled",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      }
+    },
+    "focus": {
+      "ring": {
+        "$value": "{color.teal.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring",
+            "set": "themeSynthwaveLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.8000",
+            "space": "srgb"
+          }
+        }
+      },
+      "ringOffset": {
+        "$value": "{color.lavender.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring-offset",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      }
+    }
+  },
+  "pd": {
+    "color": {
+      "background": {
+        "default": {
+          "$value": "{color.lavender.50}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-default",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "elevated": {
+          "$value": "{color.lavender.200}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-elevated",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "hover": {
+          "$value": "{color.lavender.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-hover",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        }
+      },
+      "text": {
+        "primary": {
+          "$value": "{color.violet.900}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-primary",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "secondary": {
+          "$value": "{color.violet.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-secondary",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "muted": {
+          "$value": "{color.violet.600}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-muted",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        }
+      },
+      "accent": {
+        "default": {
+          "$value": "{color.teal.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-default",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "hover": {
+          "$value": "{color.teal.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-hover",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "subtle": {
+          "$value": "{color.teal.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-subtle",
+              "set": "themeSynthwaveLight"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.1200",
+              "space": "srgb"
+            }
+          }
+        },
+        "filled": {
+          "$value": "{color.teal.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-filled",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "text": {
+          "$value": "{color.base.white}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-text",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        }
+      },
+      "shadow": {
+        "default": {
+          "$value": "{color.magenta.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-shadow-default",
+              "set": "themeSynthwaveLight"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.2500",
+              "space": "srgb"
+            }
+          }
+        }
+      },
+      "semantic": {
+        "success": {
+          "$value": "{sw.successLight}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-success",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "danger": {
+          "$value": "{sw.dangerLight}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-danger",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "warning": {
+          "$value": "{sw.amberLight}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-warning",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        }
+      },
+      "smash": {
+        "border": {
+          "$value": "{color.magenta.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-border",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "text": {
+          "$value": "{sw.smashTextLight}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-text",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        },
+        "hint": {
+          "$value": "{sw.smashHintLight}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-hint",
+              "set": "themeSynthwaveLight"
+            }
+          }
+        }
+      },
+      "focus": {
+        "ring": {
+          "$value": "{color.teal.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-focus-ring",
+              "set": "themeSynthwaveLight"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.8000",
+              "space": "srgb"
+            }
+          }
+        }
+      },
+      "overlay": {
+        "backdrop": {
+          "$value": "{color.violet.900}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-overlay-backdrop",
+              "set": "themeSynthwaveLight"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.6000",
+              "space": "srgb"
+            }
+          }
+        }
+      }
+    },
+    "fontFamily": {
+      "brand": {
+        "$value": "'Orbitron', 'Courier New', monospace",
+        "$type": "fontFamilies",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-font-brand",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "brandJa": {
+        "$value": "'Orbitron', 'Courier New', monospace",
+        "$type": "fontFamilies",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-font-brand-ja",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "body": {
+        "$value": "'Share Tech Mono', 'Courier New', monospace",
+        "$type": "fontFamilies",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-font-body",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      }
+    },
+    "effect": {
+      "particle1": {
+        "$value": "#007A78",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-1",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "particle2": {
+        "$value": "#5A3A9A",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-2",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "particle3": {
+        "$value": "#FF2DFF",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-3",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      },
+      "particle4": {
+        "$value": "#D97706",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-4",
+            "set": "themeSynthwaveLight"
+          }
+        }
+      }
+    }
+  }
+}

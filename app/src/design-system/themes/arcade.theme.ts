@@ -1,8 +1,12 @@
 import type { VisualTheme } from './themeRegistry';
+import { light, dark } from './_generated/arcade.css-vars';
 
 /**
  * Arcade theme – the default retro pixel-art look.
  * Uses the base token system defaults; no CSS variable overrides needed.
+ *
+ * Token values live in design-tokens/themes/arcade/*.json (source of truth)
+ * and are compiled into _generated/arcade.css-vars.ts by `npm run tokens:build`.
  */
 export const arcadeTheme: VisualTheme = {
   key: 'arcade',
@@ -13,20 +17,7 @@ export const arcadeTheme: VisualTheme = {
   },
   icon: '🕹️',
   isPremium: false,
-  cssVariables: {
-    light: {
-      '--pd-effect-particle-1': '#ff6b6b',
-      '--pd-effect-particle-2': '#4ecdc4',
-      '--pd-effect-particle-3': '#45b7d1',
-      '--pd-effect-particle-4': '#ffeaa7',
-    },
-    dark: {
-      '--pd-effect-particle-1': '#ff6b6b',
-      '--pd-effect-particle-2': '#4ecdc4',
-      '--pd-effect-particle-3': '#45b7d1',
-      '--pd-effect-particle-4': '#ffeaa7',
-    },
-  },
+  cssVariables: { light, dark },
   effectsStyle: 'pixel',
   soundPackKey: 'retro',
 };

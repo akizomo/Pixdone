@@ -8,3 +8,8 @@ dist/
 .pnpm-store/
 .vercel
 .env*.local
+
+# Style Dictionary intermediate artifacts.
+# Committed outputs: app/src/design-system/foundations/tokens.css
+#                    app/src/design-system/themes/_generated/*.css-vars.ts
+design-tokens/_generated/

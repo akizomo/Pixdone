@@ -1,0 +1,950 @@
+{
+  "fb": {
+    "sky": {
+      "50": {
+        "$value": "#d4f0f8",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-sky-50",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "100": {
+        "$value": "#c0e8f4",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-sky-100",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "200": {
+        "$value": "#a8ddf0",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-sky-200",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    },
+    "leaf": {
+      "300": {
+        "$value": "#7acc7a",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-leaf-300",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "500": {
+        "$value": "#4aaa4a",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-leaf-500",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "700": {
+        "$value": "#2d6b2d",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-leaf-700",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "900": {
+        "$value": "#1a4219",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-leaf-900",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    },
+    "sun": {
+      "400": {
+        "$value": "#f9e04b",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-sun-400",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    },
+    "bark": {
+      "500": {
+        "$value": "#4a6a40",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-bark-500",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "700": {
+        "$value": "#2d4a28",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-bark-700",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "900": {
+        "$value": "#1a2a18",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-bark-900",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    },
+    "moss": {
+      "100": {
+        "$value": "#e8f8e8",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-moss-100",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "200": {
+        "$value": "#d0ecd0",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-moss-200",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    },
+    "dangerLight": {
+      "$value": "#b03020",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-danger-light",
+          "set": "themeForestbitLight"
+        }
+      }
+    },
+    "dangerLightHover": {
+      "$value": "#7a1a10",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-danger-light-hover",
+          "set": "themeForestbitLight"
+        }
+      }
+    },
+    "amberLight": {
+      "$value": "#886000",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-amber-light",
+          "set": "themeForestbitLight"
+        }
+      }
+    },
+    "successLight": {
+      "$value": "#1a6a1a",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-success-light",
+          "set": "themeForestbitLight"
+        }
+      }
+    },
+    "successLightHover": {
+      "$value": "#0f4a0f",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-success-light-hover",
+          "set": "themeForestbitLight"
+        }
+      }
+    },
+    "smashTextLight": {
+      "$value": "#1a5a1a",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-smash-text-light",
+          "set": "themeForestbitLight"
+        }
+      }
+    },
+    "smashHintLight": {
+      "$value": "#3a7a3a",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-smash-hint-light",
+          "set": "themeForestbitLight"
+        }
+      }
+    },
+    "smashGradStartLight": {
+      "$value": "#ddf8dd",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-smash-grad-start-light",
+          "set": "themeForestbitLight"
+        }
+      }
+    },
+    "smashGradEndLight": {
+      "$value": "#c8f0c8",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-smash-grad-end-light",
+          "set": "themeForestbitLight"
+        }
+      }
+    }
+  },
+  "color": {
+    "surface": {
+      "page": {
+        "$value": "{fb.sky.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "pageAlt": {
+        "$value": "{fb.sky.100}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page-alt",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "primary": {
+        "$value": "{fb.sky.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-primary",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{fb.sky.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-secondary",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "raised": {
+        "$value": "{fb.moss.100}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-raised",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "overlay": {
+        "$value": "{fb.bark.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-overlay",
+            "set": "themeForestbitLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.6500",
+            "space": "srgb"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{fb.bark.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-inverse",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{fb.sky.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-disabled",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    },
+    "text": {
+      "primary": {
+        "$value": "{fb.bark.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-primary",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{fb.bark.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-secondary",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "tertiary": {
+        "$value": "{fb.bark.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-tertiary",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{fb.sky.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-inverse",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{fb.bark.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-disabled",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "accent": {
+        "$value": "{fb.leaf.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-accent",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "success": {
+        "$value": "{fb.successLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-success",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{fb.amberLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-warning",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{fb.dangerLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-danger",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    },
+    "border": {
+      "outlineVariant": {
+        "$value": "{fb.leaf.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline-variant",
+            "set": "themeForestbitLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.2000",
+            "space": "srgb"
+          }
+        }
+      },
+      "outline": {
+        "$value": "{fb.leaf.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline",
+            "set": "themeForestbitLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.3800",
+            "space": "srgb"
+          }
+        }
+      },
+      "interactive": {
+        "$value": "{fb.leaf.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "interactiveActive": {
+        "$value": "{fb.leaf.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive-active",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{fb.sky.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-inverse",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "focus": {
+        "$value": "{fb.leaf.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-focus",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{fb.dangerLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-danger",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    },
+    "feedback": {
+      "info": {
+        "$value": "{fb.leaf.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-info",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "success": {
+        "$value": "{fb.successLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-success",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{fb.amberLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-warning",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{fb.dangerLight}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-danger",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    },
+    "action": {
+      "primary": {
+        "$value": "{fb.leaf.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "primaryHover": {
+        "$value": "{fb.leaf.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-hover",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "primaryPressed": {
+        "$value": "#0f2e0f",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-pressed",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{fb.sky.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "secondaryHover": {
+        "$value": "{fb.moss.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-hover",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "secondaryPressed": {
+        "$value": "{fb.leaf.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-pressed",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "ghostHover": {
+        "$value": "{fb.leaf.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-hover",
+            "set": "themeForestbitLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.1000",
+            "space": "srgb"
+          }
+        }
+      },
+      "ghostPressed": {
+        "$value": "{fb.leaf.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-pressed",
+            "set": "themeForestbitLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.2000",
+            "space": "srgb"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{fb.sky.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-disabled",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    },
+    "focus": {
+      "ring": {
+        "$value": "{fb.leaf.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring",
+            "set": "themeForestbitLight"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.8000",
+            "space": "srgb"
+          }
+        }
+      },
+      "ringOffset": {
+        "$value": "{fb.sky.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring-offset",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    }
+  },
+  "pd": {
+    "color": {
+      "background": {
+        "default": {
+          "$value": "{fb.sky.50}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-default",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "elevated": {
+          "$value": "{fb.moss.100}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-elevated",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "hover": {
+          "$value": "{fb.moss.200}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-hover",
+              "set": "themeForestbitLight"
+            }
+          }
+        }
+      },
+      "text": {
+        "primary": {
+          "$value": "{fb.bark.900}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-primary",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "secondary": {
+          "$value": "{fb.bark.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-secondary",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "muted": {
+          "$value": "{fb.bark.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-muted",
+              "set": "themeForestbitLight"
+            }
+          }
+        }
+      },
+      "accent": {
+        "default": {
+          "$value": "{fb.leaf.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-default",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "hover": {
+          "$value": "{fb.leaf.900}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-hover",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "subtle": {
+          "$value": "{fb.leaf.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-subtle",
+              "set": "themeForestbitLight"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.1200",
+              "space": "srgb"
+            }
+          }
+        },
+        "filled": {
+          "$value": "{fb.leaf.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-filled",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "text": {
+          "$value": "#ffffff",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-text",
+              "set": "themeForestbitLight"
+            }
+          }
+        }
+      },
+      "shadow": {
+        "default": {
+          "$value": "{fb.leaf.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-shadow-default",
+              "set": "themeForestbitLight"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.2200",
+              "space": "srgb"
+            }
+          }
+        }
+      },
+      "semantic": {
+        "success": {
+          "$value": "{fb.successLight}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-success",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "danger": {
+          "$value": "{fb.dangerLight}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-danger",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "warning": {
+          "$value": "{fb.amberLight}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-warning",
+              "set": "themeForestbitLight"
+            }
+          }
+        }
+      },
+      "smash": {
+        "border": {
+          "$value": "{fb.leaf.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-border",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "text": {
+          "$value": "{fb.smashTextLight}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-text",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
+        "hint": {
+          "$value": "{fb.smashHintLight}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-hint",
+              "set": "themeForestbitLight"
+            }
+          }
+        }
+      },
+      "focus": {
+        "ring": {
+          "$value": "{fb.leaf.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-focus-ring",
+              "set": "themeForestbitLight"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.8000",
+              "space": "srgb"
+            }
+          }
+        }
+      },
+      "overlay": {
+        "backdrop": {
+          "$value": "{fb.bark.900}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-overlay-backdrop",
+              "set": "themeForestbitLight"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.6000",
+              "space": "srgb"
+            }
+          }
+        }
+      }
+    },
+    "effect": {
+      "particle1": {
+        "$value": "#4aaa4a",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-1",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "particle2": {
+        "$value": "#2d6b2d",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-2",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "particle3": {
+        "$value": "#f9e04b",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-3",
+            "set": "themeForestbitLight"
+          }
+        }
+      },
+      "particle4": {
+        "$value": "#7acc7a",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-4",
+            "set": "themeForestbitLight"
+          }
+        }
+      }
+    }
+  }
+}

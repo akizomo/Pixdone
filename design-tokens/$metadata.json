@@ -1,0 +1,13 @@
+{
+  "tokenSetOrder": [
+    "core",
+    "semantic/light",
+    "semantic/dark",
+    "themes/arcade/light",
+    "themes/arcade/dark",
+    "themes/synthwave/light",
+    "themes/synthwave/dark",
+    "themes/forestbit/light",
+    "themes/forestbit/dark"
+  ]
+}

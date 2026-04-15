@@ -1,0 +1,720 @@
+{
+  "color": {
+    "surface": {
+      "page": {
+        "$value": "{color.gray.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "pageAlt": {
+        "$value": "{color.gray.100}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page-alt",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "primary": {
+        "$value": "{color.base.white}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-primary",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.gray.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-secondary",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "raised": {
+        "$value": "{color.base.white}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-raised",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "overlay": {
+        "$value": "rgba(17, 17, 17, 0.64)",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-overlay",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{color.gray.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-inverse",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{color.gray.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-disabled",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "info": {
+        "$value": "{color.orange.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-info",
+            "set": "semanticLight"
+          }
+        }
+      }
+    },
+    "text": {
+      "primary": {
+        "$value": "{color.gray.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-primary",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.gray.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-secondary",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "tertiary": {
+        "$value": "{color.gray.600}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-tertiary",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{color.base.white}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-inverse",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{color.gray.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-disabled",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "accent": {
+        "$value": "{color.purple.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-accent",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "info": {
+        "$value": "{color.orange.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-info",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "success": {
+        "$value": "{color.green.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-success",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{color.yellow.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-warning",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{color.red.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-danger",
+            "set": "semanticLight"
+          }
+        }
+      }
+    },
+    "border": {
+      "outlineVariant": {
+        "$value": "{color.gray.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline-variant",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "outline": {
+        "$value": "{color.gray.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "interactive": {
+        "$value": "{color.gray.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "interactiveActive": {
+        "$value": "{color.gray.800}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive-active",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{color.base.white}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-inverse",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "focus": {
+        "$value": "{color.purple.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-focus",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "info": {
+        "$value": "{color.orange.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-info",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{color.red.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-danger",
+            "set": "semanticLight"
+          }
+        }
+      }
+    },
+    "feedback": {
+      "info": {
+        "$value": "{color.cyan.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-info",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "success": {
+        "$value": "{color.green.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-success",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{color.yellow.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-warning",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{color.red.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-danger",
+            "set": "semanticLight"
+          }
+        }
+      }
+    },
+    "action": {
+      "primary": {
+        "$value": "{color.purple.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "primaryHover": {
+        "$value": "{color.purple.600}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-hover",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "primaryPressed": {
+        "$value": "{color.purple.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-pressed",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.base.white}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "secondaryHover": {
+        "$value": "{color.purple.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-hover",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "secondaryPressed": {
+        "$value": "{color.purple.100}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-pressed",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "ghostHover": {
+        "$value": "{color.gray.100}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-hover",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "ghostPressed": {
+        "$value": "{color.gray.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-pressed",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{color.gray.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-disabled",
+            "set": "semanticLight"
+          }
+        }
+      }
+    },
+    "focus": {
+      "ring": {
+        "$value": "{color.purple.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "ringOffset": {
+        "$value": "{color.base.white}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring-offset",
+            "set": "semanticLight"
+          }
+        }
+      }
+    },
+    "brand": {
+      "primary": {
+        "$value": "{color.purple.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-brand-primary",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.yellow.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-brand-secondary",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "reward": {
+        "$value": "{color.green.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-brand-reward",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "epic": {
+        "$value": "{color.pink.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-brand-epic",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "freeze": {
+        "$value": "{color.cyan.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-brand-freeze",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "smash": {
+        "$value": "{color.red.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-brand-smash",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "pixelInk": {
+        "$value": "{color.gray.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-brand-pixel-ink",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "pixelPaper": {
+        "$value": "{color.base.white}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-brand-pixel-paper",
+            "set": "semanticLight"
+          }
+        }
+      }
+    },
+    "rarity": {
+      "common": {
+        "$value": "{color.gray.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-rarity-common",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "rare": {
+        "$value": "{color.blue.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-rarity-rare",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "epic": {
+        "$value": "{color.pink.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-rarity-epic",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "legendary": {
+        "$value": "{color.yellow.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-rarity-legendary",
+            "set": "semanticLight"
+          }
+        }
+      }
+    },
+    "reward": {
+      "glowGreen": {
+        "$value": "rgba(53, 194, 107, 0.28)",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-reward-glow-green",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "glowPurple": {
+        "$value": "rgba(123, 97, 255, 0.28)",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-reward-glow-purple",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "glowPink": {
+        "$value": "rgba(244, 92, 203, 0.28)",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-reward-glow-pink",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "glowCyan": {
+        "$value": "rgba(67, 203, 234, 0.28)",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-reward-glow-cyan",
+            "set": "semanticLight"
+          }
+        }
+      }
+    }
+  },
+  "shadow": {
+    "none": {
+      "$value": "none",
+      "$type": "boxShadow",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-shadow-none",
+          "set": "semanticLight"
+        }
+      }
+    },
+    "soft": {
+      "xs": {
+        "$value": "0 1px 2px  rgba(17, 17, 17, 0.08)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-soft-xs",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "sm": {
+        "$value": "0 2px 6px  rgba(17, 17, 17, 0.10)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-soft-sm",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "md": {
+        "$value": "0 4px 12px rgba(17, 17, 17, 0.12)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-soft-md",
+            "set": "semanticLight"
+          }
+        }
+      }
+    },
+    "pixel": {
+      "sm": {
+        "$value": "2px 2px 0px rgba(25, 29, 36, 0.92)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-pixel-sm",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "md": {
+        "$value": "3px 3px 0px rgba(25, 29, 36, 0.92)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-pixel-md",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "lg": {
+        "$value": "4px 4px 0px rgba(25, 29, 36, 0.95)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-pixel-lg",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "inset": {
+        "$value": "inset 2px 2px 0px rgba(255, 255, 255, 0.12)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-pixel-inset",
+            "set": "semanticLight"
+          }
+        }
+      }
+    },
+    "rewardGlow": {
+      "green": {
+        "$value": "0 0 0 4px rgba(53, 194, 107, 0.18)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-reward-glow-green",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "purple": {
+        "$value": "0 0 0 4px rgba(123, 97, 255, 0.18)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-reward-glow-purple",
+            "set": "semanticLight"
+          }
+        }
+      },
+      "pink": {
+        "$value": "0 0 0 4px rgba(244, 92, 203, 0.18)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-reward-glow-pink",
+            "set": "semanticLight"
+          }
+        }
+      }
+    }
+  }
+}

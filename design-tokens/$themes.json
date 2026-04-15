@@ -1,0 +1,80 @@
+[
+  {
+    "id": "base-light",
+    "name": "Base Light",
+    "group": "Theme",
+    "selectedTokenSets": {
+      "core": "enabled",
+      "semantic/light": "enabled"
+    }
+  },
+  {
+    "id": "base-dark",
+    "name": "Base Dark",
+    "group": "Theme",
+    "selectedTokenSets": {
+      "core": "enabled",
+      "semantic/dark": "enabled"
+    }
+  },
+  {
+    "id": "arcade-light",
+    "name": "Arcade Light",
+    "group": "Theme",
+    "selectedTokenSets": {
+      "core": "enabled",
+      "semantic/light": "enabled",
+      "themes/arcade/light": "enabled"
+    }
+  },
+  {
+    "id": "arcade-dark",
+    "name": "Arcade Dark",
+    "group": "Theme",
+    "selectedTokenSets": {
+      "core": "enabled",
+      "semantic/dark": "enabled",
+      "themes/arcade/dark": "enabled"
+    }
+  },
+  {
+    "id": "synthwave-light",
+    "name": "Synthwave Light",
+    "group": "Theme",
+    "selectedTokenSets": {
+      "core": "enabled",
+      "semantic/light": "enabled",
+      "themes/synthwave/light": "enabled"
+    }
+  },
+  {
+    "id": "synthwave-dark",
+    "name": "Synthwave Dark",
+    "group": "Theme",
+    "selectedTokenSets": {
+      "core": "enabled",
+      "semantic/dark": "enabled",
+      "themes/synthwave/dark": "enabled"
+    }
+  },
+  {
+    "id": "forestbit-light",
+    "name": "Forestbit Light",
+    "group": "Theme",
+    "selectedTokenSets": {
+      "core": "enabled",
+      "semantic/light": "enabled",
+      "themes/forestbit/light": "enabled"
+    }
+  },
+  {
+    "id": "forestbit-dark",
+    "name": "Forestbit Dark",
+    "group": "Theme",
+    "selectedTokenSets": {
+      "core": "enabled",
+      "semantic/dark": "enabled",
+      "themes/forestbit/dark": "enabled"
+    }
+  }
+]

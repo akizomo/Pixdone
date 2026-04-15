@@ -1,0 +1,921 @@
+{
+  "fb": {
+    "night": {
+      "500": {
+        "$value": "#1e4020",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-night-500",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "600": {
+        "$value": "#1a3a1a",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-night-600",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "700": {
+        "$value": "#2a5a2a",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-night-700",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "800": {
+        "$value": "#102830",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-night-800",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "900": {
+        "$value": "#0d2028",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-night-900",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "950": {
+        "$value": "#0a1a1f",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-night-950",
+            "set": "themeForestbitDark"
+          }
+        }
+      }
+    },
+    "glow": {
+      "300": {
+        "$value": "#c8e6a0",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-glow-300",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "500": {
+        "$value": "#a0c878",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-glow-500",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "700": {
+        "$value": "#78a050",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-glow-700",
+            "set": "themeForestbitDark"
+          }
+        }
+      }
+    },
+    "text": {
+      "50": {
+        "$value": "#d0f0d8",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-text-50",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "200": {
+        "$value": "#a8d4b0",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-fb-text-200",
+            "set": "themeForestbitDark"
+          }
+        }
+      }
+    },
+    "textMuted": {
+      "$value": "#6a9870",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-text-muted",
+          "set": "themeForestbitDark"
+        }
+      }
+    },
+    "dangerDark": {
+      "$value": "#ff7a5a",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-danger-dark",
+          "set": "themeForestbitDark"
+        }
+      }
+    },
+    "dangerBgDark": {
+      "$value": "#b03a1a",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-danger-bg-dark",
+          "set": "themeForestbitDark"
+        }
+      }
+    },
+    "amberDark": {
+      "$value": "#ffd080",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-amber-dark",
+          "set": "themeForestbitDark"
+        }
+      }
+    },
+    "smashText": {
+      "$value": "#c8e6a0",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-smash-text",
+          "set": "themeForestbitDark"
+        }
+      }
+    },
+    "smashHint": {
+      "$value": "#a0c878",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-smash-hint",
+          "set": "themeForestbitDark"
+        }
+      }
+    },
+    "smashGradStart": {
+      "$value": "#0a2a12",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-smash-grad-start",
+          "set": "themeForestbitDark"
+        }
+      }
+    },
+    "smashGradEnd": {
+      "$value": "#051a0a",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-fb-smash-grad-end",
+          "set": "themeForestbitDark"
+        }
+      }
+    }
+  },
+  "color": {
+    "surface": {
+      "page": {
+        "$value": "{fb.night.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "pageAlt": {
+        "$value": "{fb.night.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page-alt",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "primary": {
+        "$value": "{fb.night.800}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-primary",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{fb.night.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-secondary",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "raised": {
+        "$value": "{fb.night.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-raised",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "overlay": {
+        "$value": "{fb.night.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-overlay",
+            "set": "themeForestbitDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.8800",
+            "space": "srgb"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{fb.text.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-inverse",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{fb.night.600}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-disabled",
+            "set": "themeForestbitDark"
+          }
+        }
+      }
+    },
+    "text": {
+      "primary": {
+        "$value": "{fb.text.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-primary",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{fb.text.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-secondary",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "tertiary": {
+        "$value": "{fb.textMuted}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-tertiary",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{fb.night.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-inverse",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{fb.textMuted}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-disabled",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "accent": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-accent",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "success": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-success",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{fb.amberDark}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-warning",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{fb.dangerDark}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-danger",
+            "set": "themeForestbitDark"
+          }
+        }
+      }
+    },
+    "border": {
+      "outlineVariant": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline-variant",
+            "set": "themeForestbitDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.1500",
+            "space": "srgb"
+          }
+        }
+      },
+      "outline": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline",
+            "set": "themeForestbitDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.2800",
+            "space": "srgb"
+          }
+        }
+      },
+      "interactive": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive",
+            "set": "themeForestbitDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.5000",
+            "space": "srgb"
+          }
+        }
+      },
+      "interactiveActive": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive-active",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{fb.night.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-inverse",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "focus": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-focus",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{fb.dangerDark}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-danger",
+            "set": "themeForestbitDark"
+          }
+        }
+      }
+    },
+    "feedback": {
+      "info": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-info",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "success": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-success",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{fb.amberDark}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-warning",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{fb.dangerDark}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-danger",
+            "set": "themeForestbitDark"
+          }
+        }
+      }
+    },
+    "action": {
+      "primary": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "primaryHover": {
+        "$value": "{fb.glow.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-hover",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "primaryPressed": {
+        "$value": "{fb.glow.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-pressed",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{fb.night.800}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "secondaryHover": {
+        "$value": "{fb.night.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-hover",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "secondaryPressed": {
+        "$value": "{fb.night.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-pressed",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "ghostHover": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-hover",
+            "set": "themeForestbitDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.1000",
+            "space": "srgb"
+          }
+        }
+      },
+      "ghostPressed": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-pressed",
+            "set": "themeForestbitDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.1800",
+            "space": "srgb"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{fb.night.600}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-disabled",
+            "set": "themeForestbitDark"
+          }
+        }
+      }
+    },
+    "focus": {
+      "ring": {
+        "$value": "{fb.glow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring",
+            "set": "themeForestbitDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.8000",
+            "space": "srgb"
+          }
+        }
+      },
+      "ringOffset": {
+        "$value": "{fb.night.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring-offset",
+            "set": "themeForestbitDark"
+          }
+        }
+      }
+    }
+  },
+  "pd": {
+    "color": {
+      "background": {
+        "default": {
+          "$value": "{fb.night.950}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-default",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "elevated": {
+          "$value": "{fb.night.800}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-elevated",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "hover": {
+          "$value": "{fb.night.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-hover",
+              "set": "themeForestbitDark"
+            }
+          }
+        }
+      },
+      "text": {
+        "primary": {
+          "$value": "{fb.text.50}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-primary",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "secondary": {
+          "$value": "{fb.text.200}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-secondary",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "muted": {
+          "$value": "{fb.textMuted}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-muted",
+              "set": "themeForestbitDark"
+            }
+          }
+        }
+      },
+      "accent": {
+        "default": {
+          "$value": "{fb.glow.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-default",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "hover": {
+          "$value": "{fb.glow.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-hover",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "subtle": {
+          "$value": "{fb.glow.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-subtle",
+              "set": "themeForestbitDark"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.1200",
+              "space": "srgb"
+            }
+          }
+        },
+        "filled": {
+          "$value": "{fb.glow.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-filled",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "text": {
+          "$value": "{fb.night.950}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-text",
+              "set": "themeForestbitDark"
+            }
+          }
+        }
+      },
+      "shadow": {
+        "default": {
+          "$value": "{fb.glow.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-shadow-default",
+              "set": "themeForestbitDark"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.1500",
+              "space": "srgb"
+            }
+          }
+        }
+      },
+      "semantic": {
+        "success": {
+          "$value": "{fb.glow.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-success",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "danger": {
+          "$value": "{fb.dangerBgDark}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-danger",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "warning": {
+          "$value": "{fb.amberDark}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-warning",
+              "set": "themeForestbitDark"
+            }
+          }
+        }
+      },
+      "smash": {
+        "border": {
+          "$value": "{fb.glow.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-border",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "text": {
+          "$value": "{fb.smashText}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-text",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
+        "hint": {
+          "$value": "{fb.smashHint}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-hint",
+              "set": "themeForestbitDark"
+            }
+          }
+        }
+      },
+      "focus": {
+        "ring": {
+          "$value": "{fb.glow.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-focus-ring",
+              "set": "themeForestbitDark"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.8000",
+              "space": "srgb"
+            }
+          }
+        }
+      },
+      "overlay": {
+        "backdrop": {
+          "$value": "{fb.night.950}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-overlay-backdrop",
+              "set": "themeForestbitDark"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.8500",
+              "space": "srgb"
+            }
+          }
+        }
+      }
+    },
+    "effect": {
+      "particle1": {
+        "$value": "#c8e6a0",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-1",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "particle2": {
+        "$value": "#4aaa4a",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-2",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "particle3": {
+        "$value": "#f0ff80",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-3",
+            "set": "themeForestbitDark"
+          }
+        }
+      },
+      "particle4": {
+        "$value": "#78a050",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-4",
+            "set": "themeForestbitDark"
+          }
+        }
+      }
+    }
+  }
+}

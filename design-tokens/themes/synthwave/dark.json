@@ -1,0 +1,979 @@
+{
+  "sw": {
+    "navy": {
+      "500": {
+        "$value": "#24247A",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-navy-500",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "600": {
+        "$value": "#1E1E5A",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-navy-600",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "700": {
+        "$value": "#1A1A50",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-navy-700",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "800": {
+        "$value": "#10103A",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-navy-800",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "900": {
+        "$value": "#0A0A22",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-navy-900",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "950": {
+        "$value": "#07071A",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-navy-950",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "neonCyan": {
+      "300": {
+        "$value": "#00FFF0",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-neon-cyan-300",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "500": {
+        "$value": "#00CCC8",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-neon-cyan-500",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "700": {
+        "$value": "#009E9B",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-neon-cyan-700",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "neonGreen": {
+      "300": {
+        "$value": "#00FF88",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-neon-green-300",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "500": {
+        "$value": "#00CC66",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-neon-green-500",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "hotRed": {
+      "300": {
+        "$value": "#FF2D55",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-hot-red-300",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "500": {
+        "$value": "#D01843",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-hot-red-500",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "amber": {
+      "500": {
+        "$value": "#FFB800",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-amber-500",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "purpleText": {
+      "50": {
+        "$value": "#EEDDFF",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-sw-purple-text-50",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "purpleMuted": {
+      "$value": "#9070C0",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-purple-muted",
+          "set": "themeSynthwaveDark"
+        }
+      }
+    },
+    "chrome": {
+      "$value": "{sw.purpleMuted}",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-chrome",
+          "set": "themeSynthwaveDark"
+        }
+      }
+    },
+    "smashText": {
+      "$value": "#DD00DD",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-smash-text",
+          "set": "themeSynthwaveDark"
+        }
+      }
+    },
+    "smashHint": {
+      "$value": "#CC44CC",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-smash-hint",
+          "set": "themeSynthwaveDark"
+        }
+      }
+    },
+    "smashGradStart": {
+      "$value": "#1A004A",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-smash-grad-start",
+          "set": "themeSynthwaveDark"
+        }
+      }
+    },
+    "smashGradEnd": {
+      "$value": "#000A3A",
+      "$type": "color",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pxd-sw-smash-grad-end",
+          "set": "themeSynthwaveDark"
+        }
+      }
+    }
+  },
+  "color": {
+    "surface": {
+      "page": {
+        "$value": "{sw.navy.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "pageAlt": {
+        "$value": "{sw.navy.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page-alt",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "primary": {
+        "$value": "{sw.navy.800}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-primary",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{sw.navy.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-secondary",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "raised": {
+        "$value": "{sw.navy.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-raised",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "overlay": {
+        "$value": "{sw.navy.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-overlay",
+            "set": "themeSynthwaveDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.8800",
+            "space": "srgb"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{sw.purpleText.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-inverse",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{sw.navy.600}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-disabled",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "text": {
+      "primary": {
+        "$value": "{sw.purpleText.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-primary",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.purple.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-secondary",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "tertiary": {
+        "$value": "{sw.purpleMuted}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-tertiary",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{sw.navy.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-inverse",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{sw.purpleMuted}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-disabled",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "accent": {
+        "$value": "{sw.neonCyan.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-accent",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "success": {
+        "$value": "{sw.neonGreen.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-success",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{sw.amber.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-warning",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{sw.hotRed.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-danger",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "border": {
+      "outlineVariant": {
+        "$value": "{sw.chrome}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline-variant",
+            "set": "themeSynthwaveDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.2200",
+            "space": "srgb"
+          }
+        }
+      },
+      "outline": {
+        "$value": "{sw.chrome}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline",
+            "set": "themeSynthwaveDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.3400",
+            "space": "srgb"
+          }
+        }
+      },
+      "interactive": {
+        "$value": "{sw.chrome}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive",
+            "set": "themeSynthwaveDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.5500",
+            "space": "srgb"
+          }
+        }
+      },
+      "interactiveActive": {
+        "$value": "{sw.chrome}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive-active",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{sw.navy.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-inverse",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "focus": {
+        "$value": "{sw.neonCyan.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-focus",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{sw.hotRed.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-danger",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "feedback": {
+      "info": {
+        "$value": "{sw.neonCyan.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-info",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "success": {
+        "$value": "{sw.neonGreen.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-success",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{sw.amber.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-warning",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{sw.hotRed.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-danger",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "action": {
+      "primary": {
+        "$value": "{sw.neonCyan.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "primaryHover": {
+        "$value": "{sw.neonCyan.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-hover",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "primaryPressed": {
+        "$value": "{sw.neonCyan.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-pressed",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{sw.navy.800}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "secondaryHover": {
+        "$value": "{sw.navy.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-hover",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "secondaryPressed": {
+        "$value": "{sw.navy.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-pressed",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "ghostHover": {
+        "$value": "{sw.chrome}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-hover",
+            "set": "themeSynthwaveDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.1000",
+            "space": "srgb"
+          }
+        }
+      },
+      "ghostPressed": {
+        "$value": "{sw.chrome}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-pressed",
+            "set": "themeSynthwaveDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.1800",
+            "space": "srgb"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{sw.navy.600}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-disabled",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "focus": {
+      "ring": {
+        "$value": "{sw.neonCyan.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring",
+            "set": "themeSynthwaveDark"
+          },
+          "studio.tokens.modify": {
+            "type": "alpha",
+            "value": "0.8000",
+            "space": "srgb"
+          }
+        }
+      },
+      "ringOffset": {
+        "$value": "{sw.navy.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring-offset",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    }
+  },
+  "pd": {
+    "color": {
+      "background": {
+        "default": {
+          "$value": "{sw.navy.950}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-default",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "elevated": {
+          "$value": "{sw.navy.800}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-elevated",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "hover": {
+          "$value": "{sw.navy.700}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-background-hover",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        }
+      },
+      "text": {
+        "primary": {
+          "$value": "{sw.purpleText.50}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-primary",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "secondary": {
+          "$value": "{color.purple.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-secondary",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "muted": {
+          "$value": "{sw.purpleMuted}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-text-muted",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        }
+      },
+      "accent": {
+        "default": {
+          "$value": "{sw.neonCyan.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-default",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "hover": {
+          "$value": "{sw.neonCyan.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-hover",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "subtle": {
+          "$value": "{sw.neonCyan.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-subtle",
+              "set": "themeSynthwaveDark"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.1200",
+              "space": "srgb"
+            }
+          }
+        },
+        "filled": {
+          "$value": "{sw.neonCyan.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-filled",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "text": {
+          "$value": "{sw.navy.950}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-text",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        }
+      },
+      "shadow": {
+        "default": {
+          "$value": "{sw.chrome}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-shadow-default",
+              "set": "themeSynthwaveDark"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.1800",
+              "space": "srgb"
+            }
+          }
+        }
+      },
+      "semantic": {
+        "success": {
+          "$value": "{sw.neonGreen.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-success",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "danger": {
+          "$value": "{sw.hotRed.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-danger",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "warning": {
+          "$value": "{sw.amber.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-semantic-warning",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        }
+      },
+      "smash": {
+        "border": {
+          "$value": "{sw.chrome}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-border",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "text": {
+          "$value": "{sw.smashText}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-text",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
+        "hint": {
+          "$value": "{sw.smashHint}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-smash-hint",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        }
+      },
+      "focus": {
+        "ring": {
+          "$value": "{sw.neonCyan.300}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-focus-ring",
+              "set": "themeSynthwaveDark"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.8000",
+              "space": "srgb"
+            }
+          }
+        }
+      },
+      "overlay": {
+        "backdrop": {
+          "$value": "{sw.navy.950}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-overlay-backdrop",
+              "set": "themeSynthwaveDark"
+            },
+            "studio.tokens.modify": {
+              "type": "alpha",
+              "value": "0.8500",
+              "space": "srgb"
+            }
+          }
+        }
+      }
+    },
+    "fontFamily": {
+      "brand": {
+        "$value": "'Orbitron', 'Courier New', monospace",
+        "$type": "fontFamilies",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-font-brand",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "brandJa": {
+        "$value": "'Orbitron', 'Courier New', monospace",
+        "$type": "fontFamilies",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-font-brand-ja",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "body": {
+        "$value": "'Share Tech Mono', 'Courier New', monospace",
+        "$type": "fontFamilies",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-font-body",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    },
+    "effect": {
+      "particle1": {
+        "$value": "#00FFF0",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-1",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "particle2": {
+        "$value": "#00FF88",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-2",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "particle3": {
+        "$value": "#FF2D55",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-3",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      },
+      "particle4": {
+        "$value": "#FFB800",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-4",
+            "set": "themeSynthwaveDark"
+          }
+        }
+      }
+    }
+  }
+}

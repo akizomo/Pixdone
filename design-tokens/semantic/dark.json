@@ -1,0 +1,512 @@
+{
+  "color": {
+    "surface": {
+      "page": {
+        "$value": "{color.ink.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "pageAlt": {
+        "$value": "{color.ink.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-page-alt",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "primary": {
+        "$value": "{color.ink.800}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-primary",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.ink.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-secondary",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "raised": {
+        "$value": "{color.ink.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-raised",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "overlay": {
+        "$value": "rgba(0, 0, 0, 0.75)",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-overlay",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{color.gray.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-inverse",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{color.ink.800}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-disabled",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "info": {
+        "$value": "rgba(255, 140, 26, 0.12)",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-surface-info",
+            "set": "semanticDark"
+          }
+        }
+      }
+    },
+    "text": {
+      "primary": {
+        "$value": "{color.ink.50}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-primary",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.ink.100}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-secondary",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "tertiary": {
+        "$value": "{color.ink.200}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-tertiary",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{color.gray.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-inverse",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{color.ink.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-disabled",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "accent": {
+        "$value": "{color.purple.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-accent",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "info": {
+        "$value": "{color.orange.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-info",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "success": {
+        "$value": "{color.green.350}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-success",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{color.yellow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-warning",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{color.red.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-text-danger",
+            "set": "semanticDark"
+          }
+        }
+      }
+    },
+    "border": {
+      "outlineVariant": {
+        "$value": "{color.ink.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline-variant",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "outline": {
+        "$value": "{color.ink.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-outline",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "interactive": {
+        "$value": "{color.ink.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "interactiveActive": {
+        "$value": "{color.ink.100}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-interactive-active",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "inverse": {
+        "$value": "{color.gray.900}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-inverse",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "focus": {
+        "$value": "{color.purple.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-focus",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "info": {
+        "$value": "{color.orange.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-info",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{color.red.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-border-danger",
+            "set": "semanticDark"
+          }
+        }
+      }
+    },
+    "feedback": {
+      "info": {
+        "$value": "{color.cyan.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-info",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "success": {
+        "$value": "{color.green.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-success",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "warning": {
+        "$value": "{color.yellow.300}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-warning",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "danger": {
+        "$value": "{color.red.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-feedback-danger",
+            "set": "semanticDark"
+          }
+        }
+      }
+    },
+    "action": {
+      "primary": {
+        "$value": "{color.purple.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "primaryHover": {
+        "$value": "{color.purple.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-hover",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "primaryPressed": {
+        "$value": "{color.purple.600}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-primary-pressed",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "secondary": {
+        "$value": "{color.ink.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "secondaryHover": {
+        "$value": "{color.ink.600}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-hover",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "secondaryPressed": {
+        "$value": "{color.ink.500}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-secondary-pressed",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "ghostHover": {
+        "$value": "{color.ink.800}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-hover",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "ghostPressed": {
+        "$value": "{color.ink.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-ghost-pressed",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "disabled": {
+        "$value": "{color.ink.700}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-action-disabled",
+            "set": "semanticDark"
+          }
+        }
+      }
+    },
+    "focus": {
+      "ring": {
+        "$value": "{color.purple.400}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "ringOffset": {
+        "$value": "{color.ink.950}",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-color-focus-ring-offset",
+            "set": "semanticDark"
+          }
+        }
+      }
+    }
+  },
+  "shadow": {
+    "soft": {
+      "xs": {
+        "$value": "0 1px 2px  rgba(0, 0, 0, 0.32)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-soft-xs",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "sm": {
+        "$value": "0 2px 6px  rgba(0, 0, 0, 0.48)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-soft-sm",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "md": {
+        "$value": "0 4px 12px rgba(0, 0, 0, 0.56)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-soft-md",
+            "set": "semanticDark"
+          }
+        }
+      }
+    },
+    "pixel": {
+      "sm": {
+        "$value": "2px 2px 0px rgba(0, 0, 0, 0.80)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-pixel-sm",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "md": {
+        "$value": "3px 3px 0px rgba(0, 0, 0, 0.85)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-pixel-md",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "lg": {
+        "$value": "4px 4px 0px rgba(0, 0, 0, 0.90)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-pixel-lg",
+            "set": "semanticDark"
+          }
+        }
+      },
+      "inset": {
+        "$value": "inset 2px 2px 0px rgba(255, 255, 255, 0.06)",
+        "$type": "boxShadow",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pxd-shadow-pixel-inset",
+            "set": "semanticDark"
+          }
+        }
+      }
+    }
+  }
+}

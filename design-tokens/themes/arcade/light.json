@@ -1,0 +1,46 @@
+{
+  "pd": {
+    "effect": {
+      "particle1": {
+        "$value": "#ff6b6b",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-1",
+            "set": "themeArcadeLight"
+          }
+        }
+      },
+      "particle2": {
+        "$value": "#4ecdc4",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-2",
+            "set": "themeArcadeLight"
+          }
+        }
+      },
+      "particle3": {
+        "$value": "#45b7d1",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-3",
+            "set": "themeArcadeLight"
+          }
+        }
+      },
+      "particle4": {
+        "$value": "#ffeaa7",
+        "$type": "color",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-effect-particle-4",
+            "set": "themeArcadeLight"
+          }
+        }
+      }
+    }
+  }
+}
