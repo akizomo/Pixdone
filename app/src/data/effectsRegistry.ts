@@ -175,15 +175,23 @@ export function buildDrawPool(
 
 /**
  * Weighted random selection from a draw pool.
- * Weights: COMMON = 85, RARE = 12, EPIC = 3
+ * Target output distribution: EPIC 10% (10回に1回), RARE 33.3% (3回に1回), COMMON 残り。
+ * Rarity を先に抽選し、そのレアリティに該当するエフェクトが pool になければ順にフォールバック。
  */
 export function weightedRandomEffect(pool: EffectDef[]): EffectDef {
-  const WEIGHTS: Record<EffectRarity, number> = { COMMON: 85, RARE: 12, EPIC: 3 };
-  const totalWeight = pool.reduce((sum, ef) => sum + (WEIGHTS[ef.rarity] ?? 1), 0);
-  let rand = Math.random() * totalWeight;
-  for (const ef of pool) {
-    rand -= WEIGHTS[ef.rarity] ?? 1;
-    if (rand <= 0) return ef;
+  const byRarity: Record<EffectRarity, EffectDef[]> = {
+    EPIC: pool.filter(ef => ef.rarity === 'EPIC'),
+    RARE: pool.filter(ef => ef.rarity === 'RARE'),
+    COMMON: pool.filter(ef => ef.rarity === 'COMMON'),
+  };
+  const r = Math.random();
+  const order: EffectRarity[] =
+    r < 0.1 ? ['EPIC', 'RARE', 'COMMON']
+    : r < 0.1 + 1 / 3 ? ['RARE', 'EPIC', 'COMMON']
+    : ['COMMON', 'RARE', 'EPIC'];
+  for (const rarity of order) {
+    const group = byRarity[rarity];
+    if (group.length > 0) return group[Math.floor(Math.random() * group.length)]!;
   }
   return pool[pool.length - 1] ?? pool[0];
 }
