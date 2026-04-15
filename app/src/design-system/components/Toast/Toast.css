@@ -23,7 +23,7 @@
   font-family: var(--pd-font-body);
   font-size: 0.85rem;
   color: var(--pd-color-text-primary);
-  max-width: min(400px, calc(100vw - 32px));
+  width: min(440px, calc(100vw - 24px));
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.25s ease, transform 0.25s ease;
