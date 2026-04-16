@@ -1,4 +1,4 @@
-import { CSSProperties, memo } from 'react';
+import { type CSSProperties, memo } from 'react';
 import './PixelIcon.css';
 
 // Import all needed pixelarticons as raw SVG strings.

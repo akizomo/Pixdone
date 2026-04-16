@@ -83,8 +83,8 @@ function getFinePointerSnapshot(): boolean {
 function AppContent() {
   const { lists, currentList } = useListsData();
   const {
-    setLists, setActiveList,
-    addList, addTask, renameList, deleteList,
+    setActiveList,
+    addList, renameList, deleteList,
     completeTask, uncompleteTask,
     resetRepeatingTasks,
   } = useListsActions();
@@ -926,8 +926,7 @@ function AppContent() {
             onNavigateToSmashList={navigateToSmashList}
             onNavigateToFocus={navigateToFocus}
             onNavigateToCollection={() => { playSound('buttonClick'); setCollectionInitialTab('effects'); setCollectionInitialFilter('CHALLENGE'); setActiveScreen('collection'); }}
-            onOpenSignup={() => setSignupOpen(true)}
-            onDismissTutorial={(action) => {
+            onDismissTutorial={(action: 'pricing' | 'later') => {
               // Delete the Tutorial list and navigate accordingly
               if (currentList && isTutorial) {
                 deleteList(currentList.id, lists);

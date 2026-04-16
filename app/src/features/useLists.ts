@@ -207,57 +207,14 @@ function ensureVirtualSmashList(lists: List[]): List[] {
   ];
 }
 
-function ensureTutorialTasks(lists: List[]): List[] {
-  const base = defaultLists.find((l) => l.id === 'default');
-  const baseTasks = base?.tasks ?? [];
-  if (baseTasks.length === 0) return lists;
 
-  return lists.map((l) => {
-    if (l.id !== 'default') return l;
-    // Only auto-replenish the guest tutorial list (avoid touching logged-in "My Tasks").
-    const looksLikeTutorial =
-      l.name === 'Tutorial' ||
-      (Array.isArray(l.tasks) && l.tasks.some((t) => typeof t?.id === 'string' && t.id.startsWith('tutorial-')));
-    if (!looksLikeTutorial) return l;
 
-    const existingIds = new Set((l.tasks ?? []).map((t) => t.id));
-    const missing = baseTasks.filter((t) => !existingIds.has(t.id));
-    if (missing.length === 0) return l;
-    return { ...l, tasks: [...(l.tasks ?? []), ...missing] };
-  });
-}
-
-const defaultLists: List[] = [
+/** Guest-only default: just the Smash List; no tutorial (tutorial is now seeded post-login). */
+const guestDefaultLists: List[] = [
   {
     id: 'default',
-    name: 'Tutorial',
-    tasks: [
-      {
-        id: 'tutorial-1', listId: 'default', completed: false, dueDate: null,
-        title: 'Try completing this task!',
-      },
-      {
-        id: 'tutorial-2', listId: 'default', completed: false, dueDate: null,
-        title: 'Each time you complete a task, a different effect appears. How many can you find?',
-      },
-      {
-        id: 'tutorial-3', listId: 'default', completed: false, dueDate: null,
-        title: 'Try the Smash List for even more fun!',
-      },
-      {
-        id: 'tutorial-4', listId: 'default', completed: false, dueDate: null,
-        title: 'Focus with pixel BGM pomodoro timer',
-      },
-    ] as Task[],
-  },
-  {
-    id: 'smash-list',
-    name: '💥 Smash List',
-    tasks: [
-      { id: 's1', title: SMASH_TITLES.en[0], smashIdx: 0, completed: false, dueDate: null, listId: 'smash-list' },
-      { id: 's2', title: SMASH_TITLES.en[1], smashIdx: 1, completed: false, dueDate: null, listId: 'smash-list' },
-      { id: 's3', title: SMASH_TITLES.en[2], smashIdx: 2, completed: false, dueDate: null, listId: 'smash-list' },
-    ] as Task[],
+    name: 'My Tasks',
+    tasks: [] as Task[],
   },
 ];
 
@@ -266,20 +223,18 @@ function loadLists(): List[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as List[];
-      // 旧データなどで default リストが存在しない場合は、チュートリアル付きの初期状態にリセット
       const hasDefault = Array.isArray(parsed) && parsed.some((l) => l.id === 'default');
-      if (!hasDefault) return defaultLists;
+      if (!hasDefault) return guestDefaultLists;
       // Smash List のダミータスクが不足している場合は 3 件に補充
       const withSmash = parsed.map((l) => {
         const isSmash = l.id === 'smash-list' || l.name === '💥 Smash List';
         if (!isSmash || l.tasks.length >= 3) return l;
         return { ...l, tasks: replenishSmashList(l.tasks, l.id) };
       });
-      // Ensure newly added tutorial tasks appear for existing guest users.
-      return ensureTutorialTasks(withSmash);
+      return withSmash;
     }
   } catch { /* ignore */ }
-  return defaultLists;
+  return guestDefaultLists;
 }
 
 function loadActiveId(lists: List[]): string {
@@ -389,7 +344,9 @@ export function useLists() {
             };
           })
           // If user once created a Firestore "Smash List", ignore it; we keep Smash local-only.
-          .filter((l) => l.name !== '💥 Smash List');
+          .filter((l) => l.name !== '💥 Smash List')
+          // Tutorial list always first
+          .sort((a, b) => (a.name === 'Tutorial' ? -1 : b.name === 'Tutorial' ? 1 : 0));
         return ensureVirtualSmashList(nextFromFirestore);
       });
     });

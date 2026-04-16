@@ -34,7 +34,6 @@ export interface TasksScreenProps {
   onNavigateToSmashList: () => void;
   onNavigateToFocus: () => void;
   onNavigateToCollection: () => void;
-  onOpenSignup: () => void;
   onDismissTutorial: (action: 'pricing' | 'later') => void;
   onOpenListModal: (modal: { mode: 'add' | 'rename' | 'delete'; listId?: string }) => void;
   anyShellModalOpen: boolean;
@@ -51,7 +50,6 @@ export function TasksScreen({
   onNavigateToSmashList,
   onNavigateToFocus,
   onNavigateToCollection,
-  onOpenSignup,
   onDismissTutorial,
   onOpenListModal,
   anyShellModalOpen,
