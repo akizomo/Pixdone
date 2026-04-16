@@ -33,7 +33,9 @@ export interface TasksScreenProps {
   onSmash: (taskId: string) => void;
   onNavigateToSmashList: () => void;
   onNavigateToFocus: () => void;
+  onNavigateToCollection: () => void;
   onOpenSignup: () => void;
+  onDismissTutorial: (action: 'pricing' | 'later') => void;
   onOpenListModal: (modal: { mode: 'add' | 'rename' | 'delete'; listId?: string }) => void;
   anyShellModalOpen: boolean;
 }
@@ -48,7 +50,9 @@ export function TasksScreen({
   onSmash,
   onNavigateToSmashList,
   onNavigateToFocus,
+  onNavigateToCollection,
   onOpenSignup,
+  onDismissTutorial,
   onOpenListModal,
   anyShellModalOpen,
 }: TasksScreenProps) {
@@ -112,7 +116,10 @@ export function TasksScreen({
     activeListId === 'smash-list' ||
     currentList?.id === 'smash-list' ||
     currentList?.name === '\u{1F4A5} Smash List';
-  const isTutorial = currentList?.id === 'default';
+  const isTutorial = !!(
+    currentList &&
+    currentList.tasks.some((t) => typeof t.id === 'string' && t.id.startsWith('tutorial-'))
+  );
 
   const preferInlineTaskUi = hasFinePointer;
 
@@ -449,25 +456,26 @@ export function TasksScreen({
               return task.title;
             }}
           />
-        ) : !user && isTutorial && activeTasks.length === 0 ? (
+        ) : isTutorial && activeTasks.length === 0 ? (
           <div>
             <TutorialPanel
-              headline={lang === 'ja' ? '\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u5B8C\u4E86\uFF01' : "You've completed the tutorial!"}
+              headline={lang === 'ja' ? '🎮 もっと楽しみたい？' : '🎮 Ready to go further?'}
               subtext=""
-              featuresLabel={lang === 'ja' ? '\u30B5\u30A4\u30F3\u30A2\u30C3\u30D7\u3067\u4F7F\u3048\u308B\u3053\u3068' : 'What you unlock for free'}
               freeFeatures={lang === 'ja' ? [
-                { icon: '\u{1F4BE}', label: '\u30C7\u30FC\u30BF\u4FDD\u5B58\u30FB\u540C\u671F' },
-                { icon: '\u{1F4CB}', label: '\u67D4\u8EDF\u306A\u30BF\u30B9\u30AF\u7BA1\u7406\uFF08\u30EA\u30B9\u30C8\u30FB\u30EA\u30D4\u30FC\u30C8\uFF09' },
-                { icon: '\u23F1', label: '\u30BF\u30A4\u30DE\u30FC\u8A2D\u5B9A' },
-                { icon: '\u{1F3C6}', label: '\u30C1\u30E3\u30EC\u30F3\u30B8\u3067\u30A8\u30D5\u30A7\u30AF\u30C8\u3092\u96C6\u3081\u308B' },
+                { icon: '📋', label: '無制限のタスクリスト' },
+                { icon: '🎨', label: '全プリセットテーマ + 進化' },
+                { icon: '✨', label: 'Rare・Epicエフェクト' },
+                { icon: '💌', label: 'エフェクトリクエスト（月1回）' },
               ] : [
-                { icon: '\u{1F4BE}', label: 'Save & sync' },
-                { icon: '\u{1F4CB}', label: 'Flexible task management (lists & repeats)' },
-                { icon: '\u23F1', label: 'Timer settings' },
-                { icon: '\u{1F3C6}', label: 'Challenges & effect collection' },
+                { icon: '📋', label: 'Unlimited task lists' },
+                { icon: '🎨', label: 'All preset themes + progression system' },
+                { icon: '✨', label: 'Rare & Epic effects' },
+                { icon: '💌', label: 'Monthly effect request' },
               ]}
-              buttonLabel={lang === 'ja' ? '\u30B5\u30A4\u30F3\u30A2\u30C3\u30D7\uFF08\u7121\u6599\uFF09' : 'Sign up \u2014 free'}
-              onSignUp={() => onOpenSignup()}
+              buttonLabel={lang === 'ja' ? 'PixDone+を試す' : 'Try PixDone+'}
+              onSignUp={() => onDismissTutorial('pricing')}
+              pricingLabel={lang === 'ja' ? 'あとで' : 'Later'}
+              onViewPricing={() => onDismissTutorial('later')}
             />
             {completedTasks.length > 0 && (
               <div style={{ marginTop: '24px' }}>
@@ -498,6 +506,7 @@ export function TasksScreen({
                         onDelete={handleDelete}
                         onTutorialSmashLinkClick={onNavigateToSmashList}
                         onTutorialFocusLinkClick={onNavigateToFocus}
+                        onTutorialChallengeLinkClick={onNavigateToCollection}
                       />
                     ))}
                   </div>
@@ -544,7 +553,7 @@ export function TasksScreen({
               {completedExpanded && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
                   {completedTasks.map((task) => (
-                    <TaskItem key={task.id} task={task} lang={lang} onComplete={onUncomplete} onEdit={handleEdit} onDelete={handleDelete} onTutorialSmashLinkClick={onNavigateToSmashList} onTutorialFocusLinkClick={onNavigateToFocus} />
+                    <TaskItem key={task.id} task={task} lang={lang} onComplete={onUncomplete} onEdit={handleEdit} onDelete={handleDelete} onTutorialSmashLinkClick={onNavigateToSmashList} onTutorialFocusLinkClick={onNavigateToFocus} onTutorialChallengeLinkClick={onNavigateToCollection} />
                   ))}
                 </div>
               )}
@@ -608,6 +617,7 @@ export function TasksScreen({
                       availableLists={availableListsForMove}
                       onTutorialSmashLinkClick={onNavigateToSmashList}
                       onTutorialFocusLinkClick={onNavigateToFocus}
+                        onTutorialChallengeLinkClick={onNavigateToCollection}
                       suppressOpenEdit={suppressOpenEdit}
                       onReorderPointerDown={onRowPointerDown(activeIndex)}
                       onReorderTouchStart={onRowTouchStart(activeIndex)}
@@ -650,6 +660,7 @@ export function TasksScreen({
                         onDelete={handleDelete}
                         onTutorialSmashLinkClick={onNavigateToSmashList}
                         onTutorialFocusLinkClick={onNavigateToFocus}
+                        onTutorialChallengeLinkClick={onNavigateToCollection}
                       />
                     ))}
                   </div>
