@@ -385,28 +385,32 @@ function AppContent() {
   }, [activeEffects]);
 
 
-  /* ---- Challenge progress: optimistic + persistent replay queue ---- */
-  // Dedup within a single session (prevents UI double-count if same task fires twice fast).
-  // The persistent pending queue in useEffectProgress handles cross-session retry.
+  /* ---- Task completion → server notification ---- */
+  //
+  // DESIGN RULE: sendTaskComplete は全タスク完了時に無条件で呼ぶ。
+  // チャレンジの有無・完了状態・期限に関係なく POST を送る。
+  // サーバーが challenge progress と evolution progress を一括管理する。
+  // クライアントはチャレンジ未完了時のみ楽観的 UI 更新を行う。
+  //
+  // NG: if (!activeChallenge) return;  ← evolution progress が進まなくなる
+  // NG: POST 送信をチャレンジ状態でゲーティング ← 新チャレンジ追加時にバグる
+  //
   const countedTaskIds = useRef(new Set<string>());
 
-  const sendChallengeProgress = useCallback((taskId: string) => {
+  const sendTaskComplete = useCallback((taskId: string) => {
     if (countedTaskIds.current.has(taskId)) return;
     countedTaskIds.current.add(taskId);
 
-    if (!activeChallenge) return;
+    // 1. Always notify server (challenge + evolution progress)
+    bumpPending();
+    void flushPending();
 
-    if (activeChallenge.isCompleted) {
-      // Challenge already unlocked — still send POST so server can track evolution progress
-      bumpPending();
-      void flushPending();
-      return;
-    }
+    // 2. Optimistic UI: only for active incomplete challenges
+    if (!activeChallenge || activeChallenge.isCompleted) return;
 
-    // Optimistic: bump local progress + owned (if threshold reached) + queue pending POST
     optimisticIncrement(activeChallenge.effect.key, activeChallenge.threshold);
 
-    // Detect completion for UX (toast + analytics)
+    // 3. Detect completion for UX (toast + analytics)
     if (activeChallenge.progress + 1 >= activeChallenge.threshold) {
       trackChallengeUnlocked({
         challenge_id: activeChallenge.effect.key,
@@ -561,7 +565,7 @@ function AppContent() {
       trackTutorialTaskComplete({ tutorial_step: taskId });
     }
 
-    if (!isTutorialTask) sendChallengeProgress(taskId);
+    if (!isTutorialTask) sendTaskComplete(taskId);
 
     // World Growth — increment theme-specific completion counter
     if (!isTutorialTask) {
@@ -571,12 +575,12 @@ function AppContent() {
     if (!isTutorialTask && user && shouldShowPhBanner()) {
       window.setTimeout(() => setPhBannerOpen(true), 1600);
     }
-  }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast, forcedEffectKey, showToast, lang, incrementThemeCompleted]);
+  }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendTaskComplete, user, isTutorial, showTutorialToast, forcedEffectKey, showToast, lang, incrementThemeCompleted]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
     window.setTimeout(() => completeTask(taskId), PERFECT_TIMING_STATE_DEFER_MS);
-    sendChallengeProgress(taskId);
-  }, [completeTask, sendChallengeProgress]);
+    sendTaskComplete(taskId);
+  }, [completeTask, sendTaskComplete]);
 
   const handleComplete = useCallback(
     (taskId: string) => {

@@ -97,3 +97,22 @@ Rules:
 - DS components (`Button`, `Chip`, `Toggle`, etc.) already call `playSound` internally — **do not call it again in the handler**.
 - Raw `<button>` elements must call `playSound` in their `onClick`.
 - The full mapping is documented in `app/src/design-system/foundations/sound.tokens.ts`.
+
+## Task Completion Rules (mandatory)
+
+タスク完了時の処理は `sendTaskComplete` (App.tsx) を通じて行う。以下の設計ルールを厳守すること。
+
+### サーバー通知は無条件
+- `sendTaskComplete` は **全タスク完了時に無条件で POST を送る**。チャレンジの有無・完了状態・期限に関係なく送信する。
+- サーバーが challenge progress と evolution progress を一括管理する。クライアント側でゲーティングしない。
+- **NG**: `if (!activeChallenge) return;` のようにチャレンジ状態で POST 送信を制御するコード。evolution progress が進まなくなる。
+
+### 楽観的更新はチャレンジ未完了時のみ
+- `optimisticIncrement` はアクティブかつ未完了のチャレンジがある場合のみ呼ぶ。
+- 完了済みチャレンジや期限切れチャレンジでは楽観的 UI 更新不要（サーバーの GET で反映される）。
+
+### Firestore カウンターの設計原則
+- `useFirestoreCounter` を使う。localStorage を常時キャッシュとして併用し、リロード時も即座に前回値を表示する。
+- `onSnapshot` は `Math.max(server, local)` で値を取り、楽観的更新を巻き戻さない。
+- **NG**: `onSnapshot` で server の値をそのまま `setStats` する（楽観的更新が消える）。
+- **NG**: 認証済みユーザーで localStorage キャッシュを使わない（リロード時に 0 にリセットされる）。
