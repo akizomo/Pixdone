@@ -3,7 +3,7 @@ import {
   type ErrorInfo, type ReactNode,
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu, TextLink } from './design-system';
+import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu, TextLink, PixelIcon } from './design-system';
 import {
   ThemeSelector, ListModal, AuthModal, BottomNav,
 } from './components';
@@ -37,6 +37,7 @@ import { EffectRequestPage } from './pages/EffectRequestPage';
 import { LandingPage } from './pages/LandingPage';
 import { EffectCapturePage } from './pages/EffectCapturePage';
 import { useUserTheme } from './hooks/useUserTheme';
+import { WorldLayer } from './components/WorldLayer';
 import {
   recordAppOpen as recordPhAppOpen,
   shouldShowPhBanner,
@@ -112,6 +113,11 @@ function AppContent() {
 
   // Stripe purchase redirect banner
   const [purchaseBanner, setPurchaseBanner] = useState<'plus_success' | null>(null);
+
+  // World Growth System — cumulative task completion count (localStorage-backed)
+  const [worldCompleted, setWorldCompleted] = useState<number>(() => {
+    try { return parseInt(localStorage.getItem('pixdone-world-completed') ?? '0', 10) || 0; } catch { return 0; }
+  });
 
   /* ---- Screen navigation ---- */
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
@@ -501,6 +507,15 @@ function AppContent() {
 
     if (!isTutorialTask) sendChallengeProgress(taskId);
 
+    // World Growth — increment cumulative completion counter
+    if (!isTutorialTask) {
+      setWorldCompleted((prev) => {
+        const next = prev + 1;
+        try { localStorage.setItem('pixdone-world-completed', String(next)); } catch { /* ignore */ }
+        return next;
+      });
+    }
+
     if (!isTutorialTask && user && shouldShowPhBanner()) {
       window.setTimeout(() => setPhBannerOpen(true), 1600);
     }
@@ -708,7 +723,7 @@ function AppContent() {
               size="sm"
               aria-label={user ? (lang === 'ja' ? 'テーマを変更' : 'Change theme') : (lang === 'ja' ? 'サインアップしてテーマ変更' : 'Sign up to change theme')}
               title={user ? (lang === 'ja' ? 'テーマを変更' : 'Change theme') : (lang === 'ja' ? 'サインアップしてテーマ変更' : 'Sign up to change theme')}
-              icon={<span className="material-icons">palette</span>}
+              icon={<PixelIcon name="palette" />}
 
               onClick={() => {
                 if (!user) {
@@ -727,7 +742,7 @@ function AppContent() {
                   size="sm"
                   aria-label={user.email ?? 'Account'}
                   title={user.email ?? 'Account'}
-                  icon={<span className="material-icons">person</span>}
+                  icon={<PixelIcon name="person" />}
     
                   onClick={() => setUserMenuOpen((v) => !v)}
                 />
@@ -771,7 +786,7 @@ function AppContent() {
                     {/* Language */}
                     <div className="user-menu-lang">
                       <div className="user-menu-lang__label">
-                        <span className="material-icons">language</span>
+                        <PixelIcon name="language" />
                         {lang === 'ja' ? '言語' : 'Language'}
                       </div>
                       <div className="user-menu-lang__chips">
@@ -809,6 +824,7 @@ function AppContent() {
               : 'calc(56px + env(safe-area-inset-bottom))',
         }}
       >
+      <WorldLayer themeKey={visualTheme} completedCount={worldCompleted} />
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, paddingBottom: '48px' }}>
         {pathname === '/pricing' ? (
           <PricingPage />

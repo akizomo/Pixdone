@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { t } from '../lib/i18n';
 import { playSound } from '../services/sound';
-import { PopoverMenu } from '../design-system';
+import { PopoverMenu, PixelIcon } from '../design-system';
 import type { PopoverMenuItem } from '../design-system/components/PopoverMenu/PopoverMenu.types';
 import type { SortMode } from '../types/list';
 import './ListHeader.css';
@@ -71,7 +71,7 @@ export function ListHeader({ title, showMenu, lang = 'en', sortMode = 'manual', 
               aria-label={t('sort', lang)}
               aria-expanded={sortOpen}
             >
-              <span className="material-icons" style={{ fontSize: '20px', lineHeight: 1 }}>swap_vert</span>
+              <PixelIcon name="swap_vert" size="20px" />
             </button>
             {sortOpen && (
               <PopoverMenu
@@ -94,7 +94,7 @@ export function ListHeader({ title, showMenu, lang = 'en', sortMode = 'manual', 
               aria-label="List options"
               aria-expanded={menuOpen}
             >
-              <span className="material-icons" style={{ fontSize: '20px', lineHeight: 1 }}>more_vert</span>
+              <PixelIcon name="more_vert" size="20px" />
             </button>
 
             {menuOpen && (

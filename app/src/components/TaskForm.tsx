@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useImperativeHandle, forwardRef } from 'react';
 import type { Task, RepeatConfig, RepeatPreset, CustomRepeat } from '../types/task';
-import { Button, RichTextField, RichTextArea, TextField, PopoverMenu, IconButton, Chip, Checkbox } from '../design-system';
+import { Button, RichTextField, RichTextArea, TextField, PopoverMenu, IconButton, Chip, Checkbox, PixelIcon } from '../design-system';
 import { t } from '../lib/i18n';
 import { getRepeatLabel } from '../lib/repeat';
 import { getTodayYMD, getTomorrowYMD } from '../lib/date';
@@ -198,7 +198,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
                 onClick={() => { playSound('buttonClick'); setShowListMenu((v) => !v); }}
               >
                 {availableLists.find((l) => l.id === task.listId)?.name ?? ''}
-                <span className="material-icons">arrow_drop_down</span>
+                <PixelIcon name="arrow_drop_down" />
               </button>
               {showListMenu && (
                 <PopoverMenu
@@ -215,7 +215,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
               variant="ghostDanger"
               size="sm"
               aria-label={lang === 'ja' ? '削除' : 'Delete'}
-              icon={<span className="material-icons" style={{ fontSize: '18px' }}>delete</span>}
+              icon={<PixelIcon name="delete" size="18px" />}
               soundKey="taskDelete"
               onClick={onDelete}
             />
@@ -260,7 +260,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
               input?.showPicker?.();
             }}
           >
-            <span className="material-icons pd-task-form__chip-icon">calendar_today</span>
+            <PixelIcon name="calendar_today" className="pd-task-form__chip-icon" />
             {dueDate && dueDate !== today && dueDate !== tomorrow
               ? (() => { const [, m, d] = dueDate.split('-'); return `${Number(m)}/${Number(d)}`; })()
               : (lang === 'ja' ? '日付' : 'Date')}
@@ -280,7 +280,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
             selected={repeat !== 'none'}
             onClick={() => setShowRepeat((v) => !v)}
           >
-            <span className="material-icons pd-task-form__chip-icon">repeat</span>
+            <PixelIcon name="repeat" className="pd-task-form__chip-icon" />
             {getRepeatLabel(repeat, lang) || t('repeat', lang)}
           </Chip>
           {showRepeat && (
@@ -291,7 +291,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
                   <div className="pd-task-form__repeat-custom">
                     <div className="pd-task-form__repeat-custom-header">
                       <button type="button" className="pd-task-form__repeat-custom-back" onClick={() => { playSound('buttonClick'); setShowCustom(false); }}>
-                        <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>arrow_back</span>
+                        <PixelIcon name="arrow_back" size="18px" />
                       </button>
                       <span className="pd-task-form__repeat-custom-title">{t('repeatCustom', lang)}</span>
                     </div>
@@ -364,7 +364,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
                       style={{ borderBottom: 'none' }}
                       onClick={() => { playSound('buttonClick'); setShowCustom(true); }}
                     >
-                      <span className="material-icons" style={{ fontSize: '14px', lineHeight: 1, verticalAlign: 'middle', marginRight: '4px' }}>settings</span>
+                      <PixelIcon name="settings" size="14px" />
                       {t('repeatCustom', lang)}
                     </button>
                   </>
@@ -380,9 +380,10 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
             selected={!!priority}
             onClick={() => setShowPriority((v) => !v)}
           >
-            <span className={`material-icons pd-task-form__chip-icon pd-task-form__priority-icon${priority ? ` pd-task-form__priority-icon--${priority}` : ''}`}>
-              {priority === 'high' ? 'arrow_upward' : priority === 'low' ? 'arrow_downward' : priority === 'medium' ? 'remove' : 'flag'}
-            </span>
+            <PixelIcon
+              name={priority === 'high' ? 'arrow_upward' : priority === 'low' ? 'arrow_downward' : priority === 'medium' ? 'remove' : 'arrow_upward'}
+              className={`pd-task-form__chip-icon pd-task-form__priority-icon${priority ? ` pd-task-form__priority-icon--${priority}` : ''}`}
+            />
             {priority ? t(`priority${priority.charAt(0).toUpperCase()}${priority.slice(1)}`, lang) : t('priority', lang)}
           </Chip>
           {showPriority && (
@@ -402,9 +403,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
                     onClick={() => { playSound('buttonClick'); setPriority(opt.value); setShowPriority(false); }}
                   >
                     {opt.icon && (
-                      <span className={`material-icons pd-task-form__chip-icon pd-task-form__priority-icon ${opt.iconClass}`}>
-                        {opt.icon}
-                      </span>
+                      <PixelIcon name={opt.icon} className={`pd-task-form__chip-icon pd-task-form__priority-icon ${opt.iconClass}`} />
                     )}
                     {t(opt.key, lang)}
                   </button>
@@ -448,7 +447,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
               >{s.text}</span>
             )}
             <button type="button" className="pd-task-form__subtask-remove" onClick={() => removeSubtask(s.id)}>
-              <span className="material-icons" style={{ fontSize: '16px', lineHeight: 1 }}>close</span>
+              <PixelIcon name="close" size="16px" />
             </button>
           </div>
         ))}

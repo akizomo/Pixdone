@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { playSound } from '../../../services/sound';
 import { IconButton } from '../IconButton/IconButton';
+import { PixelIcon } from '../PixelIcon/PixelIcon';
 import type { BottomSheetProps } from './BottomSheet.types';
 import './BottomSheet.css';
 
@@ -251,7 +252,7 @@ export function BottomSheet({
             variant="ghost"
             size="md"
             aria-label="Close"
-            icon={<span className="material-icons">close</span>}
+            icon={<PixelIcon name="close" />}
             soundKey="taskCancel"
             onClick={onClose}
             className="pxd-sheet-close"

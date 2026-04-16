@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { IconButton, ModalDialog, Button } from '../design-system/components';
+import { IconButton, ModalDialog, Button, PixelIcon } from '../design-system/components';
 import { BottomSheet } from '../design-system/components/BottomSheet/BottomSheet';
 import type { ActiveChallenge } from '../hooks/useActiveChallenge';
 
@@ -8,7 +8,7 @@ const urgentPulseStyle = `
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
-[data-urgent="true"] .material-icons {
+[data-urgent="true"] .pxd-pixel-icon {
   animation: challenge-pulse 1.2s ease-in-out infinite;
 }
 `;
@@ -251,7 +251,7 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
           size="sm"
           aria-label={label}
           title={`${label} ${Math.round(pct)}%`}
-          icon={<span className="material-icons">emoji_events</span>}
+          icon={<PixelIcon name="emoji_events" />}
 
           onClick={() => setOpen(true)}
         />

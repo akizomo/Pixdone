@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { playSound } from '../../../services/sound';
 import { IconButton } from '../IconButton/IconButton';
+import { PixelIcon } from '../PixelIcon/PixelIcon';
 import type { ModalDialogProps } from './ModalDialog.types';
 import './ModalDialog.css';
 
@@ -97,7 +98,7 @@ export function ModalDialog({
           variant="ghost"
           size="sm"
           aria-label="Close"
-          icon={<span className="material-icons">close</span>}
+          icon={<PixelIcon name="close" />}
           soundKey="taskCancel"
           onClick={onClose}
           className="pxd-modal-close"

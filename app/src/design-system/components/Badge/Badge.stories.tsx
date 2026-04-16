@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Badge } from './Badge';
+import { PixelIcon } from '../PixelIcon/PixelIcon';
 
 const meta: Meta<typeof Badge> = {
   title: 'Design System/Badge',
@@ -30,7 +31,7 @@ export const Success: Story = {
 export const WithIcon: Story = {
   args: {
     variant: 'warning',
-    icon: <span className="material-icons" style={{ fontSize: 12 }}>calendar_today</span>,
+    icon: <PixelIcon name="calendar_today" size={12} />,
     children: 'Apr 10',
   },
 };
@@ -43,7 +44,7 @@ export const AllVariants: Story = {
       <Badge variant="danger">overdue</Badge>
       <Badge variant="warning">today</Badge>
       <Badge variant="success">done</Badge>
-      <Badge icon={<span className="material-icons" style={{ fontSize: 12 }}>repeat</span>}>weekly</Badge>
+      <Badge icon={<PixelIcon name="repeat" size={12} />}>weekly</Badge>
     </div>
   ),
 };

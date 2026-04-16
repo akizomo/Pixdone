@@ -220,7 +220,7 @@ describe('TaskItem', () => {
         <TaskItem task={makeTask({ dueDate: null })} onComplete={vi.fn()} onEdit={vi.fn()} />,
       );
       // calendar_today icon should not appear
-      expect(container.querySelector('.material-icons')).toBeNull();
+      expect(container.querySelector('.pxd-pixel-icon')).toBeNull();
     });
   });
 
@@ -258,7 +258,7 @@ describe('TaskItem', () => {
         />,
       );
       // repeat icon should not be present
-      const icons = container.querySelectorAll('.material-icons');
+      const icons = container.querySelectorAll('.pxd-pixel-icon');
       const hasRepeat = Array.from(icons).some((el) => el.textContent === 'repeat');
       expect(hasRepeat).toBe(false);
     });

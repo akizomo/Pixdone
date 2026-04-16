@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ModalDialog, Button } from '../design-system';
+import { ModalDialog, Button, PixelIcon } from '../design-system';
 import { useAuth } from '../contexts/AuthContext';
 import { playSound } from '../services/sound';
 
@@ -227,9 +227,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
                   color: 'var(--pd-color-text-muted)', display: 'flex', alignItems: 'center',
                 }}
               >
-                <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>
-                  {showPassword ? 'visibility_off' : 'visibility'}
-                </span>
+                <PixelIcon name={showPassword ? 'visibility_off' : 'visibility'} size="18px" />
               </button>
             </div>
           </div>

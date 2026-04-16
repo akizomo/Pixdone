@@ -66,9 +66,8 @@
   font-size: 0.875rem;
 }
 
-.user-menu-lang__label .material-icons {
+.user-menu-lang__label .pxd-pixel-icon {
   font-size: 18px;
-  line-height: 1;
 }
 
 .user-menu-lang__chips {

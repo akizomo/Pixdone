@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, createContext, useContext, type ReactNode } from 'react';
 import { playSound } from '../../../services/sound';
+import { PixelIcon } from '../PixelIcon/PixelIcon';
 import './Toast.css';
 
 interface ToastItem {
@@ -92,7 +93,7 @@ function ToastEntry({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: nu
         aria-label="Close"
         onClick={() => { playSound('taskCancel'); startExit(); }}
       >
-        <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>close</span>
+        <PixelIcon name="close" size="18px" />
       </button>
     </div>
   );

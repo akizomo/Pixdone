@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { PopoverMenu } from './PopoverMenu';
 import { IconButton } from '../IconButton/IconButton';
+import { PixelIcon } from '../PixelIcon/PixelIcon';
 
 const meta: Meta<typeof PopoverMenu> = {
   title: 'Components/PopoverMenu',
@@ -85,7 +86,7 @@ export const Interactive: Story = {
         <IconButton
           variant="ghost"
           size="sm"
-          icon={<span className="material-icons">more_vert</span>}
+          icon={<PixelIcon name="more_vert" />}
           onClick={() => setOpen((v) => !v)}
           aria-label="Open menu"
         />
@@ -119,7 +120,7 @@ export const MoveToListExample: Story = {
         <IconButton
           variant="ghost"
           size="sm"
-          icon={<span className="material-icons">drive_file_move</span>}
+          icon={<PixelIcon name="drive_file_move" />}
           onClick={() => setOpen((v) => !v)}
           aria-label="Move to list"
         />

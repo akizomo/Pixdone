@@ -29,9 +29,8 @@
   outline: none;
 }
 
-.pd-task-form__list-trigger .material-icons {
+.pd-task-form__list-trigger .pxd-pixel-icon {
   font-size: 14px;
-  line-height: 1;
 }
 
 /* Priority icon colors inside chips */

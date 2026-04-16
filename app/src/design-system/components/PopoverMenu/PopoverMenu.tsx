@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { PixelIcon } from '../PixelIcon/PixelIcon';
 import type { PopoverMenuProps } from './PopoverMenu.types';
 import './PopoverMenu.css';
 
@@ -57,11 +58,11 @@ export function PopoverMenu({
           }}
         >
           {item.icon && (
-            <span className="material-icons pxd-popover-menu__icon">{item.icon}</span>
+            <PixelIcon name={item.icon} className="pxd-popover-menu__icon" />
           )}
           <span className="pxd-popover-menu__label">{item.label}</span>
           {item.selected && (
-            <span className="material-icons pxd-popover-menu__check" aria-hidden>check</span>
+            <PixelIcon name="check" className="pxd-popover-menu__check" />
           )}
         </button>
       ))}

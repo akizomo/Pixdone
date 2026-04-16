@@ -1,5 +1,6 @@
 import { t } from '../lib/i18n';
 import { playSound } from '../services/sound';
+import { PixelIcon } from '../design-system';
 import './BottomNav.css';
 
 export type ActiveScreen = 'tasks' | 'focus' | 'collection';
@@ -37,7 +38,7 @@ export function BottomNav({ activeScreen, onSelect, lang, showCollection = true 
             className={`pd-bottom-nav__tab${isActive ? ' pd-bottom-nav__tab--active' : ''}`}
             onClick={() => { playSound('buttonClick'); onSelect(tab.id); }}
           >
-            <span className="material-icons pd-bottom-nav__icon">{tab.icon}</span>
+            <PixelIcon name={tab.icon} className="pd-bottom-nav__icon" />
             <span className="pd-bottom-nav__label">{t(tab.labelKey, lang)}</span>
           </button>
         );

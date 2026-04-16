@@ -5,7 +5,7 @@ import { t } from '../lib/i18n';
 import { getRepeatLabel } from '../lib/repeat';
 import { renderTextWithLinks } from '../lib/linkify';
 import { playSound } from '../services/sound';
-import { PopoverMenu, Badge } from '../design-system';
+import { PopoverMenu, Badge, PixelIcon } from '../design-system';
 import './TaskItem.css';
 
 export interface TaskItemProps {
@@ -185,21 +185,22 @@ export const TaskItem = memo(function TaskItem({
                 className={`task-item__priority task-item__priority--${task.priority}`}
                 aria-label={`priority-${task.priority}`}
               >
-                <span className="material-icons task-item__priority-icon">
-                  {task.priority === 'high' ? 'arrow_upward' : task.priority === 'low' ? 'arrow_downward' : 'remove'}
-                </span>
+                <PixelIcon
+                  name={task.priority === 'high' ? 'arrow_upward' : task.priority === 'low' ? 'arrow_downward' : 'remove'}
+                  className="task-item__priority-icon"
+                />
               </span>
             )}
             {dueLabel && (
               <Badge
                 variant={dueBadgeVariant}
-                icon={<span className="material-icons task-item__badge-icon">calendar_today</span>}
+                icon={<PixelIcon name="calendar_today" className="task-item__badge-icon" />}
               >
                 {dueLabel}
               </Badge>
             )}
             {repeatLabel && (
-              <Badge icon={<span className="material-icons task-item__badge-icon">repeat</span>}>
+              <Badge icon={<PixelIcon name="repeat" className="task-item__badge-icon" />}>
                 {repeatLabel}
               </Badge>
             )}
@@ -227,7 +228,7 @@ export const TaskItem = memo(function TaskItem({
                 aria-expanded={showMoveMenu}
                 aria-haspopup="menu"
               >
-                <span className="material-icons task-item__action-icon">drive_file_move</span>
+                <PixelIcon name="drive_file_move" className="task-item__action-icon" />
               </button>
               {showMoveMenu && (
                 <PopoverMenu
@@ -246,7 +247,7 @@ export const TaskItem = memo(function TaskItem({
               onClick={(e) => { e.stopPropagation(); playSound('taskDelete'); onDelete(task.id); }}
               aria-label="Delete task"
             >
-              <span className="material-icons task-item__action-icon">delete</span>
+              <PixelIcon name="delete" className="task-item__action-icon" />
             </button>
           )}
         </div>

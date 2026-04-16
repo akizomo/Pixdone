@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useUserTheme } from '../hooks/useUserTheme';
-import { themeList } from '../design-system';
+import { themeList, PixelIcon } from '../design-system';
 import type { ThemeKey } from '../design-system';
 import type { ColorModePreference } from '../design-system/tokens';
 import { playSound } from '../services/sound';
@@ -97,7 +97,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
                   transition: 'background 0.15s, border-color 0.15s, color 0.15s',
                 }}
               >
-                <span className="material-icons" style={{ fontSize: '1rem', lineHeight: 1 }}>{mode.icon}</span>
+                <PixelIcon name={mode.icon} size="1rem" />
                 {lang === 'ja' ? mode.labelJa : mode.labelEn}
               </button>
             );

@@ -1,4 +1,5 @@
 import type { EffectDef } from '../../data/effectsRegistry';
+import { PixelIcon } from '../../design-system';
 import { isEffectLocked } from '../../data/effectsRegistry';
 import { badgeColor } from './rarityColors';
 
@@ -89,7 +90,7 @@ export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffect
             color: 'var(--pd-color-text-primary)',
           }}
         >
-          ✓
+          <PixelIcon name="check" />
         </span>
       )}
       {isLocked && (

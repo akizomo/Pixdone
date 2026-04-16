@@ -1,9 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { IconButton } from './IconButton';
+import { PixelIcon } from '../PixelIcon/PixelIcon';
 
-const MI = ({ name }: { name: string }) => (
-  <span className="material-icons" style={{ fontSize: '1em', lineHeight: 1 }}>{name}</span>
-);
+const PI = ({ name }: { name: string }) => <PixelIcon name={name} />;
 
 const meta: Meta<typeof IconButton> = {
   title: 'Components/IconButton',
@@ -27,39 +26,39 @@ export default meta;
 type Story = StoryObj<typeof IconButton>;
 
 export const Primary: Story = {
-  args: { variant: 'primary', 'aria-label': 'Close', icon: <MI name="close" /> },
+  args: { variant: 'primary', 'aria-label': 'Close', icon: <PI name="close" /> },
 };
 export const Secondary: Story = {
-  args: { variant: 'secondary', 'aria-label': 'Add', icon: <MI name="add" /> },
+  args: { variant: 'secondary', 'aria-label': 'Add', icon: <PI name="add" /> },
 };
 export const Ghost: Story = {
-  args: { variant: 'ghost', 'aria-label': 'More options', icon: <MI name="more_vert" /> },
+  args: { variant: 'ghost', 'aria-label': 'More options', icon: <PI name="more_vert" /> },
 };
 export const Danger: Story = {
-  args: { variant: 'danger', 'aria-label': 'Delete', icon: <MI name="delete" /> },
+  args: { variant: 'danger', 'aria-label': 'Delete', icon: <PI name="delete" /> },
 };
 
 export const SizeSm: Story = {
-  args: { size: 'sm', 'aria-label': 'Close', icon: <MI name="close" /> },
+  args: { size: 'sm', 'aria-label': 'Close', icon: <PI name="close" /> },
 };
 export const SizeMd: Story = {
-  args: { size: 'md', 'aria-label': 'Close', icon: <MI name="close" /> },
+  args: { size: 'md', 'aria-label': 'Close', icon: <PI name="close" /> },
 };
 export const SizeLg: Story = {
-  args: { size: 'lg', 'aria-label': 'Close', icon: <MI name="close" /> },
+  args: { size: 'lg', 'aria-label': 'Close', icon: <PI name="close" /> },
 };
 
 export const Disabled: Story = {
-  args: { variant: 'primary', disabled: true, 'aria-label': 'Close', icon: <MI name="close" /> },
+  args: { variant: 'primary', disabled: true, 'aria-label': 'Close', icon: <PI name="close" /> },
 };
 
 export const AllVariants: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 'var(--pxd-space-3)', flexWrap: 'wrap', alignItems: 'center' }}>
-      <IconButton variant="primary" aria-label="Close" icon={<MI name="close" />} />
-      <IconButton variant="secondary" aria-label="Add" icon={<MI name="add" />} />
-      <IconButton variant="ghost" aria-label="More" icon={<MI name="more_vert" />} />
-      <IconButton variant="danger" aria-label="Delete" icon={<MI name="delete" />} />
+      <IconButton variant="primary" aria-label="Close" icon={<PI name="close" />} />
+      <IconButton variant="secondary" aria-label="Add" icon={<PI name="add" />} />
+      <IconButton variant="ghost" aria-label="More" icon={<PI name="more_vert" />} />
+      <IconButton variant="danger" aria-label="Delete" icon={<PI name="delete" />} />
     </div>
   ),
 };
@@ -67,9 +66,9 @@ export const AllVariants: Story = {
 export const SizeComparison: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 'var(--pxd-space-4)', alignItems: 'center' }}>
-      <IconButton size="sm" variant="secondary" aria-label="Small" icon={<MI name="close" />} />
-      <IconButton size="md" variant="secondary" aria-label="Medium" icon={<MI name="close" />} />
-      <IconButton size="lg" variant="secondary" aria-label="Large" icon={<MI name="close" />} />
+      <IconButton size="sm" variant="secondary" aria-label="Small" icon={<PI name="close" />} />
+      <IconButton size="md" variant="secondary" aria-label="Medium" icon={<PI name="close" />} />
+      <IconButton size="lg" variant="secondary" aria-label="Large" icon={<PI name="close" />} />
     </div>
   ),
   parameters: { docs: { description: { story: 'Sm 36px, md 44px, lg 48px tap targets.' } } },

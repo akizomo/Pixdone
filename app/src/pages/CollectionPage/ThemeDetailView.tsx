@@ -6,6 +6,7 @@ import type { ThemeKey } from '../../design-system/themes/themeRegistry';
 import { getRandomThemeLimitedEffectKey } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
 import { playSound } from '../../services/sound';
+import { PixelIcon } from '../../design-system';
 
 function ensureFontLink(url: string): void {
   const id = `pd-font-${btoa(url).slice(0, 16)}`;
@@ -80,7 +81,7 @@ export function ThemeDetailView({
       }}>
         <button type="button" onClick={() => { playSound('taskCancel'); onClose(); }} aria-label={lang === 'ja' ? '戻る' : 'Back'}
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--pd-color-text-primary)' }}>
-          <span className="material-icons" style={{ fontSize: '24px' }}>arrow_back</span>
+          <PixelIcon name="arrow_back" size="24px" />
         </button>
         <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.875rem', letterSpacing: '1px', color: 'var(--pd-color-text-primary)' }}>
           {theme.icon} {theme.name.toUpperCase()}

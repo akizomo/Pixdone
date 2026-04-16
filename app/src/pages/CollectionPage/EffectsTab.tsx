@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { PixelIcon } from '../../design-system';
 import { EFFECTS_REGISTRY } from '../../data/effectsRegistry';
 import type { EffectRarity } from '../../data/effectsRegistry';
 import { isEffectLocked } from '../../data/effectsRegistry';
@@ -112,7 +113,7 @@ export function EffectsTab({
                     marginLeft: '12px',
                   }}>
                     {activeEffects.includes(effect.key) && !locked && (
-                      <span style={{ fontSize: '0.875rem', color: 'var(--pd-color-text-primary)' }}>✓</span>
+                      <PixelIcon name="check" size="0.875rem" style={{ color: 'var(--pd-color-text-primary)' }} />
                     )}
                     {locked && <span style={{ fontSize: '0.75rem' }}>🔒</span>}
                   </div>

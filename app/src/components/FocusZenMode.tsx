@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Button, IconButton } from '../design-system';
+import { Button, IconButton, PixelIcon } from '../design-system';
 import { BgmControl } from './BgmControl';
 import { PacmanProgress } from './PacmanProgress';
 import type { FocusTimerState } from '../hooks/useFocusTimer';
@@ -147,7 +147,7 @@ export function FocusZenMode({
             variant="ghost"
             size="md"
             aria-label={lang === 'ja' ? '閉じる' : 'Close'}
-            icon={<span style={{ fontFamily: 'var(--pd-font-body)', fontSize: '22px', lineHeight: 1 }}>×</span>}
+            icon={<PixelIcon name="close" size="22px" />}
             soundKey={null}
             onClick={requestClose}
           />

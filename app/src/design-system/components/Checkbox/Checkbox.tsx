@@ -1,4 +1,5 @@
 import { playSound } from '../../../services/sound';
+import { PixelIcon } from '../PixelIcon/PixelIcon';
 import type { CheckboxProps } from './Checkbox.types';
 import './Checkbox.css';
 
@@ -32,7 +33,7 @@ export function Checkbox({
       {...rest}
     >
       {/* Always rendered to prevent layout shift; hidden via opacity */}
-      <span className="material-icons pxd-checkbox__check" aria-hidden="true">check</span>
+      <PixelIcon name="check" className="pxd-checkbox__check" />
     </button>
   );
 }

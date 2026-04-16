@@ -27,3 +27,5 @@ export type { PopoverMenuProps, PopoverMenuItem } from './PopoverMenu/PopoverMen
 export { ToastProvider, useToast } from './Toast/Toast';
 export { TextLink } from './TextLink/TextLink';
 export type { TextLinkProps, TextLinkSize } from './TextLink/TextLink.types';
+export { PixelIcon } from './PixelIcon/PixelIcon';
+export type { PixelIconProps } from './PixelIcon/PixelIcon';

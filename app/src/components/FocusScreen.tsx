@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Chip, IconButton } from '../design-system';
+import { Button, Chip, IconButton, PixelIcon } from '../design-system';
 import { t } from '../lib/i18n';
 import { getTodayYMD } from '../lib/date';
 import { PixelBreaker } from './PixelBreaker';
@@ -123,7 +123,7 @@ export function FocusScreen({
             <IconButton
               variant="ghost" size="sm"
               aria-label={lang === 'ja' ? '全画面でフォーカス' : 'Full screen focus'}
-              icon={<span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>fullscreen</span>}
+              icon={<PixelIcon name="fullscreen" size="18px" />}
               onClick={onOpenZenMode}
             />
             {mode === 'pomodoro' && (

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconButton, PopoverMenu } from '../design-system';
+import { IconButton, PopoverMenu, PixelIcon } from '../design-system';
 import { setBgmTrack, setBgmOn, setBgmVolume, getBgmVolume } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
 import { playSound } from '../services/sound';
@@ -62,7 +62,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
           variant="ghost"
           size="sm"
           aria-label={lang === 'ja' ? 'BGM設定' : 'BGM settings'}
-          icon={<span className="material-icons" style={{ fontSize: '16px', lineHeight: 1 }}>{bgmOn ? 'music_note' : 'music_off'}</span>}
+          icon={<PixelIcon name={bgmOn ? 'music_note' : 'music_off'} size="16px" />}
           onClick={() => {
             setOpen((v) => {
               const next = !v;
@@ -100,9 +100,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
             imageRendering: 'pixelated',
           }}
         >
-          <span className="material-icons" style={{ fontSize: '16px', lineHeight: 1 }}>
-            {bgmOn ? 'music_note' : 'music_off'}
-          </span>
+          <PixelIcon name={bgmOn ? 'music_note' : 'music_off'} size="16px" />
         </button>
       )}
 
@@ -133,7 +131,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
                 >
                   <span className="pxd-popover-menu__label">{lang === 'ja' ? tr.labelJa : tr.labelEn}</span>
                   {isActive && (
-                    <span className="material-icons pxd-popover-menu__check" aria-hidden>check</span>
+                    <PixelIcon name="check" className="pxd-popover-menu__check" />
                   )}
                 </button>
               );

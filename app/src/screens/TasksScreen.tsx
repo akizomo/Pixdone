@@ -10,7 +10,7 @@ import { playSound } from '../services/sound';
 import { trackTaskAdd } from '../services/analytics';
 import { t } from '../lib/i18n';
 import { SMASH_TITLES } from '../features/useLists';
-import { Button, ModalDialog } from '../design-system';
+import { Button, ModalDialog, PixelIcon } from '../design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel,
   TaskForm,
@@ -424,7 +424,7 @@ export function TasksScreen({
               el.style.boxShadow = '2px 2px 0px var(--pd-color-shadow-default)';
             }}
           >
-            <span className="material-icons" style={{ fontSize: '18px', lineHeight: 1 }}>add</span>
+            <PixelIcon name="add" size="18px" />
             {lang === 'ja' ? '\u30BF\u30B9\u30AF\u3092\u8FFD\u52A0' : 'Add a task'}
           </button>
         </div>
@@ -483,11 +483,7 @@ export function TasksScreen({
                     textAlign: 'left',
                   }}
                 >
-                  <span style={{
-                    fontSize: '0.625rem', transition: 'transform 0.2s',
-                    transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                    display: 'inline-block',
-                  }}>{'\u25B6'}</span>
+                  <PixelIcon name="chevron_right_2" size="0.625rem" style={{ transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
                   {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
                 </button>
                 {completedExpanded && (
@@ -542,7 +538,7 @@ export function TasksScreen({
                   fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', textAlign: 'left',
                 }}
               >
-                <span style={{ fontSize: '0.625rem', transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}>{'\u25B6'}</span>
+                <PixelIcon name="chevron_right_2" size="0.625rem" style={{ transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
                 {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
               </button>
               {completedExpanded && (
@@ -639,11 +635,7 @@ export function TasksScreen({
                     textAlign: 'left',
                   }}
                 >
-                  <span style={{
-                    fontSize: '0.625rem', transition: 'transform 0.2s',
-                    transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                    display: 'inline-block',
-                  }}>{'\u25B6'}</span>
+                  <PixelIcon name="chevron_right_2" size="0.625rem" style={{ transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
                   {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
                 </button>
                 {completedExpanded && (
@@ -699,7 +691,7 @@ export function TasksScreen({
         >
           {isSmash
             ? <span aria-hidden="true">{'\u{1F4A5}'}</span>
-            : <span className="material-icons" aria-hidden="true" style={{ fontSize: '24px', lineHeight: 1 }}>add</span>
+            : <PixelIcon name="add" size="24px" />
           }
         </button>
       )}

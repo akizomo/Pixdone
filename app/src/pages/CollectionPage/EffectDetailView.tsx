@@ -4,7 +4,7 @@ import { DemoTaskItem } from './DemoTaskItem';
 import { EFFECTS_REGISTRY, isEffectLocked, canDeactivateEffect } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
 import { playSound } from '../../services/sound';
-import { Toggle } from '../../design-system';
+import { Toggle, PixelIcon } from '../../design-system';
 import { badgeColor } from './rarityColors';
 
 interface EffectDetailViewProps {
@@ -74,7 +74,7 @@ export function EffectDetailView({
       }}>
         <button type="button" onClick={() => { playSound('taskCancel'); onClose(); }} aria-label={lang === 'ja' ? '戻る' : 'Back'}
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--pd-color-text-primary)', flexShrink: 0 }}>
-          <span className="material-icons" style={{ fontSize: '24px' }}>arrow_back</span>
+          <PixelIcon name="arrow_back" size="24px" />
         </button>
         <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.875rem', letterSpacing: '1px', color: 'var(--pd-color-text-primary)', flex: 1, minWidth: 0 }}>
           {effect.name.toUpperCase()}

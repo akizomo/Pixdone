@@ -37,7 +37,7 @@
   background-color: var(--pd-color-accent-default);
 }
 
-/* Check icon — Material Icons, always in DOM to prevent layout shift */
+/* Check icon — PixelIcon, always in DOM to prevent layout shift */
 .pxd-checkbox__check {
   color: transparent;
   line-height: 1;
