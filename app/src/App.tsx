@@ -37,7 +37,10 @@ import { EffectRequestPage } from './pages/EffectRequestPage';
 import { LandingPage } from './pages/LandingPage';
 import { EffectCapturePage } from './pages/EffectCapturePage';
 import { useUserTheme } from './hooks/useUserTheme';
+import { useHasSeenTutorial } from './hooks/useHasSeenTutorial';
 import { WorldLayer } from './components/WorldLayer';
+import { useThemeStats } from './hooks/useThemeStats';
+import { useActivityDays, calcAgentCount } from './hooks/useActivityDays';
 import {
   recordAppOpen as recordPhAppOpen,
   shouldShowPhBanner,
@@ -80,13 +83,14 @@ function getFinePointerSnapshot(): boolean {
 function AppContent() {
   const { lists, currentList } = useListsData();
   const {
-    setActiveList,
-    addList, renameList, deleteList,
+    setLists, setActiveList,
+    addList, addTask, renameList, deleteList,
     completeTask, uncompleteTask,
     resetRepeatingTasks,
   } = useListsActions();
 
   const { user, logout } = useAuth();
+  const { hasSeenTutorial, markTutorialSeen } = useHasSeenTutorial();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/effect-request' || pathname === '/feedback';
@@ -114,11 +118,6 @@ function AppContent() {
   // Stripe purchase redirect banner
   const [purchaseBanner, setPurchaseBanner] = useState<'plus_success' | null>(null);
 
-  // World Growth System — cumulative task completion count (localStorage-backed)
-  const [worldCompleted, setWorldCompleted] = useState<number>(() => {
-    try { return parseInt(localStorage.getItem('pixdone-world-completed') ?? '0', 10) || 0; } catch { return 0; }
-  });
-
   /* ---- Screen navigation ---- */
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
   useEffect(() => {
@@ -140,6 +139,7 @@ function AppContent() {
   useEffect(() => {
     if (user) recordPhAppOpen();
   }, [user]);
+
 
   const { showToast } = useToast();
 
@@ -228,31 +228,82 @@ function AppContent() {
     return () => window.clearTimeout(tid);
   }, [purchaseBanner]);
 
-  /* ---- 未ログイン時: default リスト名を 'Tutorial' に正規化 ---- */
-  useEffect(() => {
-    if (user) return;
-    const defaultList = lists.find((l) => l.id === 'default');
-    if (defaultList && defaultList.name !== 'Tutorial') {
-      renameList('default', 'Tutorial');
-    }
-  }, [user, lists, renameList]);
+  /* ---- ログイン後・初回: Tutorial リストを先頭に seed ---- */
+  // `shouldSeedTutorial` is computed once when hasSeenTutorial first resolves to false.
+  // We capture it in a ref so that subsequent list changes never re-trigger the seed.
+  const tutorialSeedState = useRef<'idle' | 'seeded'>('idle');
+  const shouldSeedTutorial = user && hasSeenTutorial === false && tutorialSeedState.current === 'idle';
 
-  /* ---- ログイン時: default リスト名を 'My Tasks' に切り替え ---- */
   useEffect(() => {
-    if (!user) return;
-    const defaultList = lists.find((l) => l.id === 'default');
-    if (defaultList && defaultList.name !== 'My Tasks') {
-      renameList('default', 'My Tasks');
-    }
-  }, [user, lists, renameList]);
+    if (!shouldSeedTutorial) return;
+    tutorialSeedState.current = 'seeded';
 
-  /* ---- Derived ---- */
-  const isTutorial = currentList?.id === 'default';
+    // Already has tutorial tasks (e.g. restored from Firestore) — just mark seen
+    const hasTutorialTasks = lists.some(
+      (l) => l.tasks.some((t) => typeof t.id === 'string' && t.id.startsWith('tutorial-')),
+    );
+    if (hasTutorialTasks) {
+      markTutorialSeen();
+      return;
+    }
+
+    // Write Tutorial list + tasks directly to Firestore.
+    // onSnapshot in useLists will pick them up — no local setLists needed.
+    const tutorialId = `tutorial-${user!.uid.slice(0, 8)}`;
+    const titles = [
+      'Try completing this task!',
+      'Each time you complete a task, a different effect appears. How many can you find?',
+      'Try the Smash List for even more fun!',
+      'Focus with pixel BGM pomodoro timer',
+      "Check this month's Challenge and earn a limited effect!",
+    ];
+    (async () => {
+      const { doc: docRef, setDoc: set, Timestamp: TS } = await import('firebase/firestore');
+      const fdb = (await import('./lib/firebase')).db;
+      // Create the list doc with a known ID
+      await set(docRef(fdb, 'lists', tutorialId), {
+        uid: user!.uid,
+        name: 'Tutorial',
+        createdAt: TS.now(),
+      });
+      // Create tutorial tasks
+      for (let i = 0; i < titles.length; i++) {
+        await set(docRef(fdb, 'tasks', `tutorial-${i + 1}`), {
+          uid: user!.uid,
+          listId: tutorialId,
+          title: titles[i],
+          completed: false,
+          dueDate: null,
+          createdAt: TS.now(),
+          sortOrder: i,
+        });
+      }
+    })().catch((e) => console.warn('[Tutorial seed] Firestore write failed:', e));
+
+    markTutorialSeen();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally runs once when shouldSeedTutorial becomes true
+  }, [shouldSeedTutorial]);
+
+  /* ---- Derived: isTutorial = current list has tutorial tasks ---- */
+  const isTutorial = !!(
+    currentList &&
+    currentList.tasks.some((t) => typeof t.id === 'string' && t.id.startsWith('tutorial-'))
+  );
 
   const isFocusScreen = activeScreen === 'focus';
   const isCollectionScreen = activeScreen === 'collection';
 
   const { visualTheme, changeTheme, colorMode } = useUserTheme();
+
+  // World Growth System
+  const { stats: themeStats, incrementCompleted: incrementThemeCompleted } = useThemeStats(visualTheme);
+  const { activityLevel, recordToday } = useActivityDays();
+  const worldAgentCount = calcAgentCount(themeStats.level, activityLevel);
+
+  /* ---- World Growth: record today's activity ---- */
+  useEffect(() => {
+    recordToday();
+  }, [recordToday]);
 
   /* ---- Active effects (localStorage, multi-select) ---- */
   const normalizeActiveEffects = useCallback((keys: string[]): string[] => {
@@ -322,6 +373,7 @@ function AppContent() {
 
   /* ---- Collection tab initial state (for "See all" deep-link) ---- */
   const [collectionInitialTab, setCollectionInitialTab] = useState<'effects' | 'themes'>('effects');
+  const [collectionInitialFilter, setCollectionInitialFilter] = useState<string | undefined>(undefined);
   const [collectionInitialEffectKey, setCollectionInitialEffectKey] = useState<string | null>(null);
 
   /* ---- Sync active effects to vanilla effect engine ---- */
@@ -389,24 +441,28 @@ function AppContent() {
 
     const toasts: Record<string, { ja: string; en: string }> = {
       'tutorial-1': {
-        ja: '✨ エフェクトは20種類以上、どんどん増えてる',
-        en: '✨ 20+ effects — and more on the way',
+        ja: '完了するたびに違うエフェクト',
+        en: 'A different effect every time',
       },
       'tutorial-2': {
         ja: rarityLabel
-          ? `🏆 ${rarityLabel}エフェクト出た！チャレンジクリアで手に入れよう`
-          : '🏆 Rare・Epicエフェクトはチャレンジクリアで手に入れよう',
+          ? `${rarityLabel}エフェクト出現。20種類以上、どんどん増える`
+          : '20種類以上、どんどん増える',
         en: rarityLabel
-          ? `🏆 ${rarityLabel} effect! Earn it by completing a challenge`
-          : '🏆 Earn Rare & Epic effects by completing challenges',
+          ? `${rarityLabel} effect. 20+ and growing`
+          : '20+ effects and growing',
       },
       'tutorial-3': {
-        ja: '💥 ストレス発散にも、タスク管理にも使える',
-        en: '💥 For stress relief and getting things done',
+        ja: 'ストレス発散にも、タスク消化にも',
+        en: 'For stress relief and getting things done',
       },
       'tutorial-4': {
-        ja: '🎵 BGMが集中を作り出す。サインアップして、集中時間を自分でセットしよう',
-        en: '🎵 BGM puts you in the zone. Sign up to set your own focus time',
+        ja: 'ピクセルBGMで集中モード。タイマー時間は自由に設定',
+        en: 'Pixel BGM for focus. Timer is fully customizable',
+      },
+      'tutorial-5': {
+        ja: '毎月新しいチャレンジが登場。限定エフェクトを獲得',
+        en: 'New challenges every month. Earn limited effects',
       },
     };
 
@@ -431,7 +487,7 @@ function AppContent() {
   /* ---- Task handlers ---- */
   const runCompleteShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
-    const isTutorialTask = !user && isTutorial && taskId.startsWith('tutorial-');
+    const isTutorialTask = isTutorial && taskId.startsWith('tutorial-');
 
     const doComplete = () => {
       completeTask(taskId);
@@ -507,19 +563,15 @@ function AppContent() {
 
     if (!isTutorialTask) sendChallengeProgress(taskId);
 
-    // World Growth — increment cumulative completion counter
+    // World Growth — increment theme-specific completion counter
     if (!isTutorialTask) {
-      setWorldCompleted((prev) => {
-        const next = prev + 1;
-        try { localStorage.setItem('pixdone-world-completed', String(next)); } catch { /* ignore */ }
-        return next;
-      });
+      incrementThemeCompleted();
     }
 
     if (!isTutorialTask && user && shouldShowPhBanner()) {
       window.setTimeout(() => setPhBannerOpen(true), 1600);
     }
-  }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast, forcedEffectKey, showToast, lang]);
+  }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendChallengeProgress, user, isTutorial, showTutorialToast, forcedEffectKey, showToast, lang, incrementThemeCompleted]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
     window.setTimeout(() => completeTask(taskId), PERFECT_TIMING_STATE_DEFER_MS);
@@ -814,7 +866,7 @@ function AppContent() {
       <div
         className="pd-app-container"
         style={{
-          minHeight: 'calc(100vh + 80px)',
+          minHeight: 0,
           display: 'flex',
           flexDirection: 'column',
           paddingBottom: focusZenOpen
@@ -824,8 +876,7 @@ function AppContent() {
               : 'calc(56px + env(safe-area-inset-bottom))',
         }}
       >
-      <WorldLayer themeKey={visualTheme} completedCount={worldCompleted} />
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, paddingBottom: '48px' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {pathname === '/pricing' ? (
           <PricingPage />
         ) : pathname === '/account' ? (
@@ -836,7 +887,7 @@ function AppContent() {
           <EffectRequestPage />
         ) : isCollectionScreen ? (
           <CollectionPage
-            key={`${collectionInitialTab}-${collectionInitialEffectKey ?? ''}`}
+            key={`${collectionInitialTab}-${collectionInitialFilter ?? ''}-${collectionInitialEffectKey ?? ''}`}
             lang={lang}
             isPremium={isPremium}
             activeEffects={activeEffects}
@@ -845,6 +896,7 @@ function AppContent() {
             changeTheme={changeTheme}
             colorMode={colorMode}
             initialTab={collectionInitialTab}
+            initialFilter={collectionInitialFilter as any}
             initialEffectKey={collectionInitialEffectKey}
             ownedChallengeEffects={ownedChallengeEffects}
             challengeProgressMap={challengeProgressMap}
@@ -873,7 +925,15 @@ function AppContent() {
             onSmash={handleSmash}
             onNavigateToSmashList={navigateToSmashList}
             onNavigateToFocus={navigateToFocus}
+            onNavigateToCollection={() => { playSound('buttonClick'); setCollectionInitialTab('effects'); setCollectionInitialFilter('CHALLENGE'); setActiveScreen('collection'); }}
             onOpenSignup={() => setSignupOpen(true)}
+            onDismissTutorial={(action) => {
+              // Delete the Tutorial list and navigate accordingly
+              if (currentList && isTutorial) {
+                deleteList(currentList.id, lists);
+              }
+              if (action === 'pricing') navigate('/pricing');
+            }}
             onOpenListModal={setListModal}
             anyShellModalOpen={anyShellModalOpen}
           />
@@ -1013,7 +1073,7 @@ function AppContent() {
           activeScreen={isSubPage ? null : activeScreen}
           onSelect={(screen) => {
             playSound('buttonClick');
-            if (screen === 'collection') setCollectionInitialEffectKey(null);
+            if (screen === 'collection') { setCollectionInitialEffectKey(null); setCollectionInitialFilter(undefined); }
             setActiveScreen(screen);
             if (isSubPage) navigate('/');
             }}
@@ -1078,98 +1138,104 @@ function AppContent() {
         </div>
       )}
 
-      <footer style={{
-        textAlign: 'center',
-        padding: '12px 16px 14px',
-        fontSize: '0.6875rem',
-        color: 'var(--pd-color-text-muted)',
-        borderTop: '1px solid var(--pd-color-border-default)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '10px',
-        flexShrink: 0,
-        marginTop: 'auto',
-      }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-            gap: '16px',
-          }}
-        >
-          <a
-            href="/tokushoho.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'inherit', textDecoration: 'none' }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-          >
-            {lang === 'ja' ? '特定商取引法に基づく表示' : 'Commerce Disclosure'}
-          </a>
-          <a
-            href="/privacy.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'inherit', textDecoration: 'none' }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-          >
-            {lang === 'ja' ? 'プライバシーポリシー' : 'Privacy Policy'}
-          </a>
-          <a
-            href="/terms.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'inherit', textDecoration: 'none' }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-          >
-            {lang === 'ja' ? '利用規約' : 'Terms of Service'}
-          </a>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px',
-            fontFamily: 'var(--pd-font-body)',
-            lineHeight: 1.5,
-          }}
-        >
-          <span>
-            Created by{' '}
-            <a
-              href="https://akihiro-uezono.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: 'inherit', textDecoration: 'none' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-            >
-              Akihiro Uezono
-            </a>
-          </span>
-          <span>© 2026 PixDone</span>
-        </div>
-        <a
-          href="https://www.producthunt.com/products/pixdone-todo-app-with-pixel-effects?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-pixdone"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img
-            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1119592&theme=light&t=1776156649500"
-            alt="PixDone - Earn random pixel rewards every time you smash a task | Product Hunt"
-            width={250}
-            height={54}
-          />
-        </a>
-      </footer>
       {/* Footer legal links intentionally shown even when menu hides them. */}
     </div>
+
+    <WorldLayer
+      themeKey={visualTheme}
+      cabinetCount={(() => { const p = new URLSearchParams(window.location.search).get('wlv'); return p !== null ? [0,1,3,5,6][Math.min(Number(p),4)] ?? 0 : themeStats.cabinetCount; })()}
+      agentCount={(() => { const p = new URLSearchParams(window.location.search).get('wagent'); return p !== null ? Number(p) : worldAgentCount; })()}
+    />
+
+    <footer style={{
+      textAlign: 'center',
+      padding: '12px 16px 14px',
+      fontSize: '0.6875rem',
+      color: 'var(--pd-color-text-muted)',
+      borderTop: '1px solid var(--pd-color-border-default)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '10px',
+      flexShrink: 0,
+    }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+        }}
+      >
+        <a
+          href="/tokushoho.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'inherit', textDecoration: 'none' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+        >
+          {lang === 'ja' ? '特定商取引法に基づく表示' : 'Commerce Disclosure'}
+        </a>
+        <a
+          href="/privacy.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'inherit', textDecoration: 'none' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+        >
+          {lang === 'ja' ? 'プライバシーポリシー' : 'Privacy Policy'}
+        </a>
+        <a
+          href="/terms.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'inherit', textDecoration: 'none' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+        >
+          {lang === 'ja' ? '利用規約' : 'Terms of Service'}
+        </a>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '4px',
+          fontFamily: 'var(--pd-font-body)',
+          lineHeight: 1.5,
+        }}
+      >
+        <span>
+          Created by{' '}
+          <a
+            href="https://akihiro-uezono.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'inherit', textDecoration: 'none' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+          >
+            Akihiro Uezono
+          </a>
+        </span>
+        <span>© 2026 PixDone</span>
+      </div>
+      <a
+        href="https://www.producthunt.com/products/pixdone-todo-app-with-pixel-effects?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-pixdone"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1119592&theme=light&t=1776156649500"
+          alt="PixDone - Earn random pixel rewards every time you smash a task | Product Hunt"
+          width={250}
+          height={54}
+        />
+      </a>
+    </footer>
     </>
   );
 }

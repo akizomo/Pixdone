@@ -41,6 +41,60 @@
           }
         }
       }
+    },
+    "arcade": {
+      "world": {
+        "wall": {
+          "$value": "#c8b99a",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-arcade-world-wall",
+              "set": "themeArcadeLight"
+            }
+          }
+        },
+        "floor": {
+          "$value": "#a07850",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-arcade-world-floor",
+              "set": "themeArcadeLight"
+            }
+          }
+        },
+        "trim": {
+          "$value": "#7a5c38",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-arcade-world-trim",
+              "set": "themeArcadeLight"
+            }
+          }
+        },
+        "bitBody": {
+          "$value": "#4ecdc4",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-arcade-world-bit-body",
+              "set": "themeArcadeLight"
+            }
+          }
+        },
+        "bitEye": {
+          "$value": "#2c2c2c",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-arcade-world-bit-eye",
+              "set": "themeArcadeLight"
+            }
+          }
+        }
+      }
     }
   }
 }

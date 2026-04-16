@@ -22,5 +22,21 @@ service cloud.firestore {
       allow read, update, delete: if request.auth != null
         && resource.data.uid == request.auth.uid;
     }
+
+    // themeStats コレクション: テーマ別の累計タスク完了数
+    match /themeStats/{docId} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      allow read, update, delete: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+    }
+
+    // activityDays コレクション: 直近7日間のログイン日記録
+    match /activityDays/{docId} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      allow read, update, delete: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+    }
   }
 }
