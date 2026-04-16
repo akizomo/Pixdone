@@ -297,7 +297,7 @@ function AppContent() {
 
   // World Growth System
   const { stats: themeStats, incrementCompleted: incrementThemeCompleted } = useThemeStats(visualTheme);
-  const { activityLevel, recordToday } = useActivityDays();
+  const { activityLevel, totalLoginDays, recordToday } = useActivityDays();
   const worldAgentCount = calcAgentCount(themeStats.level, activityLevel);
 
   /* ---- World Growth: record today's activity ---- */
@@ -920,6 +920,8 @@ function AppContent() {
             user={user}
             isDesktop={isDesktop}
             hasFinePointer={hasFinePointer}
+            totalTasksCompleted={themeStats.tasksCompleted}
+            totalLoginDays={totalLoginDays}
             onComplete={handleComplete}
             onUncomplete={handleUncomplete}
             onSmash={handleSmash}
@@ -954,45 +956,6 @@ function AppContent() {
         onClose={() => { playSound('taskCancel'); setListModal(null); }}
       />
 
-      {/* PH review request banner — shown once after first smash on day 3+ */}
-      <ModalDialog
-        open={phBannerOpen}
-        onClose={() => setPhBannerOpen(false)}
-        title={lang === 'ja' ? 'PixDone を気に入ってくれた？' : 'Enjoying PixDone?'}
-        aria-label="Product Hunt review request"
-        actions={
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
-            <Button
-              variant="secondary"
-              size="sm"
-              soundKey="taskCancel"
-              onClick={() => {
-                dismissPhBanner();
-                setPhBannerOpen(false);
-              }}
-            >
-              {lang === 'ja' ? 'あとで' : 'LATER'}
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => {
-                dismissPhBanner();
-                setPhBannerOpen(false);
-                window.open(PH_REVIEW_URL, '_blank', 'noopener,noreferrer');
-              }}
-            >
-              {lang === 'ja' ? 'レビューを書く' : 'WRITE A REVIEW'}
-            </Button>
-          </div>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--pd-color-text-secondary)', lineHeight: 1.6 }}>
-          {lang === 'ja'
-            ? 'Product Hunt でレビューを書いてくれると、開発を続ける大きな力になります！'
-            : 'A quick review on Product Hunt would mean the world and help us keep building!'}
-        </p>
-      </ModalDialog>
 
       {/* Theme modal */}
       <ModalDialog
@@ -1065,6 +1028,32 @@ function AppContent() {
           </div>
         </div>
       </ModalDialog>
+
+      {/* PH review request — inline banner above BottomNav */}
+      {phBannerOpen && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px',
+          padding: '8px 16px',
+          fontSize: '0.75rem',
+          fontFamily: 'var(--pd-font-body)',
+          color: 'var(--pd-color-text-secondary)',
+          background: 'var(--pd-color-background-elevated)',
+          borderTop: '1px solid var(--pd-color-border-default)',
+        }}>
+          <span>{lang === 'ja' ? 'PixDone を気に入った？レビューで応援してね' : 'Enjoying PixDone? Leave a review!'}</span>
+          <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+            <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={() => { dismissPhBanner(); setPhBannerOpen(false); }}>
+              {lang === 'ja' ? '閉じる' : 'DISMISS'}
+            </Button>
+            <Button variant="primary" size="sm" onClick={() => { dismissPhBanner(); setPhBannerOpen(false); window.open(PH_REVIEW_URL, '_blank', 'noopener,noreferrer'); }}>
+              {lang === 'ja' ? 'レビュー' : 'REVIEW'}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Bottom navigation */}
       {!focusZenOpen && (

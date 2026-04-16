@@ -31,6 +31,8 @@ export interface TasksScreenProps {
   onComplete: (taskId: string) => void;
   onUncomplete: (taskId: string) => void;
   onSmash: (taskId: string) => void;
+  totalTasksCompleted: number;
+  totalLoginDays: number | null;
   onNavigateToSmashList: () => void;
   onNavigateToFocus: () => void;
   onNavigateToCollection: () => void;
@@ -46,6 +48,8 @@ export function TasksScreen({
   hasFinePointer,
   onComplete,
   onUncomplete,
+  totalTasksCompleted,
+  totalLoginDays,
   onSmash,
   onNavigateToSmashList,
   onNavigateToFocus,
@@ -365,6 +369,23 @@ export function TasksScreen({
 
   return (
     <>
+      {/* Score counter */}
+      <div
+        style={{
+          fontFamily: 'var(--pd-font-brand)',
+          fontSize: '0.875rem',
+          color: 'var(--pd-color-text-muted)',
+          padding: '4px 0',
+          letterSpacing: '0.05em',
+        }}
+      >
+        <span style={{ fontSize: '1.125rem', color: 'var(--pd-color-text-primary)' }}>{totalTasksCompleted ?? '---'}</span>
+        <span> TASKS</span>
+        <span style={{ margin: '0 6px', opacity: 0.5 }}>·</span>
+        <span style={{ fontSize: '1.125rem', color: 'var(--pd-color-text-primary)' }}>{totalLoginDays ?? '--'}</span>
+        <span> DAYS</span>
+      </div>
+
       <ListTabs
         lists={listTabsOrder}
         activeListId={activeListId}

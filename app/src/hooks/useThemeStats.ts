@@ -1,10 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { doc, onSnapshot, setDoc, increment } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useFirestoreCounter } from './useFirestoreCounter';
 import type { ThemeKey } from '../design-system/themes/themeRegistry';
-
-const LS_KEY_PREFIX = 'pixdone-theme-stats-';
 
 // Lv thresholds and cabinet counts
 const LEVEL_TABLE = [
@@ -33,74 +30,17 @@ function deriveStats(tasksCompleted: number): ThemeStats {
 
 export function useThemeStats(themeKey: ThemeKey) {
   const { user } = useAuth();
-  const [stats, setStats] = useState<ThemeStats>(() => {
-    if (!user) {
-      try {
-        const stored = parseInt(localStorage.getItem(LS_KEY_PREFIX + themeKey) ?? '0', 10) || 0;
-        return deriveStats(stored);
-      } catch { return deriveStats(0); }
-    }
-    return deriveStats(0);
+
+  const docPath = user ? `themeStats/${user.uid}_${themeKey}` : null;
+
+  const { count, incrementCount } = useFirestoreCounter({
+    docPath,
+    localStorageKey: `pixdone-theme-stats-${themeKey}`,
+    field: 'tasksCompleted',
+    createFields: user ? { uid: user.uid, themeId: themeKey } : undefined,
   });
 
-  const themeKeyRef = useRef(themeKey);
-  themeKeyRef.current = themeKey;
+  const stats = useMemo(() => deriveStats(count), [count]);
 
-  // Firestore sync
-  useEffect(() => {
-    if (!user) {
-      // Load from localStorage for unauthenticated users
-      try {
-        const stored = parseInt(localStorage.getItem(LS_KEY_PREFIX + themeKey) ?? '0', 10) || 0;
-        setStats(deriveStats(stored));
-      } catch { setStats(deriveStats(0)); }
-      return;
-    }
-
-    const docId = `${user.uid}_${themeKey}`;
-    const docRef = doc(db, 'themeStats', docId);
-
-    const unsub = onSnapshot(docRef, (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        setStats(deriveStats(data.tasksCompleted ?? 0));
-      } else {
-        setStats(deriveStats(0));
-      }
-    }, (err) => {
-      console.warn('[useThemeStats] onSnapshot error:', err);
-    });
-
-    return unsub;
-  }, [user, themeKey]);
-
-  const incrementCompleted = useCallback(async () => {
-    const key = themeKeyRef.current;
-
-    if (!user) {
-      // localStorage fallback
-      try {
-        const prev = parseInt(localStorage.getItem(LS_KEY_PREFIX + key) ?? '0', 10) || 0;
-        const next = prev + 1;
-        localStorage.setItem(LS_KEY_PREFIX + key, String(next));
-        setStats(deriveStats(next));
-      } catch { /* ignore */ }
-      return;
-    }
-
-    const docId = `${user.uid}_${key}`;
-    const docRef = doc(db, 'themeStats', docId);
-
-    try {
-      await setDoc(docRef, {
-        uid: user.uid,
-        themeId: key,
-        tasksCompleted: increment(1),
-      }, { merge: true });
-    } catch (err) {
-      console.warn('[useThemeStats] increment failed:', err);
-    }
-  }, [user]);
-
-  return { stats, incrementCompleted };
+  return { stats, incrementCompleted: incrementCount };
 }

@@ -313,15 +313,19 @@ export function useLists() {
       where('uid', '==', user.uid),
     );
 
+    let autoCreateFired = false;
+
     const unsubLists = onSnapshot(listsQuery, (snap) => {
-      // Firestore にリストが0件 → デフォルトリストを自動作成
+      // Firestore にリストが0件 → デフォルトリストを1回だけ自動作成
       if (snap.empty) {
-        addDoc(collection(db, 'lists'), {
-          uid: user.uid,
-          name: 'My Tasks',
-          createdAt: Timestamp.now(),
-        }).catch((e) => console.warn('[useLists] auto-create default list failed:', e));
-        // onSnapshot が再度発火するので、ここでは return
+        if (!autoCreateFired) {
+          autoCreateFired = true;
+          addDoc(collection(db, 'lists'), {
+            uid: user.uid,
+            name: 'My Tasks',
+            createdAt: Timestamp.now(),
+          }).catch((e) => console.warn('[useLists] auto-create default list failed:', e));
+        }
         return;
       }
 

@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useFirestoreCounter } from './useFirestoreCounter';
 
 export type ActivityLevel = 'high' | 'mid' | 'low';
 
-const LS_KEY = 'pixdone-activity-days';
+const LS_DAYS_KEY = 'pixdone-activity-days';
 const RETENTION_DAYS = 7;
 
 function todayISO(): string {
@@ -41,18 +42,34 @@ export function calcAgentCount(level: number, activityLevel: ActivityLevel): num
   return entry[activityLevel];
 }
 
+function readDaysLS(): string[] {
+  try {
+    const stored = JSON.parse(localStorage.getItem(LS_DAYS_KEY) ?? '[]');
+    return Array.isArray(stored) ? stored : [];
+  } catch { return []; }
+}
+
+function writeDaysLS(days: string[]): void {
+  try { localStorage.setItem(LS_DAYS_KEY, JSON.stringify(days)); } catch { /* ignore */ }
+}
+
 export function useActivityDays() {
   const { user } = useAuth();
-  const [activityLevel, setActivityLevel] = useState<ActivityLevel>('low');
+  const [activityLevel, setActivityLevel] = useState<ActivityLevel>(() => calcActivityLevel(readDaysLS()));
   const recordedRef = useRef(false);
 
-  // Firestore sync
+  // totalLoginDays via shared counter helper
+  const { count: totalLoginDays, incrementCount: incrementLoginDays } = useFirestoreCounter({
+    docPath: user ? `activityDays/${user.uid}` : null,
+    localStorageKey: 'pixdone-total-login-days',
+    field: 'totalLoginDays',
+    createFields: user ? { uid: user.uid } : undefined,
+  });
+
+  // Sync activity level from Firestore days array
   useEffect(() => {
     if (!user) {
-      try {
-        const stored = JSON.parse(localStorage.getItem(LS_KEY) ?? '[]');
-        setActivityLevel(calcActivityLevel(Array.isArray(stored) ? stored : []));
-      } catch { setActivityLevel('low'); }
+      setActivityLevel(calcActivityLevel(readDaysLS()));
       return;
     }
 
@@ -79,30 +96,36 @@ export function useActivityDays() {
     const today = todayISO();
 
     if (!user) {
-      try {
-        const stored = JSON.parse(localStorage.getItem(LS_KEY) ?? '[]');
-        const days: string[] = Array.isArray(stored) ? stored : [];
-        if (!days.includes(today)) days.push(today);
-        const pruned = pruneDays(days);
-        localStorage.setItem(LS_KEY, JSON.stringify(pruned));
-        setActivityLevel(calcActivityLevel(pruned));
-      } catch { /* ignore */ }
+      const days = readDaysLS();
+      const isNew = !days.includes(today);
+      if (isNew) {
+        days.push(today);
+        incrementLoginDays();
+      }
+      const pruned = pruneDays(days);
+      writeDaysLS(pruned);
+      setActivityLevel(calcActivityLevel(pruned));
       return;
     }
 
     const docRef = doc(db, 'activityDays', user.uid);
     try {
-      // Read current, add today, prune, write back
       const { getDoc } = await import('firebase/firestore');
       const snap = await getDoc(docRef);
       const existing: string[] = snap.exists() ? (snap.data().days ?? []) : [];
-      if (!existing.includes(today)) existing.push(today);
+      const isNew = !existing.includes(today);
+      if (isNew) existing.push(today);
       const pruned = pruneDays(existing);
+
+      // Write days array (non-counter field, use setDoc directly)
       await setDoc(docRef, { uid: user.uid, days: pruned }, { merge: true });
+
+      // Increment totalLoginDays counter via shared helper (handles optimistic + Firestore)
+      if (isNew) incrementLoginDays();
     } catch (err) {
       console.warn('[useActivityDays] recordToday failed:', err);
     }
-  }, [user]);
+  }, [user, incrementLoginDays]);
 
-  return { activityLevel, recordToday };
+  return { activityLevel, totalLoginDays, recordToday };
 }
