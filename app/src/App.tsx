@@ -18,7 +18,7 @@ import { playSound, getSoundEnabled } from './services/sound';
 import { initSoundEngine } from './services/soundEngine';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useThemeEntitlements } from './hooks/useThemeEntitlements';
-import { useEffectProgress } from './hooks/useEffectProgress';
+import { useEffectProgress, bumpPending } from './hooks/useEffectProgress';
 import { useActiveChallenge } from './hooks/useActiveChallenge';
 import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
@@ -139,7 +139,7 @@ function AppContent() {
 
   /* ---- Sync user plan to vanilla effect engine ---- */
   const { plan: userPlan, isPremium } = useThemeEntitlements();
-  const { progress: effectProgressMap, ownedChallengeEffects, challengeProgressMap, optimisticIncrement } = useEffectProgress();
+  const { progress: effectProgressMap, ownedChallengeEffects, challengeProgressMap, optimisticIncrement, flushPending } = useEffectProgress();
   const activeChallenge = useActiveChallenge(challengeProgressMap, ownedChallengeEffects);
   useEffect(() => {
     const w = window as unknown as {
@@ -336,7 +336,14 @@ function AppContent() {
     if (countedTaskIds.current.has(taskId)) return;
     countedTaskIds.current.add(taskId);
 
-    if (!activeChallenge || activeChallenge.isCompleted) return;
+    if (!activeChallenge) return;
+
+    if (activeChallenge.isCompleted) {
+      // Challenge already unlocked — still send POST so server can track evolution progress
+      bumpPending();
+      void flushPending();
+      return;
+    }
 
     // Optimistic: bump local progress + owned (if threshold reached) + queue pending POST
     optimisticIncrement(activeChallenge.effect.key, activeChallenge.threshold);
@@ -364,7 +371,7 @@ function AppContent() {
         duration: 8000,
       });
     }
-  }, [activeChallenge, optimisticIncrement, showToast, lang]);
+  }, [activeChallenge, optimisticIncrement, flushPending, showToast, lang]);
 
   /* ---- Tutorial toast messages (per task) ---- */
   const showTutorialToast = useCallback((taskId: string, effectRarity?: string) => {
