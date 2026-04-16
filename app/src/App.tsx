@@ -471,7 +471,7 @@ function AppContent() {
 
     showToast({
       message: lang === 'ja' ? msg.ja : msg.en,
-      duration: 5000,
+      duration: 2500,
     });
   }, [lang, showToast]);
 
