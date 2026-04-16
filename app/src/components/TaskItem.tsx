@@ -24,6 +24,7 @@ export interface TaskItemProps {
   reorderSource?: boolean;
   onTutorialSmashLinkClick?: () => void;
   onTutorialFocusLinkClick?: () => void;
+  onTutorialChallengeLinkClick?: () => void;
   titleSlot?: ReactNode;
 }
 
@@ -48,6 +49,7 @@ export const TaskItem = memo(function TaskItem({
   reorderSource = false,
   onTutorialSmashLinkClick,
   onTutorialFocusLinkClick,
+  onTutorialChallengeLinkClick,
   titleSlot,
 }: TaskItemProps) {
   const [showMoveMenu, setShowMoveMenu] = useState(false);
@@ -60,6 +62,7 @@ export const TaskItem = memo(function TaskItem({
   const dueStatus = getDueStatus(task.dueDate);
   const isTutorialSmashTask = task.id === 'tutorial-3';
   const isTutorialFocusTask = task.id === 'tutorial-4';
+  const isTutorialChallengeTask = task.id === 'tutorial-5';
   const details = (task.details ?? '').trim();
 
   const rowClass = [
@@ -165,6 +168,22 @@ export const TaskItem = memo(function TaskItem({
                 <span>{t('tutorialTask4Link', lang)}</span>
               )}
               {t('tutorialTask4After', lang)}
+            </>
+          ) : isTutorialChallengeTask ? (
+            <>
+              {t('tutorialTask5Before', lang)}
+              {onTutorialChallengeLinkClick ? (
+                <a
+                  href="#pd-nav-collection"
+                  className={`task-item__link${task.completed ? ' task-item__link--completed' : ''}`}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); playSound('buttonClick'); onTutorialChallengeLinkClick(); }}
+                >
+                  {t('tutorialTask5Link', lang)}
+                </a>
+              ) : (
+                <span>{t('tutorialTask5Link', lang)}</span>
+              )}
+              {t('tutorialTask5After', lang)}
             </>
           ) : (
             renderTextWithLinks(displayTitle)

@@ -25,6 +25,7 @@ export interface CollectionPageProps {
   changeTheme: (key: ThemeKey) => void | Promise<void>;
   colorMode: 'light' | 'dark';
   initialTab?: 'effects' | 'themes';
+  initialFilter?: FilterKey;
   initialEffectKey?: string | null;
   ownedChallengeEffects?: string[];
   challengeProgressMap?: Record<string, number>;
@@ -41,6 +42,7 @@ export function CollectionPage({
   changeTheme,
   colorMode,
   initialTab = 'effects',
+  initialFilter,
   initialEffectKey = null,
   ownedChallengeEffects = [],
   challengeProgressMap = {},
@@ -51,8 +53,8 @@ export function CollectionPage({
   const [selectedEffect, setSelectedEffect] = useState<string | null>(initialEffectKey);
   const [selectedTheme, setSelectedTheme] = useState<ThemeKey | null>(null);
   const [isDesktop, setIsDesktop] = useState(() => window.matchMedia('(min-width: 768px)').matches);
-  const [desktopFilter, setDesktopFilter] = useState<FilterKey>('ALL');
-  const [mobileFilter, setMobileFilter] = useState<FilterKey>('ALL');
+  const [desktopFilter, setDesktopFilter] = useState<FilterKey>(initialFilter ?? 'ALL');
+  const [mobileFilter, setMobileFilter] = useState<FilterKey>(initialFilter ?? 'ALL');
 
   const desktopEffects = useMemo(() => {
     if (!isDesktop || activeTab !== 'effects') return [];
