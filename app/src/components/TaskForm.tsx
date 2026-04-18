@@ -81,6 +81,16 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
   const [editingSubtaskText, setEditingSubtaskText] = useState('');
   const [showListMenu, setShowListMenu] = useState(false);
+  // Mobile compact layout: chip-anchored popovers + subtask panel state
+  const [showDateMenu, setShowDateMenu] = useState(false);
+  const [showSubtasksPanel, setShowSubtasksPanel] = useState(false);
+  /** Mobile compact: selected list shown in the bottom-left list chip. */
+  const [selectedListId, setSelectedListId] = useState<string>(task?.listId ?? listId);
+
+  useEffect(() => {
+    // Keep selectedListId in sync when the sheet reopens with a different list.
+    setSelectedListId(task?.listId ?? listId);
+  }, [listId, task?.listId]);
 
   const titleRef = useRef<HTMLDivElement>(null);
   const subtaskInputRef = useRef<HTMLInputElement>(null);
@@ -133,8 +143,20 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
     if (showRepeat) { setShowRepeat(false); setShowCustom(false); dismissed = true; }
     if (showPriority) { setShowPriority(false); dismissed = true; }
     if (showListMenu) { setShowListMenu(false); dismissed = true; }
+    if (showDateMenu) { setShowDateMenu(false); dismissed = true; }
     return dismissed;
-  }, [showRepeat, showPriority, showListMenu]);
+  }, [showRepeat, showPriority, showListMenu, showDateMenu]);
+
+  const handleListChange = useCallback((id: string) => {
+    playSound('buttonClick');
+    setSelectedListId(id);
+    onListChange?.(id);
+    // Edit mode: move the task immediately (mirrors the desktop toolbar behavior).
+    if (task && onMoveToList && id !== task.listId) {
+      onMoveToList(task.id, id);
+    }
+    setShowListMenu(false);
+  }, [task, onListChange, onMoveToList]);
 
   const saveIfDirty = useCallback(() => {
     const trimmed = title.trim();

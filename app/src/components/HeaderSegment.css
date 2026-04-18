@@ -1,0 +1,43 @@
+/* HeaderSegment — mobile Tasks/Focus switcher in header */
+
+.pd-header-segment {
+  display: inline-flex;
+  border: 2px solid var(--pd-color-border-default);
+  box-shadow: 2px 2px 0 var(--pd-color-shadow-default);
+  background: var(--pd-color-background-elevated);
+  image-rendering: pixelated;
+}
+
+.pd-header-segment__tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  min-width: 44px;
+  min-height: 32px;
+  background: none;
+  border: none;
+  color: var(--pd-color-text-secondary);
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.pd-header-segment__tab + .pd-header-segment__tab {
+  border-left: 2px solid var(--pd-color-border-default);
+}
+
+.pd-header-segment__tab--active {
+  background: var(--pd-color-background-hover);
+  color: var(--pd-color-accent-default);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pd-header-segment__tab:not(.pd-header-segment__tab--active):hover {
+    color: var(--pd-color-text-primary);
+  }
+}
+
+.pd-header-segment__icon {
+  font-size: 20px;
+  line-height: 1;
+}

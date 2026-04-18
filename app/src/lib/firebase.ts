@@ -16,9 +16,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
-
-// Analytics はブラウザ環境でのみ初期化（SSR / テスト時はスキップ）
+export const db = getFirestore(app);// Analytics はブラウザ環境でのみ初期化（SSR / テスト時はスキップ）
 export let analytics: Analytics | null = null;
 
 isSupported().then((supported) => {
