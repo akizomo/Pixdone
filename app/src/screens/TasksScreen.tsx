@@ -1,6 +1,6 @@
 import {
   useState, useCallback, useEffect, useRef, useMemo,
-  type MutableRefObject,
+  type MutableRefObject, type ReactNode,
 } from 'react';
 import { useListsData, useListsActions } from '../features/ListsContext';
 import { useKeyboardNav } from '../hooks/useKeyboardNav';
@@ -40,6 +40,14 @@ export interface TasksScreenProps {
   anyShellModalOpen: boolean;
   /** Incremented by the shell to force-open the add-task form (used by onboarding). */
   autoOpenAddTaskNonce?: number;
+  /** When true, the FAB-triggered add form prefills the title (first-task tour). */
+  isOnboardingTour?: boolean;
+  /** Shell-level edit request forwarded from Today/Plan views (mobile bottom sheet). */
+  pendingEditRequest?: { taskId: string; nonce: number } | null;
+  /** Callback fired after TasksScreen consumes `pendingEditRequest` so the shell can clear it. */
+  onConsumePendingEditRequest?: () => void;
+  /** Optional node rendered at the bottom of the task-list scroll area (e.g. WorldLayer). */
+  worldSlot?: ReactNode;
 }
 
 export function TasksScreen({
@@ -57,6 +65,10 @@ export function TasksScreen({
   onOpenListModal,
   anyShellModalOpen,
   autoOpenAddTaskNonce,
+  isOnboardingTour,
+  pendingEditRequest,
+  onConsumePendingEditRequest,
+  worldSlot,
 }: TasksScreenProps) {
   const { lists, activeListId, currentList, listLimitUpsellOpen } = useListsData();
   const {
@@ -189,15 +201,41 @@ export function TasksScreen({
   }, [activeListId]);
 
   // Shell (onboarding) may force-open the add-task form by incrementing the nonce.
-  const lastConsumedNonce = useRef(0);
+  // Seed the ref with the nonce at mount so a stale value from another view
+  // (e.g. FAB tap while on Today) does not auto-open the form when TasksScreen
+  // mounts for the first time.
+  const lastConsumedNonce = useRef(autoOpenAddTaskNonce ?? 0);
   useEffect(() => {
     if (!autoOpenAddTaskNonce || autoOpenAddTaskNonce === lastConsumedNonce.current) return;
     lastConsumedNonce.current = autoOpenAddTaskNonce;
     setTaskFormMode('add');
     if (!hasFinePointer) {
-      window.requestAnimationFrame(() => mobileTaskSheetRef.current?.openAdd());
+      const prefill = isOnboardingTour ? t('tutorialFirstTaskPrefill', lang) : undefined;
+      window.requestAnimationFrame(() =>
+        mobileTaskSheetRef.current?.openAdd(prefill ? { initialTitle: prefill } : undefined),
+      );
     }
-  }, [autoOpenAddTaskNonce, hasFinePointer]);
+  }, [autoOpenAddTaskNonce, hasFinePointer, isOnboardingTour, lang]);
+
+  // Shell forwards edit requests from Today/Plan via pendingEditRequest.
+  // Init ref to 0 (not the incoming nonce) so the first request always fires on
+  // mount; the shell clears the request after consumption to prevent re-fires.
+  const lastConsumedEditNonce = useRef(0);
+  useEffect(() => {
+    if (!pendingEditRequest) return;
+    if (pendingEditRequest.nonce === lastConsumedEditNonce.current) return;
+    // Only consume when the request points at a task in the active list.
+    // Otherwise wait for setActiveList to settle on the next render.
+    if (!allTasks.some((t) => t.id === pendingEditRequest.taskId)) return;
+    lastConsumedEditNonce.current = pendingEditRequest.nonce;
+    if (hasFinePointer) {
+      setTaskFormMode(pendingEditRequest.taskId);
+    } else {
+      const id = pendingEditRequest.taskId;
+      window.requestAnimationFrame(() => mobileTaskSheetRef.current?.openEdit(id));
+    }
+    onConsumePendingEditRequest?.();
+  }, [pendingEditRequest, hasFinePointer, allTasks, onConsumePendingEditRequest]);
 
   // Touch-first UI: switch from inline to mobile sheet when viewport changes
   useEffect(() => {
@@ -341,10 +379,17 @@ export function TasksScreen({
     (from: number, to: number) => {
       const lid = currentList?.id;
       if (!lid || from === to) return;
-      reorderActiveTasks(lid, from, to);
+      const ids = activeTasks.map((t) => t.id);
+      if (from < 0 || from >= ids.length || to < 0 || to >= ids.length) return;
+      const [moved] = ids.splice(from, 1);
+      ids.splice(to, 0, moved);
+      reorderActiveTasks(lid, ids);
+      if (sortMode !== 'manual') {
+        setListSortMode(lid, 'manual');
+      }
       playSound('buttonClick');
     },
-    [currentList?.id, reorderActiveTasks],
+    [currentList?.id, activeTasks, sortMode, reorderActiveTasks, setListSortMode],
   );
 
   const onReorderModeStart = useCallback(() => {
@@ -360,7 +405,6 @@ export function TasksScreen({
       enabled:
         !anyModalOpen &&
         !isSmash &&
-        sortMode === 'manual' &&
         activeTasks.length >= 2,
       slotCount: activeTasks.length,
       onReorder: handleReorderActive,
@@ -391,7 +435,7 @@ export function TasksScreen({
           getTabLabel={getTabLabel}
           getTabCount={getTabCount}
           lang={lang}
-          canContextMenu={(list) => list.id !== 'smash-list' && !list.id.startsWith('tutorial')}
+          canContextMenu={(list) => list.id !== 'smash-list' && list.id !== 'default' && !list.id.startsWith('tutorial')}
         />
       </div>
 
@@ -404,7 +448,7 @@ export function TasksScreen({
         sortMode={sortMode}
         onChangeSort={!isSmash && currentList ? (mode) => setListSortMode(currentList.id, mode) : undefined}
         onRename={() => onOpenListModal({ mode: 'rename', listId: currentList?.id })}
-        onDelete={() => onOpenListModal({ mode: 'delete', listId: currentList?.id })}
+        onDelete={currentList?.id === 'default' ? undefined : () => onOpenListModal({ mode: 'delete', listId: currentList?.id })}
       />
 
       {/* Add task button (desktop only) / inline form */}
@@ -458,7 +502,7 @@ export function TasksScreen({
         ref={setMainScrollRef}
         key={activeListId}
         className={['pd-task-area', 'pd-list-enter', 'pd-list-swipe', listSlideClass].filter(Boolean).join(' ')}
-        style={{ flex: 1, overflowY: 'auto' }}
+        style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
       >
         {isSmash ? (
           <SmashListPanel
@@ -586,6 +630,7 @@ export function TasksScreen({
                     ref={taskFormRef}
                     lang={lang}
                     listId={currentList?.id ?? ''}
+                    initialTitle={isOnboardingTour ? t('tutorialFirstTaskPrefill', lang) : undefined}
                     onSave={handleTaskFormSave}
                     onCancel={handleTaskFormCancel}
                   />
@@ -686,6 +731,7 @@ export function TasksScreen({
             )}
           </div>
         )}
+        {worldSlot}
       </div>
 
       </>

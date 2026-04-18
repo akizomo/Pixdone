@@ -5,9 +5,12 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu, TextLink, PixelIcon } from './design-system';
 import {
-  ThemeSelector, ListModal, AuthModal, BottomNav,
+  ThemeSelector, ListModal, AuthModal, BottomNav, HeaderSegment,
 } from './components';
-import type { ListModalMode, ActiveScreen } from './components';
+import type { ListModalMode, MobileSubView } from './components';
+
+/** Main screens on mobile + desktop. Sub-pages are URL-routed separately. */
+type ActiveScreen = 'tasks' | 'focus' | 'collection';
 import { ListsProvider, useListsData, useListsActions } from './features/ListsContext';
 import { TasksScreen } from './screens/TasksScreen';
 import { FocusScreenContainer } from './screens/FocusScreenContainer';
@@ -41,12 +44,13 @@ import { useHasSeenTutorial } from './hooks/useHasSeenTutorial';
 import { WorldLayer } from './components/WorldLayer';
 import { AgentIcon } from './components/AgentIcon';
 import { OnboardingTutorial } from './components/OnboardingTutorial';
+import { MobileTaskSheet } from './components/MobileTaskSheet';
+import type { MobileTaskSheetHandle } from './components/MobileTaskSheet';
 import { SidePanel, type SidePanelView } from './components/SidePanel';
 import { useTodayView } from './hooks/useTodayView';
 import { usePlanView } from './hooks/usePlanView';
 import { TodayView } from './components/TodayView';
 import { PlanView } from './components/PlanView';
-import { MobileSubMenu, type MobileSubView } from './components/MobileSubMenu';
 import { FocusWidget } from './components/FocusWidget';
 import { useScrollDirection } from './hooks/useScrollDirection';
 import { FocusZenMode } from './components/FocusZenMode';
@@ -278,7 +282,23 @@ function AppContent() {
   }, [markTutorialSeen]);
 
   const [autoOpenAddTaskNonce, setAutoOpenAddTaskNonce] = useState(0);
+  /** Carries an edit-task request from Today/Plan views to TasksScreen. */
+  const [pendingEditRequest, setPendingEditRequest] = useState<{ taskId: string; nonce: number } | null>(null);
+
+  const handleEditFromViews = useCallback((taskId: string) => {
+    const host = lists.find((l) => l.tasks.some((t) => t.id === taskId));
+    if (!host) return;
+    if (host.id !== currentList?.id) setActiveList(host.id);
+    if (isDesktop) {
+      setSideView(host.id);
+    } else {
+      setMobileSubView('lists');
+    }
+    setPendingEditRequest((prev) => ({ taskId, nonce: (prev?.nonce ?? 0) + 1 }));
+  }, [lists, currentList?.id, isDesktop, setActiveList]);
   const [onboardingTourActive, setOnboardingTourActive] = useState(false);
+  /** Bottom-sheet for "add a task to My tasks" (mobile FAB on Today/Plan). */
+  const mobileAddSheetRef = useRef<MobileTaskSheetHandle>(null);
 
   // Lock body scroll + block keyboard scroll keys while the tour is live so
   // only the spotlit Add button / FAB is interactive.
@@ -304,14 +324,24 @@ function AppContent() {
   }, [onboardingTourActive]);
 
   const handleEnterFirstTask = useCallback(() => {
-    // Onboarding Step 5 ("tour"): route the user to the Today view so the
-    // real Add button / FAB becomes the tap target underneath the agent +
-    // speech bubble. No dummy button is rendered by the tutorial itself.
+    // Onboarding Step 5 ("tour"): route the user to My tasks (the default
+    // list in TasksScreen) so the real Add button / FAB becomes the tap
+    // target underneath the agent + speech bubble. No dummy button is
+    // rendered by the tutorial itself. Mark the tutorial as seen here too
+    // — the user has watched the whole story arc; even if they close the
+    // tab mid-tour it must never replay.
+    const defaultListId =
+      lists.find((l) => l.id === 'default')?.id ??
+      lists.find((l) => l.id !== 'smash-list' && l.name !== '\u{1F4A5} Smash List')?.id ??
+      lists[0]?.id ??
+      'default';
+    setActiveList(defaultListId);
     setActiveScreen('tasks');
-    setSideView('today');
-    setMobileSubView('today');
+    setSideView(defaultListId);     // desktop side panel → My tasks list
+    setMobileSubView('lists');      // mobile sub-tab → Lists so TasksScreen renders
     setOnboardingTourActive(true);
-  }, []);
+    markTutorialSeen();
+  }, [lists, setActiveList, markTutorialSeen]);
 
   const handleAddTaskToDefault = useCallback((fields: Partial<Task> & { title: string }) => {
     // Today / Plan quick-add: always targets the default list ("My tasks").
@@ -324,12 +354,13 @@ function AppContent() {
   }, [lists, addTask]);
 
   // Closes the onboarding tour the moment the user presses the real Add
-  // button on the Today/Plan view during Step 5.
+  // button on the Today/Plan view during Step 5. No-op outside the tour.
   const handleTourAddButtonClick = useCallback(() => {
-    if (!showOnboarding) return;
+    if (!onboardingTourActive) return;
+    setOnboardingTourActive(false);
     setShowOnboarding(false);
     markTutorialSeen();
-  }, [showOnboarding, markTutorialSeen]);
+  }, [onboardingTourActive, markTutorialSeen]);
 
   const handleOnboardingUpgrade = useCallback(async (billingCycle: 'monthly' | 'yearly') => {
     if (!user) return;
@@ -751,27 +782,57 @@ function AppContent() {
       {(!focusZenOpen || isDesktop) && (
       <header className="pd-header">
         <div className="pd-header__inner">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button
-              type="button"
-              className="pd-header__menu-btn"
-              aria-label={sidePanelOpen ? 'Close menu' : 'Open menu'}
-              onClick={() => { playSound('buttonClick'); setSidePanelOpen((v) => !v); }}
-            >
-              <PixelIcon name="menu" size="20px" />
-            </button>
-            <h1
-              className="pd-app-title"
-              onClick={goHome}
-              style={{ cursor: 'pointer', margin: 0 }}
-              role="button"
-              tabIndex={0}
-              onKeyDown={e => { if (e.key === 'Enter') goHome(); }}
-            >PixDone</h1>
+          <div className="pd-header__left">
+            {isDesktop ? (
+              <>
+                <button
+                  type="button"
+                  className="pd-header__menu-btn"
+                  aria-label={sidePanelOpen ? 'Close menu' : 'Open menu'}
+                  onClick={() => { playSound('buttonClick'); setSidePanelOpen((v) => !v); }}
+                >
+                  <PixelIcon name="menu" size="20px" />
+                </button>
+                <h1
+                  className="pd-app-title"
+                  onClick={goHome}
+                  style={{ cursor: 'pointer', margin: 0 }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => { if (e.key === 'Enter') goHome(); }}
+                >PixDone</h1>
+              </>
+            ) : (
+              user && (
+                <ChallengeMenu
+                  challenge={activeChallenge}
+                  lang={lang}
+                  onPreviewEffect={(effectKey) => {
+                    setCollectionInitialTab('effects');
+                    setCollectionInitialEffectKey(effectKey);
+                    setActiveScreen('collection');
+                  }}
+                />
+              )
+            )}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* Challenge button — logged-in only */}
-            {user && (
+
+          {/* Center — mobile-only Tasks/Focus segment (hidden on sub-pages) */}
+          {!isDesktop && !isSubPage && (
+            <div className="pd-header__center">
+              <HeaderSegment
+                activeValue={activeScreen === 'tasks' || activeScreen === 'focus' ? activeScreen : null}
+                onSelect={(v) => {
+                  setActiveScreen(v);
+                }}
+                lang={lang}
+              />
+            </div>
+          )}
+
+          <div className="pd-header__right">
+            {/* Desktop-only: Challenge button stays on the right */}
+            {isDesktop && user && (
               <ChallengeMenu
                 challenge={activeChallenge}
                 lang={lang}
@@ -961,7 +1022,7 @@ function AppContent() {
             lists={lists}
             lang={lang}
             onComplete={handleComplete}
-            onEdit={() => { /* TODO: open edit */ }}
+            onEdit={handleEditFromViews}
             onAddTask={handleAddTaskToDefault}
             autoOpenAddTaskNonce={autoOpenAddTaskNonce}
             onAddButtonClick={handleTourAddButtonClick}
@@ -972,7 +1033,7 @@ function AppContent() {
             lists={lists}
             lang={lang}
             onComplete={handleComplete}
-            onEdit={() => { /* TODO: open edit */ }}
+            onEdit={handleEditFromViews}
             onUpdateTask={updateTask}
             onAddTask={handleAddTaskToDefault}
             autoOpenAddTaskNonce={autoOpenAddTaskNonce}
@@ -997,14 +1058,18 @@ function AppContent() {
             onOpenListModal={setListModal}
             anyShellModalOpen={anyShellModalOpen}
             autoOpenAddTaskNonce={autoOpenAddTaskNonce}
+            isOnboardingTour={onboardingTourActive}
+            pendingEditRequest={pendingEditRequest}
+            onConsumePendingEditRequest={() => setPendingEditRequest(null)}
+            worldSlot={(
+              <WorldLayer
+                themeKey={visualTheme}
+                cabinetCount={(() => { const p = new URLSearchParams(window.location.search).get('wlv'); return p !== null ? [0,1,3,5,6][Math.min(Number(p),4)] ?? 0 : themeStats.cabinetCount; })()}
+                agentCount={(() => { const p = new URLSearchParams(window.location.search).get('wagent'); return p !== null ? Number(p) : worldAgentCount; })()}
+              />
+            )}
           />
         )}
-
-      <WorldLayer
-        themeKey={visualTheme}
-        cabinetCount={(() => { const p = new URLSearchParams(window.location.search).get('wlv'); return p !== null ? [0,1,3,5,6][Math.min(Number(p),4)] ?? 0 : themeStats.cabinetCount; })()}
-        agentCount={(() => { const p = new URLSearchParams(window.location.search).get('wagent'); return p !== null ? Number(p) : worldAgentCount; })()}
-      />
       </main>
 
       {/* Focus widget — floating, desktop only, hidden during zen-mode */}
@@ -1168,16 +1233,6 @@ function AppContent() {
         </div>
       )}
 
-      {/* Mobile sub-menu — Tasks tab only */}
-      {!focusZenOpen && !isDesktop && activeScreen === 'tasks' && !isSubPage && (
-        <MobileSubMenu
-          activeView={mobileSubView}
-          onSelect={setMobileSubView}
-          lang={lang}
-          hidden={mobileChromHidden}
-        />
-      )}
-
       {/* Mobile FAB — always visible on Tasks tab */}
       {!focusZenOpen && !isDesktop && activeScreen === 'tasks' && !isSubPage && (
         <button
@@ -1186,12 +1241,12 @@ function AppContent() {
           data-tour={onboardingTourActive ? 'true' : 'false'}
           onClick={() => {
             playSound('taskAdd');
-            // On today / plan: trigger that view's add-task form.
-            // On lists: TasksScreen's own FAB handles the add, so just nudge submenu.
+            // Today/Plan: open the App-level add-task bottom sheet directly.
+            // Lists: fall back to TasksScreen's own flow via the nonce.
             if (mobileSubView === 'today' || mobileSubView === 'plan') {
+              mobileAddSheetRef.current?.openAdd();
+            } else {
               setAutoOpenAddTaskNonce((n) => n + 1);
-            } else if (mobileSubView !== 'lists') {
-              setMobileSubView('lists');
             }
             handleTourAddButtonClick();
           }}
@@ -1214,13 +1269,37 @@ function AppContent() {
         </button>
       )}
 
-      {/* Bottom navigation — mobile only */}
-      {!focusZenOpen && !isDesktop && (
+      {/* App-level add-task bottom sheet for Today/Plan FAB taps. Always
+          targets the default ("My tasks") list, independent of the active
+          Smash/task list in TasksScreen. */}
+      {!isDesktop && (
+        <MobileTaskSheet
+          ref={mobileAddSheetRef}
+          lang={lang}
+          tasks={[]}
+          currentListId={
+            lists.find((l) => l.id === 'default')?.id ??
+            lists.find((l) => l.id !== 'smash-list' && l.name !== '\u{1F4A5} Smash List')?.id ??
+            lists[0]?.id ??
+            'default'
+          }
+          onAddTask={(_listId, fields) => handleAddTaskToDefault(fields)}
+          onUpdateTask={() => {}}
+          onDeleteRequest={() => {}}
+          onMoveToList={() => {}}
+          availableLists={[]}
+        />
+      )}
+
+      {/* Bottom navigation — mobile only, hidden on sub-pages and zen mode.
+          Hosts the Lists/Today/Plan task-view switcher. When active screen is
+          Focus (or Collection), tapping a tab returns to Tasks + selects the view. */}
+      {!focusZenOpen && !isDesktop && !isSubPage && (
         <BottomNav
-          activeScreen={isSubPage ? null : activeScreen}
-          onSelect={(screen) => {
-            setActiveScreen(screen);
-            if (isSubPage) navigate('/');
+          activeView={activeScreen === 'tasks' ? mobileSubView : null}
+          onSelect={(view) => {
+            setMobileSubView(view);
+            if (activeScreen !== 'tasks') setActiveScreen('tasks');
           }}
           lang={lang}
           hidden={mobileChromHidden}
@@ -1291,6 +1370,7 @@ function AppContent() {
         isPremium={isPremium}
         onDone={handleOnboardingDone}
         onUpgrade={handleOnboardingUpgrade}
+        onReachCta={markTutorialSeen}
         onEnterFirstTask={handleEnterFirstTask}
       />
     )}
