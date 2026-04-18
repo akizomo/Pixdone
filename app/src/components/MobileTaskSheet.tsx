@@ -41,6 +41,9 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
     const [mode, setMode] = useState<'add' | 'edit'>('add');
     const [editTaskId, setEditTaskId] = useState<string | null>(null);
     const [initialTitle, setInitialTitle] = useState<string | undefined>(undefined);
+    // Tracks the list chip in the compact mobile form. Seeded on openAdd/openEdit
+    // so the Send button saves to whatever list the user last picked.
+    const [activeListIdInSheet, setActiveListIdInSheet] = useState(currentListId);
     const taskFormRef = useRef<TaskFormHandle>(null);
     // Skip the auto-save-on-dismiss path when the close was triggered by
     // an explicit save (Save button) or by an imperative force-close
@@ -61,6 +64,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
         setEditTaskId(null);
         setMode('add');
         setInitialTitle(opts?.initialTitle);
+        setActiveListIdInSheet(currentListId);
         skipAutoSaveRef.current = false;
         setOpen(true);
       },
@@ -68,6 +72,8 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
         setEditTaskId(taskId);
         setMode('edit');
         setInitialTitle(undefined);
+        const t = tasks.find((t) => t.id === taskId);
+        setActiveListIdInSheet(t?.listId ?? currentListId);
         skipAutoSaveRef.current = false;
         setOpen(true);
       },
@@ -76,7 +82,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
         skipAutoSaveRef.current = true;
         setOpen(false);
       },
-    }), []);
+    }), [currentListId, tasks]);
 
     // Auto-save on user-initiated dismissal (backdrop / swipe / Esc / X).
     // Per the BottomSheet rule, onClose stays a 1-liner; we react in an
@@ -96,7 +102,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
       // Save was already explicit — don't double-fire from the dismissal effect.
       skipAutoSaveRef.current = true;
       if (mode === 'add') {
-        onAddTask(currentListId, fields);
+        onAddTask(activeListIdInSheet, fields);
         playSound('taskAdd');
       } else if (editTaskId) {
         onUpdateTask(editTaskId, fields);
@@ -105,27 +111,22 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
       // Defer close by 1 frame so the parent re-render from onAddTask/onUpdateTask
       // settles before we trigger the BottomSheet close animation.
       close();
-    }, [mode, editTaskId, currentListId, onAddTask, onUpdateTask, close]);
+    }, [mode, editTaskId, activeListIdInSheet, onAddTask, onUpdateTask, close]);
 
     const handleCancel = useCallback(() => {
       playSound('taskCancel');
       close();
     }, [close]);
 
-    const title = mode === 'edit'
-      ? (lang === 'ja' ? 'タスクを編集' : 'Edit task')
-      : (lang === 'ja' ? 'タスクを追加' : 'Add a task');
-
     return (
       <BottomSheet
         open={open}
         onClose={close}
-        title={title}
       >
         <TaskForm
           ref={taskFormRef}
           lang={lang}
-          listId={currentListId}
+          listId={activeListIdInSheet}
           task={task}
           initialTitle={mode === 'add' ? initialTitle : undefined}
           onSave={handleSave}
@@ -134,6 +135,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
           onDelete={editTaskId ? () => onDeleteRequest(editTaskId) : undefined}
           availableLists={availableLists}
           onMoveToList={onMoveToList}
+          onListChange={setActiveListIdInSheet}
           mobile
         />
       </BottomSheet>

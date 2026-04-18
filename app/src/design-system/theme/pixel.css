@@ -183,8 +183,23 @@
   50%      { box-shadow: 2px 2px 0px var(--pd-color-shadow-default), 0 0 0 14px rgba(67, 203, 234, 0); }
 }
 
+/* Desktop TasksScreen Add button — same cyan pulse + elevation above the
+   translucent onboarding overlay during the first-task tour. */
+.pd-add-task-section__button[data-tour="true"] {
+  position: relative;
+  z-index: 3050;
+  border-color: var(--pxd-cyan-500) !important;
+  animation: pd-add-task-tour-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pd-add-task-tour-pulse {
+  0%, 100% { box-shadow: 2px 2px 0px var(--pd-color-shadow-default), 0 0 0 0 rgba(67, 203, 234, 0.55); }
+  50%      { box-shadow: 2px 2px 0px var(--pd-color-shadow-default), 0 0 0 12px rgba(67, 203, 234, 0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .pd-mobile-fab[data-tour="true"] {
+  .pd-mobile-fab[data-tour="true"],
+  .pd-add-task-section__button[data-tour="true"] {
     animation: none;
   }
 }

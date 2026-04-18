@@ -42,6 +42,8 @@ export interface TasksScreenProps {
   autoOpenAddTaskNonce?: number;
   /** When true, the FAB-triggered add form prefills the title (first-task tour). */
   isOnboardingTour?: boolean;
+  /** Fires when the user taps the Add button — used by the shell to close the onboarding tour. */
+  onAddButtonClick?: () => void;
   /** Shell-level edit request forwarded from Today/Plan views (mobile bottom sheet). */
   pendingEditRequest?: { taskId: string; nonce: number } | null;
   /** Callback fired after TasksScreen consumes `pendingEditRequest` so the shell can clear it. */
@@ -66,6 +68,7 @@ export function TasksScreen({
   anyShellModalOpen,
   autoOpenAddTaskNonce,
   isOnboardingTour,
+  onAddButtonClick,
   pendingEditRequest,
   onConsumePendingEditRequest,
   worldSlot,
@@ -456,7 +459,9 @@ export function TasksScreen({
         <div style={{ paddingBottom: '8px' }} className="pd-add-task-section">
           <button
             type="button"
-            onClick={() => { playSound('taskAdd'); openAddTask(); }}
+            className="pd-add-task-section__button"
+            data-tour={isOnboardingTour ? 'true' : 'false'}
+            onClick={() => { playSound('taskAdd'); openAddTask(); onAddButtonClick?.(); }}
             style={{
               display: 'flex',
               alignItems: 'center',

@@ -62,15 +62,20 @@ describe('MobileTaskSheet', () => {
   it('opens add mode via imperative ref', () => {
     const { ref } = setup();
     act(() => ref.current!.openAdd());
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText('Add a task')).toBeInTheDocument();
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    // Compact layout has no header title — verify the title field is present
+    expect(dialog.querySelector('[contenteditable]')).toBeTruthy();
   });
 
   it('opens edit mode via imperative ref', () => {
     const { ref } = setup();
     act(() => ref.current!.openEdit('task-1'));
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText('Edit task')).toBeInTheDocument();
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    // Edit mode pre-populates the existing task title
+    const title = dialog.querySelector('[contenteditable]') as HTMLElement;
+    expect(title.textContent).toContain('Existing task');
   });
 
   it('onClose is ONLY setOpen(false) — close button does not trigger save', async () => {
@@ -106,11 +111,13 @@ describe('MobileTaskSheet', () => {
     );
   });
 
-  it('cancel button closes without saving', async () => {
+  it('empty-title dismiss closes without saving', async () => {
     const { ref, onAddTask } = setup();
     act(() => ref.current!.openAdd());
 
-    await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    // Compact layout has no Cancel button — dismiss via imperative close
+    // with an empty title. Auto-save on dismiss short-circuits to onCancel.
+    act(() => ref.current!.close());
 
     expect(onAddTask).not.toHaveBeenCalled();
   });

@@ -260,3 +260,112 @@
   gap: var(--pxd-space-3);
   margin-top: var(--pxd-space-1);
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Mobile compact layout (Todoist-style)
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.pd-task-form--compact {
+  gap: var(--pxd-space-2);
+}
+
+/* Top-right toolbar — holds delete in edit mode */
+.pd-task-form__compact-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: calc(var(--pxd-space-1) * -1);
+}
+
+/* Title — larger than desktop, no field chrome */
+.pd-task-form--compact .pd-task-form__title--compact .pxd-rich-text-field__input {
+  font-size: 1.125rem;
+  font-weight: var(--pxd-font-weight-semibold);
+  padding: var(--pxd-space-1) 0;
+  border: none;
+  background: transparent;
+  min-height: 0;
+}
+
+/* Notes — shrink min-height so it starts as a single line and grows on Enter */
+.pd-task-form--compact .pd-task-form__notes--compact .pxd-rich-text-area__input {
+  min-height: 22px !important;
+  padding: var(--pxd-space-1) 0;
+  border: none;
+  background: transparent;
+  font-size: 0.9375rem;
+  color: var(--pd-color-text-secondary);
+}
+
+/* Chip row becomes horizontally scrollable in compact mode */
+.pd-task-form__chip-row--compact {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: var(--pxd-space-1);
+}
+.pd-task-form__chip-row--compact::-webkit-scrollbar {
+  display: none;
+}
+.pd-task-form__chip-row--compact .pxd-chip {
+  flex-shrink: 0;
+}
+
+/* Open-upward variant: dropdown anchored above the trigger (for bottom bar) */
+.pd-task-form__repeat-dropdown--up {
+  top: auto;
+  bottom: 110%;
+}
+
+/* Divider above bottom bar */
+.pd-task-form__compact-divider {
+  height: 0;
+  border-top: var(--pxd-border-thin) solid var(--pd-color-border-default);
+  margin: var(--pxd-space-1) calc(var(--pxd-space-3) * -1) 0;
+}
+
+/* Bottom bar: list chip (left) + send (right) */
+.pd-task-form__compact-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pxd-space-2);
+  margin-top: var(--pxd-space-1);
+}
+
+/* List chip — ghost-style button in bottom-left */
+.pd-task-form__list-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pxd-space-1);
+  background: none;
+  border: none;
+  padding: var(--pxd-space-1) var(--pxd-space-2);
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-body);
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-radius: var(--pxd-radius-none);
+  min-height: 32px;
+}
+.pd-task-form__list-chip:hover {
+  color: var(--pd-color-text-primary);
+}
+.pd-task-form__list-chip .pxd-pixel-icon {
+  font-size: 16px;
+}
+
+/* Date picker row inside Date popover */
+.pd-task-form__date-picker-row {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-2);
+  position: relative;
+}
+.pd-task-form__date-picker-row input[type="date"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}

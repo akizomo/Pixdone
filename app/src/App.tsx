@@ -16,7 +16,7 @@ import { TasksScreen } from './screens/TasksScreen';
 import { FocusScreenContainer } from './screens/FocusScreenContainer';
 import { usePerfectTimingSetup, type PerfectTimingBridgeCallbacks } from './hooks/usePerfectTimingSetup';
 import { useMidnightRefresh } from './hooks/useMidnightRefresh';
-import { detectDefaultLang } from './lib/i18n';
+import { detectDefaultLang, t } from './lib/i18n';
 import { playSound, getSoundEnabled } from './services/sound';
 import { initSoundEngine } from './services/soundEngine';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -1059,6 +1059,7 @@ function AppContent() {
             anyShellModalOpen={anyShellModalOpen}
             autoOpenAddTaskNonce={autoOpenAddTaskNonce}
             isOnboardingTour={onboardingTourActive}
+            onAddButtonClick={handleTourAddButtonClick}
             pendingEditRequest={pendingEditRequest}
             onConsumePendingEditRequest={() => setPendingEditRequest(null)}
             worldSlot={(
@@ -1269,9 +1270,9 @@ function AppContent() {
         </button>
       )}
 
-      {/* App-level add-task bottom sheet for Today/Plan FAB taps. Always
-          targets the default ("My tasks") list, independent of the active
-          Smash/task list in TasksScreen. */}
+      {/* App-level add-task bottom sheet for Today/Plan FAB taps. Seeds the
+          list chip with My Tasks (the inbox default); the user can still pick
+          any non-smash list via the chip. */}
       {!isDesktop && (
         <MobileTaskSheet
           ref={mobileAddSheetRef}
@@ -1283,11 +1284,21 @@ function AppContent() {
             lists[0]?.id ??
             'default'
           }
-          onAddTask={(_listId, fields) => handleAddTaskToDefault(fields)}
+          onAddTask={(listId, fields) => {
+            addTask(listId, fields);
+            trackTaskComplete({
+              list_type: 'custom',
+              has_due_date: !!fields.dueDate,
+              is_repeat: !!fields.repeat,
+              has_subtasks: (fields.subtasks?.length ?? 0) > 0,
+            });
+          }}
           onUpdateTask={() => {}}
           onDeleteRequest={() => {}}
           onMoveToList={() => {}}
-          availableLists={[]}
+          availableLists={lists
+            .filter((l) => l.id !== 'smash-list' && l.name !== '\u{1F4A5} Smash List')
+            .map((l) => ({ id: l.id, name: l.id === 'default' ? (user ? t('myTasks', lang) : l.name) : l.name }))}
         />
       )}
 
