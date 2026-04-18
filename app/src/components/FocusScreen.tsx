@@ -1,14 +1,9 @@
-import { useState, useEffect } from 'react';
 import { Button, Chip, IconButton, PixelIcon } from '../design-system';
 import { t } from '../lib/i18n';
-import { getTodayYMD } from '../lib/date';
 import { PixelBreaker } from './PixelBreaker';
 import { PacmanProgress } from './PacmanProgress';
 import { BgmControl } from './BgmControl';
-import { TaskItem } from './TaskItem';
-import { playSound } from '../services/sound';
 import type { List } from '../types/list';
-import type { Task } from '../types/task';
 import type { FocusTimerState } from '../hooks/useFocusTimer';
 import { useWakeLock } from '../hooks/useWakeLock';
 import type { BgmTrack } from '../services/bgm';
@@ -19,7 +14,7 @@ export type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak';
 export interface FocusScreenProps {
   lists: List[];
   lang: 'en' | 'ja';
-  onCompleteTask: (taskId: string) => void;
+  onCompleteTask?: (taskId: string) => void;
   onEditTask?: (taskId: string) => void;
   mode: TimerMode;
   minutes: number;
@@ -72,14 +67,12 @@ function TimeDigits({ value }: { value: string }) {
 }
 
 export function FocusScreen({
-  lists, lang, onCompleteTask, onEditTask, mode, minutes, timerState, remaining,
+  lang, mode, minutes, timerState, remaining,
   bgmOn, bgmTrack, onBgmChange, onBgmMenuOpenChange, onOpenZenMode,
   onSwitchMode, onAdjustMinutes, onStart, onPause, onResume, onSkipBreak,
-  onCompleteFocus, canAdjustMinutes = true, onTutorialSmashLinkClick, onTutorialFocusLinkClick,
+  onCompleteFocus, canAdjustMinutes = true,
 }: FocusScreenProps) {
   useWakeLock(timerState === 'running');
-  const [taskPanelMode, setTaskPanelMode] = useState<'today' | 'lists'>('today');
-  const [selectedListId, setSelectedListId] = useState<string>(() => lists[0]?.id ?? '');
   const SMALL_STEPS = [1, 3, 5] as const;
 
   const nextMinutesByArrow = (current: number, dir: -1 | 1): number => {
@@ -98,21 +91,9 @@ export function FocusScreen({
     return Math.max(5, current - 5);
   };
 
-  useEffect(() => {
-    const nextFocusLists = lists.filter((l) => !(l.id === 'smash-list' || l.name === '💥 Smash List'));
-    if (!selectedListId || !nextFocusLists.some((l) => l.id === selectedListId)) {
-      setSelectedListId(nextFocusLists[0]?.id ?? '');
-    }
-  }, [lists, selectedListId]);
-
   const isBreakMode = mode === 'shortBreak' || mode === 'longBreak';
   const isRunning = timerState === 'running';
   const isPaused = timerState === 'paused';
-  const today = getTodayYMD();
-  const focusLists = lists.filter((l) => !(l.id === 'smash-list' || l.name === '💥 Smash List'));
-  const todayTasks: Task[] = focusLists.flatMap((l) => l.tasks).filter((task) => !task.completed && task.dueDate !== null && task.dueDate <= today);
-  const selectedList = focusLists.find((l) => l.id === selectedListId) ?? null;
-  const listTasks: Task[] = (selectedList?.tasks ?? []).filter((task) => !task.completed);
 
   return (
     <div className="pd-focus">
@@ -194,66 +175,6 @@ export function FocusScreen({
         </div>
       )}
 
-      {/* Task panel (pomodoro only) */}
-      {mode === 'pomodoro' && (
-        <div>
-          <div className="pd-focus__task-header">
-            <h3 className="pd-focus__section-title">{t('todayTasks', lang)}</h3>
-            <div className="pd-focus__panel-toggle">
-              {(['today', 'lists'] as const).map((k) => (
-                <button
-                  key={k}
-                  type="button"
-                  className={`pd-focus__panel-btn${taskPanelMode === k ? ' pd-focus__panel-btn--active' : ''}`}
-                  onClick={() => { playSound('buttonClick'); setTaskPanelMode(k); }}
-                >
-                  {t(k === 'today' ? 'focusTasksToday' : 'focusTasksLists', lang)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {taskPanelMode === 'today' ? (
-            todayTasks.length === 0 ? (
-              <div className="pd-focus__empty-tasks">{t('noTodayTasks', lang)}</div>
-            ) : (
-              <div className="pd-focus__task-list">
-                {todayTasks.map((task) => (
-                  <TaskItem key={task.id} task={task} lang={lang} onComplete={onCompleteTask} onEdit={onEditTask ?? (() => {})}
-                    onTutorialSmashLinkClick={onTutorialSmashLinkClick} onTutorialFocusLinkClick={onTutorialFocusLinkClick} />
-                ))}
-              </div>
-            )
-          ) : (
-            <div>
-              <div className="pd-focus__list-tabs" role="tablist" aria-label={lang === 'ja' ? 'リスト切り替え' : 'List switcher'}>
-                {focusLists.map((l) => (
-                  <button
-                    key={l.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={l.id === selectedListId}
-                    className={`pd-focus__list-tab${l.id === selectedListId ? ' pd-focus__list-tab--active' : ''}`}
-                    onClick={() => { playSound('buttonClick'); setSelectedListId(l.id); }}
-                  >
-                    {l.name}
-                  </button>
-                ))}
-              </div>
-              {listTasks.length === 0 ? (
-                <div className="pd-focus__empty-tasks">{t('focusNoListTasks', lang)}</div>
-              ) : (
-                <div className="pd-focus__task-list">
-                  {listTasks.slice(0, 12).map((task) => (
-                    <TaskItem key={task.id} task={task} lang={lang} onComplete={onCompleteTask} onEdit={onEditTask ?? (() => {})}
-                      onTutorialSmashLinkClick={onTutorialSmashLinkClick} onTutorialFocusLinkClick={onTutorialFocusLinkClick} />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

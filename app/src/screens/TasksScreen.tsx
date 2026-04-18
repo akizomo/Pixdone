@@ -19,6 +19,7 @@ import {
 import type { TaskFormHandle } from '../components';
 import { MobileTaskSheet } from '../components/MobileTaskSheet';
 import type { MobileTaskSheetHandle } from '../components/MobileTaskSheet';
+import { PlanView } from '../components/PlanView';
 import type { List } from '../types/list';
 import type { Task } from '../types/task';
 import type { User } from 'firebase/auth';
@@ -31,14 +32,14 @@ export interface TasksScreenProps {
   onComplete: (taskId: string) => void;
   onUncomplete: (taskId: string) => void;
   onSmash: (taskId: string) => void;
-  totalTasksCompleted: number;
-  totalLoginDays: number | null;
   onNavigateToSmashList: () => void;
   onNavigateToFocus: () => void;
   onNavigateToCollection: () => void;
   onDismissTutorial: (action: 'pricing' | 'later') => void;
   onOpenListModal: (modal: { mode: 'add' | 'rename' | 'delete'; listId?: string }) => void;
   anyShellModalOpen: boolean;
+  /** Incremented by the shell to force-open the add-task form (used by onboarding). */
+  autoOpenAddTaskNonce?: number;
 }
 
 export function TasksScreen({
@@ -48,8 +49,6 @@ export function TasksScreen({
   hasFinePointer,
   onComplete,
   onUncomplete,
-  totalTasksCompleted,
-  totalLoginDays,
   onSmash,
   onNavigateToSmashList,
   onNavigateToFocus,
@@ -57,6 +56,7 @@ export function TasksScreen({
   onDismissTutorial,
   onOpenListModal,
   anyShellModalOpen,
+  autoOpenAddTaskNonce,
 }: TasksScreenProps) {
   const { lists, activeListId, currentList, listLimitUpsellOpen } = useListsData();
   const {
@@ -65,6 +65,7 @@ export function TasksScreen({
   } = useListsActions();
 
   // ── Local state ──────────────────────────────────────────────────────────
+  const [viewMode] = useState<'lists' | 'plan'>('lists');
   const [taskFormMode, setTaskFormMode] = useState<null | 'add' | string>(null);
   const [completedExpanded, setCompletedExpanded] = useState(false);
   const [listSlide, setListSlide] = useState<{ listId: string; from: 'left' | 'right' } | null>(null);
@@ -186,6 +187,17 @@ export function TasksScreen({
     mobileTaskSheetRef.current?.close();
     setCompletedExpanded(false);
   }, [activeListId]);
+
+  // Shell (onboarding) may force-open the add-task form by incrementing the nonce.
+  const lastConsumedNonce = useRef(0);
+  useEffect(() => {
+    if (!autoOpenAddTaskNonce || autoOpenAddTaskNonce === lastConsumedNonce.current) return;
+    lastConsumedNonce.current = autoOpenAddTaskNonce;
+    setTaskFormMode('add');
+    if (!hasFinePointer) {
+      window.requestAnimationFrame(() => mobileTaskSheetRef.current?.openAdd());
+    }
+  }, [autoOpenAddTaskNonce, hasFinePointer]);
 
   // Touch-first UI: switch from inline to mobile sheet when viewport changes
   useEffect(() => {
@@ -369,36 +381,22 @@ export function TasksScreen({
 
   return (
     <>
-      {/* Score counter */}
-      <div
-        style={{
-          fontFamily: 'var(--pd-font-brand)',
-          fontSize: '0.875rem',
-          color: 'var(--pd-color-text-muted)',
-          padding: '4px 0',
-          letterSpacing: '0.05em',
-        }}
-      >
-        <span style={{ fontSize: '1.125rem', color: 'var(--pd-color-text-primary)' }}>{totalTasksCompleted ?? '---'}</span>
-        <span> TASKS</span>
-        <span style={{ margin: '0 6px', opacity: 0.5 }}>·</span>
-        <span style={{ fontSize: '1.125rem', color: 'var(--pd-color-text-primary)' }}>{totalLoginDays ?? '--'}</span>
-        <span> DAYS</span>
+      {/* ListTabs — mobile only, when in Lists view */}
+      <div className="pd-mobile-only">
+        <ListTabs
+          lists={listTabsOrder}
+          activeListId={activeListId}
+          onSelect={(id) => { setListSlide(null); setActiveList(id); setTaskFormMode(null); playSound('buttonClick'); }}
+          onAddList={() => { playSound('buttonClick'); onOpenListModal({ mode: 'add' }); }}
+          getTabLabel={getTabLabel}
+          getTabCount={getTabCount}
+          lang={lang}
+          canContextMenu={(list) => list.id !== 'smash-list' && !list.id.startsWith('tutorial')}
+        />
       </div>
 
-      <ListTabs
-        lists={listTabsOrder}
-        activeListId={activeListId}
-        onSelect={(id) => { setListSlide(null); setActiveList(id); setTaskFormMode(null); playSound('buttonClick'); }}
-        onAddList={() => { playSound('buttonClick'); onOpenListModal({ mode: 'add' }); }}
-        getTabLabel={getTabLabel}
-        getTabCount={getTabCount}
-        lang={lang}
-        onRenameList={isDesktop ? (listId) => onOpenListModal({ mode: 'rename', listId }) : undefined}
-        onDeleteList={isDesktop ? (listId) => onOpenListModal({ mode: 'delete', listId }) : undefined}
-        canContextMenu={(list) => list.id !== 'smash-list' && !list.id.startsWith('tutorial')}
-      />
-
+      {viewMode === 'lists' ? (
+      <>
       <ListHeader
         title={isTutorial ? t('tutorial', lang) : (currentList?.id === 'default' ? t('myTasks', lang) : (currentList?.name ?? ''))}
         showMenu={!isTutorial && !isSmash}
@@ -690,40 +688,16 @@ export function TasksScreen({
         )}
       </div>
 
-      {/* Mobile FAB */}
-      {!anyModalOpen && (
-        <button
-          type="button"
-          onClick={() => { playSound('taskAdd'); openAddTask(); }}
-          aria-label={lang === 'ja' ? '\u30BF\u30B9\u30AF\u3092\u8FFD\u52A0' : 'Add a task'}
-          className={
-            isSmash
-              ? 'pd-mobile-fab pd-mobile-fab--smash'
-              : 'pd-mobile-fab'
-          }
-          style={{
-            width: '56px',
-            height: '56px',
-            borderRadius: '50%',
-            background: isSmash ? 'white' : 'var(--accent-color)',
-            color: isSmash ? 'var(--pxd-color-brand-smash)' : 'var(--pd-color-accent-text)',
-            border: isSmash ? 'none' : '2px solid var(--pd-color-accent-default)',
-            boxShadow: isSmash ? undefined : '2px 2px 0px var(--pd-color-shadow-default)',
-            display: 'none', // shown via CSS media query
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            zIndex: 300,
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-          }}
-        >
-          {isSmash
-            ? <span aria-hidden="true">{'\u{1F4A5}'}</span>
-            : <PixelIcon name="add" size="24px" />
-          }
-        </button>
+      </>
+      ) : (
+        /* ── Plan view ── */
+        <PlanView
+          lists={lists}
+          lang={lang}
+          onComplete={onComplete}
+          onEdit={handleEdit}
+          onUpdateTask={updateTask}
+        />
       )}
 
       {/* Mobile BottomSheet for task add/edit */}

@@ -22,8 +22,8 @@ import { useEffectProgress, bumpPending } from './hooks/useEffectProgress';
 import { useActiveChallenge } from './hooks/useActiveChallenge';
 import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
-import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked, trackScreenView, trackTutorialTaskComplete } from './services/analytics';
-import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect, buildTutorialDrawPool, weightedRandomEffectTutorial, pickGuaranteedRareOrEpic } from './data/effectsRegistry';
+import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked, trackScreenView } from './services/analytics';
+import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect } from './data/effectsRegistry';
 import { resolveAnimationKey } from './data/effectEvolution';
 import { getCompletionToastMessage, getUndoLabel } from './data/effectMessages';
 import './styles/task-animations.css';
@@ -39,6 +39,20 @@ import { EffectCapturePage } from './pages/EffectCapturePage';
 import { useUserTheme } from './hooks/useUserTheme';
 import { useHasSeenTutorial } from './hooks/useHasSeenTutorial';
 import { WorldLayer } from './components/WorldLayer';
+import { AgentIcon } from './components/AgentIcon';
+import { OnboardingTutorial } from './components/OnboardingTutorial';
+import { SidePanel, type SidePanelView } from './components/SidePanel';
+import { useTodayView } from './hooks/useTodayView';
+import { usePlanView } from './hooks/usePlanView';
+import { TodayView } from './components/TodayView';
+import { PlanView } from './components/PlanView';
+import { MobileSubMenu, type MobileSubView } from './components/MobileSubMenu';
+import { FocusWidget } from './components/FocusWidget';
+import { useScrollDirection } from './hooks/useScrollDirection';
+import { FocusZenMode } from './components/FocusZenMode';
+import { useFocusTimer } from './hooks/useFocusTimer';
+import { setBgmOn, setBgmTrack, isBgmOn, getBgmTrack, stopBgm } from './services/bgm';
+import type { BgmTrack } from './services/bgm';
 import { useThemeStats } from './hooks/useThemeStats';
 import { useActivityDays, calcAgentCount } from './hooks/useActivityDays';
 import {
@@ -84,12 +98,12 @@ function AppContent() {
   const { lists, currentList } = useListsData();
   const {
     setActiveList,
-    addList, renameList, deleteList,
+    addList, addTask, updateTask, renameList, deleteList,
     completeTask, uncompleteTask,
     resetRepeatingTasks,
   } = useListsActions();
 
-  const { user, logout } = useAuth();
+  const { user, logout, syncServerSession } = useAuth();
   const { hasSeenTutorial, markTutorialSeen } = useHasSeenTutorial();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -111,6 +125,14 @@ function AppContent() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   // userMenuRef removed — PopoverMenu handles outside-click internally
   const [focusZenOpen, setFocusZenOpen] = useState(false);
+  const [sidePanelOpen, setSidePanelOpen] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 900 : true
+  );
+
+  // Desktop zen-mode timer state (independent of FocusScreenContainer)
+  const desktopTimer = useFocusTimer(() => { stopBgm(); });
+  const [desktopBgmOn, setDesktopBgmOn] = useState(() => isBgmOn());
+  const [desktopBgmTrack, setDesktopBgmTrack] = useState<BgmTrack>(() => getBgmTrack());
 
   // List modal state (rendered in shell, triggered from TasksScreen via callback)
   const [listModal, setListModal] = useState<{ mode: ListModalMode; listId?: string } | null>(null);
@@ -120,11 +142,17 @@ function AppContent() {
 
   /* ---- Screen navigation ---- */
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('tasks');
+  /** Desktop side-panel view: 'today' | 'plan' | 'smash' | listId */
+  const [sideView, setSideView] = useState<SidePanelView>('today');
+  /** Mobile sub-menu view: 'today' | 'plan' | 'lists' */
+  const [mobileSubView, setMobileSubView] = useState<MobileSubView>('lists');
   useEffect(() => {
     trackScreenView({ screen_name: activeScreen });
   }, [activeScreen]);
   const hasFinePointer = useSyncExternalStore(subscribeFinePointer, getFinePointerSnapshot, () => true);
   const isDesktop = hasFinePointer;
+  const scrollDir = useScrollDirection();
+  const mobileChromHidden = !isDesktop && scrollDir === 'down';
 
   /* ---- Sound state (vanilla parity: pixdone-sound-enabled, ComicEffectsManager when loaded) ---- */
   const [soundMuted, setSoundMuted] = useState(() => !getSoundEnabled());
@@ -228,76 +256,127 @@ function AppContent() {
     return () => window.clearTimeout(tid);
   }, [purchaseBanner]);
 
-  /* ---- ログイン後・初回: Tutorial リストを先頭に seed ---- */
-  // `shouldSeedTutorial` is computed once when hasSeenTutorial first resolves to false.
-  // We capture it in a ref so that subsequent list changes never re-trigger the seed.
-  const tutorialSeedState = useRef<'idle' | 'seeded'>('idle');
-  const shouldSeedTutorial = user && hasSeenTutorial === false && tutorialSeedState.current === 'idle';
-
+  /* ---- Full-screen onboarding overlay (first login) ---- */
+  // `showOnboarding` is a one-shot: once mounted for a first-time user, it stays
+  // open until the user explicitly finishes it. We do NOT re-derive from
+  // `hasSeenTutorial` — if we did, marking the flag mid-flow (e.g. on upgrade)
+  // would unmount the overlay instantly.
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const onboardingResolvedRef = useRef(false);
   useEffect(() => {
-    if (!shouldSeedTutorial) return;
-    tutorialSeedState.current = 'seeded';
+    if (onboardingResolvedRef.current) return;
+    if (!user) return;
+    if (hasSeenTutorial === null) return; // still resolving from Firestore
+    onboardingResolvedRef.current = true;
+    if (hasSeenTutorial === false) setShowOnboarding(true);
+  }, [user, hasSeenTutorial]);
 
-    // Already has tutorial tasks (e.g. restored from Firestore) — just mark seen
-    const hasTutorialTasks = lists.some(
-      (l) => l.tasks.some((t) => typeof t.id === 'string' && t.id.startsWith('tutorial-')),
-    );
-    if (hasTutorialTasks) {
-      markTutorialSeen();
-      return;
-    }
-
-    // Write Tutorial list + tasks directly to Firestore.
-    // onSnapshot in useLists will pick them up — no local setLists needed.
-    const tutorialId = `tutorial-${user!.uid.slice(0, 8)}`;
-    const titles = [
-      'Try completing this task!',
-      'Each time you complete a task, a different effect appears. How many can you find?',
-      'Try the Smash List for even more fun!',
-      'Focus with pixel BGM pomodoro timer',
-      "Check this month's Challenge and earn a limited effect!",
-    ];
-    (async () => {
-      const { doc: docRef, setDoc: set, Timestamp: TS } = await import('firebase/firestore');
-      const fdb = (await import('./lib/firebase')).db;
-      // Create the list doc with a known ID
-      await set(docRef(fdb, 'lists', tutorialId), {
-        uid: user!.uid,
-        name: 'Tutorial',
-        createdAt: TS.now(),
-      });
-      // Create tutorial tasks
-      for (let i = 0; i < titles.length; i++) {
-        await set(docRef(fdb, 'tasks', `tutorial-${i + 1}`), {
-          uid: user!.uid,
-          listId: tutorialId,
-          title: titles[i],
-          completed: false,
-          dueDate: null,
-          createdAt: TS.now(),
-          sortOrder: i,
-        });
-      }
-    })().catch((e) => console.warn('[Tutorial seed] Firestore write failed:', e));
-
+  const handleOnboardingDone = useCallback(() => {
+    setShowOnboarding(false);
+    setOnboardingTourActive(false);
     markTutorialSeen();
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally runs once when shouldSeedTutorial becomes true
-  }, [shouldSeedTutorial]);
+  }, [markTutorialSeen]);
 
-  /* ---- Derived: isTutorial = current list has tutorial tasks ---- */
-  const isTutorial = !!(
-    currentList &&
-    currentList.tasks.some((t) => typeof t.id === 'string' && t.id.startsWith('tutorial-'))
-  );
+  const [autoOpenAddTaskNonce, setAutoOpenAddTaskNonce] = useState(0);
+  const [onboardingTourActive, setOnboardingTourActive] = useState(false);
+
+  // Lock body scroll + block keyboard scroll keys while the tour is live so
+  // only the spotlit Add button / FAB is interactive.
+  useEffect(() => {
+    if (!onboardingTourActive) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevTouch = document.body.style.touchAction;
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+    const blockKey = (e: KeyboardEvent) => {
+      const scrollKeys = new Set([
+        'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+        'PageUp', 'PageDown', 'Home', 'End', ' ',
+      ]);
+      if (scrollKeys.has(e.key)) e.preventDefault();
+    };
+    window.addEventListener('keydown', blockKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.touchAction = prevTouch;
+      window.removeEventListener('keydown', blockKey);
+    };
+  }, [onboardingTourActive]);
+
+  const handleEnterFirstTask = useCallback(() => {
+    // Onboarding Step 5 ("tour"): route the user to the Today view so the
+    // real Add button / FAB becomes the tap target underneath the agent +
+    // speech bubble. No dummy button is rendered by the tutorial itself.
+    setActiveScreen('tasks');
+    setSideView('today');
+    setMobileSubView('today');
+    setOnboardingTourActive(true);
+  }, []);
+
+  const handleAddTaskToDefault = useCallback((fields: Partial<Task> & { title: string }) => {
+    // Today / Plan quick-add: always targets the default list ("My tasks").
+    const targetList =
+      lists.find((l) => l.id === 'default') ??
+      lists.find((l) => l.id !== 'smash-list' && l.name !== '\u{1F4A5} Smash List') ??
+      lists[0];
+    addTask(targetList?.id ?? 'default', fields);
+    playSound('taskAdd');
+  }, [lists, addTask]);
+
+  // Closes the onboarding tour the moment the user presses the real Add
+  // button on the Today/Plan view during Step 5.
+  const handleTourAddButtonClick = useCallback(() => {
+    if (!showOnboarding) return;
+    setShowOnboarding(false);
+    markTutorialSeen();
+  }, [showOnboarding, markTutorialSeen]);
+
+  const handleOnboardingUpgrade = useCallback(async (billingCycle: 'monthly' | 'yearly') => {
+    if (!user) return;
+    try {
+      const sync = await syncServerSession();
+      if (!sync.ok) {
+        window.alert(sync.message || 'Session sync failed.');
+        return;
+      }
+      const resp = await fetch('/api/billing/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ billingCycle }),
+      });
+      if (!resp.ok) {
+        let msg = `Checkout failed (${resp.status})`;
+        try {
+          const err = (await resp.json()) as { message?: string };
+          if (err.message) msg = err.message;
+        } catch { /* ignore */ }
+        window.alert(msg);
+        return;
+      }
+      const data = (await resp.json()) as { checkoutUrl?: string };
+      if (data.checkoutUrl) {
+        markTutorialSeen();
+        window.location.href = data.checkoutUrl;
+      }
+    } catch {
+      window.alert('Network error. Please try again.');
+    }
+  }, [user, syncServerSession, markTutorialSeen]);
 
   const isFocusScreen = activeScreen === 'focus';
   const isCollectionScreen = activeScreen === 'collection';
+
+  // Side panel counts
+  const todayTasks = useTodayView(lists);
+  const planSections = usePlanView(lists);
+  const planTotalCount = planSections.today.length + planSections.tomorrow.length + planSections.upcoming.length + planSections.someday.length;
 
   const { visualTheme, changeTheme, colorMode } = useUserTheme();
 
   // World Growth System
   const { stats: themeStats, incrementCompleted: incrementThemeCompleted } = useThemeStats(visualTheme);
-  const { activityLevel, totalLoginDays, recordToday } = useActivityDays();
+  const { activityLevel, recordToday } = useActivityDays();
   const worldAgentCount = calcAgentCount(themeStats.level, activityLevel);
 
   /* ---- World Growth: record today's activity ---- */
@@ -435,50 +514,6 @@ function AppContent() {
     }
   }, [activeChallenge, optimisticIncrement, flushPending, showToast, lang]);
 
-  /* ---- Tutorial toast messages (per task) ---- */
-  const showTutorialToast = useCallback((taskId: string, effectRarity?: string) => {
-    if (!taskId.startsWith('tutorial-')) return;
-
-    const rarityLabel = effectRarity === 'EPIC' ? (lang === 'ja' ? 'Epic' : 'Epic')
-      : effectRarity === 'RARE' ? (lang === 'ja' ? 'Rare' : 'Rare')
-      : null;
-
-    const toasts: Record<string, { ja: string; en: string }> = {
-      'tutorial-1': {
-        ja: '完了するたびに違うエフェクト',
-        en: 'A different effect every time',
-      },
-      'tutorial-2': {
-        ja: rarityLabel
-          ? `${rarityLabel}エフェクト出現。20種類以上、どんどん増える`
-          : '20種類以上、どんどん増える',
-        en: rarityLabel
-          ? `${rarityLabel} effect. 20+ and growing`
-          : '20+ effects and growing',
-      },
-      'tutorial-3': {
-        ja: 'ストレス発散にも、タスク消化にも',
-        en: 'For stress relief and getting things done',
-      },
-      'tutorial-4': {
-        ja: 'ピクセルBGMで集中モード。タイマー時間は自由に設定',
-        en: 'Pixel BGM for focus. Timer is fully customizable',
-      },
-      'tutorial-5': {
-        ja: '毎月新しいチャレンジが登場。限定エフェクトを獲得',
-        en: 'New challenges every month. Earn limited effects',
-      },
-    };
-
-    const msg = toasts[taskId];
-    if (!msg) return;
-
-    showToast({
-      message: lang === 'ja' ? msg.ja : msg.en,
-      duration: 2500,
-    });
-  }, [lang, showToast]);
-
   /* ---- Dev / QA: ?effect=<key> forces that effect on every task completion ---- */
   const forcedEffectKey = useMemo(() => {
     const p = new URLSearchParams(window.location.search);
@@ -491,7 +526,6 @@ function AppContent() {
   /* ---- Task handlers ---- */
   const runCompleteShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;
-    const isTutorialTask = isTutorial && taskId.startsWith('tutorial-');
 
     const doComplete = () => {
       completeTask(taskId);
@@ -502,19 +536,8 @@ function AppContent() {
     const isSmashList = currentList?.id === 'smash-list';
 
     if (taskEl) {
-      // Tutorial (unauthenticated): use boosted pool with Rare/Epic
-      const pool = isTutorialTask
-        ? buildTutorialDrawPool(visualTheme)
-        : buildDrawPool(isPremium, visualTheme, activeEffects, ownedChallengeEffects);
-      let selected;
-      if (isTutorialTask && taskId === 'tutorial-2') {
-        // Guaranteed Rare/Epic for tutorial-2 — the "wow" moment
-        selected = pool.length > 0 ? pickGuaranteedRareOrEpic(pool) : undefined;
-      } else if (isTutorialTask) {
-        selected = pool.length > 0 ? weightedRandomEffectTutorial(pool) : undefined;
-      } else {
-        selected = pool.length > 0 ? weightedRandomEffect(pool) : undefined;
-      }
+      const pool = buildDrawPool(isPremium, visualTheme, activeEffects, ownedChallengeEffects);
+      const selected = pool.length > 0 ? weightedRandomEffect(pool) : undefined;
 
       // Analytics: effect triggered
       if (selected) {
@@ -530,52 +553,38 @@ function AppContent() {
       const finalKey = baseKey ? resolveAnimationKey(baseKey, equippedLvl) : undefined;
       runVanillaCompletionEffect(taskEl, () => {
         doComplete();
-        if (isTutorialTask) {
-          showTutorialToast(taskId, selected?.rarity);
-        } else {
-          showToast({
-            message: getCompletionToastMessage(baseKey, lang),
-            action: { label: getUndoLabel(lang), onClick: () => uncompleteTask(taskId) },
-            duration: 5000,
-          });
-        }
+        showToast({
+          message: getCompletionToastMessage(baseKey, lang),
+          action: { label: getUndoLabel(lang), onClick: () => uncompleteTask(taskId) },
+          duration: 5000,
+        });
       }, finalKey);
     } else {
       doComplete();
       playSound('taskComplete');
-      if (isTutorialTask) {
-        showTutorialToast(taskId);
-      } else {
-        showToast({
-          message: getCompletionToastMessage(undefined, lang),
-          action: { label: getUndoLabel(lang), onClick: () => uncompleteTask(taskId) },
-          duration: 5000,
-        });
-      }
+      showToast({
+        message: getCompletionToastMessage(undefined, lang),
+        action: { label: getUndoLabel(lang), onClick: () => uncompleteTask(taskId) },
+        duration: 5000,
+      });
     }
 
     // Analytics: task complete
-    if (!isTutorialTask) {
-      trackTaskComplete({
-        list_type: isSmashList ? 'smash' : 'custom',
-        is_repeat: !!(task as Task | undefined)?.repeat,
-        has_subtasks: !!((task as Task | undefined)?.subtasks?.length),
-      });
-    } else if (taskId === 'tutorial-1' || taskId === 'tutorial-2' || taskId === 'tutorial-3') {
-      trackTutorialTaskComplete({ tutorial_step: taskId });
-    }
+    trackTaskComplete({
+      list_type: isSmashList ? 'smash' : 'custom',
+      is_repeat: !!(task as Task | undefined)?.repeat,
+      has_subtasks: !!((task as Task | undefined)?.subtasks?.length),
+    });
 
-    if (!isTutorialTask) sendTaskComplete(taskId);
+    sendTaskComplete(taskId);
 
     // World Growth — increment theme-specific completion counter
-    if (!isTutorialTask) {
-      incrementThemeCompleted();
-    }
+    incrementThemeCompleted();
 
-    if (!isTutorialTask && user && shouldShowPhBanner()) {
+    if (user && shouldShowPhBanner()) {
       window.setTimeout(() => setPhBannerOpen(true), 1600);
     }
-  }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendTaskComplete, user, isTutorial, showTutorialToast, forcedEffectKey, showToast, lang, incrementThemeCompleted]);
+  }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendTaskComplete, user, forcedEffectKey, showToast, lang, incrementThemeCompleted, currentList, effectProgressMap]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
     window.setTimeout(() => completeTask(taskId), PERFECT_TIMING_STATE_DEFER_MS);
@@ -738,27 +747,28 @@ function AppContent() {
 
   return (
     <>
-      {/* Global header — full width, outside pd-app-container */}
-      {!focusZenOpen && (
-      <header
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          flexShrink: 0,
-          padding: '12px var(--pd-layout-container-padding, 20px)',
-          background: 'var(--pd-color-background-default)',
-          borderBottom: '2px solid var(--pd-color-border-default)',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 'var(--pd-layout-container-maxWidth, 600px)', width: '100%', margin: '0 auto' }}>
-          <h1
-            className="pd-app-title"
-            onClick={goHome}
-            style={{ cursor: 'pointer', margin: 0 }}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => { if (e.key === 'Enter') goHome(); }}
-          >PixDone</h1>
+      {/* Global header — full width, outside pd-app-body */}
+      {(!focusZenOpen || isDesktop) && (
+      <header className="pd-header">
+        <div className="pd-header__inner">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              type="button"
+              className="pd-header__menu-btn"
+              aria-label={sidePanelOpen ? 'Close menu' : 'Open menu'}
+              onClick={() => { playSound('buttonClick'); setSidePanelOpen((v) => !v); }}
+            >
+              <PixelIcon name="menu" size="20px" />
+            </button>
+            <h1
+              className="pd-app-title"
+              onClick={goHome}
+              style={{ cursor: 'pointer', margin: 0 }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => { if (e.key === 'Enter') goHome(); }}
+            >PixDone</h1>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {/* Challenge button — logged-in only */}
             {user && (
@@ -776,7 +786,7 @@ function AppContent() {
             {/* Theme button */}
             <IconButton
               variant="ghost"
-              size="sm"
+              size="md"
               aria-label={user ? (lang === 'ja' ? 'テーマを変更' : 'Change theme') : (lang === 'ja' ? 'サインアップしてテーマ変更' : 'Sign up to change theme')}
               title={user ? (lang === 'ja' ? 'テーマを変更' : 'Change theme') : (lang === 'ja' ? 'サインアップしてテーマ変更' : 'Sign up to change theme')}
               icon={<PixelIcon name="palette" />}
@@ -791,26 +801,38 @@ function AppContent() {
             />
 
             {user ? (
-              /* Logged-in: person avatar + dropdown */
+              /* Logged-in: Agent avatar + dropdown */
               <div style={{ position: 'relative' }}>
-                <IconButton
-                  variant="ghost"
-                  size="sm"
+                <button
+                  type="button"
                   aria-label={user.email ?? 'Account'}
                   title={user.email ?? 'Account'}
-                  icon={<PixelIcon name="person" />}
-    
-                  onClick={() => setUserMenuOpen((v) => !v)}
-                />
+                  onClick={() => { playSound('buttonClick'); setUserMenuOpen((v) => !v); }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex' }}
+                >
+                  <AgentIcon themeKey={visualTheme} isPremium={isPremium} faceOnly className="pd-agent-icon--header" />
+                </button>
                 {userMenuOpen && (
                   <PopoverMenu
                     items={[
-                      { id: 'sound', label: soundMuted ? (lang === 'ja' ? 'サウンドオフ' : 'Sound off') : (lang === 'ja' ? 'サウンドオン' : 'Sound on'), icon: soundMuted ? 'volume_off' : 'volume_up' },
-                      { id: 'support', label: lang === 'ja' ? 'Support PixDone' : 'Support PixDone', icon: 'favorite' },
-                      { id: 'feedback', label: lang === 'ja' ? 'フィードバック' : 'Feedback', icon: 'chat_bubble_outline' },
-                      { id: 'logout', label: lang === 'ja' ? 'ログアウト' : 'Log out', icon: 'logout' },
+                      { id: 'collection', label: 'Effects / Themes', icon: 'auto_awesome', group: 'nav' },
+                      {
+                        id: 'lang', label: lang === 'ja' ? '言語' : 'Language', icon: 'language', group: 'settings',
+                        trailing: (
+                          <div style={{ display: 'flex', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
+                            <Chip variant="ghost" size="sm" selected={lang === 'en'} onClick={() => changeLang('en')}>En</Chip>
+                            <Chip variant="ghost" size="sm" selected={lang === 'ja'} onClick={() => changeLang('ja')}>Ja</Chip>
+                          </div>
+                        ),
+                      },
+                      { id: 'sound', label: soundMuted ? (lang === 'ja' ? 'サウンドオフ' : 'Sound off') : (lang === 'ja' ? 'サウンドオン' : 'Sound on'), icon: soundMuted ? 'volume_off' : 'volume_up', group: 'settings' },
+                      { id: 'support', label: 'Support PixDone', icon: 'favorite', group: 'feedback' },
+                      { id: 'feedback', label: lang === 'ja' ? 'フィードバック' : 'Feedback', icon: 'chat_bubble_outline', group: 'feedback' },
+                      { id: 'logout', label: lang === 'ja' ? 'ログアウト' : 'Log out', icon: 'logout', group: 'logout' },
                     ]}
                     onSelect={(id) => {
+                      if (id === 'collection') { setUserMenuOpen(false); setActiveScreen('collection'); return; }
+                      if (id === 'lang') return; // handled by trailing chips
                       if (id === 'sound') { toggleSound(); return; }
                       if (id === 'support') { playSound('buttonClick'); window.open('https://buymeacoffee.com/akizomo', '_blank', 'noopener,noreferrer'); return; }
                       if (id === 'feedback') { playSound('buttonClick'); setUserMenuOpen(false); navigate('/feedback'); return; }
@@ -819,35 +841,41 @@ function AppContent() {
                     onClose={() => { playSound('taskCancel'); setUserMenuOpen(false); }}
                     align="right"
                     className="pxd-user-menu"
+                    footer={
+                      <>
+                        <div className="user-menu-footer">
+                          <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a>
+                          <span className="user-menu-footer__dot">·</span>
+                          <a href="/terms.html" target="_blank" rel="noopener noreferrer">Terms</a>
+                          <span className="user-menu-footer__dot">·</span>
+                          <a href="/tokushoho.html" target="_blank" rel="noopener noreferrer">Commerce</a>
+                        </div>
+                        <div className="user-menu-footer">
+                          <a href="https://akizony.com" target="_blank" rel="noopener noreferrer">Made by Akihiro Uezono</a>
+                        </div>
+                      </>
+                    }
                   >
-                    {/* Email + plan badge */}
+                    {/* Agent icon + Email + plan badge */}
                     <div className="user-menu-account">
-                      <div className="user-menu-account__email">
-                        {user.email}
-                      </div>
-                      <div className="user-menu-account__plan-row">
-                        <span className={`user-menu-account__badge${userPlan === 'plus' ? ' user-menu-account__badge--plus' : ''}`}>
-                          {userPlan === 'plus' ? 'PIXDONE+' : 'FREE'}
-                        </span>
-                        <TextLink
-                          size="sm"
-                          onClick={() => { setUserMenuOpen(false); navigate(userPlan !== 'plus' ? '/pricing' : '/account'); }}
-                        >
-                          {userPlan !== 'plus'
-                            ? (lang === 'ja' ? '変更' : 'Change')
-                            : (lang === 'ja' ? '管理' : 'Manage')}
-                        </TextLink>
-                      </div>
-                    </div>
-                    {/* Language */}
-                    <div className="user-menu-lang">
-                      <div className="user-menu-lang__label">
-                        <PixelIcon name="language" />
-                        {lang === 'ja' ? '言語' : 'Language'}
-                      </div>
-                      <div className="user-menu-lang__chips">
-                        <Chip variant="ghost" selected={lang === 'en'} onClick={() => { changeLang('en'); playSound('buttonClick'); }}>En</Chip>
-                        <Chip variant="ghost" selected={lang === 'ja'} onClick={() => { changeLang('ja'); playSound('buttonClick'); }}>Ja</Chip>
+                      <AgentIcon themeKey={visualTheme} isPremium={isPremium} size={40} faceOnly />
+                      <div>
+                        <div className="user-menu-account__email">
+                          {user.email}
+                        </div>
+                        <div className="user-menu-account__plan-row">
+                          <span className={`user-menu-account__badge${userPlan === 'plus' ? ' user-menu-account__badge--plus' : ''}`}>
+                            {userPlan === 'plus' ? 'PIXDONE+' : 'FREE'}
+                          </span>
+                          <TextLink
+                            size="sm"
+                            onClick={() => { setUserMenuOpen(false); navigate(userPlan !== 'plus' ? '/pricing' : '/account'); }}
+                          >
+                            {userPlan !== 'plus'
+                              ? (lang === 'ja' ? '変更' : 'Change')
+                              : (lang === 'ja' ? '管理' : 'Manage')}
+                          </TextLink>
+                        </div>
                       </div>
                     </div>
                   </PopoverMenu>
@@ -866,21 +894,31 @@ function AppContent() {
       </header>
       )}
 
-      {/* Content area — constrained width */}
-      <div
-        className="pd-app-container"
-        style={{
-          minHeight: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          paddingBottom: focusZenOpen
-            ? 0
-            : isDesktop
-              ? 'calc(48px + 16px + env(safe-area-inset-bottom))'
-              : 'calc(56px + env(safe-area-inset-bottom))',
-        }}
-      >
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      {/* Content area: SidePanel + Main */}
+      <div className="pd-app-body">
+      {/* Desktop side panel — always in DOM for transition */}
+      {isDesktop && (
+        <SidePanel
+          lists={lists}
+          activeView={sideView}
+          open={sidePanelOpen && !isSubPage}
+          onSelectView={(view) => {
+            setSideView(view);
+            if (view !== 'today' && view !== 'plan' && view !== 'smash') {
+              setActiveList(view);
+            } else if (view === 'smash') {
+              setActiveList('smash-list');
+            }
+            setActiveScreen('tasks');
+          }}
+          onAddList={() => { playSound('buttonClick'); setListModal({ mode: 'add' }); }}
+          onClose={() => setSidePanelOpen(false)}
+          lang={lang}
+          todayCount={todayTasks.length}
+          planCount={planTotalCount}
+        />
+      )}
+      <main>
         {pathname === '/pricing' ? (
           <PricingPage />
         ) : pathname === '/account' ? (
@@ -907,7 +945,7 @@ function AppContent() {
             effectProgressMap={effectProgressMap}
             onRequestEffect={() => navigate('/effect-request')}
           />
-        ) : isFocusScreen ? (
+        ) : isFocusScreen && !isDesktop ? (
           <FocusScreenContainer
             lang={lang}
             user={user}
@@ -918,14 +956,35 @@ function AppContent() {
             focusZenOpen={focusZenOpen}
             onFocusZenOpenChange={setFocusZenOpen}
           />
+        ) : (isDesktop && sideView === 'today') || (!isDesktop && activeScreen === 'tasks' && mobileSubView === 'today') ? (
+          <TodayView
+            lists={lists}
+            lang={lang}
+            onComplete={handleComplete}
+            onEdit={() => { /* TODO: open edit */ }}
+            onAddTask={handleAddTaskToDefault}
+            autoOpenAddTaskNonce={autoOpenAddTaskNonce}
+            onAddButtonClick={handleTourAddButtonClick}
+            isOnboardingTour={onboardingTourActive}
+          />
+        ) : (isDesktop && sideView === 'plan') || (!isDesktop && activeScreen === 'tasks' && mobileSubView === 'plan') ? (
+          <PlanView
+            lists={lists}
+            lang={lang}
+            onComplete={handleComplete}
+            onEdit={() => { /* TODO: open edit */ }}
+            onUpdateTask={updateTask}
+            onAddTask={handleAddTaskToDefault}
+            autoOpenAddTaskNonce={autoOpenAddTaskNonce}
+            onAddButtonClick={handleTourAddButtonClick}
+            isOnboardingTour={onboardingTourActive}
+          />
         ) : (
           <TasksScreen
             lang={lang}
             user={user}
             isDesktop={isDesktop}
             hasFinePointer={hasFinePointer}
-            totalTasksCompleted={themeStats.tasksCompleted}
-            totalLoginDays={totalLoginDays}
             onComplete={handleComplete}
             onUncomplete={handleUncomplete}
             onSmash={handleSmash}
@@ -933,17 +992,67 @@ function AppContent() {
             onNavigateToFocus={navigateToFocus}
             onNavigateToCollection={() => { playSound('buttonClick'); setCollectionInitialTab('effects'); setCollectionInitialFilter('CHALLENGE'); setActiveScreen('collection'); }}
             onDismissTutorial={(action: 'pricing' | 'later') => {
-              // Delete the Tutorial list and navigate accordingly
-              if (currentList && isTutorial) {
-                deleteList(currentList.id, lists);
-              }
               if (action === 'pricing') navigate('/pricing');
             }}
             onOpenListModal={setListModal}
             anyShellModalOpen={anyShellModalOpen}
+            autoOpenAddTaskNonce={autoOpenAddTaskNonce}
           />
         )}
+
+      <WorldLayer
+        themeKey={visualTheme}
+        cabinetCount={(() => { const p = new URLSearchParams(window.location.search).get('wlv'); return p !== null ? [0,1,3,5,6][Math.min(Number(p),4)] ?? 0 : themeStats.cabinetCount; })()}
+        agentCount={(() => { const p = new URLSearchParams(window.location.search).get('wagent'); return p !== null ? Number(p) : worldAgentCount; })()}
+      />
       </main>
+
+      {/* Focus widget — floating, desktop only, hidden during zen-mode */}
+      {isDesktop && !focusZenOpen && !isSubPage && (
+        <FocusWidget
+          lang={lang}
+          timerState={desktopTimer.timerState}
+          remaining={desktopTimer.remaining}
+          bgmOn={desktopBgmOn}
+          bgmTrack={desktopBgmTrack}
+          onStart={() => { playSound('buttonClick'); desktopTimer.start(); }}
+          onPause={() => { playSound('buttonClick'); desktopTimer.pause(); stopBgm(); }}
+          onResume={() => { playSound('buttonClick'); desktopTimer.resume(); }}
+          onSkip={() => { desktopTimer.reset(25 * 60); stopBgm(); }}
+          onBgmChange={({ bgmOn: nextOn, track: nextTrack }) => {
+            setDesktopBgmOn(nextOn);
+            setBgmOn(nextOn);
+            setDesktopBgmTrack(nextTrack);
+            setBgmTrack(nextTrack);
+          }}
+          onOpenZen={() => setFocusZenOpen(true)}
+        />
+      )}
+
+      {/* Desktop zen-mode: direct overlay, no screen transition */}
+      {isDesktop && focusZenOpen && (
+        <FocusZenMode
+          lang={lang}
+          mode="pomodoro"
+          timerState={desktopTimer.timerState}
+          remaining={desktopTimer.remaining}
+          totalSeconds={25 * 60}
+          bgmOn={desktopBgmOn}
+          bgmTrack={desktopBgmTrack}
+          onBgmChange={({ bgmOn: nextOn, track: nextTrack }) => {
+            setDesktopBgmOn(nextOn);
+            setBgmOn(nextOn);
+            setDesktopBgmTrack(nextTrack);
+            setBgmTrack(nextTrack);
+          }}
+          onClose={() => { setFocusZenOpen(false); stopBgm(); }}
+          onStart={() => { playSound('buttonClick'); desktopTimer.start(); }}
+          onPause={() => { playSound('buttonClick'); desktopTimer.pause(); stopBgm(); }}
+          onResume={() => { playSound('buttonClick'); desktopTimer.resume(); }}
+          onSkipBreak={() => {}}
+          onCompleteFocus={() => { desktopTimer.reset(25 * 60); setFocusZenOpen(false); stopBgm(); }}
+        />
+      )}
 
 
       {/* List modal */}
@@ -1059,18 +1168,62 @@ function AppContent() {
         </div>
       )}
 
-      {/* Bottom navigation */}
-      {!focusZenOpen && (
+      {/* Mobile sub-menu — Tasks tab only */}
+      {!focusZenOpen && !isDesktop && activeScreen === 'tasks' && !isSubPage && (
+        <MobileSubMenu
+          activeView={mobileSubView}
+          onSelect={setMobileSubView}
+          lang={lang}
+          hidden={mobileChromHidden}
+        />
+      )}
+
+      {/* Mobile FAB — always visible on Tasks tab */}
+      {!focusZenOpen && !isDesktop && activeScreen === 'tasks' && !isSubPage && (
+        <button
+          type="button"
+          className="pd-mobile-fab"
+          data-tour={onboardingTourActive ? 'true' : 'false'}
+          onClick={() => {
+            playSound('taskAdd');
+            // On today / plan: trigger that view's add-task form.
+            // On lists: TasksScreen's own FAB handles the add, so just nudge submenu.
+            if (mobileSubView === 'today' || mobileSubView === 'plan') {
+              setAutoOpenAddTaskNonce((n) => n + 1);
+            } else if (mobileSubView !== 'lists') {
+              setMobileSubView('lists');
+            }
+            handleTourAddButtonClick();
+          }}
+          aria-label={lang === 'ja' ? 'タスクを追加' : 'Add task'}
+          style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '50%',
+            background: 'var(--pd-color-accent-default)',
+            color: 'var(--pd-color-accent-text)',
+            border: '2px solid var(--pd-color-accent-default)',
+            boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+          }}
+        >
+          <PixelIcon name="add" size="24px" />
+        </button>
+      )}
+
+      {/* Bottom navigation — mobile only */}
+      {!focusZenOpen && !isDesktop && (
         <BottomNav
           activeScreen={isSubPage ? null : activeScreen}
           onSelect={(screen) => {
-            playSound('buttonClick');
-            if (screen === 'collection') { setCollectionInitialEffectKey(null); setCollectionInitialFilter(undefined); }
             setActiveScreen(screen);
             if (isSubPage) navigate('/');
-            }}
+          }}
           lang={lang}
-          showCollection={!!user}
+          hidden={mobileChromHidden}
         />
       )}
 
@@ -1130,104 +1283,17 @@ function AppContent() {
         </div>
       )}
 
-      {/* Footer legal links intentionally shown even when menu hides them. */}
     </div>
 
-    <WorldLayer
-      themeKey={visualTheme}
-      cabinetCount={(() => { const p = new URLSearchParams(window.location.search).get('wlv'); return p !== null ? [0,1,3,5,6][Math.min(Number(p),4)] ?? 0 : themeStats.cabinetCount; })()}
-      agentCount={(() => { const p = new URLSearchParams(window.location.search).get('wagent'); return p !== null ? Number(p) : worldAgentCount; })()}
-    />
-
-    <footer style={{
-      textAlign: 'center',
-      padding: '12px 16px 14px',
-      fontSize: '0.6875rem',
-      color: 'var(--pd-color-text-muted)',
-      borderTop: '1px solid var(--pd-color-border-default)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '10px',
-      flexShrink: 0,
-    }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
-        }}
-      >
-        <a
-          href="/tokushoho.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'inherit', textDecoration: 'none' }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-        >
-          {lang === 'ja' ? '特定商取引法に基づく表示' : 'Commerce Disclosure'}
-        </a>
-        <a
-          href="/privacy.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'inherit', textDecoration: 'none' }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-        >
-          {lang === 'ja' ? 'プライバシーポリシー' : 'Privacy Policy'}
-        </a>
-        <a
-          href="/terms.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'inherit', textDecoration: 'none' }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-        >
-          {lang === 'ja' ? '利用規約' : 'Terms of Service'}
-        </a>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '4px',
-          fontFamily: 'var(--pd-font-body)',
-          lineHeight: 1.5,
-        }}
-      >
-        <span>
-          Created by{' '}
-          <a
-            href="https://akihiro-uezono.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'inherit', textDecoration: 'none' }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
-          >
-            Akihiro Uezono
-          </a>
-        </span>
-        <span>© 2026 PixDone</span>
-      </div>
-      <a
-        href="https://www.producthunt.com/products/pixdone-todo-app-with-pixel-effects?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-pixdone"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <img
-          src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1119592&theme=light&t=1776156649500"
-          alt="PixDone - Earn random pixel rewards every time you smash a task | Product Hunt"
-          width={250}
-          height={54}
-        />
-      </a>
-    </footer>
+    {showOnboarding && (
+      <OnboardingTutorial
+        themeKey={visualTheme}
+        isPremium={isPremium}
+        onDone={handleOnboardingDone}
+        onUpgrade={handleOnboardingUpgrade}
+        onEnterFirstTask={handleEnterFirstTask}
+      />
+    )}
     </>
   );
 }

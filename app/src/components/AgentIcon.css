@@ -1,0 +1,51 @@
+.pd-agent-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+.pd-agent-icon__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+}
+
+/* Face-only: crop to upper body, sunglasses centred, flipped */
+.pd-agent-icon__img--face {
+  object-fit: cover;
+  object-position: center 20%;
+  transform: scaleX(-1) scale(1.5);
+  transform-origin: center 25%;
+}
+
+/* Header variant: match IconButton md size (44px), thin border, tinted bg */
+.pd-agent-icon--header {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--pd-color-border-default);
+  background-color: color-mix(in srgb, var(--pd-effect-particle-2, #4ecdc4) 18%, transparent);
+}
+
+.pd-agent-icon__badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pd-color-accent-default);
+  color: var(--pd-color-background-default);
+  font-family: var(--pd-font-brand);
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  border-radius: 0;
+}
