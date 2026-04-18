@@ -229,7 +229,7 @@ export function OnboardingTutorial({
       <div className="pd-onboarding pd-onboarding--splash" role="dialog" aria-modal="true" aria-label="PixDone onboarding">
         <div className="pd-onboarding__splash">
           <img
-            src="/logo-white.svg"
+            src="/pixdone-logo-white.svg"
             alt="PixDone"
             className="pd-onboarding__splash-logo"
           />

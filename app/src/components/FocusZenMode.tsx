@@ -147,7 +147,7 @@ export function FocusZenMode({
             variant="ghost"
             size="md"
             aria-label={lang === 'ja' ? '閉じる' : 'Close'}
-            icon={<PixelIcon name="close" size="22px" />}
+            icon={<PixelIcon name="shrink" size="22px" />}
             soundKey={null}
             onClick={requestClose}
           />

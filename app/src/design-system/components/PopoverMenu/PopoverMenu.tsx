@@ -11,6 +11,7 @@ export function PopoverMenu({
   align = 'right',
   className = '',
   children,
+  footer,
 }: PopoverMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -45,13 +46,18 @@ export function PopoverMenu({
     >
       {header && <div className="pxd-popover-menu__header">{header}</div>}
       {children}
-      {items.map((item) => (
+      {items.map((item, i) => {
+        const nextGroup = i < items.length - 1 ? items[i + 1].group : undefined;
+        const sameGroupAsNext = item.group !== undefined && item.group === nextGroup;
+        const prevGroup = i > 0 ? items[i - 1].group : undefined;
+        const isGroupBoundary = i > 0 && item.group !== prevGroup;
+        return (
         <button
           key={item.id}
           type="button"
           role="menuitem"
           disabled={item.disabled}
-          className={`pxd-popover-menu__item${item.danger ? ' pxd-popover-menu__item--danger' : ''}${item.selected ? ' pxd-popover-menu__item--selected' : ''}`}
+          className={`pxd-popover-menu__item${item.danger ? ' pxd-popover-menu__item--danger' : ''}${item.selected ? ' pxd-popover-menu__item--selected' : ''}${isGroupBoundary ? ' pxd-popover-menu__item--group-start' : ''}${sameGroupAsNext ? ' pxd-popover-menu__item--no-divider' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
             onSelect(item.id);
@@ -61,11 +67,14 @@ export function PopoverMenu({
             <PixelIcon name={item.icon} className="pxd-popover-menu__icon" />
           )}
           <span className="pxd-popover-menu__label">{item.label}</span>
-          {item.selected && (
+          {item.trailing}
+          {!item.trailing && item.selected && (
             <PixelIcon name="check" className="pxd-popover-menu__check" />
           )}
         </button>
-      ))}
+        );
+      })}
+      {footer}
     </div>
   );
 }

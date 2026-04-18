@@ -58,7 +58,7 @@ html.task-effect-playing {
  * 5コンボ以上: UIクロームを薄くしてタスクに集中させる。
  *
  * 構造:
- *   .pd-app-container
+ *   .pd-app-body
  *     header        ← dim
  *     main
  *       ListHeader  ← dim  (main の直接子で .pd-task-area 以外)
@@ -69,37 +69,37 @@ html.task-effect-playing {
  *     footer        ← dim
  *     その他直接子   ← dim
  *
- * 方針: main 以外の pd-app-container 直接子と、main 内の .pd-task-area 以外を薄くする。
+ * 方針: main 以外の pd-app-body 直接子と、main 内の .pd-task-area 以外を薄くする。
  * → 新しいUI要素を追加しても適切なレベルに置けば自動的に対象になる。
  */
 
-/* Transition 常時適用 */
-.pd-app-container > :not(main),
-.pd-app-container main > * {
+/* Transition 常時適用 (sidebar は除外 — 独自の width transition を持つ) */
+.pd-app-body > :not(main):not(.pd-sidebar),
+.pd-app-body main > * {
   transition: opacity 0.4s ease;
 }
 
 /* main 以外の直接子 (header, footer など) を薄くする */
-.pd-app-container.smash-combo-active > :not(main) {
+.pd-app-body.smash-combo-active > :not(main) {
   opacity: 0.3;
   pointer-events: none;
 }
 
 /* main 内の直接子のうち .pd-task-area 以外を薄くする */
-.pd-app-container.smash-combo-active main > :not(.pd-task-area) {
+.pd-app-body.smash-combo-active main > :not(.pd-task-area) {
   opacity: 0.3;
   pointer-events: none;
 }
 
 /* Smash説明カード: .pd-task-area 内なので個別に薄くする */
-.pd-app-container.smash-combo-active .pd-smash-card {
+.pd-app-body.smash-combo-active .pd-smash-card {
   opacity: 0.3;
   pointer-events: none;
   transition: opacity 0.4s ease;
 }
 
 /* FAB は常にアクティブ */
-.pd-app-container.smash-combo-active .pd-mobile-fab {
+.pd-app-body.smash-combo-active .pd-mobile-fab {
   opacity: 1 !important;
   pointer-events: auto !important;
 }

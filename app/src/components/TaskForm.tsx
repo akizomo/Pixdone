@@ -12,12 +12,19 @@ export interface TaskFormProps {
   lang: 'en' | 'ja';
   listId: string;
   task?: Task;
+  /** Prefill the title field when creating a new task (ignored when `task` is set). */
+  initialTitle?: string;
   onSave: (fields: Partial<Task> & { title: string }) => void;
   onCancel: () => void;
   onClose?: () => void;
   onDelete?: () => void;
   availableLists?: Array<{ id: string; name: string }>;
   onMoveToList?: (taskId: string, targetListId: string) => void;
+  /**
+   * Mobile compact layout only: fires when the user picks a different list from
+   * the bottom-left list chip (add mode). Lets the parent re-target `onSave`.
+   */
+  onListChange?: (listId: string) => void;
   mobile?: boolean;
 }
 
@@ -57,8 +64,8 @@ export interface TaskFormHandle {
   dismissSubmenus: () => boolean;
 }
 
-export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskForm({ lang, task, onSave, onCancel, onClose, onDelete, availableLists, onMoveToList, mobile = false }, ref) {
-  const [title, setTitle] = useState(task?.title ?? '');
+export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskForm({ lang, task, listId, initialTitle, onSave, onCancel, onClose, onDelete, availableLists, onMoveToList, onListChange, mobile = false }, ref) {
+  const [title, setTitle] = useState(task?.title ?? initialTitle ?? '');
   const [details, setDetails] = useState(task?.details ?? '');
   const [dueDate, setDueDate] = useState<string | null>(task?.dueDate ?? null);
   const [repeat, setRepeat] = useState<RepeatConfig>(task?.repeat ?? 'none');
@@ -81,7 +88,11 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
   const today = getTodayYMD();
   const tomorrow = getTomorrowYMD();
 
-  useEffect(() => { titleRef.current?.focus(); }, []);
+  // Focus title after BottomSheet animation settles (~350ms)
+  useEffect(() => {
+    const id = setTimeout(() => titleRef.current?.focus(), 350);
+    return () => clearTimeout(id);
+  }, []);
 
   const handleSave = useCallback(() => {
     const trimmed = title.trim();

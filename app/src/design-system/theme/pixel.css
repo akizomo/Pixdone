@@ -37,14 +37,45 @@
   --pixel-green: #33ff33;
 }
 
-/* App layout – matches .app-container in public/style.css */
-.pd-app-container {
+/* App body — sidebar + main, flex row */
+.pd-app-body {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Main content area */
+.pd-app-body > main {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: var(--pd-layout-container-maxWidth, 600px);
-  margin: 0 auto;
-  padding: var(--pd-layout-container-padding, 20px);
-  min-height: 100vh;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--pxd-space-4) var(--pd-layout-container-padding, 20px);
+}
+
+/* Mobile: constrain content width */
+@media not all and (any-pointer: fine) {
+  .pd-app-body > main {
+    max-width: var(--pd-layout-container-maxWidth, 600px);
+    margin: 0 auto;
+  }
+}
+
+/* Desktop: comfortable padding, no max-width */
+@media (min-width: 768px) {
+  .pd-app-body > main {
+    padding: var(--pxd-space-5, 24px) var(--pxd-space-6, 32px);
+    padding-bottom: 80px; /* space for floating Focus widget */
+  }
+
+  .pd-mobile-only {
+    display: none !important;
+  }
 }
 
 /* App title – logo text (VT323, 32px, pixel shadow) */
@@ -126,16 +157,36 @@
   display: none !important;
   position: fixed;
   z-index: 300;
-  /* Keep clear of bottom nav (+16px gap) */
-  bottom: calc(56px + 16px + env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%) translateZ(0);
+  /* Same row as SubMenu, above BottomNav */
+  bottom: calc(56px + env(safe-area-inset-bottom) + var(--pxd-space-3, 12px));
+  right: var(--pxd-space-4, 16px);
+  left: auto;
+  transform: translateZ(0);
   transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .pd-mobile-fab:active {
-  transform: translateX(-50%) translateZ(0) scale(0.9);
+  transform: translateZ(0) scale(0.9);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Onboarding Step 5 tour: lift the FAB above the translucent overlay
+   (.pd-onboarding is z-index 3000) and emit a cyan pulse so only this
+   control reads as tappable. */
+.pd-mobile-fab[data-tour="true"] {
+  z-index: 3050 !important;
+  animation: pd-mobile-fab-tour-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pd-mobile-fab-tour-pulse {
+  0%, 100% { box-shadow: 2px 2px 0px var(--pd-color-shadow-default), 0 0 0 0 rgba(67, 203, 234, 0.55); }
+  50%      { box-shadow: 2px 2px 0px var(--pd-color-shadow-default), 0 0 0 14px rgba(67, 203, 234, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-mobile-fab[data-tour="true"] {
+    animation: none;
+  }
 }
 
 .pd-mobile-fab--smash {
@@ -176,16 +227,16 @@
     display: none !important;
   }
 
-  /* Extra padding so content isn't hidden behind FAB */
-  .pd-app-container {
-    padding-bottom: calc(56px + 56px + 16px + env(safe-area-inset-bottom));
+  /* Reserve exactly the fixed BottomNav height (56px) + safe-area. */
+  .pd-app-body > main {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom));
   }
 }
 
-/* Mouse/trackpad: default bottom padding (not the mobile FAB inset) */
+/* Mouse/trackpad: space for floating Focus widget */
 @media (any-pointer: fine) {
-  .pd-app-container {
-    padding-bottom: 20px;
+  .pd-app-body > main {
+    padding-bottom: 80px;
   }
 
   /*

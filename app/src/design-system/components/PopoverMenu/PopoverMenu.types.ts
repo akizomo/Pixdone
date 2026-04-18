@@ -9,6 +9,10 @@ export interface PopoverMenuItem {
   disabled?: boolean;
   /** Renders a trailing checkmark in accent color (e.g. selected sort mode). */
   selected?: boolean;
+  /** Group key — items in the same group have no divider between them. */
+  group?: string;
+  /** Custom trailing content (rendered instead of label on the right side). */
+  trailing?: ReactNode;
 }
 
 export interface PopoverMenuProps {
@@ -26,4 +30,6 @@ export interface PopoverMenuProps {
   className?: string;
   /** Extra content rendered above items (e.g. user info). */
   children?: ReactNode;
+  /** Extra content rendered below items (e.g. footer links). */
+  footer?: ReactNode;
 }

@@ -1,0 +1,101 @@
+.pd-today-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pxd-space-2);
+  padding: var(--pxd-space-2) 0;
+  flex: 1;
+}
+
+.pd-today-view__add-btn,
+.pd-plan-view__add-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-3);
+  width: 100%;
+  padding: var(--pxd-space-3) var(--pxd-space-4);
+  margin-bottom: var(--pxd-space-3);
+  background: var(--pd-color-background-elevated);
+  border: var(--pxd-border-base) solid var(--pd-color-border-default);
+  border-radius: 0;
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-sm);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--pxd-shadow-pixel-sm);
+  transition: transform var(--pxd-motion-fast) var(--pxd-easing-standard),
+              border-color var(--pxd-motion-fast) var(--pxd-easing-standard),
+              color var(--pxd-motion-fast) var(--pxd-easing-standard);
+  image-rendering: pixelated;
+}
+
+.pd-today-view__add-btn:hover,
+.pd-plan-view__add-btn:hover {
+  border-color: var(--pd-color-accent-default);
+  color: var(--pd-color-text-primary);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--pxd-shadow-pixel-md);
+}
+
+/* Touch devices: hide the inline rectangular button — mobile uses the global FAB. */
+@media not (any-pointer: fine) {
+  .pd-today-view__add-btn,
+  .pd-plan-view__add-btn {
+    display: none !important;
+  }
+}
+
+/* Onboarding Step 5 tour: lift the button above the translucent overlay
+   (z-index 3050 sits above .pd-onboarding at 3000) and emit a cyan pulse
+   so only this control reads as tappable. */
+.pd-today-view__add-btn[data-tour="true"],
+.pd-plan-view__add-btn[data-tour="true"] {
+  position: relative;
+  z-index: 3050;
+  border-color: var(--pxd-cyan-500);
+  color: var(--pd-color-text-primary);
+  animation: pd-tour-button-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pd-tour-button-pulse {
+  0%, 100% { box-shadow: var(--pxd-shadow-pixel-md), 0 0 0 0 rgba(67, 203, 234, 0.55); }
+  50%      { box-shadow: var(--pxd-shadow-pixel-md), 0 0 0 12px rgba(67, 203, 234, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-today-view__add-btn[data-tour="true"],
+  .pd-plan-view__add-btn[data-tour="true"] {
+    animation: none;
+  }
+}
+
+/* Page title — matches ListHeader list-name size (1.5rem, brand font, bold, uppercase) */
+.pd-today-view__title,
+.pd-plan-view__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--pd-color-text-primary);
+  margin: 0;
+  padding: var(--pxd-space-3) 0 var(--pxd-space-1);
+  font-family: var(--pd-font-brand);
+  image-rendering: pixelated;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0px var(--pxd-shadow-pixel-sm);
+}
+
+.pd-today-view__tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pxd-space-2);
+}
+
+.pd-today-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-sm);
+  color: var(--pd-color-text-muted);
+}

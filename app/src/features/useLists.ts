@@ -540,6 +540,7 @@ export function useLists() {
   }, [setLists, user]);
 
   const deleteList = useCallback((listId: string, allLists: List[]) => {
+    if (listId === 'default') return; // default "My Tasks" is the inbox — never deletable
     if (user) {
       const remaining = allLists.filter((l) => l.id !== listId);
       setLists(remaining);
@@ -832,26 +833,26 @@ export function useLists() {
     }
   }, [setLists, user]);
 
+  /**
+   * Apply an explicit visual order for active tasks. `orderedIds` is the list
+   * of active task ids in the desired final order (already accounts for the
+   * current sortMode + the move). Completed tasks are preserved.
+   */
   const reorderActiveTasks = useCallback(
-    (listId: string, fromIndex: number, toIndex: number) => {
-      if (listId === 'smash-list' || fromIndex === toIndex) return;
+    (listId: string, orderedIds: string[]) => {
+      if (listId === 'smash-list') return;
 
       setLists((prev) => {
         const list = prev.find((l) => l.id === listId);
         if (!list) return prev;
-        const active = list.tasks.filter((t) => !t.completed);
-        const completed = list.tasks.filter((t) => t.completed);
-        if (
-          fromIndex < 0 ||
-          fromIndex >= active.length ||
-          toIndex < 0 ||
-          toIndex >= active.length
-        ) {
-          return prev;
+        const byId = new Map(list.tasks.map((t) => [t.id, t]));
+        const nextActive: Task[] = [];
+        for (const id of orderedIds) {
+          const t = byId.get(id);
+          if (t && !t.completed) nextActive.push(t);
         }
-        const nextActive = [...active];
-        const [moved] = nextActive.splice(fromIndex, 1);
-        nextActive.splice(toIndex, 0, moved);
+        if (nextActive.length === 0) return prev;
+        const completed = list.tasks.filter((t) => t.completed);
         const withOrder = nextActive.map((t, i) => ({ ...t, sortOrder: i }));
 
         if (user) {

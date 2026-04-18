@@ -15,7 +15,8 @@ import type { Task } from '../types/task';
 import { playSound } from '../services/sound';
 
 export interface MobileTaskSheetHandle {
-  openAdd: () => void;
+  /** Open sheet in add mode. Pass `initialTitle` to prefill the title field (e.g. onboarding tour). */
+  openAdd: (opts?: { initialTitle?: string }) => void;
   openEdit: (taskId: string) => void;
   close: () => void;
 }
@@ -39,6 +40,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
     const [open, setOpen] = useState(false);
     const [mode, setMode] = useState<'add' | 'edit'>('add');
     const [editTaskId, setEditTaskId] = useState<string | null>(null);
+    const [initialTitle, setInitialTitle] = useState<string | undefined>(undefined);
     const taskFormRef = useRef<TaskFormHandle>(null);
     // Skip the auto-save-on-dismiss path when the close was triggered by
     // an explicit save (Save button) or by an imperative force-close
@@ -55,15 +57,17 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
     }, []);
 
     useImperativeHandle(ref, () => ({
-      openAdd() {
+      openAdd(opts?: { initialTitle?: string }) {
         setEditTaskId(null);
         setMode('add');
+        setInitialTitle(opts?.initialTitle);
         skipAutoSaveRef.current = false;
         setOpen(true);
       },
       openEdit(taskId: string) {
         setEditTaskId(taskId);
         setMode('edit');
+        setInitialTitle(undefined);
         skipAutoSaveRef.current = false;
         setOpen(true);
       },
@@ -123,6 +127,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
           lang={lang}
           listId={currentListId}
           task={task}
+          initialTitle={mode === 'add' ? initialTitle : undefined}
           onSave={handleSave}
           onCancel={handleCancel}
           onClose={close}

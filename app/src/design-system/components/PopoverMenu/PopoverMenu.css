@@ -62,6 +62,11 @@
   border-bottom: none;
 }
 
+/* Same group: no divider between consecutive items in the same group */
+.pxd-popover-menu__item--no-divider {
+  border-bottom: none;
+}
+
 /* Hover – matches account menu pattern: background-hover */
 @media (hover: hover) {
   .pxd-popover-menu__item:hover:not(:disabled) {

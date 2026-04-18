@@ -1,0 +1,68 @@
+/* ── Focus Widget ── */
+
+.pd-focus-widget {
+  position: fixed;
+  bottom: var(--pxd-space-5, 24px);
+  right: var(--pxd-space-5, 24px);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pxd-space-2);
+  padding: var(--pxd-space-3);
+  background: var(--pd-color-background-elevated);
+  border: 2px solid var(--pd-color-border-default);
+  box-shadow: 3px 3px 0 var(--pd-color-shadow-default);
+  image-rendering: pixelated;
+}
+
+/* Timer display — theme accent color */
+.pd-focus-widget__time {
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 1.5rem;
+  color: var(--pd-color-accent-default);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-align: center;
+  user-select: none;
+}
+
+/* Control buttons row */
+.pd-focus-widget__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-1);
+}
+
+.pd-focus-widget__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid var(--pd-color-border-default);
+  cursor: pointer;
+  color: var(--pd-color-text-secondary);
+  padding: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pd-focus-widget__btn {
+    transition: background 200ms ease, color 200ms ease;
+  }
+  .pd-focus-widget__btn:hover {
+    background: var(--pd-color-background-hover);
+    color: var(--pd-color-text-primary);
+  }
+}
+
+.pd-focus-widget__btn:active {
+  opacity: 0.8;
+}
+
+/* BGM popover inside widget: open upward */
+.pd-focus-widget .pxd-popover-menu {
+  top: auto;
+  bottom: calc(100% + 4px);
+}

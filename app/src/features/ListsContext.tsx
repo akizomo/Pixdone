@@ -42,7 +42,7 @@ interface ListsActionsValue {
   toggleSubtask: (taskId: string, subtaskId: string) => void;
   deleteSubtask: (taskId: string, subtaskId: string) => void;
   moveTask: (taskId: string, targetListId: string) => void;
-  reorderActiveTasks: (listId: string, fromIndex: number, toIndex: number) => void;
+  reorderActiveTasks: (listId: string, orderedIds: string[]) => void;
   resetRepeatingTasks: () => void;
   closeListLimitUpsell: () => void;
 }

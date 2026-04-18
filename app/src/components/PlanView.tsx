@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { List } from '../types/list';
 import type { Task } from '../types/task';
 import { usePlanView } from '../hooks/usePlanView';
@@ -123,8 +123,11 @@ export function PlanView({
   const plan = usePlanView(lists);
   const [isAdding, setIsAdding] = useState(false);
 
+  const lastConsumedNonce = useRef(autoOpenAddTaskNonce ?? 0);
   useEffect(() => {
     if (!autoOpenAddTaskNonce || !onAddTask) return;
+    if (autoOpenAddTaskNonce === lastConsumedNonce.current) return;
+    lastConsumedNonce.current = autoOpenAddTaskNonce;
     setIsAdding(true);
   }, [autoOpenAddTaskNonce, onAddTask]);
 
@@ -195,6 +198,7 @@ export function PlanView({
   if (totalTasks === 0) {
     return (
       <div className="pd-plan-view">
+        <h2 className="pd-plan-view__title">{lang === 'ja' ? 'プラン' : 'Plan'}</h2>
         {addUi}
         <div className="pd-plan-empty">
           <p>{lang === 'ja' ? 'タスクがありません' : 'No tasks yet'}</p>
@@ -205,6 +209,7 @@ export function PlanView({
 
   return (
     <div className="pd-plan-view">
+      <h2 className="pd-plan-view__title">{lang === 'ja' ? 'プラン' : 'Plan'}</h2>
       {addUi}
       {sectionData.map((s) => (
         <PlanSection

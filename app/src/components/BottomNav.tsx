@@ -3,32 +3,31 @@ import { playSound } from '../services/sound';
 import { PixelIcon } from '../design-system';
 import './BottomNav.css';
 
-export type ActiveScreen = 'tasks' | 'focus' | 'collection';
+export type MobileSubView = 'lists' | 'today' | 'plan';
 
 export interface BottomNavProps {
-  activeScreen: ActiveScreen | null;
-  onSelect: (screen: ActiveScreen) => void;
+  activeView: MobileSubView | null;
+  onSelect: (view: MobileSubView) => void;
   lang: 'en' | 'ja';
-  showCollection?: boolean;
+  hidden?: boolean;
 }
 
-export function BottomNav({ activeScreen, onSelect, lang, showCollection = true }: BottomNavProps) {
-  const tabs: { id: ActiveScreen; icon: string; labelKey: string }[] = [
-    { id: 'tasks', icon: 'format_list_bulleted', labelKey: 'tasks' },
-    { id: 'focus', icon: 'timer', labelKey: 'focus' },
-    { id: 'collection', icon: 'auto_awesome', labelKey: 'collection' },
-  ];
+const TABS: { id: MobileSubView; icon: string; labelKey: string; fallback: string }[] = [
+  { id: 'lists', icon: 'folder',              labelKey: 'lists', fallback: 'Lists' },
+  { id: 'today', icon: 'calendar_today',      labelKey: 'today', fallback: 'Today' },
+  { id: 'plan',  icon: 'format_list_bulleted', labelKey: 'plan',  fallback: 'Plan'  },
+];
 
-  const visibleTabs = showCollection ? tabs : tabs.filter((t) => t.id !== 'collection');
-
+export function BottomNav({ activeView, onSelect, lang, hidden = false }: BottomNavProps) {
   return (
     <nav
       role="tablist"
-      className="pd-bottom-nav"
-      aria-label={lang === 'ja' ? 'メインナビゲーション' : 'Main navigation'}
+      className={`pd-bottom-nav${hidden ? ' pd-bottom-nav--hidden' : ''}`}
+      aria-label={lang === 'ja' ? 'タスクビュー切替' : 'Task view'}
     >
-      {visibleTabs.map((tab) => {
-        const isActive = activeScreen === tab.id;
+      {TABS.map((tab) => {
+        const isActive = activeView === tab.id;
+        const label = t(tab.labelKey, lang) || tab.fallback;
         return (
           <button
             key={tab.id}
@@ -39,7 +38,7 @@ export function BottomNav({ activeScreen, onSelect, lang, showCollection = true 
             onClick={() => { playSound('buttonClick'); onSelect(tab.id); }}
           >
             <PixelIcon name={tab.icon} className="pd-bottom-nav__icon" />
-            <span className="pd-bottom-nav__label">{t(tab.labelKey, lang)}</span>
+            <span className="pd-bottom-nav__label">{label}</span>
           </button>
         );
       })}

@@ -28,7 +28,7 @@ import emojiEventsSvg from 'pixelarticons/svg/trophy.svg?raw';
 import favoriteSvg from 'pixelarticons/svg/heart.svg?raw';
 import folderSvg from 'pixelarticons/svg/folder.svg?raw';
 import formatListBulletedSvg from 'pixelarticons/svg/bulletlist.svg?raw';
-import fullscreenSvg from 'pixelarticons/svg/expand.svg?raw';
+import fullscreenSvg from 'pixelarticons/svg/scale.svg?raw';
 import languageSvg from 'pixelarticons/svg/globe.svg?raw';
 import lightModeSvg from 'pixelarticons/svg/lightbulb.svg?raw';
 import logoutSvg from 'pixelarticons/svg/logout.svg?raw';
@@ -48,6 +48,11 @@ import volumeOffSvg from 'pixelarticons/svg/volume.svg?raw';
 import volumeUpSvg from 'pixelarticons/svg/volume-3.svg?raw';
 import flagSvg from 'pixelarticons/svg/flag.svg?raw';
 import chevronRight2Svg from 'pixelarticons/svg/chevron-right-2.svg?raw';
+import menuSvg from 'pixelarticons/svg/menu.svg?raw';
+import playSvg from 'pixelarticons/svg/play.svg?raw';
+import forwardSvg from 'pixelarticons/svg/forward.svg?raw';
+// pixelarticons has no pause icon — two vertical bars
+const pauseSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 
 /**
  * Maps Material Icons names → pixelarticons raw SVG strings.
@@ -95,6 +100,14 @@ const ICON_MAP: Record<string, string> = {
   volume_up: volumeUpSvg,
   flag: flagSvg,
   chevron_right_2: chevronRight2Svg,
+  menu: menuSvg,
+  play: playSvg,
+  pause: pauseSvg,
+  skip_next: forwardSvg,
+  // shrink: scale.svg with arrows pointing inward (mirrored arrowheads)
+  shrink: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">' +
+    '<path d="M3 21h2v-2h2v-2h2v-2h2v8H3zM21 3h-2v2h-2v2h-2v2h-2V1h8z"/>' +
+    '</svg>',
 };
 
 export interface PixelIconProps {

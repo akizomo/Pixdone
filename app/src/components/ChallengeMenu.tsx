@@ -248,7 +248,7 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
       >
         <IconButton
           variant="ghost"
-          size="sm"
+          size="md"
           aria-label={label}
           title={`${label} ${Math.round(pct)}%`}
           icon={<PixelIcon name="emoji_events" />}
