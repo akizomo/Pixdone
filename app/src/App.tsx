@@ -329,26 +329,28 @@ function AppContent() {
     // rendered by the tutorial itself. Mark the tutorial as seen here too
     // — the user has watched the whole story arc; even if they close the
     // tab mid-tour it must never replay.
-    const defaultListId =
-      lists.find((l) => l.id === 'default')?.id ??
+    const inboxId =
+      lists.find((l) => l.kind === 'inbox')?.id ??
       lists.find((l) => l.id !== 'smash-list' && l.name !== '\u{1F4A5} Smash List')?.id ??
       lists[0]?.id ??
-      'default';
-    setActiveList(defaultListId);
+      '';
+    if (!inboxId) return;
+    setActiveList(inboxId);
     setActiveScreen('tasks');
-    setSideView(defaultListId);     // desktop side panel → My tasks list
+    setSideView(inboxId);           // desktop side panel → My Tasks list
     setMobileSubView('lists');      // mobile sub-tab → Lists so TasksScreen renders
     setOnboardingTourActive(true);
     markTutorialSeen();
   }, [lists, setActiveList, markTutorialSeen]);
 
   const handleAddTaskToDefault = useCallback((fields: Partial<Task> & { title: string }) => {
-    // Today / Plan quick-add: always targets the default list ("My tasks").
+    // Today / Plan quick-add: always targets the Inbox ("My Tasks").
     const targetList =
-      lists.find((l) => l.id === 'default') ??
+      lists.find((l) => l.kind === 'inbox') ??
       lists.find((l) => l.id !== 'smash-list' && l.name !== '\u{1F4A5} Smash List') ??
       lists[0];
-    addTask(targetList?.id ?? 'default', fields);
+    if (!targetList) return;
+    addTask(targetList.id, fields);
     playSound('taskAdd');
   }, [lists, addTask]);
 
@@ -1280,10 +1282,10 @@ function AppContent() {
           lang={lang}
           tasks={[]}
           currentListId={
-            lists.find((l) => l.id === 'default')?.id ??
+            lists.find((l) => l.kind === 'inbox')?.id ??
             lists.find((l) => l.id !== 'smash-list' && l.name !== '\u{1F4A5} Smash List')?.id ??
             lists[0]?.id ??
-            'default'
+            ''
           }
           onAddTask={(listId, fields) => {
             addTask(listId, fields);
@@ -1299,7 +1301,7 @@ function AppContent() {
           onMoveToList={() => {}}
           availableLists={lists
             .filter((l) => l.id !== 'smash-list' && l.name !== '\u{1F4A5} Smash List')
-            .map((l) => ({ id: l.id, name: l.id === 'default' ? (user ? t('myTasks', lang) : l.name) : l.name }))}
+            .map((l) => ({ id: l.id, name: l.kind === 'inbox' ? t('myTasks', lang) : l.name }))}
         />
       )}
 

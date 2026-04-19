@@ -141,19 +141,22 @@ export function TasksScreen({
 
   const preferInlineTaskUi = hasFinePointer;
 
+  // Tab order: Smash List (if present) → Inbox ("My Tasks") → others.
   const listTabsOrder = useMemo(() => {
     const smash = lists.find((l) => l.id === 'smash-list' || l.name === '\u{1F4A5} Smash List');
-    const rest = lists.filter((l) => l !== smash);
-    return smash ? [smash, ...rest] : lists;
+    const inbox = lists.find((l) => l.kind === 'inbox');
+    const rest = lists.filter((l) => l !== smash && l !== inbox);
+    const ordered: List[] = [];
+    if (smash) ordered.push(smash);
+    if (inbox) ordered.push(inbox);
+    return [...ordered, ...rest];
   }, [lists]);
 
   const getTabLabel = useCallback((list: List) => {
     if (list.id === 'smash-list' || list.name === '\u{1F4A5} Smash List') return '\u{1F4A5}';
-    if (list.id === 'default') {
-      return user ? t('myTasks', lang) : t('tutorial', lang);
-    }
+    if (list.kind === 'inbox') return t('myTasks', lang);
     return list.name;
-  }, [user, lang]);
+  }, [lang]);
 
   const getTabCount = useCallback((list: List) => list.tasks.filter((t) => !t.completed).length, []);
 
@@ -438,20 +441,20 @@ export function TasksScreen({
           getTabLabel={getTabLabel}
           getTabCount={getTabCount}
           lang={lang}
-          canContextMenu={(list) => list.id !== 'smash-list' && list.id !== 'default' && !list.id.startsWith('tutorial')}
+          canContextMenu={(list) => list.id !== 'smash-list' && list.kind !== 'inbox' && !list.id.startsWith('tutorial')}
         />
       </div>
 
       {viewMode === 'lists' ? (
       <>
       <ListHeader
-        title={isTutorial ? t('tutorial', lang) : (currentList?.id === 'default' ? t('myTasks', lang) : (currentList?.name ?? ''))}
+        title={isTutorial ? t('tutorial', lang) : (currentList?.kind === 'inbox' ? t('myTasks', lang) : (currentList?.name ?? ''))}
         showMenu={!isTutorial && !isSmash}
         lang={lang}
         sortMode={sortMode}
         onChangeSort={!isSmash && currentList ? (mode) => setListSortMode(currentList.id, mode) : undefined}
-        onRename={() => onOpenListModal({ mode: 'rename', listId: currentList?.id })}
-        onDelete={currentList?.id === 'default' ? undefined : () => onOpenListModal({ mode: 'delete', listId: currentList?.id })}
+        onRename={currentList?.kind === 'inbox' ? undefined : () => onOpenListModal({ mode: 'rename', listId: currentList?.id })}
+        onDelete={currentList?.kind === 'inbox' ? undefined : () => onOpenListModal({ mode: 'delete', listId: currentList?.id })}
       />
 
       {/* Add task button (desktop only) / inline form */}

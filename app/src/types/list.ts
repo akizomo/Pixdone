@@ -7,4 +7,6 @@ export interface List {
   name: string;
   tasks: Task[];
   sortMode?: SortMode;
+  /** 'inbox' marks the auto-provisioned default "My Tasks" list — undeletable, unrenameable. */
+  kind?: 'inbox';
 }

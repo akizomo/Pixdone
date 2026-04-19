@@ -19,8 +19,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { hasActiveRepeat, getNextDueDate } from '../lib/repeat';
 
-const STORAGE_KEY = 'pixdone_lists_v1';
-const ACTIVE_KEY = 'pixdone_active_v1';
+/* Legacy localStorage keys — the pre-login experience is now the LandingPage, so the
+ * guest "My Tasks" flow no longer runs. Keys are kept here only so callers can purge
+ * stale data on boot. */
+const LEGACY_LISTS_KEY = 'pixdone_lists_v1';
+const LEGACY_ACTIVE_KEY = 'pixdone_active_v1';
 
 /** 完了タスクを保持する日数。これを過ぎたら自動削除。 */
 const COMPLETED_TASK_RETENTION_DAYS = 7;
@@ -209,84 +212,44 @@ function ensureVirtualSmashList(lists: List[]): List[] {
 
 
 
-/** Guest-only default: just the Smash List; no tutorial (tutorial is now seeded post-login). */
-const guestDefaultLists: List[] = [
-  {
-    id: 'default',
-    name: 'My Tasks',
-    tasks: [] as Task[],
-  },
-];
-
-function loadLists(): List[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as List[];
-      const hasDefault = Array.isArray(parsed) && parsed.some((l) => l.id === 'default');
-      if (!hasDefault) return guestDefaultLists;
-      // Smash List のダミータスクが不足している場合は 3 件に補充
-      const withSmash = parsed.map((l) => {
-        const isSmash = l.id === 'smash-list' || l.name === '💥 Smash List';
-        if (!isSmash || l.tasks.length >= 3) return l;
-        return { ...l, tasks: replenishSmashList(l.tasks, l.id) };
-      });
-      return withSmash;
-    }
-  } catch { /* ignore */ }
-  return guestDefaultLists;
-}
-
-function loadActiveId(lists: List[]): string {
-  try {
-    const raw = localStorage.getItem(ACTIVE_KEY);
-    if (raw && raw !== 'smash-list' && lists.some((l) => l.id === raw)) return raw;
-  } catch { /* ignore */ }
-  return lists.some((l) => l.id === 'default') ? 'default' : (lists[0]?.id ?? 'default');
-}
+/* Guest / localStorage-seeded lists are no longer supported — the unauthenticated
+ * entry point is the LandingPage. Initial state is empty until Firestore sync runs.
+ * (Smash List is a local-only virtual list added via ensureVirtualSmashList.) */
 
 export function useLists() {
   const { user } = useAuth();
   const { isPremium } = useThemeEntitlements();
 
-  const [lists, setListsState] = useState<List[]>(() => loadLists());
+  const [lists, setListsState] = useState<List[]>(() => []);
   const [listLimitUpsellOpen, setListLimitUpsellOpen] = useState(false);
-  const [activeId, setActiveId] = useState<string>(() => {
-    const initial = loadLists();
-    return loadActiveId(initial);
-  });
+  const [activeId, setActiveId] = useState<string>(() => '');
 
   const setLists = useCallback((updater: List[] | ((prev: List[]) => List[])) => {
-    setListsState((prev) => {
-      const next = typeof updater === 'function' ? (updater as (prev: List[]) => List[])(prev) : updater;
-      if (!user) {
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
-      }
-      return next;
-    });
-  }, [user]);
+    setListsState((prev) =>
+      typeof updater === 'function' ? (updater as (prev: List[]) => List[])(prev) : updater,
+    );
+  }, []);
 
   const setActiveList = useCallback((id: string) => {
     setActiveId(id);
-    if (!user) {
-      try { localStorage.setItem(ACTIVE_KEY, id); } catch { /* ignore */ }
-    }
-  }, [user]);
+  }, []);
 
+  // One-time cleanup: purge pre-LP guest-mode localStorage keys.
   useEffect(() => {
-    if (!user) {
-      try { localStorage.setItem(ACTIVE_KEY, activeId); } catch { /* ignore */ }
-    }
-  }, [activeId, user]);
+    try {
+      localStorage.removeItem(LEGACY_LISTS_KEY);
+      localStorage.removeItem(LEGACY_ACTIVE_KEY);
+    } catch { /* ignore */ }
+  }, []);
 
+  // On logout, clear lists so we don't leak the previous user's data.
   const prevUserRef = useRef(user);
   useEffect(() => {
     const prev = prevUserRef.current;
     prevUserRef.current = user;
     if (prev && !user) {
-      const fresh = loadLists();
-      setListsState(fresh);
-      setActiveId(fresh.some((l) => l.id === 'default') ? 'default' : (fresh[0]?.id ?? 'default'));
+      setListsState([]);
+      setActiveId('');
     }
   }, [user]);
 
@@ -298,7 +261,7 @@ export function useLists() {
   useEffect(() => {
     if (lists.length === 0) return;
     if (lists.some((l) => l.id === activeId)) return;
-    const fallback = lists[0]?.id;
+    const fallback = lists.find((l) => l.kind === 'inbox')?.id ?? lists[0]?.id;
     if (fallback) {
       setActiveList(fallback);
     }
@@ -313,45 +276,97 @@ export function useLists() {
       where('uid', '==', user.uid),
     );
 
-    let autoCreateFired = false;
+    let inboxEnsured = false;
 
     const unsubLists = onSnapshot(listsQuery, (snap) => {
-      // Firestore にリストが0件 → デフォルトリストを1回だけ自動作成
-      if (snap.empty) {
-        if (!autoCreateFired) {
-          autoCreateFired = true;
+      // Collect docs with raw fields so we can pick the inbox and sort by createdAt.
+      type Raw = {
+        id: string;
+        name: string;
+        kind?: 'inbox';
+        sortMode?: List['sortMode'];
+        createdAtMs: number;
+      };
+      const raws: Raw[] = snap.docs.map((d) => {
+        const data = d.data() as any;
+        const rawSort = data.sortMode;
+        const sortMode: List['sortMode'] =
+          rawSort === 'manual' || rawSort === 'dueDate' || rawSort === 'priority' || rawSort === 'createdAt' || rawSort === 'alphabetical'
+            ? rawSort
+            : undefined;
+        const createdAtMs =
+          data.createdAt instanceof Timestamp
+            ? data.createdAt.toMillis()
+            : typeof data.createdAt === 'number'
+              ? data.createdAt
+              : Number.POSITIVE_INFINITY;
+        return {
+          id: d.id,
+          name: data.name ?? 'My Tasks',
+          kind: data.kind === 'inbox' ? 'inbox' : undefined,
+          sortMode,
+          createdAtMs,
+        };
+      });
+
+      // Identify the inbox: prefer an explicitly marked one (oldest wins on dup),
+      // else adopt a legacy "My Tasks"-named list, else create a new one.
+      const inboxMarked = raws
+        .filter((r) => r.kind === 'inbox')
+        .sort((a, b) => a.createdAtMs - b.createdAtMs);
+      let inboxId: string | null = inboxMarked[0]?.id ?? null;
+
+      if (!inboxId) {
+        const legacy = raws
+          .filter((r) => r.name === 'My Tasks')
+          .sort((a, b) => a.createdAtMs - b.createdAtMs);
+        const legacyInbox = legacy[0];
+        if (legacyInbox && !inboxEnsured) {
+          inboxEnsured = true;
+          inboxId = legacyInbox.id;
+          // Upgrade legacy doc with kind:'inbox' so future loads skip this branch.
+          updateDoc(doc(db, 'lists', legacyInbox.id), { kind: 'inbox' }).catch((e) =>
+            console.warn('[useLists] upgrade legacy inbox failed:', e),
+          );
+        } else if (!legacyInbox && !inboxEnsured) {
+          inboxEnsured = true;
           addDoc(collection(db, 'lists'), {
             uid: user.uid,
             name: 'My Tasks',
+            kind: 'inbox',
             createdAt: Timestamp.now(),
-          }).catch((e) => console.warn('[useLists] auto-create default list failed:', e));
+          }).catch((e) => console.warn('[useLists] auto-create inbox failed:', e));
+          // This snapshot doesn't include the new doc yet; a follow-up snapshot will.
+          return;
         }
-        return;
       }
 
       setListsState((prev) => {
         const tasksById = new Map<string, Task[]>();
         prev.forEach((l) => tasksById.set(l.id, l.tasks));
-        const nextFromFirestore: List[] = snap.docs
-          .map((d) => {
-            const data = d.data() as any;
-            const rawSort = data.sortMode;
-            const sortMode: List['sortMode'] =
-              rawSort === 'manual' || rawSort === 'dueDate' || rawSort === 'priority' || rawSort === 'createdAt' || rawSort === 'alphabetical'
-                ? rawSort
-                : undefined;
-            return {
-              id: d.id,
-              name: data.name ?? 'My Tasks',
-              tasks: tasksById.get(d.id) ?? [],
-              sortMode,
-            };
-          })
-          // If user once created a Firestore "Smash List", ignore it; we keep Smash local-only.
-          .filter((l) => l.name !== '💥 Smash List')
-          // Tutorial list always first
-          .sort((a, b) => (a.name === 'Tutorial' ? -1 : b.name === 'Tutorial' ? 1 : 0));
-        return ensureVirtualSmashList(nextFromFirestore);
+        const mapped: List[] = raws
+          .map((r) => ({
+            id: r.id,
+            name: r.name,
+            tasks: tasksById.get(r.id) ?? [],
+            sortMode: r.sortMode,
+            // Mark the chosen inbox even if Firestore doc hasn't persisted kind yet (legacy upgrade case).
+            kind: r.id === inboxId ? 'inbox' : r.kind,
+          }))
+          // Defensive: smash list is local-only; ignore stray Firestore entries.
+          .filter((l) => l.name !== '💥 Smash List');
+
+        // Order: inbox first, then the rest sorted by Firestore createdAt.
+        const createdAtById = new Map(raws.map((r) => [r.id, r.createdAtMs]));
+        const inbox = mapped.find((l) => l.id === inboxId);
+        const rest = mapped
+          .filter((l) => l.id !== inboxId)
+          .sort(
+            (a, b) =>
+              (createdAtById.get(a.id) ?? 0) - (createdAtById.get(b.id) ?? 0),
+          );
+        const ordered = inbox ? [inbox, ...rest] : rest;
+        return ensureVirtualSmashList(ordered);
       });
     });
 
@@ -493,26 +508,20 @@ export function useLists() {
       }
     }
 
+    if (!user) return;
+
     const optimisticId = `list-${Date.now()}`;
+    setLists((prev) => [...prev, { id: optimisticId, name, tasks: [] as Task[] }]);
+    setActiveList(optimisticId);
 
-    if (user) {
-      // optimistic local update
-      setLists((prev) => [...prev, { id: optimisticId, name, tasks: [] as Task[] }]);
-      setActiveList(optimisticId);
-
-      (async () => {
-        const listsCol = collection(db, 'lists');
-        await addDoc(listsCol, {
-          uid: user.uid,
-          name,
-          createdAt: Timestamp.now(),
-        });
-      })();
-    } else {
-      const id = optimisticId;
-      setLists((prev) => [...prev, { id, name, tasks: [] as Task[] }]);
-      setActiveList(id);
-    }
+    (async () => {
+      const listsCol = collection(db, 'lists');
+      await addDoc(listsCol, {
+        uid: user.uid,
+        name,
+        createdAt: Timestamp.now(),
+      });
+    })();
   }, [setLists, setActiveList, user, isPremium, lists]);
 
   const setListSortMode = useCallback((listId: string, sortMode: NonNullable<List['sortMode']>) => {
@@ -528,38 +537,31 @@ export function useLists() {
   }, [setLists, user]);
 
   const renameList = useCallback((listId: string, name: string) => {
-    if (user) {
-      setLists((prev) => prev.map((l) => (l.id === listId ? { ...l, name } : l)));
-      (async () => {
-        const ref = doc(db, 'lists', listId);
-        await updateDoc(ref, { name });
-      })();
-    } else {
-      setLists((prev) => prev.map((l) => (l.id === listId ? { ...l, name } : l)));
-    }
-  }, [setLists, user]);
+    if (!user) return;
+    // Guard inbox (undeletable, unrenameable).
+    const target = lists.find((l) => l.id === listId);
+    if (target?.kind === 'inbox') return;
+    setLists((prev) => prev.map((l) => (l.id === listId ? { ...l, name } : l)));
+    (async () => {
+      const ref = doc(db, 'lists', listId);
+      await updateDoc(ref, { name });
+    })();
+  }, [setLists, user, lists]);
 
   const deleteList = useCallback((listId: string, allLists: List[]) => {
-    if (listId === 'default') return; // default "My Tasks" is the inbox — never deletable
-    if (user) {
-      const remaining = allLists.filter((l) => l.id !== listId);
-      setLists(remaining);
-      if (activeId === listId) {
-        const newActive = remaining[0]?.id ?? '';
-        setActiveList(newActive);
-      }
-      (async () => {
-        const ref = doc(db, 'lists', listId);
-        await deleteDoc(ref);
-      })();
-    } else {
-      const remaining = allLists.filter((l) => l.id !== listId);
-      setLists(remaining);
-      if (activeId === listId) {
-        const newActive = remaining[0]?.id ?? '';
-        setActiveList(newActive);
-      }
-    }
+    if (!user) return;
+    // Guard inbox (undeletable).
+    const target = allLists.find((l) => l.id === listId);
+    if (target?.kind === 'inbox') return;
+    const remaining = allLists.filter((l) => l.id !== listId);
+    const fallback =
+      remaining.find((l) => l.kind === 'inbox')?.id ?? remaining[0]?.id ?? '';
+    setLists(remaining);
+    if (activeId === listId) setActiveList(fallback);
+    (async () => {
+      const ref = doc(db, 'lists', listId);
+      await deleteDoc(ref);
+    })();
   }, [setLists, setActiveList, activeId, user]);
 
   /* ---- Task CRUD ---- */

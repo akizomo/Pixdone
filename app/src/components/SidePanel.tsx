@@ -1,6 +1,7 @@
 import type { List } from '../types/list';
 import { PixelIcon } from '../design-system';
 import { playSound } from '../services/sound';
+import { t } from '../lib/i18n';
 import './SidePanel.css';
 
 export type SidePanelView = 'today' | 'plan' | 'smash' | string; // string = listId
@@ -28,9 +29,15 @@ export function SidePanel({
   planCount,
   open = true,
 }: SidePanelProps) {
-  const normalLists = lists.filter(
-    (l) => l.id !== 'smash-list' && l.name !== '💥 Smash List',
-  );
+  // Inbox ("My Tasks") always first; rest keep Firestore order.
+  const normalLists = (() => {
+    const nonSmash = lists.filter(
+      (l) => l.id !== 'smash-list' && l.name !== '💥 Smash List',
+    );
+    const inbox = nonSmash.find((l) => l.kind === 'inbox');
+    if (!inbox) return nonSmash;
+    return [inbox, ...nonSmash.filter((l) => l !== inbox)];
+  })();
   const smashList = lists.find(
     (l) => l.id === 'smash-list' || l.name === '💥 Smash List',
   );
@@ -92,8 +99,9 @@ export function SidePanel({
           {lang === 'ja' ? 'リスト' : 'Lists'}
         </div>
         {normalLists.map((list) => {
-          const active = list.tasks.filter((t) => !t.completed).length;
-          return navItem(list.id, list.name, 'folder', active);
+          const active = list.tasks.filter((task) => !task.completed).length;
+          const label = list.kind === 'inbox' ? t('myTasks', lang) : list.name;
+          return navItem(list.id, label, 'folder', active);
         })}
         <button
           type="button"
