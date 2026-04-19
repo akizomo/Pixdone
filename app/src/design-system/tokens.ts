@@ -4,10 +4,14 @@
  */
 export const tokens = {
   color: {
-    // Dark mode semantics — each value maps to a --pd-* primitive
-    background: { default: '#202124', elevated: '#28292d', hover: '#3c4043' }, // gray-900, gray-800-ish, gray-700-ish
-    text: { primary: '#e8eaed', secondary: '#9aa0a6', muted: '#70757a' },     // ink-50, gray-500, gray-400
-    border: { default: '#3c4043', danger: 'rgba(255, 107, 107, 0.35)', warning: 'rgba(250, 204, 21, 0.35)', success: 'rgba(74, 222, 128, 0.35)' },
+    // Dark mode semantics — each value maps to a --pd-* primitive.
+    // Uses the `ink-*` navy palette so the default (pixel) theme matches the
+    // onboarding / LP / pixel sci-fi brand palette. Previously this was
+    // Material graphite (#202124 / #28292d / #3c4043) which produced a
+    // jarring color shift when entering the onboarding overlay.
+    background: { default: '#12151c', elevated: '#1a1f2c', hover: '#252d40' }, // ink-950, ink-900, ink-700
+    text: { primary: '#e8ebf4', secondary: '#9da3b4', muted: '#70757a' },     // ink-50, ink-100, gray-400 (AA ≥ 4.5 on ink-950)
+    border: { default: '#2e3a52', danger: 'rgba(255, 107, 107, 0.35)', warning: 'rgba(250, 204, 21, 0.35)', success: 'rgba(74, 222, 128, 0.35)' }, // ink-600
     accent: {
       default: '#A78BFA', // purple-250 — AA 5.92 on dark bg
       hover: '#B794F6',   // purple-200

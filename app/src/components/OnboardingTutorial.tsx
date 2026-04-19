@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ThemeKey } from '../design-system/themes/themeRegistry';
 import { Button, PixelIcon } from '../design-system';
+import { ThemeContext } from '../design-system/theme/ThemeProvider';
 import { AgentIcon } from './AgentIcon';
 import { TaskItem } from './TaskItem';
 import type { Task } from '../types/task';
@@ -27,33 +28,111 @@ const DUMMY_TASKS: Task[] = [
   { id: 'ob-task-3', title: 'That Email',    completed: false, dueDate: null, listId: 'onboarding' },
 ];
 
-const INTRO_PANELS: { dialogue: string }[] = [
-  { dialogue: 'Decades after the golden age of pixels,\ntasks still rule the world.' },
-  { dialogue: "We are T.A.S.K. — built to destroy them.\nYou're an Agent now." },
-];
+/** All copy is i18n'd via {en, ja} maps. Picked at render time by `lang` prop. */
+type Lang = 'en' | 'ja';
+
+const INTRO_PANELS: Record<Lang, { dialogue: string }[]> = {
+  en: [
+    { dialogue: 'Decades after the golden age of pixels,\ntasks still rule the world.' },
+    { dialogue: "We are T.A.S.K. — built to destroy them.\nYou're an Agent now." },
+  ],
+  ja: [
+    { dialogue: 'ピクセルの時代から数十年経った今も、\n人類はタスクに追われ続けている。' },
+    { dialogue: 'T.A.S.K.はそのために存在する。\n（Task Annihilation Strike Kommand）\n\nあなたもその一員。' },
+  ],
+};
 
 const SPLASH_DURATION_MS = 1800;
 
-const SMASH_DIALOGUES = [
-  'Your first mission starts here.\nSmash this task.',
-  'Something happens\nevery time you smash a task.',
-  'Some are rarer than others.',
-  'Complete monthly challenges\nto unlock more.',
-];
+const SMASH_DIALOGUES: Record<Lang, string[]> = {
+  en: [
+    'Your first mission starts here.\nSmash this task.',
+    'Something happens\nevery time you smash a task.',
+    'Some are rarer than others.',
+    'Complete monthly challenges\nto unlock more.',
+  ],
+  ja: [
+    'まずはこのタスクを消してみよう。',
+    'タスクを消すたびに、何かが起きる。',
+    'エフェクトにはレアリティがある。\nレアなほど、気持ちいい。',
+    'チャレンジをクリアして、\nもっと集めよう。',
+  ],
+};
 
-const PLUS_BENEFITS = [
-  'Unlock all themes — build your own pixel world',
-  'Grow your theme as you complete tasks',
-  'Collect Rare & Epic effects',
-  "Request your own effect — we'll make it (once a month)",
-  'Unlimited task lists',
-];
+const PLUS_BENEFITS: Record<Lang, string[]> = {
+  en: [
+    'Unlock all themes — build your own pixel world',
+    'Your theme evolves as you complete tasks',
+    'Unlock all Rare & Epic effects',
+    "Request your own effect — we'll make it once a month",
+    'Unlimited task lists',
+  ],
+  ja: [
+    'すべてのテーマをアンロック — 自分だけのピクセル世界を',
+    'タスクを完了するたびにテーマが進化',
+    'レア・エピックエフェクトを全解放',
+    'エフェクトをリクエスト — 月1回作ります',
+    'リスト数無制限',
+  ],
+};
+
+const COPY: Record<Lang, {
+  splashSub: string;
+  firstTaskDialogue: string;
+  upgradeTitle: string;
+  upgradeCta: string;
+  upgradeCtaPremium: string;
+  upgradeLater: string;
+  upgradeBillingLabel: string;
+  upgradeMonthly: string;
+  upgradeYearly: string;
+  upgradeSaveBadge: string;
+  upgradePerMo: string;
+  upgradeTrialNote: string;
+  upgradePremiumNote: string;
+  tapToContinue: string;
+}> = {
+  en: {
+    splashSub: 'Welcome to PixDone.',
+    firstTaskDialogue: 'Now add your first task.',
+    upgradeTitle: 'Ready to go further?',
+    upgradeCta: 'Start 7-day free trial',
+    upgradeCtaPremium: 'You’re already PixDone+',
+    upgradeLater: 'Later',
+    upgradeBillingLabel: 'Billing cycle',
+    upgradeMonthly: 'Monthly',
+    upgradeYearly: 'Yearly',
+    upgradeSaveBadge: 'SAVE 17%',
+    upgradePerMo: '/mo',
+    upgradeTrialNote: 'Free for 7 days, then ¥600/mo (or ¥500/mo on yearly). Cancel anytime.',
+    upgradePremiumNote: 'Tap Later to continue.',
+    tapToContinue: 'TAP TO CONTINUE',
+  },
+  ja: {
+    splashSub: 'PixDoneへようこそ。',
+    firstTaskDialogue: '最初のタスクを追加しよう。',
+    upgradeTitle: 'もっと楽しみたい？',
+    upgradeCta: '7日間無料で始める',
+    upgradeCtaPremium: 'すでに PixDone+ 会員です',
+    upgradeLater: 'あとで',
+    upgradeBillingLabel: 'プラン',
+    upgradeMonthly: '月払い',
+    upgradeYearly: '年払い',
+    upgradeSaveBadge: '17% お得',
+    upgradePerMo: '/月',
+    upgradeTrialNote: '7日間無料、以降 ¥600/月（年払いは ¥500/月）。いつでもキャンセル可。',
+    upgradePremiumNote: '「あとで」をタップして続ける。',
+    tapToContinue: 'タップで続ける',
+  },
+};
 
 export type BillingCycle = 'monthly' | 'yearly';
 
 export interface OnboardingTutorialProps {
   themeKey: ThemeKey;
   isPremium: boolean;
+  /** UI language for dialogue + button copy. @default 'en' */
+  lang?: Lang;
   /** Called when the tutorial finishes without purchase (Later / first-task) — parent closes overlay. */
   onDone: () => void;
   /** Triggers the Stripe checkout flow for the selected billing cycle. May navigate away; may reject. */
@@ -67,11 +146,21 @@ export interface OnboardingTutorialProps {
 export function OnboardingTutorial({
   themeKey,
   isPremium,
+  lang = 'en',
   onDone: _onDone,
   onUpgrade,
   onReachCta,
   onEnterFirstTask,
 }: OnboardingTutorialProps) {
+  // Follow the resolved app theme mode so the logo variant + hero-bg palette
+  // swap automatically when the user (or OS) flips light/dark.
+  const { theme: themeMode } = useContext(ThemeContext);
+  const isLight = themeMode === 'light';
+  const logoSrc = isLight ? '/pixdone-logo-bland.svg' : '/pixdone-logo-white.svg';
+  const copy = COPY[lang];
+  const introPanels = INTRO_PANELS[lang];
+  const smashDialogues = SMASH_DIALOGUES[lang];
+  const plusBenefits = PLUS_BENEFITS[lang];
   const [step, setStep] = useState<Step>('splash');
   const [introPanel, setIntroPanel] = useState(0);
   const [smashCount, setSmashCount] = useState(0);
@@ -163,11 +252,11 @@ export function OnboardingTutorial({
   // --- RPG-style typewriter for the instructor's dialogue -----------------
   const dialogueText =
     step === 'intro'
-      ? INTRO_PANELS[introPanel]!.dialogue
+      ? introPanels[introPanel]!.dialogue
       : step === 'smash'
-        ? SMASH_DIALOGUES[Math.min(smashCount, SMASH_DIALOGUES.length - 1)]!
+        ? smashDialogues[Math.min(smashCount, smashDialogues.length - 1)]!
         : step === 'firstTask'
-          ? 'Now add your first task.'
+          ? copy.firstTaskDialogue
           : '';
 
   const prefersReducedMotion =
@@ -248,11 +337,11 @@ export function OnboardingTutorial({
       <div className="pd-onboarding pd-onboarding--splash" role="dialog" aria-modal="true" aria-label="PixDone onboarding">
         <div className="pd-onboarding__splash">
           <img
-            src="/pixdone-logo-white.svg"
+            src={logoSrc}
             alt="PixDone"
             className="pd-onboarding__splash-logo"
           />
-          <div className="pd-onboarding__splash-sub">Welcome to PixDone.</div>
+          <div className="pd-onboarding__splash-sub">{copy.splashSub}</div>
         </div>
       </div>
     );
@@ -281,9 +370,9 @@ export function OnboardingTutorial({
               aria-hidden="true"
             />
           </div>
-          <h2 className="pd-onboarding__panel-title">Ready to go further?</h2>
+          <h2 className="pd-onboarding__panel-title">{copy.upgradeTitle}</h2>
           <ul className="pd-onboarding__benefits">
-            {PLUS_BENEFITS.map((b, i) => (
+            {plusBenefits.map((b, i) => (
               <li
                 key={b}
                 className="pd-onboarding__benefit"
@@ -300,7 +389,7 @@ export function OnboardingTutorial({
             <div
               className="pd-onboarding__cycle-toggle"
               role="radiogroup"
-              aria-label="Billing cycle"
+              aria-label={copy.upgradeBillingLabel}
             >
               <button
                 type="button"
@@ -310,8 +399,8 @@ export function OnboardingTutorial({
                 data-selected={billingCycle === 'monthly'}
                 onClick={() => { playSound('buttonClick'); setBillingCycle('monthly'); }}
               >
-                <span className="pd-onboarding__cycle-label">Monthly</span>
-                <span className="pd-onboarding__cycle-price">¥600<small>/mo</small></span>
+                <span className="pd-onboarding__cycle-label">{copy.upgradeMonthly}</span>
+                <span className="pd-onboarding__cycle-price">¥600<small>{copy.upgradePerMo}</small></span>
               </button>
               <button
                 type="button"
@@ -321,9 +410,9 @@ export function OnboardingTutorial({
                 data-selected={billingCycle === 'yearly'}
                 onClick={() => { playSound('buttonClick'); setBillingCycle('yearly'); }}
               >
-                <span className="pd-onboarding__cycle-badge" aria-hidden="true">SAVE 17%</span>
-                <span className="pd-onboarding__cycle-label">Yearly</span>
-                <span className="pd-onboarding__cycle-price">¥500<small>/mo</small></span>
+                <span className="pd-onboarding__cycle-badge" aria-hidden="true">{copy.upgradeSaveBadge}</span>
+                <span className="pd-onboarding__cycle-label">{copy.upgradeYearly}</span>
+                <span className="pd-onboarding__cycle-price">¥500<small>{copy.upgradePerMo}</small></span>
               </button>
             </div>
             <Button
@@ -335,15 +424,13 @@ export function OnboardingTutorial({
               soundKey="taskComplete"
               disabled={isPremium}
             >
-              {isPremium ? 'You’re already PixDone+' : 'Start 7-day free trial'}
+              {isPremium ? copy.upgradeCtaPremium : copy.upgradeCta}
             </Button>
             <p className="pd-onboarding__trial-note">
-              {isPremium
-                ? 'Tap Later to continue.'
-                : 'Free for 7 days, then ¥600/mo (or ¥500/mo on yearly). Cancel anytime.'}
+              {isPremium ? copy.upgradePremiumNote : copy.upgradeTrialNote}
             </p>
             <Button variant="ghost" size="md" fullWidth onClick={handleLaterOnUpgrade} soundKey="taskCancel">
-              Later
+              {copy.upgradeLater}
             </Button>
           </div>
         </div>
@@ -563,7 +650,7 @@ export function OnboardingTutorial({
             aria-hidden="true"
             data-visible={!isTyping && (step === 'intro' || smashComplete) ? 'true' : 'false'}
           >
-            TAP TO CONTINUE
+            {copy.tapToContinue}
           </div>
         )}
       </div>

@@ -8,9 +8,11 @@
   z-index: 3000;
   display: flex;
   flex-direction: column;
-  background: var(--pd-ink-950);
-  color: var(--pd-white);
-  font-family: var(--pd-font-body, var(--pd-font-body));
+  /* Uses semantic tokens so the overlay follows the current light/dark mode
+     instead of hard-coding the ink-navy palette. */
+  background: var(--pd-color-background-default);
+  color: var(--pd-color-text-primary);
+  font-family: var(--pd-font-body);
   overflow-y: auto;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -77,7 +79,7 @@
 .pd-onboarding__splash-sub {
   font-family: var(--pd-font-brand, var(--pd-font-display));
   font-size: clamp(12px, 2.6vw, 16px);
-  color: var(--pd-gray-400);
+  color: var(--pd-color-text-secondary);
   letter-spacing: 0.12em;
 }
 
@@ -131,15 +133,15 @@
   position: relative;
   flex: 1;
   min-width: 0;
-  background: var(--pd-ink-800);
-  border: var(--pd-border-base) solid var(--pd-ink-500);
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
   box-shadow: var(--pd-shadow-pixel-md);
   font-family: var(--pd-font-brand, var(--pd-font-display));
   font-size: var(--pd-font-size-lg);
   line-height: var(--pd-line-height-relaxed);
   letter-spacing: 0.04em;
   text-align: left;
-  color: var(--pd-white);
+  color: var(--pd-color-text-primary);
   margin-left: var(--pd-space-2);
   margin-top: var(--pd-space-3);
 }
@@ -167,7 +169,7 @@
   height: 0;
   border-top: 12px solid transparent;
   border-bottom: 12px solid transparent;
-  border-right: 14px solid var(--pd-ink-500);
+  border-right: 14px solid var(--pd-color-border-default);
 }
 
 .pd-onboarding__dialog::after {
@@ -179,7 +181,7 @@
   height: 0;
   border-top: 9px solid transparent;
   border-bottom: 9px solid transparent;
-  border-right: 11px solid var(--pd-ink-800);
+  border-right: 11px solid var(--pd-color-background-elevated);
 }
 
 .pd-onboarding__dialog-line {
@@ -549,7 +551,7 @@
 .pd-onboarding__panel-title {
   font-family: var(--pd-font-brand, var(--pd-font-display));
   font-size: clamp(22px, 5vw, 32px);
-  color: var(--pd-white);
+  color: var(--pd-color-text-primary);
   letter-spacing: 0.04em;
   margin: 0;
   text-align: center;
@@ -568,8 +570,8 @@
   gap: var(--pd-space-3);
   width: 100%;
   text-align: left;
-  background: rgba(18, 21, 28, 0.6);
-  border: var(--pd-border-base) solid var(--pd-ink-500);
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
   box-shadow: var(--pd-shadow-pixel-md);
 }
 
@@ -580,7 +582,7 @@
   font-family: var(--pd-font-body);
   font-size: var(--pd-font-size-md);
   line-height: var(--pd-line-height-snug);
-  color: var(--pd-white);
+  color: var(--pd-color-text-primary);
   opacity: 0;
   transform: translateY(6px);
   animation: pd-ob-benefit-in 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -739,10 +741,10 @@
   gap: 2px;
   padding: var(--pd-space-3) var(--pd-space-3);
   min-height: 64px;
-  background: var(--pd-ink-800);
-  border: var(--pd-border-base) solid var(--pd-ink-500);
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
   box-shadow: var(--pd-shadow-pixel-sm);
-  color: var(--pd-white);
+  color: var(--pd-color-text-primary);
   font-family: var(--pd-font-body);
   cursor: pointer;
   transition: transform var(--pd-motion-fast) var(--pd-easing-standard),
@@ -772,7 +774,7 @@
 .pd-onboarding__cycle-price {
   font-family: var(--pd-font-brand, var(--pd-font-display));
   font-size: var(--pd-font-size-lg);
-  color: var(--pd-white);
+  color: var(--pd-color-text-primary);
   display: inline-flex;
   align-items: baseline;
   gap: 2px;
@@ -780,7 +782,7 @@
 
 .pd-onboarding__cycle-price small {
   font-size: var(--pd-font-size-xs);
-  color: var(--pd-gray-400);
+  color: var(--pd-color-text-muted);
   font-weight: var(--pd-font-weight-regular);
 }
 

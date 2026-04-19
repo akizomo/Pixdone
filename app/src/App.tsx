@@ -1426,6 +1426,7 @@ function AppContent() {
       <OnboardingTutorial
         themeKey={visualTheme}
         isPremium={isPremium}
+        lang={lang}
         onDone={handleOnboardingDone}
         onUpgrade={handleOnboardingUpgrade}
         onReachCta={markTutorialSeen}
