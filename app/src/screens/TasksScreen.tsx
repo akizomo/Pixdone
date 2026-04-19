@@ -449,7 +449,7 @@ export function TasksScreen({
       <>
       <ListHeader
         title={isTutorial ? t('tutorial', lang) : (currentList?.kind === 'inbox' ? t('myTasks', lang) : (currentList?.name ?? ''))}
-        showMenu={!isTutorial && !isSmash}
+        showMenu={!isTutorial && !isSmash && currentList?.kind !== 'inbox'}
         lang={lang}
         sortMode={sortMode}
         onChangeSort={!isSmash && currentList ? (mode) => setListSortMode(currentList.id, mode) : undefined}

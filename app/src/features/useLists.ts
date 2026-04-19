@@ -8,6 +8,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   addDoc,
   writeBatch,
   Timestamp,
@@ -277,6 +278,9 @@ export function useLists() {
     );
 
     let inboxEnsured = false;
+    // Remember which duplicate docs we've already renamed, so repeated snapshots
+    // don't re-fire the same updateDoc before Firestore settles.
+    const dedupedIds = new Set<string>();
 
     const unsubLists = onSnapshot(listsQuery, (snap) => {
       // Collect docs with raw fields so we can pick the inbox and sort by createdAt.
@@ -309,7 +313,7 @@ export function useLists() {
         };
       });
 
-      // Identify the inbox: prefer an explicitly marked one (oldest wins on dup),
+      // Identify the canonical inbox: prefer an explicitly marked one (oldest wins on dup),
       // else adopt a legacy "My Tasks"-named list, else create a new one.
       const inboxMarked = raws
         .filter((r) => r.kind === 'inbox')
@@ -330,16 +334,41 @@ export function useLists() {
           );
         } else if (!legacyInbox && !inboxEnsured) {
           inboxEnsured = true;
-          addDoc(collection(db, 'lists'), {
-            uid: user.uid,
-            name: 'My Tasks',
-            kind: 'inbox',
-            createdAt: Timestamp.now(),
-          }).catch((e) => console.warn('[useLists] auto-create inbox failed:', e));
+          // Use a deterministic doc ID (`inbox-<uid>`) so concurrent writes from
+          // multiple tabs/devices collapse onto a single doc instead of creating
+          // duplicates. `merge: true` makes repeat writes idempotent.
+          const inboxRef = doc(db, 'lists', `inbox-${user.uid}`);
+          setDoc(
+            inboxRef,
+            {
+              uid: user.uid,
+              name: 'My Tasks',
+              kind: 'inbox',
+              createdAt: Timestamp.now(),
+            },
+            { merge: true },
+          ).catch((e) => console.warn('[useLists] auto-create inbox failed:', e));
           // This snapshot doesn't include the new doc yet; a follow-up snapshot will.
           return;
         }
       }
+
+      // Dedup: any other list still marked kind:'inbox' OR named "My Tasks" gets
+      // renamed to "My Tasks (2)", "My Tasks (3)", ... and loses the inbox flag.
+      // Non-destructive — tasks stay in place; user can merge/delete manually.
+      const duplicates = raws
+        .filter((r) => r.id !== inboxId && (r.kind === 'inbox' || r.name === 'My Tasks'))
+        .sort((a, b) => a.createdAtMs - b.createdAtMs);
+      duplicates.forEach((dup, idx) => {
+        if (dedupedIds.has(dup.id)) return;
+        dedupedIds.add(dup.id);
+        const newName = `My Tasks (${idx + 2})`;
+        const patch: Record<string, unknown> = { name: newName };
+        if (dup.kind === 'inbox') patch.kind = deleteField();
+        updateDoc(doc(db, 'lists', dup.id), patch).catch((e) =>
+          console.warn('[useLists] dedup rename failed:', e),
+        );
+      });
 
       setListsState((prev) => {
         const tasksById = new Map<string, Task[]>();
