@@ -94,18 +94,19 @@ StyleDictionary.registerFormat({
   format: async ({ dictionary, options, file }) => {
     const { selector = ':root', indent = '  ' } = options ?? {};
     const filterSets = new Set(options?.sets ?? []);
-    const lines = [];
+    // Dedupe by cssVar — last wins (matches CSS cascade).
+    const byVar = new Map();
     for (const token of dictionary.allTokens) {
       const set = getSet(token);
       if (filterSets.size && !filterSets.has(set)) continue;
       const cssVar = getCssVar(token);
       if (!cssVar) continue;
       const value = renderValue(token, dictionary);
-      lines.push(`${indent}${cssVar}: ${value};`);
+      byVar.set(cssVar, `${indent}${cssVar}: ${value};`);
     }
     const header = file?.fileHeader ? await file.fileHeader() : '';
     const headerBlock = header ? `/*\n${header.map((l) => ` * ${l}`).join('\n')}\n */\n` : '';
-    return `${headerBlock}${selector} {\n${lines.join('\n')}\n}\n`;
+    return `${headerBlock}${selector} {\n${[...byVar.values()].join('\n')}\n}\n`;
   },
 });
 
@@ -116,7 +117,10 @@ StyleDictionary.registerFormat({
     // modes = [{ key: 'light', sets: [...] }, { key: 'dark', sets: [...] }]
     const renderMode = ({ key, sets }) => {
       const filter = new Set(sets);
-      const entries = [];
+      // Dedupe by cssVar — last value wins (matches CSS cascade semantics).
+      // A theme JSON may declare the same cssVar under both `color.*` and
+      // `pd.color.*` paths; TS object literals reject duplicate keys.
+      const byVar = new Map();
       for (const token of dictionary.allTokens) {
         const set = getSet(token);
         if (!filter.has(set)) continue;
@@ -125,9 +129,9 @@ StyleDictionary.registerFormat({
         const value = renderValue(token, dictionary);
         // Escape single quotes in value (shouldn't happen but defensive)
         const safe = value.replace(/'/g, "\\'");
-        entries.push(`  '${cssVar}': '${safe}',`);
+        byVar.set(cssVar, `  '${cssVar}': '${safe}',`);
       }
-      return `export const ${key}: Record<string, string> = {\n${entries.join('\n')}\n};\n`;
+      return `export const ${key}: Record<string, string> = {\n${[...byVar.values()].join('\n')}\n};\n`;
     };
     return `${GENERATED_HEADER}\n\n${modes.map(renderMode).join('\n')}`;
   },
