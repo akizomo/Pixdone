@@ -17,6 +17,7 @@ import { FocusScreenContainer } from './screens/FocusScreenContainer';
 import { usePerfectTimingSetup, type PerfectTimingBridgeCallbacks } from './hooks/usePerfectTimingSetup';
 import { useMidnightRefresh } from './hooks/useMidnightRefresh';
 import { detectDefaultLang, t } from './lib/i18n';
+import { getTodayYMD } from './lib/date';
 import { playSound, getSoundEnabled } from './services/sound';
 import { initSoundEngine } from './services/soundEngine';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -59,12 +60,6 @@ import { setBgmOn, setBgmTrack, isBgmOn, getBgmTrack, stopBgm } from './services
 import type { BgmTrack } from './services/bgm';
 import { useThemeStats } from './hooks/useThemeStats';
 import { useActivityDays, calcAgentCount } from './hooks/useActivityDays';
-import {
-  recordAppOpen as recordPhAppOpen,
-  shouldShowPhBanner,
-  dismissPhBanner,
-  PH_REVIEW_URL,
-} from './services/phReviewBanner';
 
 /**
  * Desktop UI: at least one fine pointer (mouse/trackpad). No viewport width involved —
@@ -121,7 +116,6 @@ function AppContent() {
   }, []);
 
   // UI state
-  const [phBannerOpen, setPhBannerOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
   const [authInitialMode, setAuthInitialMode] = useState<'signup' | 'login'>('signup');
   const [plusIntroOpen, setPlusIntroOpen] = useState(false);
@@ -166,12 +160,6 @@ function AppContent() {
     initSoundEngine();
     setSoundMuted(!getSoundEnabled());
   }, []);
-
-  /* ---- PH review banner: record today's app-open for authenticated users ---- */
-  useEffect(() => {
-    if (user) recordPhAppOpen();
-  }, [user]);
-
 
   const { showToast } = useToast();
 
@@ -299,6 +287,17 @@ function AppContent() {
   const [onboardingTourActive, setOnboardingTourActive] = useState(false);
   /** Bottom-sheet for "add a task to My tasks" (mobile FAB on Today/Plan). */
   const mobileAddSheetRef = useRef<MobileTaskSheetHandle>(null);
+  /**
+   * Hidden input used to pre-open the mobile keyboard in the user-gesture
+   * chain. iOS Safari only opens the keyboard when `focus()` is called
+   * synchronously from a user event. Async focus after the sheet mounts is
+   * ignored. We focus this input in the tap handler so the keyboard stays
+   * open when focus transfers to the real title field on mount.
+   */
+  const keyboardWarmupRef = useRef<HTMLInputElement>(null);
+  const warmupKeyboard = useCallback(() => {
+    keyboardWarmupRef.current?.focus({ preventScroll: true });
+  }, []);
 
   // Lock body scroll + block keyboard scroll keys while the tour is live so
   // only the spotlit Add button / FAB is interactive.
@@ -611,10 +610,6 @@ function AppContent() {
 
     // World Growth — increment theme-specific completion counter
     incrementThemeCompleted();
-
-    if (user && shouldShowPhBanner()) {
-      window.setTimeout(() => setPhBannerOpen(true), 1600);
-    }
   }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendTaskComplete, user, forcedEffectKey, showToast, lang, incrementThemeCompleted, currentList, effectProgressMap]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
@@ -1208,32 +1203,6 @@ function AppContent() {
         </div>
       </ModalDialog>
 
-      {/* PH review request — inline banner above BottomNav */}
-      {phBannerOpen && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '8px',
-          padding: '8px 16px',
-          fontSize: '0.75rem',
-          fontFamily: 'var(--pd-font-body)',
-          color: 'var(--pd-color-text-secondary)',
-          background: 'var(--pd-color-background-elevated)',
-          borderTop: '1px solid var(--pd-color-border-default)',
-        }}>
-          <span>{lang === 'ja' ? 'PixDone を気に入った？レビューで応援してね' : 'Enjoying PixDone? Leave a review!'}</span>
-          <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-            <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={() => { dismissPhBanner(); setPhBannerOpen(false); }}>
-              {lang === 'ja' ? '閉じる' : 'DISMISS'}
-            </Button>
-            <Button variant="primary" size="sm" onClick={() => { dismissPhBanner(); setPhBannerOpen(false); window.open(PH_REVIEW_URL, '_blank', 'noopener,noreferrer'); }}>
-              {lang === 'ja' ? 'レビュー' : 'REVIEW'}
-            </Button>
-          </div>
-        </div>
-      )}
-
       {/* Mobile FAB — always visible on Tasks tab */}
       {!focusZenOpen && !isDesktop && activeScreen === 'tasks' && !isSubPage && (
         <button
@@ -1241,11 +1210,17 @@ function AppContent() {
           className="pd-mobile-fab"
           data-tour={onboardingTourActive ? 'true' : 'false'}
           onClick={() => {
+            // Focus the warmup input FIRST so iOS opens the keyboard within
+            // this user gesture. Focus transfers to the real title field
+            // once TaskForm mounts.
+            warmupKeyboard();
             playSound('taskAdd');
             // Today/Plan: open the App-level add-task bottom sheet directly.
             // Lists: fall back to TasksScreen's own flow via the nonce.
             if (mobileSubView === 'today' || mobileSubView === 'plan') {
-              mobileAddSheetRef.current?.openAdd();
+              mobileAddSheetRef.current?.openAdd(
+                mobileSubView === 'today' ? { initialDueDate: getTodayYMD() } : undefined,
+              );
             } else {
               setAutoOpenAddTaskNonce((n) => n + 1);
             }
@@ -1269,6 +1244,32 @@ function AppContent() {
           <PixelIcon name="add" size="24px" />
         </button>
       )}
+
+      {/* Hidden input used to pre-open the iOS keyboard in the user-gesture
+          chain when the FAB or Add button fires. Off-screen, opacity:0, but
+          NOT display:none / visibility:hidden (those would block focus). */}
+      <input
+        ref={keyboardWarmupRef}
+        type="text"
+        aria-hidden="true"
+        tabIndex={-1}
+        inputMode="text"
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
+        style={{
+          position: 'fixed',
+          left: 0,
+          bottom: 0,
+          width: 1,
+          height: 1,
+          opacity: 0,
+          border: 'none',
+          background: 'transparent',
+          pointerEvents: 'none',
+          zIndex: -1,
+        }}
+      />
 
       {/* App-level add-task bottom sheet for Today/Plan FAB taps. Seeds the
           list chip with My Tasks (the inbox default); the user can still pick
