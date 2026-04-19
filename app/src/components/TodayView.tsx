@@ -6,6 +6,7 @@ import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
 import { PixelIcon } from '../design-system';
 import { playSound } from '../services/sound';
+import { getTodayYMD } from '../lib/date';
 import './TodayView.css';
 
 export interface TodayViewProps {
@@ -58,6 +59,7 @@ export function TodayView({
         <TaskForm
           lang={lang}
           listId="default"
+          initialDueDate={getTodayYMD()}
           onSave={handleSave}
           onCancel={() => setIsAdding(false)}
         />

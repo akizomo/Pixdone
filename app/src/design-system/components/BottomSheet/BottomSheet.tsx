@@ -114,13 +114,22 @@ export function BottomSheet({
     };
   }, [visible]);
 
-  // Keyboard avoidance via VisualViewport (vanilla parity)
+  // Keyboard avoidance via VisualViewport (vanilla parity).
+  // iOS Safari adds an input accessory bar (password / autofill / autocomplete)
+  // above the keyboard that `visualViewport` does NOT subtract from `height`.
+  // Detect iOS and add a buffer so content stays visible above the accessory.
   useEffect(() => {
     if (!open) return;
     const vv = window.visualViewport;
     if (!vv) return;
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      // iPadOS 13+ reports as Mac
+      (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints ?? 0) > 1);
+    const IOS_ACCESSORY_BAR_PX = 48;
     const update = () => {
-      const keyboardInset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      const rawInset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      const keyboardInset = rawInset > 0 && isIOS ? rawInset + IOS_ACCESSORY_BAR_PX : rawInset;
       document.documentElement.style.setProperty('--pxd-keyboard-inset', `${keyboardInset}px`);
     };
     update();

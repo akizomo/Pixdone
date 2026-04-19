@@ -15,8 +15,8 @@ import type { Task } from '../types/task';
 import { playSound } from '../services/sound';
 
 export interface MobileTaskSheetHandle {
-  /** Open sheet in add mode. Pass `initialTitle` to prefill the title field (e.g. onboarding tour). */
-  openAdd: (opts?: { initialTitle?: string }) => void;
+  /** Open sheet in add mode. Pass `initialTitle` / `initialDueDate` to prefill those fields. */
+  openAdd: (opts?: { initialTitle?: string; initialDueDate?: string | null }) => void;
   openEdit: (taskId: string) => void;
   close: () => void;
 }
@@ -41,6 +41,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
     const [mode, setMode] = useState<'add' | 'edit'>('add');
     const [editTaskId, setEditTaskId] = useState<string | null>(null);
     const [initialTitle, setInitialTitle] = useState<string | undefined>(undefined);
+    const [initialDueDate, setInitialDueDate] = useState<string | null | undefined>(undefined);
     // Tracks the list chip in the compact mobile form. Seeded on openAdd/openEdit
     // so the Send button saves to whatever list the user last picked.
     const [activeListIdInSheet, setActiveListIdInSheet] = useState(currentListId);
@@ -60,10 +61,11 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
     }, []);
 
     useImperativeHandle(ref, () => ({
-      openAdd(opts?: { initialTitle?: string }) {
+      openAdd(opts?: { initialTitle?: string; initialDueDate?: string | null }) {
         setEditTaskId(null);
         setMode('add');
         setInitialTitle(opts?.initialTitle);
+        setInitialDueDate(opts?.initialDueDate);
         setActiveListIdInSheet(currentListId);
         skipAutoSaveRef.current = false;
         setOpen(true);
@@ -72,6 +74,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
         setEditTaskId(taskId);
         setMode('edit');
         setInitialTitle(undefined);
+        setInitialDueDate(undefined);
         const t = tasks.find((t) => t.id === taskId);
         setActiveListIdInSheet(t?.listId ?? currentListId);
         skipAutoSaveRef.current = false;
@@ -122,6 +125,11 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
       <BottomSheet
         open={open}
         onClose={close}
+        // Add mode: compact sheet above the keyboard (Todoist-style).
+        // Edit mode: full-modal sheet with bottom action bar.
+        className={mode === 'add' ? 'pxd-sheet--compact' : undefined}
+        // Let chip popovers escape the body's scroll clipping.
+        bodyClassName="pxd-sheet-body--task-form"
       >
         <TaskForm
           ref={taskFormRef}
@@ -129,6 +137,7 @@ export const MobileTaskSheet = forwardRef<MobileTaskSheetHandle, MobileTaskSheet
           listId={activeListIdInSheet}
           task={task}
           initialTitle={mode === 'add' ? initialTitle : undefined}
+          initialDueDate={mode === 'add' ? initialDueDate : undefined}
           onSave={handleSave}
           onCancel={handleCancel}
           onClose={close}

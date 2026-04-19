@@ -104,9 +104,16 @@ const ICON_MAP: Record<string, string> = {
   play: playSvg,
   pause: pauseSvg,
   skip_next: forwardSvg,
-  // shrink: scale.svg with arrows pointing inward (mirrored arrowheads)
+  // shrink: mirrors scale.svg (fullscreen) — same diagonal staircases, but L-brackets moved from outer to inner corners
   shrink: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">' +
-    '<path d="M3 21h2v-2h2v-2h2v-2h2v8H3zM21 3h-2v2h-2v2h-2v2h-2V1h8z"/>' +
+    // Top-right diagonal staircase (same 4 pixels as fullscreen)
+    '<path d="M13 9h2v2h-2zm2-2h2v2h-2zm2-2h2v2h-2zm2-2h2v2h-2z"/>' +
+    // Top-right inner L-bracket (left bar + bottom bar, corner at (11,11))
+    '<path d="M11 3h2v6h8v2h-10z"/>' +
+    // Bottom-left diagonal staircase (same 4 pixels as fullscreen)
+    '<path d="M9 13h2v2H9zm-2 2h2v2H7zm-2 2h2v2H5zm-2 2h2v2H3z"/>' +
+    // Bottom-left inner L-bracket (top bar + right bar, corner at (13,13))
+    '<path d="M3 13h10v8h-2v-6H3z"/>' +
     '</svg>',
 };
 

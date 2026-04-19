@@ -36,6 +36,30 @@
   image-rendering: pixelated;
 }
 
+/* Compact variant — sheet sizes to its content and sits above the keyboard.
+   Used by the Todoist-style add/edit task form. Keyboard inset handling via
+   `--pxd-keyboard-inset` still applies via the shared `padding-bottom`. */
+.pxd-sheet.pxd-sheet--compact {
+  top: auto;
+  max-height: min(80vh, calc(100vh - 80px));
+}
+.pxd-sheet.pxd-sheet--compact .pxd-sheet-body {
+  flex: 0 0 auto;
+}
+
+/* Compact variant hides the sheet header (title + close button) — dismissal
+   is via drag handle / backdrop / Esc. Shrink the drag handle padding to
+   reclaim the space the header used to occupy. */
+.pxd-sheet.pxd-sheet--compact .pxd-sheet-header {
+  display: none;
+}
+.pxd-sheet.pxd-sheet--compact .pxd-sheet-drag-handle {
+  padding: 6px 0 2px;
+}
+.pxd-sheet.pxd-sheet--compact .pxd-sheet-body {
+  padding-top: 12px;
+}
+
 .pxd-sheet[data-open="true"] {
   transform: translateY(0);
   pointer-events: auto;
@@ -52,7 +76,8 @@
   padding: 10px 0 2px;
   cursor: grab;
   touch-action: none;
-  background-color: var(--pd-color-background-elevated);
+  /* Background inherits from `.pxd-sheet` so the handle blends into the
+     body with no visible seam. */
 }
 
 .pxd-sheet-drag-pill {
@@ -70,9 +95,9 @@
   justify-content: space-between;
   gap: 12px;
   padding: 12px 20px;
-  border-bottom: 2px solid var(--pxd-color-border-outline-variant);
-  background-color: var(--pd-color-background-elevated);
   touch-action: none;
+  /* Background + border removed so the header sits flush with the sheet
+     body — no colored strip, no divider line. */
 }
 
 .pxd-sheet-title {
@@ -119,6 +144,12 @@
   font-family: var(--pd-font-body);
   font-size: 0.875rem;
   color: var(--pd-color-text-primary);
+}
+
+/* Task form variant: let chip popovers extend outside the body's scroll
+   context. Internal long lists (e.g. subtask list) handle their own scroll. */
+.pxd-sheet-body.pxd-sheet-body--task-form {
+  overflow: visible;
 }
 
 /* Collection: Effect Gallery needs full-height preview without extra bottom inset spacing.

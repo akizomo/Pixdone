@@ -276,22 +276,28 @@
   margin-bottom: calc(var(--pxd-space-1) * -1);
 }
 
-/* Title — larger than desktop, no field chrome */
-.pd-task-form--compact .pd-task-form__title--compact .pxd-rich-text-field__input {
+/* Title — larger than desktop, no field chrome (override all interaction states) */
+.pd-task-form--compact .pd-task-form__title--compact .pxd-rich-text-field__input,
+.pd-task-form--compact .pd-task-form__title--compact .pxd-rich-text-field__input:hover,
+.pd-task-form--compact .pd-task-form__title--compact .pxd-rich-text-field__input:focus {
   font-size: 1.125rem;
   font-weight: var(--pxd-font-weight-semibold);
   padding: var(--pxd-space-1) 0;
-  border: none;
-  background: transparent;
   min-height: 0;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* Notes — shrink min-height so it starts as a single line and grows on Enter */
-.pd-task-form--compact .pd-task-form__notes--compact .pxd-rich-text-area__input {
+.pd-task-form--compact .pd-task-form__notes--compact .pxd-rich-text-area__input,
+.pd-task-form--compact .pd-task-form__notes--compact .pxd-rich-text-area__input:hover,
+.pd-task-form--compact .pd-task-form__notes--compact .pxd-rich-text-area__input:focus {
   min-height: 22px !important;
   padding: var(--pxd-space-1) 0;
-  border: none;
-  background: transparent;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
   font-size: 0.9375rem;
   color: var(--pd-color-text-secondary);
 }
@@ -354,6 +360,47 @@
 }
 .pd-task-form__list-chip .pxd-pixel-icon {
   font-size: 16px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Mobile EDIT (full modal) layout
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.pd-task-form--edit {
+  gap: var(--pxd-space-3);
+}
+
+/* Top toolbar: list chip (left) + delete (right) */
+.pd-task-form__edit-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pxd-space-2);
+}
+
+/* Keep long subtask lists scrollable internally so the edit modal body can
+   use overflow: visible for chip popovers without breaking long-list UX. */
+.pd-task-form--edit .pd-task-form__subtask-list {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+/* Subtask input styled as an inline "+ Add a subtask" button row */
+.pd-task-form--edit .pd-task-form__add-subtask-input .pxd-text-field__input {
+  border: none !important;
+  background: transparent !important;
+  padding: var(--pxd-space-2) 0 !important;
+  color: var(--pd-color-accent-default);
+  font-size: 0.9375rem;
+  min-height: 0;
+}
+.pd-task-form--edit .pd-task-form__add-subtask-input .pxd-text-field__input::placeholder {
+  color: var(--pd-color-accent-default);
+  opacity: 0.9;
+}
+.pd-task-form--edit .pd-task-form__add-subtask-input .pxd-text-field__input:focus {
+  color: var(--pd-color-text-primary);
+  box-shadow: none !important;
 }
 
 /* Date picker row inside Date popover */
