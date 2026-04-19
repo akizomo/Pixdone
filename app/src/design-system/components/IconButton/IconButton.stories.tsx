@@ -54,7 +54,7 @@ export const Disabled: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 'var(--pxd-space-3)', flexWrap: 'wrap', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: 'var(--pd-space-3)', flexWrap: 'wrap', alignItems: 'center' }}>
       <IconButton variant="primary" aria-label="Close" icon={<PI name="close" />} />
       <IconButton variant="secondary" aria-label="Add" icon={<PI name="add" />} />
       <IconButton variant="ghost" aria-label="More" icon={<PI name="more_vert" />} />
@@ -65,7 +65,7 @@ export const AllVariants: Story = {
 
 export const SizeComparison: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 'var(--pxd-space-4)', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: 'var(--pd-space-4)', alignItems: 'center' }}>
       <IconButton size="sm" variant="secondary" aria-label="Small" icon={<PI name="close" />} />
       <IconButton size="md" variant="secondary" aria-label="Medium" icon={<PI name="close" />} />
       <IconButton size="lg" variant="secondary" aria-label="Large" icon={<PI name="close" />} />

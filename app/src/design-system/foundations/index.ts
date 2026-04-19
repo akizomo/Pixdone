@@ -1,7 +1,7 @@
 /**
  * Pixdone design system – Foundation token layer.
  * Tokens only. No UI components.
- * Use --pxd-* CSS variables (tokens.css) or these exports in code.
+ * Use --pd-* CSS variables (tokens.css) or these exports in code.
  */
 
 export { color, primitiveLookup } from './color.tokens';

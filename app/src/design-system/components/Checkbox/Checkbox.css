@@ -6,18 +6,18 @@
   justify-content: center;
   flex-shrink: 0;
   padding: 0;
-  border: var(--pxd-border-base) solid var(--pd-color-border-default);
-  border-radius: var(--pxd-radius-none);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  border-radius: var(--pd-radius-none);
   background: transparent;
   cursor: pointer;
   image-rendering: pixelated;
-  transition: border-color var(--pxd-motion-fast) ease,
-              background-color var(--pxd-motion-fast) ease;
+  transition: border-color var(--pd-motion-fast) ease,
+              background-color var(--pd-motion-fast) ease;
 }
 
 .pxd-checkbox:focus-visible {
-  outline: var(--pxd-border-base) solid var(--pd-color-accent-default);
-  outline-offset: var(--pxd-border-base);
+  outline: var(--pd-border-base) solid var(--pd-color-accent-default);
+  outline-offset: var(--pd-border-base);
 }
 
 /* Sizes */
@@ -27,8 +27,8 @@
 }
 
 .pxd-checkbox--md {
-  width: var(--pxd-space-6);
-  height: var(--pxd-space-6);
+  width: var(--pd-space-6);
+  height: var(--pd-space-6);
 }
 
 /* Checked state */
@@ -42,7 +42,7 @@
   color: transparent;
   line-height: 1;
   user-select: none;
-  transition: color var(--pxd-motion-fast) ease;
+  transition: color var(--pd-motion-fast) ease;
 }
 
 .pxd-checkbox--sm .pxd-checkbox__check {

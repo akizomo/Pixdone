@@ -16,10 +16,10 @@ function getSwatchColors(theme: VisualTheme, colorMode: 'light' | 'dark'): strin
     vars['--pd-color-background-default'],
     vars['--pd-color-background-elevated'],
     vars['--pd-color-accent-default'],
-    vars['--pxd-sw-navy-950'],
-    vars['--pxd-sw-navy-800'],
-    vars['--pxd-fb-night-950'],
-    vars['--pxd-fb-night-700'],
+    vars['--pd-sw-navy-950'],
+    vars['--pd-sw-navy-800'],
+    vars['--pd-fb-night-950'],
+    vars['--pd-fb-night-700'],
   ].filter(Boolean) as string[];
   return candidates.slice(0, 3);
 }

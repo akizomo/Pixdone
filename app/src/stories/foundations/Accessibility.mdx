@@ -11,14 +11,14 @@ Pixdone foundations are built **accessible by default**. Apply these rules when 
 ## Minimum tap targets
 
 - **44×44px minimum** for primary interactive elements: buttons, links, list rows, icon-only controls.
-- Use `--pxd-tap-target-min: 44px` and spacing tokens so touch targets are never smaller.
+- Use `--pd-tap-target-min: 44px` and spacing tokens so touch targets are never smaller.
 - Provide adequate spacing between targets to avoid mis-taps.
 
 ---
 
 ## Focus visibility
 
-- **Visible focus states** – Every focusable element must show a clear focus indicator (e.g. ring using `--pxd-color-focus-ring` and `--pxd-color-focus-ring-offset`).
+- **Visible focus states** – Every focusable element must show a clear focus indicator (e.g. ring using `--pd-color-focus-ring` and `--pd-color-focus-ring-offset`).
 - **Never remove focus outline** without replacing it with an equally visible style (e.g. 2px outline or custom ring).
 - Ensure focus ring has **at least 3:1 contrast** against the background.
 
@@ -34,7 +34,7 @@ Pixdone foundations are built **accessible by default**. Apply these rules when 
 
 ## Reduced motion
 
-- **Respect `prefers-reduced-motion: reduce`** – `tokens.css` shortens motion duration variables when this preference is set. Use `--pxd-motion-*` variables for all transitions and animations.
+- **Respect `prefers-reduced-motion: reduce`** – `tokens.css` shortens motion duration variables when this preference is set. Use `--pd-motion-*` variables for all transitions and animations.
 - Prefer reduced or no motion for decorative effects; keep essential feedback minimal (e.g. instant or fast only).
 
 ---
@@ -50,8 +50,8 @@ Pixdone foundations are built **accessible by default**. Apply these rules when 
 
 | Area | Requirement |
 |------|-------------|
-| Tap target | ≥ 44×44px; use `--pxd-tap-target-min` |
+| Tap target | ≥ 44×44px; use `--pd-tap-target-min` |
 | Focus | Visible ring; never outline: none without replacement |
 | Contrast | WCAG AA for text; 3:1 for UI; semantics not by color alone |
-| Reduced motion | Use `--pxd-motion-*`; honor prefers-reduced-motion |
+| Reduced motion | Use `--pd-motion-*`; honor prefers-reduced-motion |
 | Icon buttons | aria-label or equivalent; focusable |

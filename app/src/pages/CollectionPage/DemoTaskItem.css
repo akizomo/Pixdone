@@ -7,8 +7,8 @@
   margin: 0;
   color: var(--pd-color-text-primary);
   font-family: var(--pd-font-body);
-  font-size: var(--pxd-font-size-sm);
-  line-height: var(--pxd-line-height-snug);
+  font-size: var(--pd-font-size-sm);
+  line-height: var(--pd-line-height-snug);
   cursor: text;
 }
 
@@ -19,5 +19,5 @@
 }
 
 .demo-task-item__title-input:focus {
-  outline: var(--pxd-border-thin) dashed var(--pd-color-accent-default);
+  outline: var(--pd-border-thin) dashed var(--pd-color-accent-default);
 }

@@ -133,7 +133,7 @@
 .pd-sidebar__section {
   display: flex;
   flex-direction: column;
-  padding: var(--pxd-space-1) 0;
+  padding: var(--pd-space-1) 0;
   border-bottom: 1px solid var(--pd-color-border-default);
 }
 
@@ -143,11 +143,11 @@
 
 .pd-sidebar__section-header {
   font-family: var(--pd-font-brand);
-  font-size: var(--pxd-font-size-xs);
+  font-size: var(--pd-font-size-xs);
   color: var(--pd-color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: var(--pxd-space-2) var(--pxd-space-3);
+  padding: var(--pd-space-2) var(--pd-space-3);
 }
 
 /* ── Nav items ── */
@@ -155,14 +155,14 @@
 .pd-sidebar__item {
   display: flex;
   align-items: center;
-  gap: var(--pxd-space-2);
+  gap: var(--pd-space-2);
   width: 100%;
-  padding: var(--pxd-space-2) var(--pxd-space-3);
+  padding: var(--pd-space-2) var(--pd-space-3);
   background: none;
   border: none;
   cursor: pointer;
   font-family: var(--pd-font-body);
-  font-size: var(--pxd-font-size-sm);
+  font-size: var(--pd-font-size-sm);
   color: var(--pd-color-text-secondary);
   text-align: left;
   white-space: nowrap;
@@ -204,7 +204,7 @@
 
 .pd-sidebar__item-count {
   font-family: var(--pd-font-brand);
-  font-size: var(--pxd-font-size-xs);
+  font-size: var(--pd-font-size-xs);
   color: var(--pd-color-text-muted);
   min-width: 1.5em;
   text-align: right;
@@ -214,21 +214,21 @@
 
 .pd-sidebar__timer {
   margin-top: auto;
-  padding: var(--pxd-space-3);
+  padding: var(--pd-space-3);
   border-top: 1px solid var(--pd-color-border-default);
 }
 
 .pd-sidebar__timer-btn {
   display: flex;
   align-items: center;
-  gap: var(--pxd-space-2);
+  gap: var(--pd-space-2);
   width: 100%;
-  padding: var(--pxd-space-2) var(--pxd-space-3);
+  padding: var(--pd-space-2) var(--pd-space-3);
   background: var(--pd-color-background-elevated);
   border: 2px solid var(--pd-color-border-default);
   cursor: pointer;
   font-family: var(--pd-font-brand);
-  font-size: var(--pxd-font-size-sm);
+  font-size: var(--pd-font-size-sm);
   color: var(--pd-color-text-primary);
   letter-spacing: 0.05em;
   white-space: nowrap;

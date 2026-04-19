@@ -9,23 +9,23 @@ import { themes } from './themeRegistry';
 
 /** Primitives in `tokens.css` that are not listed in `color.core` (TS). */
 const TOKENS_CSS_ONLY_PRIMITIVES: readonly string[] = [
-  '--pxd-magenta-300',
-  '--pxd-magenta-500',
-  '--pxd-magenta-700',
-  '--pxd-magenta-900',
-  '--pxd-teal-300',
-  '--pxd-teal-500',
-  '--pxd-teal-700',
-  '--pxd-teal-900',
-  '--pxd-lavender-50',
-  '--pxd-lavender-100',
-  '--pxd-lavender-200',
-  '--pxd-lavender-300',
-  '--pxd-lavender-400',
-  '--pxd-lavender-500',
-  '--pxd-violet-600',
-  '--pxd-violet-700',
-  '--pxd-violet-900',
+  '--pd-magenta-300',
+  '--pd-magenta-500',
+  '--pd-magenta-700',
+  '--pd-magenta-900',
+  '--pd-teal-300',
+  '--pd-teal-500',
+  '--pd-teal-700',
+  '--pd-teal-900',
+  '--pd-lavender-50',
+  '--pd-lavender-100',
+  '--pd-lavender-200',
+  '--pd-lavender-300',
+  '--pd-lavender-400',
+  '--pd-lavender-500',
+  '--pd-violet-600',
+  '--pd-violet-700',
+  '--pd-violet-900',
 ];
 
 const VAR_REF_RE = /var\((--[a-zA-Z0-9-]+)\)/g;
@@ -36,11 +36,11 @@ const DEFAULT_GLOBAL_PRIMITIVE_SET = new Set<string>([
 ]);
 
 function isSemanticToken(name: string): boolean {
-  return name.startsWith('--pxd-color-');
+  return name.startsWith('--pd-color-');
 }
 
 function isThemeNamespacePrimitive(name: string): boolean {
-  return name.startsWith('--pxd-sw-') || name.startsWith('--pxd-fb-');
+  return name.startsWith('--pd-sw-') || name.startsWith('--pd-fb-');
 }
 
 function isDirectColorValue(v: string): boolean {

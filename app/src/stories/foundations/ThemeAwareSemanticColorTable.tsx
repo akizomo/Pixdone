@@ -12,14 +12,14 @@ const SECTIONS: SectionDef[] = [
     heading: 'Surface',
     caption: 'Background layers: page, cards, overlay.',
     rows: [
-      { token: '--pxd-color-surface-page', description: 'Page background' },
-      { token: '--pxd-color-surface-page-alt', description: 'Alternate page / stripes' },
-      { token: '--pxd-color-surface-primary', description: 'Primary surface (cards, panels)' },
-      { token: '--pxd-color-surface-secondary', description: 'Secondary surface' },
-      { token: '--pxd-color-surface-raised', description: 'Raised / dropdown' },
-      { token: '--pxd-color-surface-overlay', description: 'Modal backdrop' },
-      { token: '--pxd-color-surface-inverse', description: 'Inverse surface' },
-      { token: '--pxd-color-surface-disabled', description: 'Disabled control surface' },
+      { token: '--pd-color-surface-page', description: 'Page background' },
+      { token: '--pd-color-surface-page-alt', description: 'Alternate page / stripes' },
+      { token: '--pd-color-surface-primary', description: 'Primary surface (cards, panels)' },
+      { token: '--pd-color-surface-secondary', description: 'Secondary surface' },
+      { token: '--pd-color-surface-raised', description: 'Raised / dropdown' },
+      { token: '--pd-color-surface-overlay', description: 'Modal backdrop' },
+      { token: '--pd-color-surface-inverse', description: 'Inverse surface' },
+      { token: '--pd-color-surface-disabled', description: 'Disabled control surface' },
     ],
   },
   {
@@ -27,15 +27,15 @@ const SECTIONS: SectionDef[] = [
     heading: 'Text',
     caption: 'Text hierarchy and semantic emphasis.',
     rows: [
-      { token: '--pxd-color-text-primary', description: 'Body and headings' },
-      { token: '--pxd-color-text-secondary', description: 'Secondary text' },
-      { token: '--pxd-color-text-tertiary', description: 'Tertiary / muted' },
-      { token: '--pxd-color-text-inverse', description: 'On inverse backgrounds' },
-      { token: '--pxd-color-text-disabled', description: 'Disabled text' },
-      { token: '--pxd-color-text-accent', description: 'Links, accent' },
-      { token: '--pxd-color-text-success', description: 'Success state' },
-      { token: '--pxd-color-text-warning', description: 'Warning state' },
-      { token: '--pxd-color-text-danger', description: 'Error / danger' },
+      { token: '--pd-color-text-primary', description: 'Body and headings' },
+      { token: '--pd-color-text-secondary', description: 'Secondary text' },
+      { token: '--pd-color-text-tertiary', description: 'Tertiary / muted' },
+      { token: '--pd-color-text-inverse', description: 'On inverse backgrounds' },
+      { token: '--pd-color-text-disabled', description: 'Disabled text' },
+      { token: '--pd-color-text-accent', description: 'Links, accent' },
+      { token: '--pd-color-text-success', description: 'Success state' },
+      { token: '--pd-color-text-warning', description: 'Warning state' },
+      { token: '--pd-color-text-danger', description: 'Error / danger' },
     ],
   },
   {
@@ -43,13 +43,13 @@ const SECTIONS: SectionDef[] = [
     heading: 'Border',
     caption: 'Border colors for structure, focus, and danger states.',
     rows: [
-      { token: '--pxd-color-border-outline-variant', description: 'Subtle dividers, card edges' },
-      { token: '--pxd-color-border-outline', description: 'Structural containers, modals' },
-      { token: '--pxd-color-border-interactive', description: 'Input / button rest state' },
-      { token: '--pxd-color-border-interactive-active', description: 'Input / button hover & active state' },
-      { token: '--pxd-color-border-focus', description: 'Focus ring' },
-      { token: '--pxd-color-border-danger', description: 'Error border' },
-      { token: '--pxd-color-border-inverse', description: 'Inverse border' },
+      { token: '--pd-color-border-outline-variant', description: 'Subtle dividers, card edges' },
+      { token: '--pd-color-border-outline', description: 'Structural containers, modals' },
+      { token: '--pd-color-border-interactive', description: 'Input / button rest state' },
+      { token: '--pd-color-border-interactive-active', description: 'Input / button hover & active state' },
+      { token: '--pd-color-border-focus', description: 'Focus ring' },
+      { token: '--pd-color-border-danger', description: 'Error border' },
+      { token: '--pd-color-border-inverse', description: 'Inverse border' },
     ],
   },
   {
@@ -57,10 +57,10 @@ const SECTIONS: SectionDef[] = [
     heading: 'Feedback',
     caption: 'Status colors for info, success, warning, and danger.',
     rows: [
-      { token: '--pxd-color-feedback-info', description: 'Info' },
-      { token: '--pxd-color-feedback-success', description: 'Success' },
-      { token: '--pxd-color-feedback-warning', description: 'Warning' },
-      { token: '--pxd-color-feedback-danger', description: 'Danger' },
+      { token: '--pd-color-feedback-info', description: 'Info' },
+      { token: '--pd-color-feedback-success', description: 'Success' },
+      { token: '--pd-color-feedback-warning', description: 'Warning' },
+      { token: '--pd-color-feedback-danger', description: 'Danger' },
     ],
   },
   {
@@ -68,15 +68,15 @@ const SECTIONS: SectionDef[] = [
     heading: 'Action',
     caption: 'Interactive element colors for primary, secondary, and ghost actions.',
     rows: [
-      { token: '--pxd-color-action-primary', description: 'Primary button' },
-      { token: '--pxd-color-action-primary-hover', description: 'Primary hover' },
-      { token: '--pxd-color-action-primary-pressed', description: 'Primary pressed' },
-      { token: '--pxd-color-action-secondary', description: 'Secondary button' },
-      { token: '--pxd-color-action-secondary-hover', description: 'Secondary hover' },
-      { token: '--pxd-color-action-secondary-pressed', description: 'Secondary pressed' },
-      { token: '--pxd-color-action-ghost-hover', description: 'Ghost hover' },
-      { token: '--pxd-color-action-ghost-pressed', description: 'Ghost pressed' },
-      { token: '--pxd-color-action-disabled', description: 'Disabled' },
+      { token: '--pd-color-action-primary', description: 'Primary button' },
+      { token: '--pd-color-action-primary-hover', description: 'Primary hover' },
+      { token: '--pd-color-action-primary-pressed', description: 'Primary pressed' },
+      { token: '--pd-color-action-secondary', description: 'Secondary button' },
+      { token: '--pd-color-action-secondary-hover', description: 'Secondary hover' },
+      { token: '--pd-color-action-secondary-pressed', description: 'Secondary pressed' },
+      { token: '--pd-color-action-ghost-hover', description: 'Ghost hover' },
+      { token: '--pd-color-action-ghost-pressed', description: 'Ghost pressed' },
+      { token: '--pd-color-action-disabled', description: 'Disabled' },
     ],
   },
   {
@@ -84,8 +84,8 @@ const SECTIONS: SectionDef[] = [
     heading: 'Focus',
     caption: 'Focus ring and offset colors.',
     rows: [
-      { token: '--pxd-color-focus-ring', description: 'Focus ring' },
-      { token: '--pxd-color-focus-ring-offset', description: 'Focus ring offset' },
+      { token: '--pd-color-focus-ring', description: 'Focus ring' },
+      { token: '--pd-color-focus-ring-offset', description: 'Focus ring offset' },
     ],
   },
   {
@@ -93,16 +93,16 @@ const SECTIONS: SectionDef[] = [
     heading: 'Brand (mode-invariant)',
     caption: 'Identity and rarity colors. Typically stable across light/dark; visual themes may still tune related primitives.',
     rows: [
-      { token: '--pxd-color-brand-primary', description: 'Brand primary (purple)' },
-      { token: '--pxd-color-brand-secondary', description: 'Brand secondary (yellow)' },
-      { token: '--pxd-color-brand-reward', description: 'Reward (green)' },
-      { token: '--pxd-color-brand-epic', description: 'Epic (pink)' },
-      { token: '--pxd-color-brand-freeze', description: 'Freeze (cyan)' },
-      { token: '--pxd-color-brand-smash', description: 'Smash feedback (coral)' },
-      { token: '--pxd-color-rarity-common', description: 'Rarity: common (gray)' },
-      { token: '--pxd-color-rarity-rare', description: 'Rarity: rare (blue)' },
-      { token: '--pxd-color-rarity-epic', description: 'Rarity: epic (pink)' },
-      { token: '--pxd-color-rarity-legendary', description: 'Rarity: legendary (gold)' },
+      { token: '--pd-color-brand-primary', description: 'Brand primary (purple)' },
+      { token: '--pd-color-brand-secondary', description: 'Brand secondary (yellow)' },
+      { token: '--pd-color-brand-reward', description: 'Reward (green)' },
+      { token: '--pd-color-brand-epic', description: 'Epic (pink)' },
+      { token: '--pd-color-brand-freeze', description: 'Freeze (cyan)' },
+      { token: '--pd-color-brand-smash', description: 'Smash feedback (coral)' },
+      { token: '--pd-color-rarity-common', description: 'Rarity: common (gray)' },
+      { token: '--pd-color-rarity-rare', description: 'Rarity: rare (blue)' },
+      { token: '--pd-color-rarity-epic', description: 'Rarity: epic (pink)' },
+      { token: '--pd-color-rarity-legendary', description: 'Rarity: legendary (gold)' },
     ],
   },
 ];
@@ -124,7 +124,7 @@ function ColorSwatch({ value }: { value: string }) {
         height: 24,
         borderRadius: 4,
         backgroundColor: str,
-        border: `1px solid ${isLight ? 'var(--pxd-color-border-outline, #DDDEE3)' : 'transparent'}`,
+        border: `1px solid ${isLight ? 'var(--pd-color-border-outline, #DDDEE3)' : 'transparent'}`,
         flexShrink: 0,
         display: 'inline-block',
       }}
@@ -137,17 +137,17 @@ function SectionTable({ caption, rows, resolved }: { caption: string; rows: RowD
   const th: React.CSSProperties = {
     textAlign: 'left',
     padding: '10px 14px',
-    borderBottom: '2px solid var(--pxd-color-border-outline, #DDDEE3)',
+    borderBottom: '2px solid var(--pd-color-border-outline, #DDDEE3)',
     fontWeight: 600,
     fontSize: 13,
-    color: 'var(--pxd-color-text-secondary, #4C5160)',
-    background: 'var(--pxd-color-surface-page-alt, #F7F7F8)',
+    color: 'var(--pd-color-text-secondary, #4C5160)',
+    background: 'var(--pd-color-surface-page-alt, #F7F7F8)',
     whiteSpace: 'nowrap',
   };
 
   const td: React.CSSProperties = {
     padding: '10px 14px',
-    borderBottom: '1px solid var(--pxd-color-border-outline-variant, #EFEFF1)',
+    borderBottom: '1px solid var(--pd-color-border-outline-variant, #EFEFF1)',
     verticalAlign: 'middle',
   };
 
@@ -160,7 +160,7 @@ function SectionTable({ caption, rows, resolved }: { caption: string; rows: RowD
               textAlign: 'left',
               padding: '0 0 8px 0',
               fontSize: 13,
-              color: 'var(--pxd-color-text-tertiary, #666C7A)',
+              color: 'var(--pd-color-text-tertiary, #666C7A)',
             }}
           >
             {caption}
@@ -182,9 +182,9 @@ function SectionTable({ caption, rows, resolved }: { caption: string; rows: RowD
                 <td style={td}>
                   <code
                     style={{
-                      fontFamily: 'var(--pxd-font-mono), "JetBrains Mono", monospace',
+                      fontFamily: 'var(--pd-font-mono), "JetBrains Mono", monospace',
                       fontSize: 12,
-                      color: 'var(--pxd-color-text-accent, #5B43D6)',
+                      color: 'var(--pd-color-text-accent, #5B43D6)',
                     }}
                   >
                     {row.token}
@@ -196,9 +196,9 @@ function SectionTable({ caption, rows, resolved }: { caption: string; rows: RowD
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       <code
                         style={{
-                          fontFamily: 'var(--pxd-font-mono), "JetBrains Mono", monospace',
+                          fontFamily: 'var(--pd-font-mono), "JetBrains Mono", monospace',
                           fontSize: 11,
-                          color: 'var(--pxd-color-text-secondary, #4C5160)',
+                          color: 'var(--pd-color-text-secondary, #4C5160)',
                         }}
                       >
                         {val || '—'}
@@ -206,9 +206,9 @@ function SectionTable({ caption, rows, resolved }: { caption: string; rows: RowD
                       {prim && (
                         <code
                           style={{
-                            fontFamily: 'var(--pxd-font-mono), "JetBrains Mono", monospace',
+                            fontFamily: 'var(--pd-font-mono), "JetBrains Mono", monospace',
                             fontSize: 10,
-                            color: 'var(--pxd-color-text-tertiary, #666C7A)',
+                            color: 'var(--pd-color-text-tertiary, #666C7A)',
                             opacity: 0.85,
                           }}
                         >
@@ -218,7 +218,7 @@ function SectionTable({ caption, rows, resolved }: { caption: string; rows: RowD
                     </div>
                   </div>
                 </td>
-                <td style={{ ...td, color: 'var(--pxd-color-text-tertiary, #666C7A)', fontSize: 13, maxWidth: 280 }}>
+                <td style={{ ...td, color: 'var(--pd-color-text-tertiary, #666C7A)', fontSize: 13, maxWidth: 280 }}>
                   {row.description}
                 </td>
               </tr>
@@ -235,18 +235,18 @@ export function ThemeAwareSemanticColorTables() {
   const resolved = useResolvedSemanticColorValues(ALL_TOKENS);
 
   return (
-    <div style={{ fontFamily: 'var(--pxd-font-body)' }}>
+    <div style={{ fontFamily: 'var(--pd-font-body)' }}>
       {SECTIONS.map(section => (
         <section key={section.id}>
           <h2
             style={{
-              fontFamily: 'var(--pxd-font-body)',
+              fontFamily: 'var(--pd-font-body)',
               fontSize: 18,
               fontWeight: 700,
-              color: 'var(--pxd-color-text-primary)',
+              color: 'var(--pd-color-text-primary)',
               marginBottom: 8,
               marginTop: 28,
-              borderBottom: '1px solid var(--pxd-color-border-outline-variant)',
+              borderBottom: '1px solid var(--pd-color-border-outline-variant)',
               paddingBottom: 8,
             }}
           >

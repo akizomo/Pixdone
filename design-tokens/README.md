@@ -32,8 +32,8 @@ design-tokens/
 ├── $themes.json                # Tokens Studio theme/mode matrix (Figma side)
 ├── core.json                   # primitive palette, spacing, radius, fonts, motion
 ├── semantic/
-│   ├── light.json              # --pxd-color-* for light mode (references core)
-│   └── dark.json               # --pxd-color-* for dark mode (references core)
+│   ├── light.json              # --pd-color-* for light mode (references core)
+│   └── dark.json               # --pd-color-* for dark mode (references core)
 └── themes/
     ├── arcade/                 # ships default tokens — minimal overrides
     │   ├── light.json
@@ -61,7 +61,7 @@ know which CSS var name to emit and which "set" it belongs to:
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-page",
+            "cssVar": "--pd-color-surface-page",
             "set": "semanticLight"
           }
         }
@@ -124,13 +124,13 @@ be overwritten at build time.
 
 ### Prefix rules
 
-- `--pxd-*` — **theme-invariant** tokens (primitive palettes, spacing, radius, typography) and the canonical **semantic** layer (`--pxd-color-surface-page` etc.). Defined in `core.json` and `semantic/{light,dark}.json`.
+- `--pd-*` — **theme-invariant** tokens (primitive palettes, spacing, radius, typography) and the canonical **semantic** layer (`--pd-color-surface-page` etc.). Defined in `core.json` and `semantic/{light,dark}.json`.
 - `--pd-*` — legacy **component-level** tokens that themes override directly (accent, smash gradients, font stacks, effect particles). Only themes touch these; base tokens never define them.
 
 ### color-mix / alpha
 
 Where the original CSS used
-`color-mix(in srgb, var(--pxd-sw-chrome) 22%, transparent)`, the JSON encodes
+`color-mix(in srgb, var(--pd-sw-chrome) 22%, transparent)`, the JSON encodes
 this as a reference to `{sw.chrome}` plus a Tokens Studio alpha modifier:
 
 ```json
@@ -138,14 +138,14 @@ this as a reference to `{sw.chrome}` plus a Tokens Studio alpha modifier:
   "$value": "{sw.chrome}",
   "$type": "color",
   "$extensions": {
-    "pixdone": { "cssVar": "--pxd-color-border-outline-variant", "set": "themeSynthwaveDark" },
+    "pixdone": { "cssVar": "--pd-color-border-outline-variant", "set": "themeSynthwaveDark" },
     "studio.tokens.modify": { "type": "alpha", "value": "0.2200", "space": "srgb" }
   }
 }
 ```
 
 The build restores the original `color-mix(...)` CSS expression so the
-reference stays live (if `--pxd-sw-chrome` changes at runtime, all derivatives
+reference stays live (if `--pd-sw-chrome` changes at runtime, all derivatives
 update). Designers in Figma see the token as the base color + an alpha
 modifier — Tokens Studio handles this natively.
 

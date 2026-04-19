@@ -55,10 +55,10 @@ export function ColorSwatch({
         {children}
       </div>
       <div style={{ textAlign: 'center', maxWidth: px + 24 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--pxd-color-text-primary, #191D24)' }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--pd-color-text-primary, #191D24)' }}>
           {name}
         </div>
-        <div style={{ fontSize: 11, color: 'var(--pxd-color-text-secondary, #4C5160)', fontFamily: 'monospace' }}>
+        <div style={{ fontSize: 11, color: 'var(--pd-color-text-secondary, #4C5160)', fontFamily: 'monospace' }}>
           {value}
         </div>
       </div>

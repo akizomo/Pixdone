@@ -88,7 +88,7 @@
 .pxd-button--secondary {
   background-color: var(--pd-color-background-elevated);
   color: var(--pd-color-text-secondary);
-  border-color: var(--pxd-color-border-interactive);
+  border-color: var(--pd-color-border-interactive);
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
 

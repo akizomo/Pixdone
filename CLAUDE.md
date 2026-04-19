@@ -51,28 +51,28 @@ UI は `app/src/design-system/` のコンポーネントとトークンを使っ
 
 ### トークンベース
 - 生の色コード (`#fff`, `rgba(...)`) やマジックナンバー (`12px`, `0.15s`) を直書きしない。
-- **2つのプレフィックスの使い分け**:
-  - `--pd-*` — **テーマ対応**（色・フォント）。ThemeProvider + `.theme.ts` がテーマごとにオーバーライドする。**色は必ずこちらを使う。**
-  - `--pxd-*` — **テーマ不変**（構造値）。`tokens.css` で固定定義。テーマで変わらない。
+- **CSS 変数は `--pd-*` の単一 namespace**。旧 `--pxd-*` は廃止済み。
+- themeable かどうかは **カテゴリで決まる**:
+  - **themeable (ThemeProvider + `.theme.ts` でオーバーライド)**: `--pd-color-*`, `--pd-font-*`
+  - **固定 (全テーマ共通、`tokens.css` で定義)**: `--pd-space-*`, `--pd-border-*`, `--pd-radius-*`, `--pd-font-size-*`, `--pd-font-weight-*`, `--pd-line-height-*`, `--pd-motion-*`, `--pd-easing-*`, `--pd-shadow-*`, `--pd-layout-*`, `--pd-tap-target-*`
 - 主なトークン:
   - 色: `--pd-color-{role}-{variant}` (例: `--pd-color-text-primary`, `--pd-color-accent-default`)
   - フォント: `--pd-font-brand` / `--pd-font-body`（テーマで変わる）
-  - スペース: `--pxd-space-{n}` / `--pxd-layout-{size}`
-  - ボーダー: `--pxd-border-{weight}` (thin=1px, base=2px, strong=3px)
-  - 角丸: `--pxd-radius-{size}` (none, xs, sm, md, lg, xl, full)
-  - タイポサイズ: `--pxd-font-size-{size}`, `--pxd-font-weight-{name}`
-  - モーション: `--pxd-motion-{speed}`, `--pxd-easing-{name}`
-  - シャドウ: `--pxd-shadow-{type}-{size}`
-- **`--pxd-color-*` は使わない**。テーマに連動しないため。色は必ず `--pd-color-*` を使う。
+  - スペース: `--pd-space-{n}` / `--pd-layout-{size}`
+  - ボーダー: `--pd-border-{weight}` (thin=1px, base=2px, strong=3px)
+  - 角丸: `--pd-radius-{size}` (none, xs, sm, md, lg, xl, full)
+  - タイポサイズ: `--pd-font-size-{size}`, `--pd-font-weight-{name}`
+  - モーション: `--pd-motion-{speed}`, `--pd-easing-{name}`
+  - シャドウ: `--pd-shadow-{type}-{size}`
 
 ### トークン階層ルール（Primitive → Semantic）
-- **Primitive トークン** (`tokens.css`): `--pxd-{color}-{step}` 形式の生のカラーパレット。テーマ中立。
+- **Primitive トークン** (`tokens.css`): `--pd-{color}-{step}` 形式の生のカラーパレット。直接コンポーネントから参照しない（セマンティック経由で使う）。
 - **Semantic トークン** (`tokens.ts`): `--pd-color-{role}-{variant}` 形式。必ず primitive の値と一致する hex を使い、対応 primitive をコメントで明記する。
 - 新しいセマンティック色を追加するときは:
   1. 対応する primitive が `tokens.css` にあるか確認
-  2. なければ primitive を先に追加（命名規則: `--pxd-{hue}-{step}`、step は明度順）
+  2. なければ primitive を先に追加（命名規則: `--pd-{hue}-{step}`、step は明度順）
   3. `tokens.ts` でその hex を使い、コメントで `// {hue}-{step}` を書く
-- **テーマ追加時も同じルール**: 新テーマの `.theme.ts` でオーバーライドする色は、そのテーマ固有の primitive（例: `--pxd-sw-*` for synthwave）を参照する。
+- **テーマ追加時も同じルール**: 新テーマの `.theme.ts` でオーバーライドする色は、そのテーマ固有の primitive（例: `--pd-sw-*` for synthwave）を参照する。
 - **テキスト色の WCAG AA 必須**: テキストに使うセマンティック色は、dark（bg `#202124`）/ light（bg `#ffffff`）両方で **4.5:1 以上**のコントラスト比を確保する。新色追加時は計算して検証すること。
 
 ### インラインスタイル禁止

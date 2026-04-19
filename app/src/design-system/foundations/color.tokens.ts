@@ -16,8 +16,8 @@
  * └──────────────────────────────────────────────────────────────────┘
  *
  * The CSS layer (tokens.css) turns these into:
- *   --pxd-{color}-{step}        ← primitives
- *   --pxd-color-{role}-{variant} ← semantics (overridden per mode)
+ *   --pd-{color}-{step}        ← primitives
+ *   --pd-color-{role}-{variant} ← semantics (overridden per mode)
  */
 
 export const color = {
@@ -259,20 +259,20 @@ export const color = {
 
 /**
  * Converts a core palette key (camelCase) to its CSS variable name.
- * e.g. "gray50" → "--pxd-gray-50", "pixelInk" → "--pxd-pixel-ink"
+ * e.g. "gray50" → "--pd-gray-50", "pixelInk" → "--pd-pixel-ink"
  */
 function _toCssVar(key: string): string {
-  return `--pxd-${key
+  return `--pd-${key
     .replace(/([a-z])(\d)/g, '$1-$2')
     .replace(/([A-Z])/g, (m) => `-${m.toLowerCase()}`)}`;
 }
 
-/** Every `--pxd-*` primitive from `color.core` (matches `tokens.css` core palette). */
+/** Every `--pd-*` primitive from `color.core` (matches `tokens.css` core palette). */
 export const corePrimitiveCssVarNames: readonly string[] = Object.keys(color.core).map(k => _toCssVar(k));
 
 /**
  * Reverse lookup: hex value → CSS primitive variable name.
- * e.g. "#F7F7F8" → "--pxd-gray-50"
+ * e.g. "#F7F7F8" → "--pd-gray-50"
  * rgba values (overlays, glows) return undefined.
  */
 export const primitiveLookup: Readonly<Record<string, string>> = Object.fromEntries(

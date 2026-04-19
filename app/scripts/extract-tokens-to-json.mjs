@@ -46,7 +46,7 @@ const writeJson = (file, data) => {
 };
 
 /**
- * Convert a CSS value that may contain `var(--pxd-*)` references into a
+ * Convert a CSS value that may contain `var(--pd-*)` references into a
  * Tokens Studio value, using the provided resolver to turn a CSS var name
  * into a `{token.path}` reference string.
  *
@@ -92,18 +92,18 @@ const convertValue = (raw, resolveVar) => {
  * can decide how to handle unknowns).
  */
 const namePathMap = (name) => {
-  // ── core primitive palette: --pxd-{hue}-{step} ──────────────────────────
+  // ── core primitive palette: --pd-{hue}-{step} ──────────────────────────
   // Hue names we recognize as global primitive palettes.
   const PRIM_HUES = new Set([
     'gray', 'ink', 'blue', 'orange', 'green', 'yellow', 'red', 'purple',
     'pink', 'cyan', 'magenta', 'teal', 'lavender', 'violet',
   ]);
 
-  // --pxd-white / --pxd-black
+  // --pd-white / --pd-black
   if (name === 'pxd-white') return { path: ['color', 'base', 'white'], type: 'color', set: 'core' };
   if (name === 'pxd-black') return { path: ['color', 'base', 'black'], type: 'color', set: 'core' };
 
-  // --pxd-{hue}-{step}
+  // --pd-{hue}-{step}
   {
     const m = name.match(/^pxd-([a-z]+)-(\d+)$/);
     if (m && PRIM_HUES.has(m[1])) {
@@ -116,7 +116,7 @@ const namePathMap = (name) => {
     return { path: ['sizing', 'tapTargetMin'], type: 'sizing', set: 'core' };
   }
 
-  // ── semantic color: --pxd-color-{role}-{variant...} ─────────────────────
+  // ── semantic color: --pd-color-{role}-{variant...} ─────────────────────
   {
     const m = name.match(/^pxd-color-([a-z]+)-(.+)$/);
     if (m) {
@@ -198,8 +198,8 @@ const namePathMap = (name) => {
     if (m) return { path: ['opacity', toCamel(m[1])], type: 'number', set: 'core' };
   }
 
-  // ── theme primitives: --pxd-{prefix}-{group}-{step} ─────────────────────
-  // e.g. --pxd-sw-navy-950, --pxd-fb-night-950, --pxd-sw-neon-cyan-300
+  // ── theme primitives: --pd-{prefix}-{group}-{step} ─────────────────────
+  // e.g. --pd-sw-navy-950, --pd-fb-night-950, --pd-sw-neon-cyan-300
   {
     const m = name.match(/^pxd-(sw|fb)-(.+?)-(\d+|50)$/);
     if (m) {
@@ -208,7 +208,7 @@ const namePathMap = (name) => {
       return { path: [themePrefix, group, m[3]], type: 'color', set: 'themePrimitive' };
     }
   }
-  // Theme primitives without numeric step (e.g. --pxd-sw-chrome, --pxd-sw-smash-text)
+  // Theme primitives without numeric step (e.g. --pd-sw-chrome, --pd-sw-smash-text)
   {
     const m = name.match(/^pxd-(sw|fb)-(.+)$/);
     if (m) {

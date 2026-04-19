@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { IconButton, ModalDialog, Button, PixelIcon } from '../design-system/components';
 import { BottomSheet } from '../design-system/components/BottomSheet/BottomSheet';
 import type { ActiveChallenge } from '../hooks/useActiveChallenge';
+import type { EffectProgressEntry } from '../hooks/useEffectProgress';
+import { EFFECTS_REGISTRY, type EffectDef } from '../data/effectsRegistry';
+import { getEvolutionStatus, type EvolutionStatus } from '../data/effectEvolution';
 
 const urgentPulseStyle = `
 @keyframes challenge-pulse {
@@ -30,13 +33,46 @@ interface ChallengeMenuProps {
   challenge: ActiveChallenge | null;
   lang: 'en' | 'ja';
   onPreviewEffect?: (effectKey: string) => void;
+  /** Full effect progress map — used to show progress for owned evolving effects */
+  effectProgress?: Record<string, EffectProgressEntry>;
+  isPremium?: boolean;
+}
+
+interface ActiveEvolution {
+  def: EffectDef;
+  status: EvolutionStatus;
 }
 
 const COMPLETED_SEEN_KEY = 'pd-challenge-completed-seen';
 
-export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMenuProps) {
+export function ChallengeMenu({
+  challenge,
+  lang,
+  onPreviewEffect,
+  effectProgress,
+  isPremium = false,
+}: ChallengeMenuProps) {
   const [open, setOpen] = useState(false);
   const [completedSeen, setCompletedSeen] = useState(false);
+
+  const activeEvolutions = useMemo<ActiveEvolution[]>(() => {
+    if (!effectProgress) return [];
+    const out: ActiveEvolution[] = [];
+    for (const def of EFFECTS_REGISTRY) {
+      if (def.evolutionStages < 2) continue;
+      const entry = effectProgress[def.key];
+      if (!entry?.owned) continue;
+      const status = getEvolutionStatus({
+        effectKey: def.key,
+        equippedLevel: entry.equippedLevel,
+        evolutionProgress: entry.evolutionProgress,
+        isPremium,
+      });
+      if (!status || status.isMaxLevel) continue;
+      out.push({ def, status });
+    }
+    return out;
+  }, [effectProgress, isPremium]);
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(DESKTOP_MQ).matches : false,
   );
@@ -206,6 +242,93 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
               transition: 'width 0.3s ease',
             }} />
           </div>
+        </div>
+      )}
+
+      {/* Active evolutions — owned evolving effects still progressing to next level */}
+      {activeEvolutions.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{
+            fontFamily: 'var(--pd-font-brand)',
+            fontSize: '0.75rem',
+            letterSpacing: '1px',
+            color: 'var(--pd-color-text-secondary)',
+            borderTop: '1px solid var(--pd-color-border-default)',
+            paddingTop: 12,
+          }}>
+            {lang === 'ja' ? '進化中のエフェクト' : 'Evolving effects'}
+          </div>
+          {activeEvolutions.map(({ def, status }) => {
+            const remaining = Math.max(0, status.threshold - status.progress);
+            const barPct = status.threshold > 0
+              ? Math.min(100, (status.progress / status.threshold) * 100)
+              : 0;
+            const needsPremium = status.blockedReason === 'need_premium';
+            const label = needsPremium
+              ? (lang === 'ja' ? 'PixDone+で進化解放' : 'Upgrade to evolve')
+              : status.blockedReason === 'ready'
+                ? (lang === 'ja' ? '進化準備完了！' : 'Ready to evolve!')
+                : (lang === 'ja'
+                  ? `あと${remaining}回でLv${status.currentLevel + 1}に進化`
+                  : `${remaining} more to reach Lv${status.currentLevel + 1}`);
+            return (
+              <div key={def.key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{
+                    fontFamily: 'var(--pd-font-brand)',
+                    fontSize: '0.85rem',
+                    color: 'var(--pd-color-text-primary)',
+                  }}>
+                    {def.name}
+                  </span>
+                  <span style={{
+                    fontFamily: 'var(--pd-font-brand)',
+                    fontSize: '0.65rem',
+                    letterSpacing: '1px',
+                    padding: '1px 6px',
+                    border: '1px solid var(--pd-color-border-default)',
+                    color: 'var(--pd-color-text-secondary)',
+                  }}>
+                    {`Lv${status.currentLevel}`}
+                  </span>
+                  <span style={{
+                    marginLeft: 'auto',
+                    fontFamily: 'var(--pd-font-body)',
+                    fontSize: '0.75rem',
+                    color: 'var(--pd-color-text-secondary)',
+                    fontVariantNumeric: 'tabular-nums',
+                  }}>
+                    {status.progress} / {status.threshold}
+                  </span>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                  fontFamily: 'var(--pd-font-body)',
+                  fontSize: '0.75rem',
+                  color: 'var(--pd-color-text-secondary)',
+                }}>
+                  <span>{label}</span>
+                </div>
+                <div style={{
+                  height: 6,
+                  background: 'var(--pd-color-background-elevated)',
+                  border: '1px solid var(--pd-color-border-default)',
+                  overflow: 'hidden',
+                }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${barPct}%`,
+                    background: needsPremium
+                      ? 'var(--pd-color-text-secondary)'
+                      : 'var(--pd-color-accent-default)',
+                    transition: 'width 0.3s ease',
+                  }} />
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 

@@ -130,7 +130,7 @@ export function BottomSheet({
     const update = () => {
       const rawInset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
       const keyboardInset = rawInset > 0 && isIOS ? rawInset + IOS_ACCESSORY_BAR_PX : rawInset;
-      document.documentElement.style.setProperty('--pxd-keyboard-inset', `${keyboardInset}px`);
+      document.documentElement.style.setProperty('--pd-keyboard-inset', `${keyboardInset}px`);
     };
     update();
     vv.addEventListener('resize', update);
@@ -138,7 +138,7 @@ export function BottomSheet({
     return () => {
       vv.removeEventListener('resize', update);
       vv.removeEventListener('scroll', update);
-      document.documentElement.style.removeProperty('--pxd-keyboard-inset');
+      document.documentElement.style.removeProperty('--pd-keyboard-inset');
     };
   }, [open]);
 

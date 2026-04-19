@@ -804,6 +804,8 @@ function AppContent() {
                 <ChallengeMenu
                   challenge={activeChallenge}
                   lang={lang}
+                  effectProgress={effectProgressMap}
+                  isPremium={isPremium}
                   onPreviewEffect={(effectKey) => {
                     setCollectionInitialTab('effects');
                     setCollectionInitialEffectKey(effectKey);
@@ -833,6 +835,8 @@ function AppContent() {
               <ChallengeMenu
                 challenge={activeChallenge}
                 lang={lang}
+                effectProgress={effectProgressMap}
+                isPremium={isPremium}
                 onPreviewEffect={(effectKey) => {
                   setCollectionInitialTab('effects');
                   setCollectionInitialEffectKey(effectKey);
@@ -1205,47 +1209,88 @@ function AppContent() {
         </div>
       </ModalDialog>
 
-      {/* Mobile FAB — always visible on Tasks tab */}
-      {!focusZenOpen && !isDesktop && activeScreen === 'tasks' && !isSubPage && (
-        <button
-          type="button"
-          className="pd-mobile-fab"
-          data-tour={onboardingTourActive ? 'true' : 'false'}
-          onClick={() => {
-            // Focus the warmup input FIRST so iOS opens the keyboard within
-            // this user gesture. Focus transfers to the real title field
-            // once TaskForm mounts.
-            warmupKeyboard();
-            playSound('taskAdd');
-            // Today/Plan: open the App-level add-task bottom sheet directly.
-            // Lists: fall back to TasksScreen's own flow via the nonce.
-            if (mobileSubView === 'today' || mobileSubView === 'plan') {
-              mobileAddSheetRef.current?.openAdd(
-                mobileSubView === 'today' ? { initialDueDate: getTodayYMD() } : undefined,
-              );
-            } else {
-              setAutoOpenAddTaskNonce((n) => n + 1);
-            }
-            handleTourAddButtonClick();
-          }}
-          aria-label={lang === 'ja' ? 'タスクを追加' : 'Add task'}
-          style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            background: 'var(--pd-color-accent-default)',
-            color: 'var(--pd-color-accent-text)',
-            border: '2px solid var(--pd-color-accent-default)',
-            boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-          }}
-        >
-          <PixelIcon name="add" size="24px" />
-        </button>
-      )}
+      {/* Mobile FAB — visible on Tasks tab.
+          - Smash list: white "💥" FAB that smashes the first active dummy
+            task (mirrors the desktop Space-key behavior in SmashListPanel).
+          - Everywhere else: standard "+" FAB that opens the add-task sheet. */}
+      {!focusZenOpen && !isDesktop && activeScreen === 'tasks' && !isSubPage && (() => {
+        const isSmashList =
+          mobileSubView === 'lists' &&
+          (currentList?.id === 'smash-list' ||
+            currentList?.name === '\u{1F4A5} Smash List');
+
+        if (isSmashList) {
+          return (
+            <button
+              type="button"
+              className="pd-mobile-fab pd-mobile-fab--smash"
+              onClick={() => {
+                const first = currentList?.tasks.find((t) => !t.completed);
+                if (!first) return;
+                playSound('buttonClick');
+                handleSmash(first.id);
+              }}
+              aria-label={lang === 'ja' ? 'スマッシュ' : 'Smash'}
+              style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '50%',
+                background: 'white',
+                color: 'var(--pd-color-brand-smash, #9c27b0)',
+                border: 'none',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.75rem',
+                lineHeight: 1,
+                cursor: 'pointer',
+              }}
+            >
+              <span aria-hidden="true">💥</span>
+            </button>
+          );
+        }
+
+        return (
+          <button
+            type="button"
+            className="pd-mobile-fab"
+            data-tour={onboardingTourActive ? 'true' : 'false'}
+            onClick={() => {
+              // Focus the warmup input FIRST so iOS opens the keyboard within
+              // this user gesture. Focus transfers to the real title field
+              // once TaskForm mounts.
+              warmupKeyboard();
+              playSound('taskAdd');
+              // Today/Plan: open the App-level add-task bottom sheet directly.
+              // Lists: fall back to TasksScreen's own flow via the nonce.
+              if (mobileSubView === 'today' || mobileSubView === 'plan') {
+                mobileAddSheetRef.current?.openAdd(
+                  mobileSubView === 'today' ? { initialDueDate: getTodayYMD() } : undefined,
+                );
+              } else {
+                setAutoOpenAddTaskNonce((n) => n + 1);
+              }
+              handleTourAddButtonClick();
+            }}
+            aria-label={lang === 'ja' ? 'タスクを追加' : 'Add task'}
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              background: 'var(--pd-color-accent-default)',
+              color: 'var(--pd-color-accent-text)',
+              border: '2px solid var(--pd-color-accent-default)',
+              boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.5rem',
+              cursor: 'pointer',
+            }}
+          >
+            <PixelIcon name="add" size="28px" />
+          </button>
+        );
+      })()}
 
       {/* Hidden input used to pre-open the iOS keyboard in the user-gesture
           chain when the FAB or Add button fires. Off-screen, opacity:0, but

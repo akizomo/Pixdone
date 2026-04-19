@@ -11,20 +11,20 @@ import { ThemePrimitiveTokensPanel } from './ThemePrimitiveTokensPanel';
 
 | 見たいもの | どこへ |
 |------------|--------|
-| `--pxd-color-*` の解決値（表）、テーマ別プリミティブ、`var()` のルール | **このページ** |
-| `--pxd-gray-*` / `--pxd-ink-*` / 各色相のステップをスウォッチで一覧 | **Design System → Color primitives** |
+| `--pd-color-*` の解決値（表）、テーマ別プリミティブ、`var()` のルール | **このページ** |
+| `--pd-gray-*` / `--pd-ink-*` / 各色相のステップをスウォッチで一覧 | **Design System → Color primitives** |
 
 ---
 
 Pixdone uses a **Primitive → Semantic** color architecture.
 
-- **Primitive** tokens (`--pxd-gray-*`, `--pxd-ink-*`, `--pxd-purple-*` …) define the raw palette.
-- **Semantic** tokens (`--pxd-color-surface-page`, `--pxd-color-text-primary` …) assign UI meaning and are overridden per color mode and **visual theme**.
+- **Primitive** tokens (`--pd-gray-*`, `--pd-ink-*`, `--pd-purple-*` …) define the raw palette.
+- **Semantic** tokens (`--pd-color-surface-page`, `--pd-color-text-primary` …) assign UI meaning and are overridden per color mode and **visual theme**.
 - **Components** must only reference semantic tokens — never primitives directly.
 
 ## Primitives per visual theme
 
-Arcade / Synthwave / Forest Bit では、テーマTSで定義する専用プリミティブ（`--pxd-sw-*`、`--pxd-fb-*` など）と、`tokens.css` の共有プリミティブへの参照が異なります。ツールバーでテーマと Color Mode を切り替えると、**その組み合わせで使われるプリミティブ**が次に表示されます。
+Arcade / Synthwave / Forest Bit では、テーマTSで定義する専用プリミティブ（`--pd-sw-*`、`--pd-fb-*` など）と、`tokens.css` の共有プリミティブへの参照が異なります。ツールバーでテーマと Color Mode を切り替えると、**その組み合わせで使われるプリミティブ**が次に表示されます。
 
 <ThemePrimitiveTokensPanel />
 
@@ -38,14 +38,14 @@ The tables below show each semantic token **as resolved in the current Storybook
 
 ## CSS変数の使い方
 
-コンポーネントでは `--pxd-` プレフィックスのセマンティックトークンを使用する。プリミティブトークン (`--pxd-gray-*`, `--pxd-ink-*`) は直接参照しない。
+コンポーネントでは `--pd-` プレフィックスのセマンティックトークンを使用する。プリミティブトークン (`--pd-gray-*`, `--pd-ink-*`) は直接参照しない。
 
 ```css
 /* ✅ 正しい — セマンティックトークンを参照 */
-color: var(--pxd-color-text-primary);
-background: var(--pxd-color-surface-page);
+color: var(--pd-color-text-primary);
+background: var(--pd-color-surface-page);
 
 /* ❌ 誤り — プリミティブを直接参照 */
-color: var(--pxd-gray-900);
-background: var(--pxd-ink-950);
+color: var(--pd-gray-900);
+background: var(--pd-ink-950);
 ```

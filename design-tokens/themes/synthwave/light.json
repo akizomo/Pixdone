@@ -5,7 +5,7 @@
       "$type": "color",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-sw-danger-light",
+          "cssVar": "--pd-sw-danger-light",
           "set": "themeSynthwaveLight"
         }
       }
@@ -15,7 +15,7 @@
       "$type": "color",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-sw-success-light",
+          "cssVar": "--pd-sw-success-light",
           "set": "themeSynthwaveLight"
         }
       }
@@ -25,7 +25,7 @@
       "$type": "color",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-sw-success-light-hover",
+          "cssVar": "--pd-sw-success-light-hover",
           "set": "themeSynthwaveLight"
         }
       }
@@ -35,7 +35,7 @@
       "$type": "color",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-sw-amber-light",
+          "cssVar": "--pd-sw-amber-light",
           "set": "themeSynthwaveLight"
         }
       }
@@ -45,7 +45,7 @@
       "$type": "color",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-sw-smash-text-light",
+          "cssVar": "--pd-sw-smash-text-light",
           "set": "themeSynthwaveLight"
         }
       }
@@ -55,7 +55,7 @@
       "$type": "color",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-sw-smash-hint-light",
+          "cssVar": "--pd-sw-smash-hint-light",
           "set": "themeSynthwaveLight"
         }
       }
@@ -65,7 +65,7 @@
       "$type": "color",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-sw-smash-grad-start-light",
+          "cssVar": "--pd-sw-smash-grad-start-light",
           "set": "themeSynthwaveLight"
         }
       }
@@ -75,7 +75,7 @@
       "$type": "color",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-sw-smash-grad-end-light",
+          "cssVar": "--pd-sw-smash-grad-end-light",
           "set": "themeSynthwaveLight"
         }
       }
@@ -88,7 +88,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-page",
+            "cssVar": "--pd-color-surface-page",
             "set": "themeSynthwaveLight"
           }
         }
@@ -98,7 +98,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-page-alt",
+            "cssVar": "--pd-color-surface-page-alt",
             "set": "themeSynthwaveLight"
           }
         }
@@ -108,7 +108,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-primary",
+            "cssVar": "--pd-color-surface-primary",
             "set": "themeSynthwaveLight"
           }
         }
@@ -118,7 +118,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-secondary",
+            "cssVar": "--pd-color-surface-secondary",
             "set": "themeSynthwaveLight"
           }
         }
@@ -128,7 +128,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-raised",
+            "cssVar": "--pd-color-surface-raised",
             "set": "themeSynthwaveLight"
           }
         }
@@ -138,7 +138,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-overlay",
+            "cssVar": "--pd-color-surface-overlay",
             "set": "themeSynthwaveLight"
           },
           "studio.tokens.modify": {
@@ -153,7 +153,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-inverse",
+            "cssVar": "--pd-color-surface-inverse",
             "set": "themeSynthwaveLight"
           }
         }
@@ -163,7 +163,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-disabled",
+            "cssVar": "--pd-color-surface-disabled",
             "set": "themeSynthwaveLight"
           }
         }
@@ -175,7 +175,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-primary",
+            "cssVar": "--pd-color-text-primary",
             "set": "themeSynthwaveLight"
           }
         }
@@ -185,7 +185,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-secondary",
+            "cssVar": "--pd-color-text-secondary",
             "set": "themeSynthwaveLight"
           }
         }
@@ -195,7 +195,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-tertiary",
+            "cssVar": "--pd-color-text-tertiary",
             "set": "themeSynthwaveLight"
           }
         }
@@ -205,7 +205,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-inverse",
+            "cssVar": "--pd-color-text-inverse",
             "set": "themeSynthwaveLight"
           }
         }
@@ -215,7 +215,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-disabled",
+            "cssVar": "--pd-color-text-disabled",
             "set": "themeSynthwaveLight"
           }
         }
@@ -225,7 +225,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-accent",
+            "cssVar": "--pd-color-text-accent",
             "set": "themeSynthwaveLight"
           }
         }
@@ -235,7 +235,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-success",
+            "cssVar": "--pd-color-text-success",
             "set": "themeSynthwaveLight"
           }
         }
@@ -245,7 +245,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-warning",
+            "cssVar": "--pd-color-text-warning",
             "set": "themeSynthwaveLight"
           }
         }
@@ -255,7 +255,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-danger",
+            "cssVar": "--pd-color-text-danger",
             "set": "themeSynthwaveLight"
           }
         }
@@ -267,7 +267,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-outline-variant",
+            "cssVar": "--pd-color-border-outline-variant",
             "set": "themeSynthwaveLight"
           },
           "studio.tokens.modify": {
@@ -282,7 +282,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-outline",
+            "cssVar": "--pd-color-border-outline",
             "set": "themeSynthwaveLight"
           },
           "studio.tokens.modify": {
@@ -297,7 +297,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-interactive",
+            "cssVar": "--pd-color-border-interactive",
             "set": "themeSynthwaveLight"
           }
         }
@@ -307,7 +307,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-interactive-active",
+            "cssVar": "--pd-color-border-interactive-active",
             "set": "themeSynthwaveLight"
           }
         }
@@ -317,7 +317,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-inverse",
+            "cssVar": "--pd-color-border-inverse",
             "set": "themeSynthwaveLight"
           }
         }
@@ -327,7 +327,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-focus",
+            "cssVar": "--pd-color-border-focus",
             "set": "themeSynthwaveLight"
           }
         }
@@ -337,7 +337,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-danger",
+            "cssVar": "--pd-color-border-danger",
             "set": "themeSynthwaveLight"
           }
         }
@@ -349,7 +349,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-feedback-info",
+            "cssVar": "--pd-color-feedback-info",
             "set": "themeSynthwaveLight"
           }
         }
@@ -359,7 +359,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-feedback-success",
+            "cssVar": "--pd-color-feedback-success",
             "set": "themeSynthwaveLight"
           }
         }
@@ -369,7 +369,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-feedback-warning",
+            "cssVar": "--pd-color-feedback-warning",
             "set": "themeSynthwaveLight"
           }
         }
@@ -379,7 +379,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-feedback-danger",
+            "cssVar": "--pd-color-feedback-danger",
             "set": "themeSynthwaveLight"
           }
         }
@@ -391,7 +391,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-primary",
+            "cssVar": "--pd-color-action-primary",
             "set": "themeSynthwaveLight"
           }
         }
@@ -401,7 +401,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-primary-hover",
+            "cssVar": "--pd-color-action-primary-hover",
             "set": "themeSynthwaveLight"
           }
         }
@@ -411,7 +411,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-primary-pressed",
+            "cssVar": "--pd-color-action-primary-pressed",
             "set": "themeSynthwaveLight"
           }
         }
@@ -421,7 +421,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-secondary",
+            "cssVar": "--pd-color-action-secondary",
             "set": "themeSynthwaveLight"
           }
         }
@@ -431,7 +431,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-secondary-hover",
+            "cssVar": "--pd-color-action-secondary-hover",
             "set": "themeSynthwaveLight"
           }
         }
@@ -441,7 +441,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-secondary-pressed",
+            "cssVar": "--pd-color-action-secondary-pressed",
             "set": "themeSynthwaveLight"
           }
         }
@@ -451,7 +451,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-ghost-hover",
+            "cssVar": "--pd-color-action-ghost-hover",
             "set": "themeSynthwaveLight"
           },
           "studio.tokens.modify": {
@@ -466,7 +466,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-ghost-pressed",
+            "cssVar": "--pd-color-action-ghost-pressed",
             "set": "themeSynthwaveLight"
           },
           "studio.tokens.modify": {
@@ -481,7 +481,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-disabled",
+            "cssVar": "--pd-color-action-disabled",
             "set": "themeSynthwaveLight"
           }
         }
@@ -493,7 +493,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-focus-ring",
+            "cssVar": "--pd-color-focus-ring",
             "set": "themeSynthwaveLight"
           },
           "studio.tokens.modify": {
@@ -508,7 +508,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-focus-ring-offset",
+            "cssVar": "--pd-color-focus-ring-offset",
             "set": "themeSynthwaveLight"
           }
         }

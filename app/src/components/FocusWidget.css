@@ -2,14 +2,14 @@
 
 .pd-focus-widget {
   position: fixed;
-  bottom: var(--pxd-space-5, 24px);
-  right: var(--pxd-space-5, 24px);
+  bottom: var(--pd-space-5, 24px);
+  right: var(--pd-space-5, 24px);
   z-index: 100;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--pxd-space-2);
-  padding: var(--pxd-space-3);
+  gap: var(--pd-space-2);
+  padding: var(--pd-space-3);
   background: var(--pd-color-background-elevated);
   border: 2px solid var(--pd-color-border-default);
   box-shadow: 3px 3px 0 var(--pd-color-shadow-default);
@@ -31,7 +31,7 @@
 .pd-focus-widget__controls {
   display: flex;
   align-items: center;
-  gap: var(--pxd-space-1);
+  gap: var(--pd-space-1);
 }
 
 .pd-focus-widget__btn {

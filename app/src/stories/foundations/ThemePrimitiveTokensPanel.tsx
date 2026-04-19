@@ -17,7 +17,7 @@ function Sw({ value }: { value: string }) {
         height: 22,
         borderRadius: 4,
         backgroundColor: s,
-        border: `1px solid ${light ? 'var(--pxd-color-border-outline-variant)' : 'transparent'}`,
+        border: `1px solid ${light ? 'var(--pd-color-border-outline-variant)' : 'transparent'}`,
         flexShrink: 0,
       }}
       title={s}
@@ -39,34 +39,34 @@ function PrimitiveTable({
   const th: React.CSSProperties = {
     textAlign: 'left',
     padding: '8px 12px',
-    borderBottom: '2px solid var(--pxd-color-border-outline)',
+    borderBottom: '2px solid var(--pd-color-border-outline)',
     fontWeight: 600,
     fontSize: 12,
-    color: 'var(--pxd-color-text-secondary)',
-    background: 'var(--pxd-color-surface-page-alt)',
+    color: 'var(--pd-color-text-secondary)',
+    background: 'var(--pd-color-surface-page-alt)',
   };
   const td: React.CSSProperties = {
     padding: '8px 12px',
-    borderBottom: '1px solid var(--pxd-color-border-outline-variant)',
+    borderBottom: '1px solid var(--pd-color-border-outline-variant)',
     fontSize: 13,
-    color: 'var(--pxd-color-text-primary)',
+    color: 'var(--pd-color-text-primary)',
     verticalAlign: 'middle',
   };
 
   if (rows.length === 0) {
     return (
       <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 14, marginBottom: 8, color: 'var(--pxd-color-text-primary)' }}>{title}</h3>
-        <p style={{ fontSize: 13, color: 'var(--pxd-color-text-tertiary)' }}>{emptyHint ?? 'なし'}</p>
+        <h3 style={{ fontSize: 14, marginBottom: 8, color: 'var(--pd-color-text-primary)' }}>{title}</h3>
+        <p style={{ fontSize: 13, color: 'var(--pd-color-text-tertiary)' }}>{emptyHint ?? 'なし'}</p>
       </div>
     );
   }
 
   return (
     <div style={{ marginBottom: 24 }}>
-      <h3 style={{ fontSize: 14, marginBottom: 8, color: 'var(--pxd-color-text-primary)' }}>{title}</h3>
-      <div style={{ maxHeight: 420, overflowY: 'auto', border: '1px solid var(--pxd-color-border-outline-variant)', borderRadius: 8 }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--pxd-font-body)' }}>
+      <h3 style={{ fontSize: 14, marginBottom: 8, color: 'var(--pd-color-text-primary)' }}>{title}</h3>
+      <div style={{ maxHeight: 420, overflowY: 'auto', border: '1px solid var(--pd-color-border-outline-variant)', borderRadius: 8 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--pd-font-body)' }}>
           <thead>
             <tr>
               <th style={th}>Token</th>
@@ -79,12 +79,12 @@ function PrimitiveTable({
               return (
                 <tr key={r.name}>
                   <td style={td}>
-                    <code style={{ fontFamily: 'var(--pxd-font-mono)', fontSize: 11, wordBreak: 'break-all' }}>{r.name}</code>
+                    <code style={{ fontFamily: 'var(--pd-font-mono)', fontSize: 11, wordBreak: 'break-all' }}>{r.name}</code>
                   </td>
                   <td style={td}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <Sw value={res || 'transparent'} />
-                      <code style={{ fontFamily: 'var(--pxd-font-mono)', fontSize: 11 }}>{res || '—'}</code>
+                      <code style={{ fontFamily: 'var(--pd-font-mono)', fontSize: 11 }}>{res || '—'}</code>
                     </div>
                   </td>
                 </tr>
@@ -117,26 +117,26 @@ export function ThemePrimitiveTokensPanel() {
   const globalRows = inventory.referencedGlobalPrimitives.map(name => ({ name }));
 
   return (
-    <div style={{ fontFamily: 'var(--pxd-font-body)', marginTop: 8, marginBottom: 32 }}>
+    <div style={{ fontFamily: 'var(--pd-font-body)', marginTop: 8, marginBottom: 32 }}>
       <div
         style={{
           padding: '12px 14px',
           borderRadius: 8,
-          border: '1px solid var(--pxd-color-border-outline-variant)',
-          background: 'var(--pxd-color-surface-raised)',
+          border: '1px solid var(--pd-color-border-outline-variant)',
+          background: 'var(--pd-color-surface-raised)',
           marginBottom: 16,
           fontSize: 13,
-          color: 'var(--pxd-color-text-primary)',
+          color: 'var(--pd-color-text-primary)',
           lineHeight: 1.5,
         }}
       >
-        <strong style={{ color: 'var(--pxd-color-text-secondary)' }}>
+        <strong style={{ color: 'var(--pd-color-text-secondary)' }}>
           {vt.icon} {vt.name}（{inventory.mode === 'dark' ? 'Dark' : 'Light'}）
         </strong>
         {' — '}
         {inventory.usesDefaultPaletteAsBase
           ? 'Arcade は tokens.css のデフォルト・セマンティックをベースにし、テーマTS内で上書きするのは主にエフェクト粒子の色です。下の「グローバル・プリミティブ」はそのまま参照される共有パレット一式です。'
-          : 'このテーマ専用のプリミティブ（--pxd-sw-* / --pxd-fb-* など）と、セマンティック層から参照しているグローバル・プリミティブ（--pxd-gray-* / --pxd-lavender-* など）を分けて表示します。ツールバーで Color Mode / Visual Theme を切り替えると一覧が変わります。'}
+          : 'このテーマ専用のプリミティブ（--pd-sw-* / --pd-fb-* など）と、セマンティック層から参照しているグローバル・プリミティブ（--pd-gray-* / --pd-lavender-* など）を分けて表示します。ツールバーで Color Mode / Visual Theme を切り替えると一覧が変わります。'}
       </div>
 
       <PrimitiveTable

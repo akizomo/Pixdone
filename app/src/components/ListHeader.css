@@ -4,13 +4,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--pxd-space-3) 0;
-  margin-bottom: var(--pxd-space-1);
+  padding: var(--pd-space-3) 0;
+  margin-bottom: var(--pd-space-1);
 }
 
 .pd-list-header__title {
   font-size: 1.5rem;
-  font-weight: var(--pxd-font-weight-bold);
+  font-weight: var(--pd-font-weight-bold);
   color: var(--pd-color-text-primary);
   margin: 0;
   font-family: var(--pd-font-brand);
@@ -18,13 +18,13 @@
   image-rendering: pixelated;
   letter-spacing: 1px;
   text-transform: uppercase;
-  text-shadow: 1px 1px 0px var(--pxd-shadow-pixel-sm);
+  text-shadow: 1px 1px 0px var(--pd-shadow-pixel-sm);
 }
 
 .pd-list-header__actions {
   display: flex;
   align-items: center;
-  gap: var(--pxd-space-1);
+  gap: var(--pd-space-1);
 }
 
 .pd-list-header__menu {
@@ -35,7 +35,7 @@
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: var(--pxd-radius-none);
+  border-radius: var(--pd-radius-none);
   background: transparent;
   color: var(--pd-color-text-secondary);
   cursor: pointer;
@@ -43,7 +43,7 @@
   align-items: center;
   justify-content: center;
   image-rendering: pixelated;
-  transition: color var(--pxd-motion-base) ease;
+  transition: color var(--pd-motion-base) ease;
 }
 
 @media (hover: hover) {

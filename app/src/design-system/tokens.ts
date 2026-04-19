@@ -4,7 +4,7 @@
  */
 export const tokens = {
   color: {
-    // Dark mode semantics — each value maps to a --pxd-* primitive
+    // Dark mode semantics — each value maps to a --pd-* primitive
     background: { default: '#202124', elevated: '#28292d', hover: '#3c4043' }, // gray-900, gray-800-ish, gray-700-ish
     text: { primary: '#e8eaed', secondary: '#9aa0a6', muted: '#70757a' },     // ink-50, gray-500, gray-400
     border: { default: '#3c4043', danger: 'rgba(255, 107, 107, 0.35)', warning: 'rgba(250, 204, 21, 0.35)', success: 'rgba(74, 222, 128, 0.35)' },
@@ -41,7 +41,7 @@ export const tokens = {
     },
   },
   colorLight: {
-    // Light mode semantics — each value maps to a --pxd-* primitive
+    // Light mode semantics — each value maps to a --pd-* primitive
     background: { default: '#ffffff', elevated: '#f8f9fa', hover: '#f1f3f4' }, // white, gray-50, gray-100
     text: { primary: '#202124', secondary: '#5f6368', muted: '#70757a' },     // gray-900, gray-600, gray-500
     border: { default: '#dadce0', danger: 'rgba(197, 48, 48, 0.3)', warning: 'rgba(146, 96, 10, 0.3)', success: 'rgba(21, 128, 61, 0.3)' },

@@ -6,7 +6,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-0",
+            "cssVar": "--pd-gray-0",
             "set": "core"
           }
         }
@@ -16,7 +16,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-50",
+            "cssVar": "--pd-gray-50",
             "set": "core"
           }
         }
@@ -26,7 +26,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-100",
+            "cssVar": "--pd-gray-100",
             "set": "core"
           }
         }
@@ -36,7 +36,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-200",
+            "cssVar": "--pd-gray-200",
             "set": "core"
           }
         }
@@ -46,7 +46,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-300",
+            "cssVar": "--pd-gray-300",
             "set": "core"
           }
         }
@@ -56,7 +56,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-400",
+            "cssVar": "--pd-gray-400",
             "set": "core"
           }
         }
@@ -66,7 +66,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-500",
+            "cssVar": "--pd-gray-500",
             "set": "core"
           }
         }
@@ -76,7 +76,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-600",
+            "cssVar": "--pd-gray-600",
             "set": "core"
           }
         }
@@ -86,7 +86,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-700",
+            "cssVar": "--pd-gray-700",
             "set": "core"
           }
         }
@@ -96,7 +96,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-800",
+            "cssVar": "--pd-gray-800",
             "set": "core"
           }
         }
@@ -106,7 +106,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-gray-900",
+            "cssVar": "--pd-gray-900",
             "set": "core"
           }
         }
@@ -118,7 +118,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-50",
+            "cssVar": "--pd-ink-50",
             "set": "core"
           }
         }
@@ -128,7 +128,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-100",
+            "cssVar": "--pd-ink-100",
             "set": "core"
           }
         }
@@ -138,7 +138,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-200",
+            "cssVar": "--pd-ink-200",
             "set": "core"
           }
         }
@@ -148,7 +148,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-300",
+            "cssVar": "--pd-ink-300",
             "set": "core"
           }
         }
@@ -158,7 +158,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-400",
+            "cssVar": "--pd-ink-400",
             "set": "core"
           }
         }
@@ -168,7 +168,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-500",
+            "cssVar": "--pd-ink-500",
             "set": "core"
           }
         }
@@ -178,7 +178,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-600",
+            "cssVar": "--pd-ink-600",
             "set": "core"
           }
         }
@@ -188,7 +188,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-700",
+            "cssVar": "--pd-ink-700",
             "set": "core"
           }
         }
@@ -198,7 +198,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-800",
+            "cssVar": "--pd-ink-800",
             "set": "core"
           }
         }
@@ -208,7 +208,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-900",
+            "cssVar": "--pd-ink-900",
             "set": "core"
           }
         }
@@ -218,7 +218,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-ink-950",
+            "cssVar": "--pd-ink-950",
             "set": "core"
           }
         }
@@ -230,7 +230,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-blue-300",
+            "cssVar": "--pd-blue-300",
             "set": "core"
           }
         }
@@ -240,7 +240,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-blue-500",
+            "cssVar": "--pd-blue-500",
             "set": "core"
           }
         }
@@ -250,7 +250,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-blue-700",
+            "cssVar": "--pd-blue-700",
             "set": "core"
           }
         }
@@ -262,7 +262,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-orange-50",
+            "cssVar": "--pd-orange-50",
             "set": "core"
           }
         }
@@ -272,7 +272,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-orange-100",
+            "cssVar": "--pd-orange-100",
             "set": "core"
           }
         }
@@ -282,7 +282,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-orange-300",
+            "cssVar": "--pd-orange-300",
             "set": "core"
           }
         }
@@ -292,7 +292,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-orange-500",
+            "cssVar": "--pd-orange-500",
             "set": "core"
           }
         }
@@ -302,7 +302,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-orange-700",
+            "cssVar": "--pd-orange-700",
             "set": "core"
           }
         }
@@ -314,7 +314,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-green-200",
+            "cssVar": "--pd-green-200",
             "set": "core"
           }
         }
@@ -324,7 +324,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-green-250",
+            "cssVar": "--pd-green-250",
             "set": "core"
           }
         }
@@ -334,7 +334,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-green-300",
+            "cssVar": "--pd-green-300",
             "set": "core"
           }
         }
@@ -344,7 +344,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-green-350",
+            "cssVar": "--pd-green-350",
             "set": "core"
           }
         }
@@ -354,7 +354,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-green-400",
+            "cssVar": "--pd-green-400",
             "set": "core"
           }
         }
@@ -364,7 +364,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-green-500",
+            "cssVar": "--pd-green-500",
             "set": "core"
           }
         }
@@ -374,7 +374,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-green-700",
+            "cssVar": "--pd-green-700",
             "set": "core"
           }
         }
@@ -384,7 +384,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-green-800",
+            "cssVar": "--pd-green-800",
             "set": "core"
           }
         }
@@ -394,7 +394,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-green-850",
+            "cssVar": "--pd-green-850",
             "set": "core"
           }
         }
@@ -406,7 +406,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-yellow-200",
+            "cssVar": "--pd-yellow-200",
             "set": "core"
           }
         }
@@ -416,7 +416,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-yellow-300",
+            "cssVar": "--pd-yellow-300",
             "set": "core"
           }
         }
@@ -426,7 +426,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-yellow-500",
+            "cssVar": "--pd-yellow-500",
             "set": "core"
           }
         }
@@ -436,7 +436,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-yellow-700",
+            "cssVar": "--pd-yellow-700",
             "set": "core"
           }
         }
@@ -446,7 +446,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-yellow-900",
+            "cssVar": "--pd-yellow-900",
             "set": "core"
           }
         }
@@ -458,7 +458,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-red-200",
+            "cssVar": "--pd-red-200",
             "set": "core"
           }
         }
@@ -468,7 +468,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-red-300",
+            "cssVar": "--pd-red-300",
             "set": "core"
           }
         }
@@ -478,7 +478,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-red-400",
+            "cssVar": "--pd-red-400",
             "set": "core"
           }
         }
@@ -488,7 +488,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-red-500",
+            "cssVar": "--pd-red-500",
             "set": "core"
           }
         }
@@ -498,7 +498,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-red-700",
+            "cssVar": "--pd-red-700",
             "set": "core"
           }
         }
@@ -508,7 +508,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-red-800",
+            "cssVar": "--pd-red-800",
             "set": "core"
           }
         }
@@ -520,7 +520,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-50",
+            "cssVar": "--pd-purple-50",
             "set": "core"
           }
         }
@@ -530,7 +530,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-100",
+            "cssVar": "--pd-purple-100",
             "set": "core"
           }
         }
@@ -540,7 +540,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-200",
+            "cssVar": "--pd-purple-200",
             "set": "core"
           }
         }
@@ -550,7 +550,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-250",
+            "cssVar": "--pd-purple-250",
             "set": "core"
           }
         }
@@ -560,7 +560,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-300",
+            "cssVar": "--pd-purple-300",
             "set": "core"
           }
         }
@@ -570,7 +570,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-400",
+            "cssVar": "--pd-purple-400",
             "set": "core"
           }
         }
@@ -580,7 +580,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-500",
+            "cssVar": "--pd-purple-500",
             "set": "core"
           }
         }
@@ -590,7 +590,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-550",
+            "cssVar": "--pd-purple-550",
             "set": "core"
           }
         }
@@ -600,7 +600,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-600",
+            "cssVar": "--pd-purple-600",
             "set": "core"
           }
         }
@@ -610,7 +610,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-700",
+            "cssVar": "--pd-purple-700",
             "set": "core"
           }
         }
@@ -620,7 +620,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-purple-750",
+            "cssVar": "--pd-purple-750",
             "set": "core"
           }
         }
@@ -632,7 +632,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-pink-300",
+            "cssVar": "--pd-pink-300",
             "set": "core"
           }
         }
@@ -642,7 +642,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-pink-500",
+            "cssVar": "--pd-pink-500",
             "set": "core"
           }
         }
@@ -652,7 +652,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-pink-700",
+            "cssVar": "--pd-pink-700",
             "set": "core"
           }
         }
@@ -664,7 +664,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-cyan-300",
+            "cssVar": "--pd-cyan-300",
             "set": "core"
           }
         }
@@ -674,7 +674,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-cyan-500",
+            "cssVar": "--pd-cyan-500",
             "set": "core"
           }
         }
@@ -684,7 +684,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-cyan-700",
+            "cssVar": "--pd-cyan-700",
             "set": "core"
           }
         }
@@ -696,7 +696,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-magenta-300",
+            "cssVar": "--pd-magenta-300",
             "set": "core"
           }
         }
@@ -706,7 +706,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-magenta-500",
+            "cssVar": "--pd-magenta-500",
             "set": "core"
           }
         }
@@ -716,7 +716,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-magenta-700",
+            "cssVar": "--pd-magenta-700",
             "set": "core"
           }
         }
@@ -726,7 +726,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-magenta-900",
+            "cssVar": "--pd-magenta-900",
             "set": "core"
           }
         }
@@ -738,7 +738,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-teal-300",
+            "cssVar": "--pd-teal-300",
             "set": "core"
           }
         }
@@ -748,7 +748,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-teal-500",
+            "cssVar": "--pd-teal-500",
             "set": "core"
           }
         }
@@ -758,7 +758,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-teal-700",
+            "cssVar": "--pd-teal-700",
             "set": "core"
           }
         }
@@ -768,7 +768,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-teal-900",
+            "cssVar": "--pd-teal-900",
             "set": "core"
           }
         }
@@ -780,7 +780,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-lavender-50",
+            "cssVar": "--pd-lavender-50",
             "set": "core"
           }
         }
@@ -790,7 +790,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-lavender-100",
+            "cssVar": "--pd-lavender-100",
             "set": "core"
           }
         }
@@ -800,7 +800,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-lavender-200",
+            "cssVar": "--pd-lavender-200",
             "set": "core"
           }
         }
@@ -810,7 +810,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-lavender-300",
+            "cssVar": "--pd-lavender-300",
             "set": "core"
           }
         }
@@ -820,7 +820,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-lavender-400",
+            "cssVar": "--pd-lavender-400",
             "set": "core"
           }
         }
@@ -830,7 +830,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-lavender-500",
+            "cssVar": "--pd-lavender-500",
             "set": "core"
           }
         }
@@ -842,7 +842,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-violet-600",
+            "cssVar": "--pd-violet-600",
             "set": "core"
           }
         }
@@ -852,7 +852,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-violet-700",
+            "cssVar": "--pd-violet-700",
             "set": "core"
           }
         }
@@ -862,7 +862,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-violet-900",
+            "cssVar": "--pd-violet-900",
             "set": "core"
           }
         }
@@ -874,7 +874,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-white",
+            "cssVar": "--pd-white",
             "set": "core"
           }
         }
@@ -884,7 +884,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-black",
+            "cssVar": "--pd-black",
             "set": "core"
           }
         }
@@ -897,7 +897,7 @@
       "$type": "sizing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-tap-target-min",
+          "cssVar": "--pd-tap-target-min",
           "set": "core"
         }
       }
@@ -909,7 +909,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-0",
+          "cssVar": "--pd-space-0",
           "set": "core"
         }
       }
@@ -919,7 +919,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-1",
+          "cssVar": "--pd-space-1",
           "set": "core"
         }
       }
@@ -929,7 +929,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-2",
+          "cssVar": "--pd-space-2",
           "set": "core"
         }
       }
@@ -939,7 +939,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-3",
+          "cssVar": "--pd-space-3",
           "set": "core"
         }
       }
@@ -949,7 +949,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-4",
+          "cssVar": "--pd-space-4",
           "set": "core"
         }
       }
@@ -959,7 +959,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-5",
+          "cssVar": "--pd-space-5",
           "set": "core"
         }
       }
@@ -969,7 +969,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-6",
+          "cssVar": "--pd-space-6",
           "set": "core"
         }
       }
@@ -979,7 +979,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-8",
+          "cssVar": "--pd-space-8",
           "set": "core"
         }
       }
@@ -989,7 +989,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-10",
+          "cssVar": "--pd-space-10",
           "set": "core"
         }
       }
@@ -999,7 +999,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-12",
+          "cssVar": "--pd-space-12",
           "set": "core"
         }
       }
@@ -1009,7 +1009,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-14",
+          "cssVar": "--pd-space-14",
           "set": "core"
         }
       }
@@ -1019,7 +1019,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-space-16",
+          "cssVar": "--pd-space-16",
           "set": "core"
         }
       }
@@ -1031,7 +1031,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-layout-xs",
+          "cssVar": "--pd-layout-xs",
           "set": "core"
         }
       }
@@ -1041,7 +1041,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-layout-sm",
+          "cssVar": "--pd-layout-sm",
           "set": "core"
         }
       }
@@ -1051,7 +1051,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-layout-md",
+          "cssVar": "--pd-layout-md",
           "set": "core"
         }
       }
@@ -1061,7 +1061,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-layout-lg",
+          "cssVar": "--pd-layout-lg",
           "set": "core"
         }
       }
@@ -1071,7 +1071,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-layout-xl",
+          "cssVar": "--pd-layout-xl",
           "set": "core"
         }
       }
@@ -1081,7 +1081,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-layout-2xl",
+          "cssVar": "--pd-layout-2xl",
           "set": "core"
         }
       }
@@ -1091,7 +1091,7 @@
       "$type": "spacing",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-layout-3xl",
+          "cssVar": "--pd-layout-3xl",
           "set": "core"
         }
       }
@@ -1103,7 +1103,7 @@
       "$type": "borderRadius",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-radius-none",
+          "cssVar": "--pd-radius-none",
           "set": "core"
         }
       }
@@ -1113,7 +1113,7 @@
       "$type": "borderRadius",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-radius-xs",
+          "cssVar": "--pd-radius-xs",
           "set": "core"
         }
       }
@@ -1123,7 +1123,7 @@
       "$type": "borderRadius",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-radius-sm",
+          "cssVar": "--pd-radius-sm",
           "set": "core"
         }
       }
@@ -1133,7 +1133,7 @@
       "$type": "borderRadius",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-radius-md",
+          "cssVar": "--pd-radius-md",
           "set": "core"
         }
       }
@@ -1143,7 +1143,7 @@
       "$type": "borderRadius",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-radius-lg",
+          "cssVar": "--pd-radius-lg",
           "set": "core"
         }
       }
@@ -1153,7 +1153,7 @@
       "$type": "borderRadius",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-radius-xl",
+          "cssVar": "--pd-radius-xl",
           "set": "core"
         }
       }
@@ -1163,7 +1163,7 @@
       "$type": "borderRadius",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-radius-full",
+          "cssVar": "--pd-radius-full",
           "set": "core"
         }
       }
@@ -1175,7 +1175,7 @@
       "$type": "borderWidth",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-border-none",
+          "cssVar": "--pd-border-none",
           "set": "core"
         }
       }
@@ -1185,7 +1185,7 @@
       "$type": "borderWidth",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-border-thin",
+          "cssVar": "--pd-border-thin",
           "set": "core"
         }
       }
@@ -1195,7 +1195,7 @@
       "$type": "borderWidth",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-border-base",
+          "cssVar": "--pd-border-base",
           "set": "core"
         }
       }
@@ -1205,7 +1205,7 @@
       "$type": "borderWidth",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-border-strong",
+          "cssVar": "--pd-border-strong",
           "set": "core"
         }
       }
@@ -1217,7 +1217,7 @@
       "$type": "fontFamilies",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-body",
+          "cssVar": "--pd-font-body",
           "set": "core"
         }
       }
@@ -1227,7 +1227,7 @@
       "$type": "fontFamilies",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-display",
+          "cssVar": "--pd-font-display",
           "set": "core"
         }
       }
@@ -1237,7 +1237,7 @@
       "$type": "fontFamilies",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-mono",
+          "cssVar": "--pd-font-mono",
           "set": "core"
         }
       }
@@ -1249,7 +1249,7 @@
       "$type": "fontSizes",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-size-xs",
+          "cssVar": "--pd-font-size-xs",
           "set": "core"
         }
       }
@@ -1259,7 +1259,7 @@
       "$type": "fontSizes",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-size-sm",
+          "cssVar": "--pd-font-size-sm",
           "set": "core"
         }
       }
@@ -1269,7 +1269,7 @@
       "$type": "fontSizes",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-size-md",
+          "cssVar": "--pd-font-size-md",
           "set": "core"
         }
       }
@@ -1279,7 +1279,7 @@
       "$type": "fontSizes",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-size-lg",
+          "cssVar": "--pd-font-size-lg",
           "set": "core"
         }
       }
@@ -1289,7 +1289,7 @@
       "$type": "fontSizes",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-size-xl",
+          "cssVar": "--pd-font-size-xl",
           "set": "core"
         }
       }
@@ -1299,7 +1299,7 @@
       "$type": "fontSizes",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-size-2xl",
+          "cssVar": "--pd-font-size-2xl",
           "set": "core"
         }
       }
@@ -1309,7 +1309,7 @@
       "$type": "fontSizes",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-size-3xl",
+          "cssVar": "--pd-font-size-3xl",
           "set": "core"
         }
       }
@@ -1321,7 +1321,7 @@
       "$type": "lineHeights",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-line-height-tight",
+          "cssVar": "--pd-line-height-tight",
           "set": "core"
         }
       }
@@ -1331,7 +1331,7 @@
       "$type": "lineHeights",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-line-height-snug",
+          "cssVar": "--pd-line-height-snug",
           "set": "core"
         }
       }
@@ -1341,7 +1341,7 @@
       "$type": "lineHeights",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-line-height-normal",
+          "cssVar": "--pd-line-height-normal",
           "set": "core"
         }
       }
@@ -1351,7 +1351,7 @@
       "$type": "lineHeights",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-line-height-relaxed",
+          "cssVar": "--pd-line-height-relaxed",
           "set": "core"
         }
       }
@@ -1363,7 +1363,7 @@
       "$type": "fontWeights",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-weight-regular",
+          "cssVar": "--pd-font-weight-regular",
           "set": "core"
         }
       }
@@ -1373,7 +1373,7 @@
       "$type": "fontWeights",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-weight-medium",
+          "cssVar": "--pd-font-weight-medium",
           "set": "core"
         }
       }
@@ -1383,7 +1383,7 @@
       "$type": "fontWeights",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-weight-semibold",
+          "cssVar": "--pd-font-weight-semibold",
           "set": "core"
         }
       }
@@ -1393,7 +1393,7 @@
       "$type": "fontWeights",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-font-weight-bold",
+          "cssVar": "--pd-font-weight-bold",
           "set": "core"
         }
       }
@@ -1406,7 +1406,7 @@
         "$type": "duration",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-motion-instant",
+            "cssVar": "--pd-motion-instant",
             "set": "core"
           }
         }
@@ -1416,7 +1416,7 @@
         "$type": "duration",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-motion-fast",
+            "cssVar": "--pd-motion-fast",
             "set": "core"
           }
         }
@@ -1426,7 +1426,7 @@
         "$type": "duration",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-motion-base",
+            "cssVar": "--pd-motion-base",
             "set": "core"
           }
         }
@@ -1436,7 +1436,7 @@
         "$type": "duration",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-motion-slow",
+            "cssVar": "--pd-motion-slow",
             "set": "core"
           }
         }
@@ -1446,7 +1446,7 @@
         "$type": "duration",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-motion-slower",
+            "cssVar": "--pd-motion-slower",
             "set": "core"
           }
         }
@@ -1456,7 +1456,7 @@
         "$type": "duration",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-motion-reward",
+            "cssVar": "--pd-motion-reward",
             "set": "core"
           }
         }
@@ -1468,7 +1468,7 @@
         "$type": "cubicBezier",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-easing-standard",
+            "cssVar": "--pd-easing-standard",
             "set": "core"
           }
         }
@@ -1478,7 +1478,7 @@
         "$type": "cubicBezier",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-easing-decelerate",
+            "cssVar": "--pd-easing-decelerate",
             "set": "core"
           }
         }
@@ -1488,7 +1488,7 @@
         "$type": "cubicBezier",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-easing-accelerate",
+            "cssVar": "--pd-easing-accelerate",
             "set": "core"
           }
         }
@@ -1498,7 +1498,7 @@
         "$type": "cubicBezier",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-easing-playful",
+            "cssVar": "--pd-easing-playful",
             "set": "core"
           }
         }
@@ -1508,7 +1508,7 @@
         "$type": "cubicBezier",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-easing-press",
+            "cssVar": "--pd-easing-press",
             "set": "core"
           }
         }
@@ -1520,7 +1520,7 @@
         "$type": "number",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-scale-press",
+            "cssVar": "--pd-scale-press",
             "set": "core"
           }
         }
@@ -1530,7 +1530,7 @@
         "$type": "number",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-scale-hover",
+            "cssVar": "--pd-scale-hover",
             "set": "core"
           }
         }
@@ -1540,7 +1540,7 @@
         "$type": "number",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-scale-reward-pop",
+            "cssVar": "--pd-scale-reward-pop",
             "set": "core"
           }
         }
@@ -1550,7 +1550,7 @@
         "$type": "number",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-scale-modal-enter",
+            "cssVar": "--pd-scale-modal-enter",
             "set": "core"
           }
         }
@@ -1563,7 +1563,7 @@
       "$type": "number",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-opacity-disabled",
+          "cssVar": "--pd-opacity-disabled",
           "set": "core"
         }
       }
@@ -1573,7 +1573,7 @@
       "$type": "number",
       "$extensions": {
         "pixdone": {
-          "cssVar": "--pxd-opacity-muted",
+          "cssVar": "--pd-opacity-muted",
           "set": "core"
         }
       }

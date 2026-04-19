@@ -6,7 +6,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-page",
+            "cssVar": "--pd-color-surface-page",
             "set": "semanticDark"
           }
         }
@@ -16,7 +16,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-page-alt",
+            "cssVar": "--pd-color-surface-page-alt",
             "set": "semanticDark"
           }
         }
@@ -26,7 +26,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-primary",
+            "cssVar": "--pd-color-surface-primary",
             "set": "semanticDark"
           }
         }
@@ -36,7 +36,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-secondary",
+            "cssVar": "--pd-color-surface-secondary",
             "set": "semanticDark"
           }
         }
@@ -46,7 +46,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-raised",
+            "cssVar": "--pd-color-surface-raised",
             "set": "semanticDark"
           }
         }
@@ -56,7 +56,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-overlay",
+            "cssVar": "--pd-color-surface-overlay",
             "set": "semanticDark"
           }
         }
@@ -66,7 +66,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-inverse",
+            "cssVar": "--pd-color-surface-inverse",
             "set": "semanticDark"
           }
         }
@@ -76,7 +76,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-disabled",
+            "cssVar": "--pd-color-surface-disabled",
             "set": "semanticDark"
           }
         }
@@ -86,7 +86,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-surface-info",
+            "cssVar": "--pd-color-surface-info",
             "set": "semanticDark"
           }
         }
@@ -98,7 +98,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-primary",
+            "cssVar": "--pd-color-text-primary",
             "set": "semanticDark"
           }
         }
@@ -108,7 +108,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-secondary",
+            "cssVar": "--pd-color-text-secondary",
             "set": "semanticDark"
           }
         }
@@ -118,7 +118,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-tertiary",
+            "cssVar": "--pd-color-text-tertiary",
             "set": "semanticDark"
           }
         }
@@ -128,7 +128,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-inverse",
+            "cssVar": "--pd-color-text-inverse",
             "set": "semanticDark"
           }
         }
@@ -138,7 +138,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-disabled",
+            "cssVar": "--pd-color-text-disabled",
             "set": "semanticDark"
           }
         }
@@ -148,7 +148,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-accent",
+            "cssVar": "--pd-color-text-accent",
             "set": "semanticDark"
           }
         }
@@ -158,7 +158,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-info",
+            "cssVar": "--pd-color-text-info",
             "set": "semanticDark"
           }
         }
@@ -168,7 +168,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-success",
+            "cssVar": "--pd-color-text-success",
             "set": "semanticDark"
           }
         }
@@ -178,7 +178,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-warning",
+            "cssVar": "--pd-color-text-warning",
             "set": "semanticDark"
           }
         }
@@ -188,7 +188,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-text-danger",
+            "cssVar": "--pd-color-text-danger",
             "set": "semanticDark"
           }
         }
@@ -200,7 +200,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-outline-variant",
+            "cssVar": "--pd-color-border-outline-variant",
             "set": "semanticDark"
           }
         }
@@ -210,7 +210,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-outline",
+            "cssVar": "--pd-color-border-outline",
             "set": "semanticDark"
           }
         }
@@ -220,7 +220,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-interactive",
+            "cssVar": "--pd-color-border-interactive",
             "set": "semanticDark"
           }
         }
@@ -230,7 +230,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-interactive-active",
+            "cssVar": "--pd-color-border-interactive-active",
             "set": "semanticDark"
           }
         }
@@ -240,7 +240,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-inverse",
+            "cssVar": "--pd-color-border-inverse",
             "set": "semanticDark"
           }
         }
@@ -250,7 +250,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-focus",
+            "cssVar": "--pd-color-border-focus",
             "set": "semanticDark"
           }
         }
@@ -260,7 +260,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-info",
+            "cssVar": "--pd-color-border-info",
             "set": "semanticDark"
           }
         }
@@ -270,7 +270,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-border-danger",
+            "cssVar": "--pd-color-border-danger",
             "set": "semanticDark"
           }
         }
@@ -282,7 +282,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-feedback-info",
+            "cssVar": "--pd-color-feedback-info",
             "set": "semanticDark"
           }
         }
@@ -292,7 +292,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-feedback-success",
+            "cssVar": "--pd-color-feedback-success",
             "set": "semanticDark"
           }
         }
@@ -302,7 +302,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-feedback-warning",
+            "cssVar": "--pd-color-feedback-warning",
             "set": "semanticDark"
           }
         }
@@ -312,7 +312,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-feedback-danger",
+            "cssVar": "--pd-color-feedback-danger",
             "set": "semanticDark"
           }
         }
@@ -324,7 +324,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-primary",
+            "cssVar": "--pd-color-action-primary",
             "set": "semanticDark"
           }
         }
@@ -334,7 +334,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-primary-hover",
+            "cssVar": "--pd-color-action-primary-hover",
             "set": "semanticDark"
           }
         }
@@ -344,7 +344,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-primary-pressed",
+            "cssVar": "--pd-color-action-primary-pressed",
             "set": "semanticDark"
           }
         }
@@ -354,7 +354,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-secondary",
+            "cssVar": "--pd-color-action-secondary",
             "set": "semanticDark"
           }
         }
@@ -364,7 +364,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-secondary-hover",
+            "cssVar": "--pd-color-action-secondary-hover",
             "set": "semanticDark"
           }
         }
@@ -374,7 +374,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-secondary-pressed",
+            "cssVar": "--pd-color-action-secondary-pressed",
             "set": "semanticDark"
           }
         }
@@ -384,7 +384,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-ghost-hover",
+            "cssVar": "--pd-color-action-ghost-hover",
             "set": "semanticDark"
           }
         }
@@ -394,7 +394,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-ghost-pressed",
+            "cssVar": "--pd-color-action-ghost-pressed",
             "set": "semanticDark"
           }
         }
@@ -404,7 +404,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-action-disabled",
+            "cssVar": "--pd-color-action-disabled",
             "set": "semanticDark"
           }
         }
@@ -416,7 +416,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-focus-ring",
+            "cssVar": "--pd-color-focus-ring",
             "set": "semanticDark"
           }
         }
@@ -426,7 +426,7 @@
         "$type": "color",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-color-focus-ring-offset",
+            "cssVar": "--pd-color-focus-ring-offset",
             "set": "semanticDark"
           }
         }
@@ -440,7 +440,7 @@
         "$type": "boxShadow",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-shadow-soft-xs",
+            "cssVar": "--pd-shadow-soft-xs",
             "set": "semanticDark"
           }
         }
@@ -450,7 +450,7 @@
         "$type": "boxShadow",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-shadow-soft-sm",
+            "cssVar": "--pd-shadow-soft-sm",
             "set": "semanticDark"
           }
         }
@@ -460,7 +460,7 @@
         "$type": "boxShadow",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-shadow-soft-md",
+            "cssVar": "--pd-shadow-soft-md",
             "set": "semanticDark"
           }
         }
@@ -472,7 +472,7 @@
         "$type": "boxShadow",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-shadow-pixel-sm",
+            "cssVar": "--pd-shadow-pixel-sm",
             "set": "semanticDark"
           }
         }
@@ -482,7 +482,7 @@
         "$type": "boxShadow",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-shadow-pixel-md",
+            "cssVar": "--pd-shadow-pixel-md",
             "set": "semanticDark"
           }
         }
@@ -492,7 +492,7 @@
         "$type": "boxShadow",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-shadow-pixel-lg",
+            "cssVar": "--pd-shadow-pixel-lg",
             "set": "semanticDark"
           }
         }
@@ -502,7 +502,7 @@
         "$type": "boxShadow",
         "$extensions": {
           "pixdone": {
-            "cssVar": "--pxd-shadow-pixel-inset",
+            "cssVar": "--pd-shadow-pixel-inset",
             "set": "semanticDark"
           }
         }

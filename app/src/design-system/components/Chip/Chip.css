@@ -110,9 +110,9 @@
 
 /* Font variant: readable body font for form chips (date, repeat, etc.) */
 .pxd-chip--font-body {
-  font-family: var(--pxd-font-body);
+  font-family: var(--pd-font-body);
   font-size: 0.8125rem;
-  font-weight: var(--pxd-font-weight-regular);
+  font-weight: var(--pd-font-weight-regular);
 }
 
 .pxd-chip__remove {

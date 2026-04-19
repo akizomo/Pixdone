@@ -21,7 +21,7 @@
   border-radius: 0;
   image-rendering: pixelated;
   overflow: hidden;
-  animation: pxd-popover-menu-in var(--pxd-motion-base, 180ms) cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: pxd-popover-menu-in var(--pd-motion-base, 180ms) cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Floating-UI anchored variant — positioned via inline `style` from
@@ -38,7 +38,7 @@
 /* Skip the scale-in animation in the anchored path to prevent a second
    micro-jump after `isPositioned` flips the visibility from hidden → visible. */
 .pxd-popover-menu--floating {
-  animation: pxd-popover-menu-fade-in var(--pxd-motion-fast, 120ms) ease;
+  animation: pxd-popover-menu-fade-in var(--pd-motion-fast, 120ms) ease;
 }
 
 @keyframes pxd-popover-menu-fade-in {
@@ -84,8 +84,8 @@
   font-family: var(--pd-font-body);
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background var(--pxd-motion-fast, 120ms) ease,
-              color var(--pxd-motion-fast, 120ms) ease;
+  transition: background var(--pd-motion-fast, 120ms) ease,
+              color var(--pd-motion-fast, 120ms) ease;
   border-radius: 0;
   white-space: nowrap;
 }
@@ -118,7 +118,7 @@
 }
 
 .pxd-popover-menu__item:focus-visible {
-  outline: 2px solid var(--pxd-color-focus-ring, var(--pd-color-accent-default));
+  outline: 2px solid var(--pd-color-focus-ring, var(--pd-color-accent-default));
   outline-offset: -2px;
 }
 
@@ -137,7 +137,7 @@
 /* Disabled */
 .pxd-popover-menu__item:disabled {
   cursor: not-allowed;
-  opacity: var(--pxd-opacity-disabled, 0.48);
+  opacity: var(--pd-opacity-disabled, 0.48);
 }
 
 /* ── Icon inside item ── */

@@ -94,9 +94,9 @@ export function EffectCapturePage() {
           alignItems: 'center',
           gap: 12,
           padding: '16px 20px',
-          background: 'var(--pxd-color-surface-primary, #1f1f2e)',
-          border: '2px solid var(--pxd-color-border-outline, #3c3c50)',
-          color: 'var(--pxd-color-text-primary, #e8eaed)',
+          background: 'var(--pd-color-surface-primary, #1f1f2e)',
+          border: '2px solid var(--pd-color-border-outline, #3c3c50)',
+          color: 'var(--pd-color-text-primary, #e8eaed)',
           fontFamily: 'var(--pd-font-body, sans-serif)',
           fontSize: '1rem',
         }}

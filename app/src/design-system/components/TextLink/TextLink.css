@@ -12,8 +12,8 @@
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-color: var(--pd-color-border-default);
-  transition: color var(--pxd-motion-fast, 120ms) ease,
-              text-decoration-color var(--pxd-motion-fast, 120ms) ease;
+  transition: color var(--pd-motion-fast, 120ms) ease,
+              text-decoration-color var(--pd-motion-fast, 120ms) ease;
 }
 
 .pxd-text-link:focus {
@@ -44,9 +44,9 @@
 /* ---- Sizes ---- */
 
 .pxd-text-link--sm {
-  font-size: var(--pxd-font-size-xs, 0.75rem);
+  font-size: var(--pd-font-size-xs, 0.75rem);
 }
 
 .pxd-text-link--md {
-  font-size: var(--pxd-font-size-sm, 0.875rem);
+  font-size: var(--pd-font-size-sm, 0.875rem);
 }

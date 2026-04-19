@@ -25,7 +25,7 @@
   --text-primary: var(--pd-color-text-primary);
   --text-secondary: var(--pd-color-text-secondary);
   --text-muted: var(--pd-color-text-muted);
-  --border-color: var(--pxd-color-border-outline);
+  --border-color: var(--pd-color-border-outline);
   --accent-color: var(--pd-color-accent-default);
   --accent-hover: var(--pd-color-accent-hover);
   --shadow-color: var(--pd-color-shadow-default);
@@ -55,7 +55,7 @@
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--pxd-space-4) var(--pd-layout-container-padding, 20px);
+  padding: var(--pd-space-4) var(--pd-layout-container-padding, 20px);
 }
 
 /* Mobile: constrain content width */
@@ -69,7 +69,7 @@
 /* Desktop: comfortable padding, no max-width */
 @media (min-width: 768px) {
   .pd-app-body > main {
-    padding: var(--pxd-space-5, 24px) var(--pxd-space-6, 32px);
+    padding: var(--pd-space-5, 24px) var(--pd-space-6, 32px);
     padding-bottom: 80px; /* space for floating Focus widget */
   }
 
@@ -158,8 +158,8 @@
   position: fixed;
   z-index: 300;
   /* Same row as SubMenu, above BottomNav */
-  bottom: calc(56px + env(safe-area-inset-bottom) + var(--pxd-space-3, 12px));
-  right: var(--pxd-space-4, 16px);
+  bottom: calc(56px + env(safe-area-inset-bottom) + var(--pd-space-3, 12px));
+  right: var(--pd-space-4, 16px);
   left: auto;
   transform: translateZ(0);
   transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -188,7 +188,7 @@
 .pd-add-task-section__button[data-tour="true"] {
   position: relative;
   z-index: 3050;
-  border-color: var(--pxd-cyan-500) !important;
+  border-color: var(--pd-cyan-500) !important;
   animation: pd-add-task-tour-pulse 1.6s ease-in-out infinite;
 }
 

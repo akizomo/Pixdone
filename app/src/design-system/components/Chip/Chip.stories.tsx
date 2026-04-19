@@ -39,7 +39,7 @@ export const SizeMd: Story = { args: { size: 'md', children: 'Medium' } };
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--pxd-space-2)' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--pd-space-2)' }}>
       <Chip variant="neutral">Neutral</Chip>
       <Chip variant="accent">Accent</Chip>
       <Chip variant="success">Success</Chip>
@@ -53,7 +53,7 @@ export const AllVariants: Story = {
 
 export const FilterExample: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--pxd-space-2)' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--pd-space-2)' }}>
       <Chip variant="accent" selected>All</Chip>
       <Chip variant="neutral">Active</Chip>
       <Chip variant="neutral">Completed</Chip>

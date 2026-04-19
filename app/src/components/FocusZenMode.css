@@ -45,8 +45,8 @@
 
 .pd-zen-close {
   position: absolute;
-  top: var(--pxd-space-3);
-  right: var(--pxd-space-3);
+  top: var(--pd-space-3);
+  right: var(--pd-space-3);
   z-index: 1;
 }
 
@@ -54,8 +54,8 @@
 @media (any-pointer: fine) {
   .pd-zen-close {
     top: auto;
-    bottom: var(--pxd-space-5, 24px);
-    right: var(--pxd-space-5, 24px);
+    bottom: var(--pd-space-5, 24px);
+    right: var(--pd-space-5, 24px);
   }
 }
 
@@ -66,12 +66,12 @@
   justify-content: center;
   align-items: center;
   gap: 22px;
-  padding: var(--pxd-space-5) var(--pxd-space-4);
+  padding: var(--pd-space-5) var(--pd-space-4);
   background: var(--pd-color-background-default);
 }
 
 .pd-zen-bgm {
-  margin-bottom: var(--pxd-space-2);
+  margin-bottom: var(--pd-space-2);
 }
 
 .pd-zen-timer {
@@ -87,12 +87,12 @@
 .pd-zen-progress {
   width: 100%;
   max-width: 340px;
-  padding: 0 var(--pxd-space-1);
+  padding: 0 var(--pd-space-1);
 }
 
 .pd-zen-actions {
   display: flex;
-  gap: var(--pxd-space-3);
+  gap: var(--pd-space-3);
   justify-content: center;
   flex-wrap: wrap;
 }

@@ -69,8 +69,8 @@ function PacmanSprite({ frame, arriving }: { frame: number[][]; arriving: boolea
               height={PX}
               fill={
                 cell === 2
-                  ? 'var(--pxd-color-surface-background)'
-                  : 'var(--pxd-color-action-primary)'
+                  ? 'var(--pd-color-surface-background)'
+                  : 'var(--pd-color-action-primary)'
               }
             />
           );
@@ -105,7 +105,7 @@ function FlagSprite({
         x="1" y={flagOffY}
         width="3"
         height={poleH}
-        fill="var(--pxd-color-border-outline)"
+        fill="var(--pd-color-border-outline)"
         opacity="0.5"
       />
       {/* Checkered flag head */}
@@ -120,8 +120,8 @@ function FlagSprite({
               height={FLAG_PX}
               fill={
                 (ry + cx) % 2 === 0
-                  ? 'var(--pxd-color-feedback-success)'
-                  : 'var(--pxd-color-text-primary)'
+                  ? 'var(--pd-color-feedback-success)'
+                  : 'var(--pd-color-text-primary)'
               }
               opacity="0.85"
             />
@@ -213,7 +213,7 @@ export function PacmanProgress({ remaining, totalSeconds, timerState }: PacmanPr
         left:       0,
         right:      0,
         height:     '2px',
-        background: 'var(--pxd-color-border-outline-variant)',
+        background: 'var(--pd-color-border-outline-variant)',
         opacity:    0.3,
       }} />
 
@@ -233,7 +233,7 @@ export function PacmanProgress({ remaining, totalSeconds, timerState }: PacmanPr
               width:        `${DOT_SIZE}px`,
               height:       `${DOT_SIZE}px`,
               borderRadius: '1px',
-              background:   'var(--pxd-color-text-secondary)',
+              background:   'var(--pd-color-text-secondary)',
               opacity:      eating ? undefined : (eaten ? 0 : 0.45),
             }}
           />

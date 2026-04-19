@@ -30,7 +30,7 @@
   background-color: var(--pd-color-background-default);
   transform: translateY(100%);
   pointer-events: none;
-  padding-bottom: calc(env(safe-area-inset-bottom) + var(--pxd-keyboard-inset, 0px));
+  padding-bottom: calc(env(safe-area-inset-bottom) + var(--pd-keyboard-inset, 0px));
   /* closing: natural decelerate-out (iOS-like) */
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   image-rendering: pixelated;
@@ -38,7 +38,7 @@
 
 /* Compact variant — sheet sizes to its content and sits above the keyboard.
    Used by the Todoist-style add/edit task form. Keyboard inset handling via
-   `--pxd-keyboard-inset` still applies via the shared `padding-bottom`. */
+   `--pd-keyboard-inset` still applies via the shared `padding-bottom`. */
 .pxd-sheet.pxd-sheet--compact {
   top: auto;
   max-height: min(80vh, calc(100vh - 80px));
@@ -140,7 +140,7 @@
   flex: 1;
   overflow-y: auto;
   padding: 20px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom) + var(--pxd-keyboard-inset, 0px));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom) + var(--pd-keyboard-inset, 0px));
   font-family: var(--pd-font-body);
   font-size: 0.875rem;
   color: var(--pd-color-text-primary);

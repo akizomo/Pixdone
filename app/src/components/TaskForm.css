@@ -3,7 +3,7 @@
 .pd-task-form {
   display: flex;
   flex-direction: column;
-  gap: var(--pxd-space-3);
+  gap: var(--pd-space-3);
 }
 
 /* Toolbar: list selector (left) + delete (right) */
@@ -11,19 +11,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: var(--pxd-space-8);
+  min-height: var(--pd-space-8);
 }
 
 /* List selector combobox trigger */
 .pd-task-form__list-trigger {
   display: inline-flex;
   align-items: center;
-  gap: var(--pxd-space-1);
+  gap: var(--pd-space-1);
   background: none;
   border: none;
   padding: 0;
   font-family: var(--pd-font-body);
-  font-size: var(--pxd-font-size-xs);
+  font-size: var(--pd-font-size-xs);
   color: var(--pd-color-text-secondary);
   cursor: pointer;
   outline: none;
@@ -50,7 +50,7 @@
 /* Date / repeat chip row */
 .pd-task-form__chip-row {
   display: flex;
-  gap: var(--pxd-space-2);
+  gap: var(--pd-space-2);
   align-items: center;
   flex-wrap: wrap;
 }
@@ -59,7 +59,7 @@
   font-size: 16px;
   line-height: 1;
   vertical-align: middle;
-  margin-right: var(--pxd-space-1);
+  margin-right: var(--pd-space-1);
 }
 
 /* Hidden native date input */
@@ -88,8 +88,8 @@
   left: 0;
   z-index: 100;
   background: var(--pd-color-background-elevated);
-  border: var(--pxd-border-base) solid var(--pd-color-border-default);
-  box-shadow: var(--pxd-shadow-pixel-md);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  box-shadow: var(--pd-shadow-pixel-md);
   min-width: 180px;
 }
 
@@ -98,13 +98,13 @@
   display: block;
   width: 100%;
   text-align: left;
-  padding: var(--pxd-space-2) var(--pxd-space-3);
+  padding: var(--pd-space-2) var(--pd-space-3);
   background: transparent;
   border: none;
-  border-bottom: var(--pxd-border-thin) solid var(--pd-color-border-default);
+  border-bottom: var(--pd-border-thin) solid var(--pd-color-border-default);
   color: var(--pd-color-text-primary);
   font-family: var(--pd-font-body);
-  font-size: var(--pxd-font-size-sm);
+  font-size: var(--pd-font-size-sm);
   cursor: pointer;
 }
 
@@ -115,13 +115,13 @@
 
 /* Custom repeat panel */
 .pd-task-form__repeat-custom {
-  padding: 10px var(--pxd-space-3);
+  padding: 10px var(--pd-space-3);
 }
 
 .pd-task-form__repeat-custom-header {
   display: flex;
   align-items: center;
-  gap: var(--pxd-space-1);
+  gap: var(--pd-space-1);
   margin-bottom: 10px;
 }
 
@@ -137,8 +137,8 @@
 
 .pd-task-form__repeat-custom-title {
   font-family: var(--pd-font-body);
-  font-size: var(--pxd-font-size-sm);
-  font-weight: var(--pxd-font-weight-bold);
+  font-size: var(--pd-font-size-sm);
+  font-weight: var(--pd-font-weight-bold);
   color: var(--pd-color-text-primary);
 }
 
@@ -146,14 +146,14 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  margin-bottom: var(--pxd-space-2);
+  margin-bottom: var(--pd-space-2);
 }
 
 .pd-task-form__repeat-custom-input {
   width: 48px;
-  padding: var(--pxd-space-1) 6px;
-  border: var(--pxd-border-base) solid var(--pd-color-border-default);
-  border-radius: var(--pxd-radius-none);
+  padding: var(--pd-space-1) 6px;
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  border-radius: var(--pd-radius-none);
   font-family: var(--pd-font-body);
   font-size: 0.8125rem;
   text-align: center;
@@ -162,9 +162,9 @@
 }
 
 .pd-task-form__repeat-custom-select {
-  padding: var(--pxd-space-1) 6px;
-  border: var(--pxd-border-base) solid var(--pd-color-border-default);
-  border-radius: var(--pxd-radius-none);
+  padding: var(--pd-space-1) 6px;
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  border-radius: var(--pd-radius-none);
   font-family: var(--pd-font-body);
   font-size: 0.8125rem;
   background: var(--pd-color-background-default);
@@ -175,24 +175,24 @@
 /* Weekday toggles */
 .pd-task-form__weekday-row {
   display: flex;
-  gap: var(--pxd-space-1);
+  gap: var(--pd-space-1);
   flex-wrap: wrap;
-  margin-bottom: var(--pxd-space-2);
+  margin-bottom: var(--pd-space-2);
 }
 
 .pd-task-form__weekday-btn {
-  width: var(--pxd-space-8);
-  height: var(--pxd-space-8);
+  width: var(--pd-space-8);
+  height: var(--pd-space-8);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: var(--pxd-border-base) solid var(--pd-color-border-default);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
   background: transparent;
   color: var(--pd-color-text-secondary);
   font-family: var(--pd-font-body);
-  font-size: var(--pxd-font-size-xs);
+  font-size: var(--pd-font-size-xs);
   cursor: pointer;
-  border-radius: var(--pxd-radius-none);
+  border-radius: var(--pd-radius-none);
 }
 
 .pd-task-form__weekday-btn--active {
@@ -205,13 +205,13 @@
 .pd-task-form__repeat-apply {
   width: 100%;
   padding: 6px;
-  border: var(--pxd-border-base) solid var(--pd-color-accent-filled);
+  border: var(--pd-border-base) solid var(--pd-color-accent-filled);
   background: var(--pd-color-accent-filled);
   color: var(--pd-color-accent-text);
   font-family: var(--pd-font-body);
   font-size: 0.8125rem;
   cursor: pointer;
-  border-radius: var(--pxd-radius-none);
+  border-radius: var(--pd-radius-none);
 }
 
 /* Subtask list */
@@ -224,7 +224,7 @@
 .pd-task-form__subtask-row {
   display: flex;
   align-items: center;
-  gap: var(--pxd-space-2);
+  gap: var(--pd-space-2);
 }
 
 .pd-task-form__subtask-text {
@@ -234,7 +234,7 @@
   color: var(--pd-color-text-primary);
   cursor: text;
   padding: 6px 0;
-  min-height: var(--pxd-tap-target-min);
+  min-height: var(--pd-tap-target-min);
   display: flex;
   align-items: center;
 }
@@ -257,8 +257,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--pxd-space-3);
-  margin-top: var(--pxd-space-1);
+  gap: var(--pd-space-3);
+  margin-top: var(--pd-space-1);
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -266,14 +266,14 @@
  * ────────────────────────────────────────────────────────────────────────── */
 
 .pd-task-form--compact {
-  gap: var(--pxd-space-2);
+  gap: var(--pd-space-2);
 }
 
 /* Top-right toolbar — holds delete in edit mode */
 .pd-task-form__compact-toolbar {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: calc(var(--pxd-space-1) * -1);
+  margin-bottom: calc(var(--pd-space-1) * -1);
 }
 
 /* Title — larger than desktop, no field chrome (override all interaction states) */
@@ -281,8 +281,8 @@
 .pd-task-form--compact .pd-task-form__title--compact .pxd-rich-text-field__input:hover,
 .pd-task-form--compact .pd-task-form__title--compact .pxd-rich-text-field__input:focus {
   font-size: 1.125rem;
-  font-weight: var(--pxd-font-weight-semibold);
-  padding: var(--pxd-space-1) 0;
+  font-weight: var(--pd-font-weight-semibold);
+  padding: var(--pd-space-1) 0;
   min-height: 0;
   border: none !important;
   background: transparent !important;
@@ -294,7 +294,7 @@
 .pd-task-form--compact .pd-task-form__notes--compact .pxd-rich-text-area__input:hover,
 .pd-task-form--compact .pd-task-form__notes--compact .pxd-rich-text-area__input:focus {
   min-height: 22px !important;
-  padding: var(--pxd-space-1) 0;
+  padding: var(--pd-space-1) 0;
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
@@ -309,7 +309,7 @@
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding-bottom: var(--pxd-space-1);
+  padding-bottom: var(--pd-space-1);
 }
 .pd-task-form__chip-row--compact::-webkit-scrollbar {
   display: none;
@@ -327,8 +327,8 @@
 /* Divider above bottom bar */
 .pd-task-form__compact-divider {
   height: 0;
-  border-top: var(--pxd-border-thin) solid var(--pd-color-border-default);
-  margin: var(--pxd-space-1) calc(var(--pxd-space-3) * -1) 0;
+  border-top: var(--pd-border-thin) solid var(--pd-color-border-default);
+  margin: var(--pd-space-1) calc(var(--pd-space-3) * -1) 0;
 }
 
 /* Bottom bar: list chip (left) + send (right) */
@@ -336,23 +336,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--pxd-space-2);
-  margin-top: var(--pxd-space-1);
+  gap: var(--pd-space-2);
+  margin-top: var(--pd-space-1);
 }
 
 /* List chip — ghost-style button in bottom-left */
 .pd-task-form__list-chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--pxd-space-1);
+  gap: var(--pd-space-1);
   background: none;
   border: none;
-  padding: var(--pxd-space-1) var(--pxd-space-2);
+  padding: var(--pd-space-1) var(--pd-space-2);
   color: var(--pd-color-text-secondary);
   font-family: var(--pd-font-body);
   font-size: 0.875rem;
   cursor: pointer;
-  border-radius: var(--pxd-radius-none);
+  border-radius: var(--pd-radius-none);
   min-height: 32px;
 }
 .pd-task-form__list-chip:hover {
@@ -367,7 +367,7 @@
  * ────────────────────────────────────────────────────────────────────────── */
 
 .pd-task-form--edit {
-  gap: var(--pxd-space-3);
+  gap: var(--pd-space-3);
 }
 
 /* Top toolbar: list chip (left) + delete (right) */
@@ -375,7 +375,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--pxd-space-2);
+  gap: var(--pd-space-2);
 }
 
 /* Keep long subtask lists scrollable internally so the edit modal body can
@@ -389,7 +389,7 @@
 .pd-task-form--edit .pd-task-form__add-subtask-input .pxd-text-field__input {
   border: none !important;
   background: transparent !important;
-  padding: var(--pxd-space-2) 0 !important;
+  padding: var(--pd-space-2) 0 !important;
   color: var(--pd-color-accent-default);
   font-size: 0.9375rem;
   min-height: 0;
@@ -407,7 +407,7 @@
 .pd-task-form__date-picker-row {
   display: flex;
   align-items: center;
-  gap: var(--pxd-space-2);
+  gap: var(--pd-space-2);
   position: relative;
 }
 .pd-task-form__date-picker-row input[type="date"] {

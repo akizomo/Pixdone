@@ -41,7 +41,7 @@ export const ActionSheetStyle: Story = {
       <>
         <Button variant="secondary" onClick={() => setOpen(true)}>Options</Button>
         <BottomSheet open={open} onClose={() => setOpen(false)} title="Choose action">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--pxd-space-2)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--pd-space-2)' }}>
             <Button variant="primary" fullWidth onClick={() => setOpen(false)}>Save</Button>
             <Button variant="secondary" fullWidth onClick={() => setOpen(false)}>Share</Button>
             <Button variant="ghost" fullWidth onClick={() => setOpen(false)}>Cancel</Button>
@@ -59,7 +59,7 @@ export const LongContentSheet: Story = {
       <>
         <Button variant="secondary" onClick={() => setOpen(true)}>Open long content</Button>
         <BottomSheet open={open} onClose={() => setOpen(false)} title="Scrollable content">
-          <div style={{ paddingBottom: 'var(--pxd-space-6)' }}>
+          <div style={{ paddingBottom: 'var(--pd-space-6)' }}>
             {Array.from({ length: 20 }, (_, i) => (
               <p key={i}>Paragraph {i + 1}. Lorem ipsum dolor sit amet.</p>
             ))}

@@ -51,8 +51,8 @@ export function ThemeSheetContent({
     ?? {};
 
   const bgColor = (previewVars as Record<string, string>)['--pd-color-background-default']
-    ?? (previewVars as Record<string, string>)['--pxd-sw-navy-950']
-    ?? (previewVars as Record<string, string>)['--pxd-fb-night-950']
+    ?? (previewVars as Record<string, string>)['--pd-sw-navy-950']
+    ?? (previewVars as Record<string, string>)['--pd-fb-night-950']
     ?? 'var(--pd-color-background-default)';
 
   const triggerDemo = useCallback((taskEl: HTMLElement) => {

@@ -61,7 +61,7 @@
   cursor: pointer;
   padding: 4px;
   color: var(--pd-color-text-secondary);
-  transition: color var(--pxd-motion-fast) ease;
+  transition: color var(--pd-motion-fast) ease;
 }
 
 .pd-header__menu-btn:hover {
@@ -84,11 +84,11 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--pxd-space-3, 12px);
+  gap: var(--pd-space-3, 12px);
 }
 
 .user-menu-account__email {
-  font-size: var(--pxd-font-size-xs, 0.75rem);
+  font-size: var(--pd-font-size-xs, 0.75rem);
   color: var(--pd-color-text-secondary);
   font-family: var(--pd-font-body);
   word-break: break-all;
@@ -99,7 +99,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--pxd-space-2, 8px);
+  gap: var(--pd-space-2, 8px);
 }
 
 .user-menu-account__badge {
@@ -133,7 +133,7 @@
 .user-menu-lang__label {
   display: flex;
   align-items: center;
-  gap: var(--pxd-space-2, 8px);
+  gap: var(--pd-space-2, 8px);
   color: var(--pd-color-text-primary);
   font-family: var(--pd-font-body);
   font-size: 0.875rem;

@@ -393,7 +393,7 @@ describe('TaskItem', () => {
       const checkboxZone = container.querySelector('.task-checkbox-zone') as HTMLElement;
       expect(checkboxZone).not.toBeNull();
       // 44px min tap target is enforced by CSS (.task-checkbox-zone in TaskItem.css)
-      // using var(--pxd-tap-target-min). Verify the class is applied.
+      // using var(--pd-tap-target-min). Verify the class is applied.
       expect(checkboxZone.classList.contains('task-checkbox-zone')).toBe(true);
     });
 

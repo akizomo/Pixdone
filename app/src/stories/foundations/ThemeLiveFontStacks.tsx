@@ -2,9 +2,9 @@ import React from 'react';
 import { useResolvedCssCustomProperties } from './useResolvedCssVars';
 
 const FONT_VARS = [
-  '--pxd-font-body',
-  '--pxd-font-display',
-  '--pxd-font-mono',
+  '--pd-font-body',
+  '--pd-font-display',
+  '--pd-font-mono',
   '--pd-font-body',
   '--pd-font-brand',
   '--pd-font-brand-ja',
@@ -17,17 +17,17 @@ export function ThemeLiveFontStacks() {
   const th: React.CSSProperties = {
     textAlign: 'left',
     padding: '10px 14px',
-    borderBottom: '2px solid var(--pxd-color-border-outline, #DDDEE3)',
+    borderBottom: '2px solid var(--pd-color-border-outline, #DDDEE3)',
     fontWeight: 600,
     fontSize: 13,
-    color: 'var(--pxd-color-text-secondary, #4C5160)',
-    background: 'var(--pxd-color-surface-page-alt, #F7F7F8)',
+    color: 'var(--pd-color-text-secondary, #4C5160)',
+    background: 'var(--pd-color-surface-page-alt, #F7F7F8)',
     whiteSpace: 'nowrap',
   };
 
   const td: React.CSSProperties = {
     padding: '10px 14px',
-    borderBottom: '1px solid var(--pxd-color-border-outline-variant, #EFEFF1)',
+    borderBottom: '1px solid var(--pd-color-border-outline-variant, #EFEFF1)',
     verticalAlign: 'middle',
   };
 
@@ -39,11 +39,11 @@ export function ThemeLiveFontStacks() {
             textAlign: 'left',
             padding: '0 0 8px 0',
             fontSize: 13,
-            color: 'var(--pxd-color-text-tertiary, #666C7A)',
+            color: 'var(--pd-color-text-tertiary, #666C7A)',
           }}
         >
           Resolved `font-family` on `document.documentElement` for the current Storybook toolbars (Color Mode +
-          Visual Theme). `--pd-font-*` is the legacy layer some visual themes override (e.g. Synthwave); `--pxd-font-*`
+          Visual Theme). `--pd-font-*` is the legacy layer some visual themes override (e.g. Synthwave); `--pd-font-*`
           comes from `tokens.css` unless extended later.
         </caption>
         <thead>
@@ -59,20 +59,20 @@ export function ThemeLiveFontStacks() {
               <td style={td}>
                 <code
                   style={{
-                    fontFamily: 'var(--pxd-font-mono), "JetBrains Mono", monospace',
+                    fontFamily: 'var(--pd-font-mono), "JetBrains Mono", monospace',
                     fontSize: 12,
-                    color: 'var(--pxd-color-text-accent, #5B43D6)',
+                    color: 'var(--pd-color-text-accent, #5B43D6)',
                   }}
                 >
                   {name}
                 </code>
               </td>
-              <td style={{ ...td, color: 'var(--pxd-color-text-secondary)', fontSize: 12, maxWidth: 420 }}>
-                <code style={{ fontFamily: 'var(--pxd-font-mono), monospace', fontSize: 11, wordBreak: 'break-word' }}>
+              <td style={{ ...td, color: 'var(--pd-color-text-secondary)', fontSize: 12, maxWidth: 420 }}>
+                <code style={{ fontFamily: 'var(--pd-font-mono), monospace', fontSize: 11, wordBreak: 'break-word' }}>
                   {resolved[name] || '—'}
                 </code>
               </td>
-              <td style={{ ...td, fontFamily: resolved[name] || 'inherit', fontSize: 14, color: 'var(--pxd-color-text-primary)' }}>
+              <td style={{ ...td, fontFamily: resolved[name] || 'inherit', fontSize: 14, color: 'var(--pd-color-text-primary)' }}>
                 Aa あいう 012
               </td>
             </tr>

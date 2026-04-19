@@ -36,7 +36,7 @@
   border: none;
   color: var(--pd-color-text-secondary);
   cursor: pointer;
-  padding: 6px 0 var(--pxd-space-1);
+  padding: 6px 0 var(--pd-space-1);
   font-family: var(--pd-font-body);
 }
 
@@ -60,11 +60,11 @@
 
 .pd-bottom-nav__label {
   font-size: 0.625rem;
-  font-weight: var(--pxd-font-weight-regular);
+  font-weight: var(--pd-font-weight-regular);
   line-height: 1;
   white-space: nowrap;
 }
 
 .pd-bottom-nav__tab--active .pd-bottom-nav__label {
-  font-weight: var(--pxd-font-weight-semibold);
+  font-weight: var(--pd-font-weight-semibold);
 }

@@ -7,10 +7,10 @@
   padding: 1px 5px;
   font-family: var(--pd-font-body);
   font-size: 0.6875rem;
-  font-weight: var(--pxd-font-weight-regular);
-  line-height: var(--pxd-line-height-snug);
-  border: var(--pxd-border-thin) solid;
-  border-radius: var(--pxd-radius-none);
+  font-weight: var(--pd-font-weight-regular);
+  line-height: var(--pd-line-height-snug);
+  border: var(--pd-border-thin) solid;
+  border-radius: var(--pd-radius-none);
   white-space: nowrap;
   image-rendering: pixelated;
 }
@@ -44,6 +44,6 @@
 .pxd-badge__icon {
   display: inline-flex;
   align-items: center;
-  font-size: var(--pxd-font-size-xs);
+  font-size: var(--pd-font-size-xs);
   line-height: 1;
 }

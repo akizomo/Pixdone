@@ -38,7 +38,7 @@ export const FullWidth: Story = { args: { variant: 'primary', fullWidth: true, c
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--pxd-space-3)' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--pd-space-3)' }}>
       <Button variant="primary">Primary</Button>
       <Button variant="secondary">Secondary</Button>
       <Button variant="ghost">Ghost</Button>
@@ -50,7 +50,7 @@ export const AllVariants: Story = {
 
 export const HierarchyExample: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 'var(--pxd-space-3)', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', gap: 'var(--pd-space-3)', flexWrap: 'wrap' }}>
       <Button variant="primary">Confirm</Button>
       <Button variant="secondary">Cancel</Button>
       <Button variant="ghost">Skip</Button>
@@ -61,7 +61,7 @@ export const HierarchyExample: Story = {
 
 export const StateComparison: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--pxd-space-4)', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--pd-space-4)', alignItems: 'center' }}>
       <Button variant="primary">Default</Button>
       <Button variant="primary" disabled>Disabled</Button>
       <Button variant="primary" loading>Loading</Button>

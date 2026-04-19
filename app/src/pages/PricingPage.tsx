@@ -111,8 +111,8 @@ export function PricingPage() {
         <div
           role="status"
           style={{
-            background: 'var(--pxd-color-feedback-success)',
-            color: 'var(--pxd-color-text-inverse)',
+            background: 'var(--pd-color-feedback-success)',
+            color: 'var(--pd-color-text-inverse)',
             fontFamily: 'var(--pd-font-brand)',
             fontSize: '0.75rem',
             letterSpacing: '1px',
@@ -149,7 +149,7 @@ export function PricingPage() {
           >
             {isJa ? 'もっと楽しく、もっと自分らしく。' : 'LEVEL UP YOUR PRODUCTIVITY'}
           </h1>
-          <p style={{ color: 'var(--pxd-color-text-secondary)', margin: 0, fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--pd-color-text-secondary)', margin: 0, fontSize: '0.875rem' }}>
             {isJa
               ? 'PixDone+ でリスト上限・全テーマ・Rare / Epic エフェクトを解放'
               : 'Unlock unlimited lists, all themes, and Rare & Epic effects'}
@@ -159,9 +159,9 @@ export function PricingPage() {
               display: 'inline-block',
               marginTop: '12px',
               padding: '4px 12px',
-              background: 'var(--pxd-color-surface-info)',
-              color: 'var(--pxd-color-text-info)',
-              border: '2px solid var(--pxd-color-border-info)',
+              background: 'var(--pd-color-surface-info)',
+              color: 'var(--pd-color-text-info)',
+              border: '2px solid var(--pd-color-border-info)',
               fontFamily: 'var(--pd-font-brand)',
               fontSize: '0.75rem',
               letterSpacing: '1px',
@@ -177,9 +177,9 @@ export function PricingPage() {
             {/* Free card */}
             <div
               style={{
-                border: '2px solid var(--pxd-color-border-outline)',
+                border: '2px solid var(--pd-color-border-outline)',
                 padding: '20px',
-                background: 'var(--pxd-color-surface-primary)',
+                background: 'var(--pd-color-surface-primary)',
               }}
             >
               <p
@@ -188,7 +188,7 @@ export function PricingPage() {
                   fontSize: '0.75rem',
                   letterSpacing: '1px',
                   margin: '0 0 4px',
-                  color: 'var(--pxd-color-text-tertiary)',
+                  color: 'var(--pd-color-text-tertiary)',
                 }}
               >
                 FREE
@@ -205,7 +205,7 @@ export function PricingPage() {
               </p>
               <ul style={{ margin: 0, padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {FREE_FEATURES.map((f) => (
-                  <li key={f.en} style={{ fontSize: '0.8125rem', color: 'var(--pxd-color-text-secondary)' }}>
+                  <li key={f.en} style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}>
                     {isJa ? f.ja : f.en}
                   </li>
                 ))}
@@ -215,9 +215,9 @@ export function PricingPage() {
             {/* Plus card */}
             <div
               style={{
-                border: '2px solid var(--pxd-color-action-primary)',
+                border: '2px solid var(--pd-color-action-primary)',
                 padding: '20px',
-                background: 'var(--pxd-color-surface-primary)',
+                background: 'var(--pd-color-surface-primary)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -228,7 +228,7 @@ export function PricingPage() {
                       fontSize: '0.75rem',
                       letterSpacing: '1px',
                       margin: 0,
-                      color: 'var(--pxd-color-text-accent)',
+                      color: 'var(--pd-color-text-accent)',
                     }}
                   >
                     PIXDONE+
@@ -239,9 +239,9 @@ export function PricingPage() {
                         fontFamily: 'var(--pd-font-brand)',
                         fontSize: '0.575rem',
                         letterSpacing: '1px',
-                        background: 'var(--pxd-color-surface-info)',
-                        color: 'var(--pxd-color-text-info)',
-                        border: '1px solid var(--pxd-color-border-info)',
+                        background: 'var(--pd-color-surface-info)',
+                        color: 'var(--pd-color-text-info)',
+                        border: '1px solid var(--pd-color-border-info)',
                         padding: '2px 6px',
                       }}
                     >
@@ -252,7 +252,7 @@ export function PricingPage() {
                 <div
                   style={{
                     display: 'inline-flex',
-                    border: '1px solid var(--pxd-color-border-interactive)',
+                    border: '1px solid var(--pd-color-border-interactive)',
                   }}
                 >
                   {(['monthly', 'yearly'] as const).map((c) => (
@@ -262,12 +262,12 @@ export function PricingPage() {
                       onClick={() => { playSound('buttonClick'); setCycle(c); }}
                       style={{
                         padding: '4px 10px',
-                        background: cycle === c ? 'var(--pxd-color-action-primary)' : 'transparent',
+                        background: cycle === c ? 'var(--pd-color-action-primary)' : 'transparent',
                         border: 'none',
                         cursor: 'pointer',
                         fontFamily: 'var(--pd-font-brand)',
                         fontSize: '0.6rem',
-                        color: cycle === c ? 'var(--pxd-color-text-inverse)' : 'var(--pxd-color-text-secondary)',
+                        color: cycle === c ? 'var(--pd-color-text-inverse)' : 'var(--pd-color-text-secondary)',
                         letterSpacing: '1px',
                         transition: 'background 0.15s',
                       }}
@@ -285,24 +285,24 @@ export function PricingPage() {
                   fontSize: '1.5rem',
                   margin: '8px 0 4px',
                   letterSpacing: '1px',
-                  color: 'var(--pxd-color-text-primary)',
+                  color: 'var(--pd-color-text-primary)',
                 }}
               >
-                {cycle === 'monthly' ? '¥600' : '¥500'}<span style={{ fontSize: '0.75rem', color: 'var(--pxd-color-text-secondary)' }}>{isJa ? '/月' : '/mo'}</span>
+                {cycle === 'monthly' ? '¥600' : '¥500'}<span style={{ fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)' }}>{isJa ? '/月' : '/mo'}</span>
               </p>
               {cycle === 'yearly' && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--pxd-color-text-tertiary)', margin: '0 0 4px' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--pd-color-text-tertiary)', margin: '0 0 4px' }}>
                   {isJa ? '年払い ¥6,000' : '¥6,000 billed yearly'}
                 </p>
               )}
-              <p style={{ fontSize: '0.6875rem', color: 'var(--pxd-color-text-tertiary)', margin: '0 0 16px' }}>
+              <p style={{ fontSize: '0.6875rem', color: 'var(--pd-color-text-tertiary)', margin: '0 0 16px' }}>
                 {isJa
                   ? '7日間無料 → その後自動で課金開始。いつでもキャンセル可能。'
                   : '7-day free trial, then auto-renews. Cancel anytime.'}
               </p>
               <ul style={{ margin: '0 0 20px', padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {PLUS_FEATURES.map((f) => (
-                  <li key={f.en} style={{ fontSize: '0.8125rem', color: 'var(--pxd-color-text-primary)' }}>
+                  <li key={f.en} style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-primary)' }}>
                     {isJa ? f.ja : f.en}
                   </li>
                 ))}
@@ -318,10 +318,10 @@ export function PricingPage() {
         {isPlusUser && (
           <div
             style={{
-              border: '2px solid var(--pxd-color-action-primary)',
+              border: '2px solid var(--pd-color-action-primary)',
               padding: '24px',
               textAlign: 'center',
-              background: 'var(--pxd-color-surface-primary)',
+              background: 'var(--pd-color-surface-primary)',
             }}
           >
             {isTrialing ? (
@@ -333,9 +333,9 @@ export function PricingPage() {
                   letterSpacing: '1px',
                   margin: '0 0 8px',
                   padding: '4px 10px',
-                  background: 'var(--pxd-color-surface-info)',
-                  color: 'var(--pxd-color-text-info)',
-                  border: '1px solid var(--pxd-color-border-info)',
+                  background: 'var(--pd-color-surface-info)',
+                  color: 'var(--pd-color-text-info)',
+                  border: '1px solid var(--pd-color-border-info)',
                 }}
               >
                 {isJa ? '無料トライアル中' : 'FREE TRIAL ACTIVE'}
@@ -347,20 +347,20 @@ export function PricingPage() {
                   fontSize: '0.875rem',
                   letterSpacing: '1px',
                   margin: '0 0 8px',
-                  color: 'var(--pxd-color-text-success)',
+                  color: 'var(--pd-color-text-success)',
                 }}
               >
                 {isJa ? '✓ PixDone+ 加入済み' : '✓ YOU ARE ON PIXDONE+'}
               </p>
             )}
             {isTrialing && trialEnd && (
-              <p style={{ color: 'var(--pxd-color-text-secondary)', margin: '0 0 8px', fontSize: '0.8125rem' }}>
+              <p style={{ color: 'var(--pd-color-text-secondary)', margin: '0 0 8px', fontSize: '0.8125rem' }}>
                 {isJa
                   ? `トライアル終了: ${new Date(trialEnd).toLocaleDateString('ja-JP')}`
                   : `Trial ends: ${new Date(trialEnd).toLocaleDateString('en-US')}`}
               </p>
             )}
-            <p style={{ color: 'var(--pxd-color-text-secondary)', margin: '0 0 16px', fontSize: '0.875rem' }}>
+            <p style={{ color: 'var(--pd-color-text-secondary)', margin: '0 0 16px', fontSize: '0.875rem' }}>
               {isJa ? 'すべての機能をご利用いただけます。' : 'You have access to all premium features.'}
             </p>
             <Button variant="secondary" size="sm" onClick={() => navigate('/account')}>

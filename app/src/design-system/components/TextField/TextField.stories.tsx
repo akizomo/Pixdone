@@ -62,7 +62,7 @@ export const SearchField: Story = {
 
 export const StateComparison: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--pxd-space-6)', maxWidth: 320 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--pd-space-6)', maxWidth: 320 }}>
       <TextField label="Default" placeholder="Placeholder" />
       <TextField label="Filled" defaultValue="Some value" />
       <TextField label="Error" errorText="This field is required." placeholder="Required" />

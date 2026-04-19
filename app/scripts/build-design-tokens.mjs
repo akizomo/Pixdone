@@ -6,8 +6,8 @@
  *       :root block (core + semantic/light)
  *       [data-theme="dark"] block (semantic/dark overrides)
  *   - app/src/design-system/themes/_generated/{theme}.css-vars.ts
- *       export const light = { '--pxd-...': '...', ... }
- *       export const dark  = { '--pxd-...': '...', ... }
+ *       export const light = { '--pd-...': '...', ... }
+ *       export const dark  = { '--pd-...': '...', ... }
  *
  * Pipeline: Tokens Studio JSON → @tokens-studio/sd-transforms → Style Dictionary
  * → custom "pixdone/css-decls" + "pixdone/theme-ts" formats.
@@ -204,12 +204,12 @@ const buildBaseCss = async () => {
 
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --pxd-motion-instant: 0ms;
-    --pxd-motion-fast:    0ms;
-    --pxd-motion-base:    0ms;
-    --pxd-motion-slow:    0ms;
-    --pxd-motion-slower:  0ms;
-    --pxd-motion-reward:  0ms;
+    --pd-motion-instant: 0ms;
+    --pd-motion-fast:    0ms;
+    --pd-motion-base:    0ms;
+    --pd-motion-slow:    0ms;
+    --pd-motion-slower:  0ms;
+    --pd-motion-reward:  0ms;
   }
 }
 `;
