@@ -63,6 +63,19 @@ var ArcadeWorld = (function () {
     return positions;
   }
 
+  // Level → cabinet count (mirrors LEVEL_TABLE in useThemeStats.ts)
+  function getCabinetCount(level) {
+    if (level >= 4) return 6;
+    if (level >= 3) return 5;
+    if (level >= 2) return 3;
+    return 1;
+  }
+
+  // Generic "stops" = cabinet positions (used by WorldAgents).
+  function getStopPositions(level, canvasW) {
+    return getCabinetPositions(getCabinetCount(level), canvasW);
+  }
+
   // Cabinet draw size — SVG source is 45x66, scale down to match 32px agents
   var CAB_DRAW_W = 27;
   var CAB_DRAW_H = 40;
@@ -71,11 +84,11 @@ var ArcadeWorld = (function () {
    * Draw cabinets and agents. No background — canvas is transparent.
    * Ground = bottom edge of canvas (y = h).
    */
-  function draw(ctx, w, h, colors, cabinetCount, agents) {
+  function draw(ctx, w, h, colors, level, agents) {
     ctx.clearRect(0, 0, w, h);
 
     var groundY = h;
-
+    var cabinetCount = getCabinetCount(level);
     // — Cabinets (each slot uses a different SVG)
     var cabPositions = getCabinetPositions(cabinetCount, w);
     for (var c = 0; c < cabPositions.length; c++) {
@@ -114,6 +127,8 @@ var ArcadeWorld = (function () {
   return {
     preloadImages: preloadImages,
     getCabinetPositions: getCabinetPositions,
+    getCabinetCount: getCabinetCount,
+    getStopPositions: getStopPositions,
     draw: draw,
     CAB_DRAW_W: CAB_DRAW_W,
     CAB_DRAW_H: CAB_DRAW_H,

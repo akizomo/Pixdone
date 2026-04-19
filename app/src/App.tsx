@@ -1063,13 +1063,26 @@ function AppContent() {
             onAddButtonClick={handleTourAddButtonClick}
             pendingEditRequest={pendingEditRequest}
             onConsumePendingEditRequest={() => setPendingEditRequest(null)}
-            worldSlot={(
-              <WorldLayer
-                themeKey={visualTheme}
-                cabinetCount={(() => { const p = new URLSearchParams(window.location.search).get('wlv'); return p !== null ? [0,1,3,5,6][Math.min(Number(p),4)] ?? 0 : themeStats.cabinetCount; })()}
-                agentCount={(() => { const p = new URLSearchParams(window.location.search).get('wagent'); return p !== null ? Number(p) : worldAgentCount; })()}
-              />
-            )}
+            worldSlot={(() => {
+              // Non-subscribers viewing the premium forestbit world see a static Lv1 scene.
+              const gated = visualTheme === 'forestbit' && !isPremium;
+              const params = new URLSearchParams(window.location.search);
+              const lvParam = params.get('wlv');
+              const agentParam = params.get('wagent');
+              const level = lvParam !== null
+                ? Math.max(0, Math.min(Number(lvParam), 4))
+                : (gated ? 1 : themeStats.level);
+              const agentCount = agentParam !== null
+                ? Number(agentParam)
+                : (gated ? 0 : worldAgentCount);
+              return (
+                <WorldLayer
+                  themeKey={visualTheme}
+                  level={level}
+                  agentCount={agentCount}
+                />
+              );
+            })()}
           />
         )}
       </main>

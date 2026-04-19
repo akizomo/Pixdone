@@ -9,50 +9,60 @@ declare const WorldEngine: {
   };
   setupCanvas: (canvas: HTMLCanvasElement, w: number, h: number) => CanvasRenderingContext2D;
 };
-declare const ArcadeWorld: {
+interface WorldModule {
   preloadImages: (onReady?: () => void) => void;
-  getCabinetPositions: (count: number, canvasW: number) => number[];
+  getStopPositions: (level: number, canvasW: number) => number[];
   draw: (
     ctx: CanvasRenderingContext2D, w: number, h: number,
     colors: { wall: string; floor: string; trim: string; bitBody: string; bitEye: string },
-    cabinetCount: number,
+    level: number,
     agents: Array<{ x: number; frame: number; facingLeft: boolean }>,
   ) => void;
-};
-declare const ArcadeAgents: {
+}
+declare const ArcadeWorld: WorldModule;
+declare const ForestBitWorld: WorldModule;
+declare const WorldAgents: {
   createAgents: (count: number, positions: number[]) => any[];
-  update: (agents: any[], positions: number[], dt: number) => void;
+  update: (agents: any[], positions: number[], dt: number, canvasW?: number) => void;
   getRenderData: (agents: any[]) => Array<{ x: number; frame: number; facingLeft: boolean }>;
 };
 
 interface WorldLayerProps {
   themeKey: ThemeKey;
-  cabinetCount: number;
+  level: number;
   agentCount: number;
 }
 
-export function WorldLayer({ themeKey, cabinetCount, agentCount }: WorldLayerProps) {
+function resolveWorld(themeKey: ThemeKey): { module: WorldModule; colorPrefix: string } | null {
+  if (themeKey === 'arcade') return { module: ArcadeWorld, colorPrefix: 'arcade' };
+  if (themeKey === 'forestbit') return { module: ForestBitWorld, colorPrefix: 'forestbit' };
+  return null;
+}
+
+export function WorldLayer({ themeKey, level, agentCount }: WorldLayerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const agentsRef = useRef<any[]>([]);
   const prevTimeRef = useRef<number>(0);
-  const isArcade = themeKey === 'arcade';
+
+  const world = resolveWorld(themeKey);
 
   // Rebuild agents when counts change
   const rebuildAgents = useCallback((canvasW: number) => {
-    const positions = ArcadeWorld.getCabinetPositions(cabinetCount, canvasW);
-    agentsRef.current = ArcadeAgents.createAgents(agentCount, positions);
-  }, [cabinetCount, agentCount]);
+    if (!world) return;
+    const positions = world.module.getStopPositions(level, canvasW);
+    agentsRef.current = WorldAgents.createAgents(agentCount, positions);
+  }, [world, level, agentCount]);
 
   useEffect(() => {
-    if (!isArcade) return;
+    if (!world) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     let running = true;
 
-    ArcadeWorld.preloadImages(() => {
+    world.module.preloadImages(() => {
       if (!running) return;
 
       const rect = canvas.getBoundingClientRect();
@@ -77,14 +87,14 @@ export function WorldLayer({ themeKey, cabinetCount, agentCount }: WorldLayerPro
         prevTimeRef.current = now;
 
         // Update agent state machines
-        const positions = ArcadeWorld.getCabinetPositions(cabinetCount, w);
-        ArcadeAgents.update(agentsRef.current, positions, dt);
+        const positions = world.module.getStopPositions(level, w);
+        WorldAgents.update(agentsRef.current, positions, dt, w);
 
         // Draw
         const ctx = WorldEngine.setupCanvas(canvas, w, h);
-        const colors = WorldEngine.getWorldColors('arcade');
-        const renderData = ArcadeAgents.getRenderData(agentsRef.current);
-        ArcadeWorld.draw(ctx, w, h, colors, cabinetCount, renderData);
+        const colors = WorldEngine.getWorldColors(world.colorPrefix);
+        const renderData = WorldAgents.getRenderData(agentsRef.current);
+        world.module.draw(ctx, w, h, colors, level, renderData);
 
         rafRef.current = requestAnimationFrame(loop);
       };
@@ -106,9 +116,11 @@ export function WorldLayer({ themeKey, cabinetCount, agentCount }: WorldLayerPro
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener('resize', onResize);
     };
-  }, [isArcade, cabinetCount, agentCount, rebuildAgents]);
+  }, [world, level, agentCount, rebuildAgents]);
 
-  if (!isArcade || (cabinetCount === 0 && agentCount === 0)) return null;
+  if (!world) return null;
+  if (level <= 0 && agentCount === 0) return null;
 
-  return <canvas ref={canvasRef} className="pd-world-canvas" />;
+  const themeClass = themeKey === 'forestbit' ? 'pd-world-canvas--forestbit' : '';
+  return <canvas ref={canvasRef} className={['pd-world-canvas', themeClass].filter(Boolean).join(' ')} />;
 }

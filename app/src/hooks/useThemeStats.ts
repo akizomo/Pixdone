@@ -3,29 +3,24 @@ import { useAuth } from '../contexts/AuthContext';
 import { useFirestoreCounter } from './useFirestoreCounter';
 import type { ThemeKey } from '../design-system/themes/themeRegistry';
 
-// Lv thresholds and cabinet counts
-const LEVEL_TABLE = [
-  { minTasks: 0,   level: 1, cabinetCount: 1 },  // Fighter
-  { minTasks: 50,  level: 2, cabinetCount: 3 },  // +Shooter, Maze
-  { minTasks: 100, level: 3, cabinetCount: 5 },  // +Platformer, Racing
-  { minTasks: 150, level: 4, cabinetCount: 6 },  // +Mystery
-];
+// Lv thresholds — shared across all theme worlds. Each theme's draw module
+// maps `level` to its own composition (cabinet count, tree count, etc.).
+const LEVEL_THRESHOLDS = [0, 50, 100, 150];
 
 export interface ThemeStats {
   tasksCompleted: number;
   level: number;
-  cabinetCount: number;
 }
 
 function deriveStats(tasksCompleted: number): ThemeStats {
-  let entry = LEVEL_TABLE[0];
-  for (let i = LEVEL_TABLE.length - 1; i >= 0; i--) {
-    if (tasksCompleted >= LEVEL_TABLE[i].minTasks) {
-      entry = LEVEL_TABLE[i];
+  let level = 1;
+  for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (tasksCompleted >= LEVEL_THRESHOLDS[i]) {
+      level = i + 1;
       break;
     }
   }
-  return { tasksCompleted, level: entry.level, cabinetCount: entry.cabinetCount };
+  return { tasksCompleted, level };
 }
 
 export function useThemeStats(themeKey: ThemeKey) {
