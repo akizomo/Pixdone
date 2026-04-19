@@ -45,7 +45,7 @@ export function SidePanel({
   const navItem = (
     key: string,
     label: string,
-    icon: string,
+    icon: string | { emoji: string },
     count?: number,
   ) => {
     const isActive = activeView === key;
@@ -56,7 +56,11 @@ export function SidePanel({
         className={`pd-sidebar__item${isActive ? ' pd-sidebar__item--active' : ''}`}
         onClick={() => { playSound('buttonClick'); onSelectView(key); }}
       >
-        <PixelIcon name={icon} size="16px" />
+        {typeof icon === 'string' ? (
+          <PixelIcon name={icon} size="16px" />
+        ) : (
+          <span className="pd-sidebar__item-emoji" aria-hidden="true">{icon.emoji}</span>
+        )}
         <span className="pd-sidebar__item-label">{label}</span>
         {count !== undefined && count > 0 && (
           <span className="pd-sidebar__item-count">{count}</span>
@@ -90,7 +94,7 @@ export function SidePanel({
       <div className="pd-sidebar__section">
         {navItem('today', lang === 'ja' ? '今日' : 'Today', 'calendar_today', todayCount)}
         {navItem('plan', 'Plan', 'format_list_bulleted', planCount)}
-        {smashList && navItem('smash', '💥 Smash', 'close')}
+        {smashList && navItem('smash', 'Smash', { emoji: '💥' })}
       </div>
 
       {/* Lists */}

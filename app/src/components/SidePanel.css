@@ -168,6 +168,18 @@
   white-space: nowrap;
 }
 
+/* Emoji icon slot: matches the 16px PixelIcon visual footprint so items align. */
+.pd-sidebar__item-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .pd-sidebar__item {
     transition: background 200ms ease, color 200ms ease;
