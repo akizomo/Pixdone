@@ -118,6 +118,27 @@ export function getNextDueDate(config: RepeatConfig, from: Date = new Date()): s
   return `${yyyy}-${mm}-${dd}`;
 }
 
+/**
+ * Like `getNextDueDate`, but skips any occurrences on or before `afterYmd`
+ * (YYYY-MM-DD). Used when completing an overdue repeating task so the next
+ * due date is always in the future — otherwise the midnight reset revives
+ * the task for every missed day in the backlog.
+ */
+export function getNextDueDateAfter(
+  config: RepeatConfig,
+  from: Date,
+  afterYmd: string,
+): string {
+  let next = getNextDueDate(config, from);
+  if (!hasActiveRepeat(config)) return next;
+  let safety = 400;
+  while (next <= afterYmd && safety-- > 0) {
+    const [y, m, d] = next.split('-').map(Number);
+    next = getNextDueDate(config, new Date(y, m - 1, d));
+  }
+  return next;
+}
+
 /** Check if a repeating task should be considered active (i.e. not 'none'). */
 export function hasActiveRepeat(config: RepeatConfig | undefined): boolean {
   if (!config) return false;

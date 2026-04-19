@@ -18,7 +18,7 @@ import type { Task, Subtask } from '../types/task';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
-import { hasActiveRepeat, getNextDueDate } from '../lib/repeat';
+import { hasActiveRepeat, getNextDueDateAfter } from '../lib/repeat';
 
 /* Legacy localStorage keys — the pre-login experience is now the LandingPage, so the
  * guest "My Tasks" flow no longer runs. Keys are kept here only so callers can purge
@@ -708,9 +708,12 @@ export function useLists() {
     const isSmashTask = task?.listId === 'smash-list';
     const isRepeating = task && hasActiveRepeat(task.repeat);
 
-    // For repeating tasks, calculate the next due date from the current due date (or today).
+    // For repeating tasks, advance the due date past today so an overdue task
+    // doesn't resurrect once per missed day (midnight reset uses dueDate ≤ today).
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const nextDueDate = isRepeating
-      ? getNextDueDate(task.repeat!, task.dueDate ? new Date(task.dueDate) : new Date())
+      ? getNextDueDateAfter(task.repeat!, task.dueDate ? new Date(task.dueDate) : now, todayStr)
       : null;
 
     setLists((prev) =>
