@@ -32,7 +32,6 @@ interface ChallengeMenuProps {
   onPreviewEffect?: (effectKey: string) => void;
 }
 
-const AUTO_SHOW_KEY = 'pd-challenge-auto-shown';
 const COMPLETED_SEEN_KEY = 'pd-challenge-completed-seen';
 
 export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMenuProps) {
@@ -71,19 +70,6 @@ export function ChallengeMenu({ challenge, lang, onPreviewEffect }: ChallengeMen
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, []);
-
-  // Auto-show once per challenge for logged-in users
-  useEffect(() => {
-    if (!challenge || challenge.isCompleted) return;
-    const storageKey = `${AUTO_SHOW_KEY}-${challenge.effect.key}`;
-    try {
-      if (localStorage.getItem(storageKey)) return;
-      localStorage.setItem(storageKey, '1');
-    } catch (_) { return; }
-    // Small delay so the UI has settled after login/mount
-    const timer = setTimeout(() => setOpen(true), 600);
-    return () => clearTimeout(timer);
-  }, [challenge?.effect.key, challenge?.isCompleted]);
 
   if (!challenge) return null;
 

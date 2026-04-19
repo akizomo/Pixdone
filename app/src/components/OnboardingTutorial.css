@@ -612,6 +612,116 @@
   width: 100%;
 }
 
+/* ── Challenge preview cards (final smash dialogue) ───────────────────── */
+
+.pd-onboarding__challenge-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pxd-space-2, 8px);
+  width: 100%;
+  max-width: 360px;
+  margin: var(--pxd-space-3, 12px) auto 0;
+  padding: 0 var(--pxd-space-3, 12px);
+  animation: onboarding-card-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes onboarding-card-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pd-onboarding__challenge-card {
+  display: flex;
+  align-items: stretch;
+  gap: var(--pxd-space-2, 8px);
+  padding: var(--pxd-space-2, 8px);
+  background: var(--pd-color-background-elevated);
+  border: 2px solid var(--pd-color-border-default);
+  box-shadow: 2px 2px 0 var(--pd-color-shadow-default);
+  image-rendering: pixelated;
+}
+
+.pd-onboarding__challenge-card-media {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pd-color-background-default);
+  border: 1px solid var(--pd-color-border-default);
+  overflow: hidden;
+}
+
+.pd-onboarding__challenge-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.pd-onboarding__challenge-card-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pd-onboarding__challenge-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--pxd-space-1, 4px);
+}
+
+.pd-onboarding__challenge-card-name {
+  font-family: var(--pd-font-brand);
+  font-size: 0.85rem;
+  color: var(--pd-color-text-primary);
+  line-height: 1.2;
+}
+
+.pd-onboarding__challenge-card-rarity {
+  font-family: var(--pd-font-brand);
+  font-size: 0.55rem;
+  letter-spacing: 1px;
+  padding: 1px 5px;
+  border: 1px solid var(--pd-color-border-default);
+  color: var(--pd-color-text-secondary);
+}
+
+.pd-onboarding__challenge-card-desc {
+  margin: 0;
+  font-family: var(--pd-font-body);
+  font-size: 0.7rem;
+  line-height: 1.3;
+  color: var(--pd-color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pd-onboarding__challenge-card-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--pxd-space-2, 8px);
+  margin-top: 2px;
+  font-family: var(--pd-font-body);
+  font-size: 0.65rem;
+  color: var(--pd-color-text-muted);
+}
+
+/* Small print under the primary CTA: trial terms / renewal price */
+.pd-onboarding__trial-note {
+  margin: calc(var(--pxd-space-1) * -1) 0 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pxd-font-size-xs, 0.75rem);
+  line-height: 1.4;
+  color: var(--pd-color-text-muted);
+  text-align: center;
+}
+
 /* Billing cycle toggle (Monthly / Yearly) above the Try PixDone+ button */
 
 .pd-onboarding__cycle-toggle {

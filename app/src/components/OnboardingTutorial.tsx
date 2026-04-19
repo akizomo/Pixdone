@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ThemeKey } from '../design-system/themes/themeRegistry';
 import { Button, PixelIcon } from '../design-system';
 import { AgentIcon } from './AgentIcon';
@@ -8,10 +8,16 @@ import { runVanillaCompletionEffect } from '../services/taskAnimations';
 import {
   buildTutorialDrawPool,
   weightedRandomEffect,
+  EFFECTS_REGISTRY,
   type EffectDef,
 } from '../data/effectsRegistry';
 import { playSound } from '../services/sound';
 import './OnboardingTutorial.css';
+
+/** Map effect key → preview GIF path (kept in sync with ChallengeMenu). */
+const CHALLENGE_PREVIEW_GIF: Record<string, string> = {
+  fighter: '/fighter-punch.gif',
+};
 
 type Step = 'splash' | 'intro' | 'smash' | 'upgrade' | 'firstTask';
 
@@ -192,6 +198,19 @@ export function OnboardingTutorial({
 
   const smashComplete = step === 'smash' && smashCount >= DUMMY_TASKS.length;
 
+  // Currently-active challenges (non-expired, non-owned). Shown as compact cards
+  // below the dialogue on the final smash dialogue ("Complete monthly challenges...").
+  const activeChallenges = useMemo<EffectDef[]>(() => {
+    const now = Date.now();
+    return EFFECTS_REGISTRY.filter(
+      (e) =>
+        e.access === 'challenge' &&
+        e.challengeDeadline &&
+        e.challengeUnlockThreshold &&
+        e.challengeDeadline.getTime() > now,
+    );
+  }, []);
+
   const handleTap = useCallback(() => {
     // First tap while typing → complete the text instead of advancing
     if (typedChars < dialogueText.length) {
@@ -278,56 +297,54 @@ export function OnboardingTutorial({
             ))}
           </ul>
           <div className="pd-onboarding__panel-buttons">
-            {isPremium ? (
-              <Button variant="primary" size="lg" fullWidth onClick={handleLaterOnUpgrade} soundKey="buttonClick">
-                Next
-              </Button>
-            ) : (
-              <>
-                <div
-                  className="pd-onboarding__cycle-toggle"
-                  role="radiogroup"
-                  aria-label="Billing cycle"
-                >
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={billingCycle === 'monthly'}
-                    className="pd-onboarding__cycle-option"
-                    data-selected={billingCycle === 'monthly'}
-                    onClick={() => { playSound('buttonClick'); setBillingCycle('monthly'); }}
-                  >
-                    <span className="pd-onboarding__cycle-label">Monthly</span>
-                    <span className="pd-onboarding__cycle-price">¥600<small>/mo</small></span>
-                  </button>
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={billingCycle === 'yearly'}
-                    className="pd-onboarding__cycle-option"
-                    data-selected={billingCycle === 'yearly'}
-                    onClick={() => { playSound('buttonClick'); setBillingCycle('yearly'); }}
-                  >
-                    <span className="pd-onboarding__cycle-badge" aria-hidden="true">SAVE 17%</span>
-                    <span className="pd-onboarding__cycle-label">Yearly</span>
-                    <span className="pd-onboarding__cycle-price">¥500<small>/mo</small></span>
-                  </button>
-                </div>
-                <Button
-                  variant="primary"
-                  size="lg"
-                  fullWidth
-                  loading={isUpgrading}
-                  onClick={handleUpgradeClick}
-                  soundKey="taskComplete"
-                >
-                  Try PixDone+
-                </Button>
-                <Button variant="ghost" size="md" fullWidth onClick={handleLaterOnUpgrade} soundKey="taskCancel">
-                  Later
-                </Button>
-              </>
-            )}
+            <div
+              className="pd-onboarding__cycle-toggle"
+              role="radiogroup"
+              aria-label="Billing cycle"
+            >
+              <button
+                type="button"
+                role="radio"
+                aria-checked={billingCycle === 'monthly'}
+                className="pd-onboarding__cycle-option"
+                data-selected={billingCycle === 'monthly'}
+                onClick={() => { playSound('buttonClick'); setBillingCycle('monthly'); }}
+              >
+                <span className="pd-onboarding__cycle-label">Monthly</span>
+                <span className="pd-onboarding__cycle-price">¥600<small>/mo</small></span>
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={billingCycle === 'yearly'}
+                className="pd-onboarding__cycle-option"
+                data-selected={billingCycle === 'yearly'}
+                onClick={() => { playSound('buttonClick'); setBillingCycle('yearly'); }}
+              >
+                <span className="pd-onboarding__cycle-badge" aria-hidden="true">SAVE 17%</span>
+                <span className="pd-onboarding__cycle-label">Yearly</span>
+                <span className="pd-onboarding__cycle-price">¥500<small>/mo</small></span>
+              </button>
+            </div>
+            <Button
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={isUpgrading}
+              onClick={handleUpgradeClick}
+              soundKey="taskComplete"
+              disabled={isPremium}
+            >
+              {isPremium ? 'You’re already PixDone+' : 'Start 7-day free trial'}
+            </Button>
+            <p className="pd-onboarding__trial-note">
+              {isPremium
+                ? 'Tap Later to continue.'
+                : 'Free for 7 days, then ¥600/mo (or ¥500/mo on yearly). Cancel anytime.'}
+            </p>
+            <Button variant="ghost" size="md" fullWidth onClick={handleLaterOnUpgrade} soundKey="taskCancel">
+              Later
+            </Button>
           </div>
         </div>
       </div>
@@ -489,6 +506,50 @@ export function OnboardingTutorial({
                   );
                 });
               })()}
+            </div>
+          )}
+
+          {/* Once all 3 tutorial smashes are done, the last dialogue line is
+              "Complete monthly challenges to unlock more." — show compact
+              preview cards for each currently-active challenge effect. */}
+          {smashComplete && activeChallenges.length > 0 && (
+            <div
+              className="pd-onboarding__challenge-cards"
+              aria-label="Active monthly challenges"
+            >
+              {activeChallenges.map((effect) => {
+                const gif = CHALLENGE_PREVIEW_GIF[effect.key];
+                const deadlineText = effect.challengeDeadline
+                  ? effect.challengeDeadline.toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  : '';
+                return (
+                  <div key={effect.key} className="pd-onboarding__challenge-card">
+                    <div className="pd-onboarding__challenge-card-media" aria-hidden="true">
+                      {gif ? (
+                        <img src={gif} alt="" />
+                      ) : (
+                        <PixelIcon name="emoji_events" size="24px" />
+                      )}
+                    </div>
+                    <div className="pd-onboarding__challenge-card-body">
+                      <div className="pd-onboarding__challenge-card-head">
+                        <span className="pd-onboarding__challenge-card-name">{effect.name}</span>
+                        <span className="pd-onboarding__challenge-card-rarity">{effect.rarity}</span>
+                      </div>
+                      <p className="pd-onboarding__challenge-card-desc">
+                        {effect.description.en}
+                      </p>
+                      <div className="pd-onboarding__challenge-card-meta">
+                        <span>Complete {effect.challengeUnlockThreshold} tasks</span>
+                        {deadlineText && <span>~{deadlineText}</span>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
 
