@@ -54,7 +54,7 @@ export interface TasksScreenProps {
 
 export function TasksScreen({
   lang,
-  user,
+  // `user` is accepted for API symmetry but not referenced — inbox label is now driven by `kind`.
   isDesktop,
   hasFinePointer,
   onComplete,

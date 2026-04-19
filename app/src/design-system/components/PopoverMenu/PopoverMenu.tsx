@@ -100,7 +100,9 @@ export function PopoverMenu(props: PopoverMenuProps) {
     onOpenChange: (open) => {
       if (!open) onClose();
     },
-    elements: { reference: reference ?? undefined },
+    // Cast: Floating UI's runtime accepts VirtualElement here, but its TS signature
+    // for `elements.reference` narrows to `Element | null`.
+    elements: { reference: (reference ?? undefined) as Element | undefined },
     middleware: isAnchored
       ? [
           floatingOffset(4),

@@ -375,12 +375,6 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
   // "Add a subtask" text button (not chip), and Cancel/Save in a bottom bar.
   if (mobile && task) {
     const selectedListName = availableLists?.find((l) => l.id === selectedListId)?.name ?? '';
-    const priorityItems: Array<{ value: Task['priority']; key: string; icon: string | null; iconClass: string }> = [
-      { value: undefined, key: 'priorityNone', icon: null, iconClass: '' },
-      { value: 'high', key: 'priorityHigh', icon: 'arrow_upward', iconClass: 'pd-task-form__priority-icon--high' },
-      { value: 'medium', key: 'priorityMedium', icon: 'remove', iconClass: 'pd-task-form__priority-icon--medium' },
-      { value: 'low', key: 'priorityLow', icon: 'arrow_downward', iconClass: 'pd-task-form__priority-icon--low' },
-    ];
     return (
       <div className="pd-task-form pd-task-form--edit">
         {/* Hidden native date picker — triggered by the "Pick date" menu item. */}
@@ -580,12 +574,6 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
   // ── Mobile compact (Todoist-style) layout ────────────────────────────────
   if (mobile) {
     const selectedListName = availableLists?.find((l) => l.id === selectedListId)?.name ?? '';
-    const priorityItems: Array<{ value: Task['priority']; key: string; icon: string | null; iconClass: string }> = [
-      { value: undefined, key: 'priorityNone', icon: null, iconClass: '' },
-      { value: 'high', key: 'priorityHigh', icon: 'arrow_upward', iconClass: 'pd-task-form__priority-icon--high' },
-      { value: 'medium', key: 'priorityMedium', icon: 'remove', iconClass: 'pd-task-form__priority-icon--medium' },
-      { value: 'low', key: 'priorityLow', icon: 'arrow_downward', iconClass: 'pd-task-form__priority-icon--low' },
-    ];
     return (
       <div className="pd-task-form pd-task-form--compact">
         {/* Top-right delete (edit mode only) */}

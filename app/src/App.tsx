@@ -1291,7 +1291,6 @@ function AppContent() {
             addTask(listId, fields);
             trackTaskComplete({
               list_type: 'custom',
-              has_due_date: !!fields.dueDate,
               is_repeat: !!fields.repeat,
               has_subtasks: (fields.subtasks?.length ?? 0) > 0,
             });
