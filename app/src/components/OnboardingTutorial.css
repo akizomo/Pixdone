@@ -203,12 +203,18 @@
   50% { opacity: 0; }
 }
 
-/* Main area */
+/* Main area — flex + center so agents + task stack share the vertical
+   midline of the content area at ANY viewport height. Previously this was
+   `display: block` with the task stack pinned to `bottom: 0`, which caused
+   the agents (top of main) and tasks (bottom of main) to drift apart on
+   tall screens. */
 
 .pd-onboarding__main {
   flex: 1;
   width: 100%;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   min-height: 240px;
 }
@@ -356,8 +362,7 @@
 
 .pd-onboarding__task-stack {
   position: absolute;
-  bottom: 0; /* pin to main's bottom so bubble height changes don't shift it */
-  top: auto;
+  top: 50%; /* vertically centred in main — matches agents cluster's row */
   left: 50%;
   width: 240px;
   max-width: 90vw;
@@ -368,13 +373,15 @@
 }
 
 /* Panel 0 (wriggle) and smash (list): centred.
-   Panel 1 (pile): shifts right so agents get the left half. */
+   Panel 1 (pile): shifts right so agents get the left half.
+   Both variants subtract 50% on the Y axis so the stack stays vertically
+   aligned with the agents cluster regardless of content height. */
 .pd-onboarding__task-stack[data-mode="wriggle"],
 .pd-onboarding__task-stack[data-mode="list"] {
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 }
 .pd-onboarding__task-stack[data-mode="pile"] {
-  transform: translateX(0);
+  transform: translate(0, -50%);
 }
 
 /* Pile modes are decorative; taps advance via the overlay handler. */
