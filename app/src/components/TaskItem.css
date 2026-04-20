@@ -201,3 +201,28 @@
   font-size: 11px;
   line-height: 1;
 }
+
+/* List-name tag — pushed to the right edge of the meta row */
+.task-item__list-tag {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pd-space-1);
+  max-width: 50%;
+  color: var(--pd-color-text-muted);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  line-height: 1;
+}
+
+.task-item__list-tag-icon {
+  font-size: 11px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.task-item__list-tag-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

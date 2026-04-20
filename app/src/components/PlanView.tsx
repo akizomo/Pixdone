@@ -37,6 +37,7 @@ interface SectionProps {
   /** Drag-and-drop: section key for drop target */
   sectionKey: string;
   onDrop?: (taskId: string, sectionKey: string) => void;
+  listNameById: Map<string, string>;
 }
 
 function PlanSection({
@@ -48,6 +49,7 @@ function PlanSection({
   initialLimit,
   sectionKey,
   onDrop,
+  listNameById,
 }: SectionProps) {
   const [expanded, setExpanded] = useState(false);
   const hasLimit = initialLimit !== undefined && tasks.length > initialLimit;
@@ -91,6 +93,7 @@ function PlanSection({
               lang={lang}
               onComplete={onComplete}
               onEdit={onEdit}
+              listName={listNameById.get(task.listId)}
             />
           </div>
         ))}
@@ -121,6 +124,7 @@ export function PlanView({
   isOnboardingTour,
 }: PlanViewProps) {
   const plan = usePlanView(lists);
+  const listNameById = new Map(lists.map((l) => [l.id, l.name]));
   const [isAdding, setIsAdding] = useState(false);
 
   const lastConsumedNonce = useRef(autoOpenAddTaskNonce ?? 0);
@@ -222,6 +226,7 @@ export function PlanView({
           onEdit={onEdit}
           initialLimit={s.limit}
           onDrop={handleDrop}
+          listNameById={listNameById}
         />
       ))}
     </div>

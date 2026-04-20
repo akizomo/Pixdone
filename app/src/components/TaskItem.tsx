@@ -26,6 +26,8 @@ export interface TaskItemProps {
   onTutorialFocusLinkClick?: () => void;
   onTutorialChallengeLinkClick?: () => void;
   titleSlot?: ReactNode;
+  /** Name of the task's parent list. When provided, shown at the bottom-right of the card. */
+  listName?: string;
 }
 
 const TUTORIAL_KEYS: Record<string, string> = {
@@ -51,6 +53,7 @@ export const TaskItem = memo(function TaskItem({
   onTutorialFocusLinkClick,
   onTutorialChallengeLinkClick,
   titleSlot,
+  listName,
 }: TaskItemProps) {
   const [showMoveMenu, setShowMoveMenu] = useState(false);
   const displayTitle = TUTORIAL_KEYS[task.id] ? t(TUTORIAL_KEYS[task.id], lang) : task.title;
@@ -196,8 +199,8 @@ export const TaskItem = memo(function TaskItem({
           </div>
         )}
 
-        {/* Meta row: priority, due date, repeat, subtask count */}
-        {(task.priority || dueLabel || repeatLabel || subtasks.length > 0) && (
+        {/* Meta row: priority, due date, repeat, subtask count, list name (right) */}
+        {(task.priority || dueLabel || repeatLabel || subtasks.length > 0 || listName) && (
           <div className="task-item__meta">
             {task.priority && (
               <span
@@ -229,6 +232,12 @@ export const TaskItem = memo(function TaskItem({
               >
                 ☑ {doneCount}/{subtasks.length}
               </Badge>
+            )}
+            {listName && (
+              <span className="task-item__list-tag" title={listName}>
+                <PixelIcon name="format_list_bulleted" className="task-item__list-tag-icon" />
+                <span className="task-item__list-tag-text">{listName}</span>
+              </span>
             )}
           </div>
         )}

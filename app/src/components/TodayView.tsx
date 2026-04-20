@@ -35,6 +35,7 @@ export function TodayView({
   isOnboardingTour,
 }: TodayViewProps) {
   const tasks = useTodayView(lists);
+  const listNameById = new Map(lists.map((l) => [l.id, l.name]));
   const [isAdding, setIsAdding] = useState(false);
 
   const lastConsumedNonce = useRef(autoOpenAddTaskNonce ?? 0);
@@ -92,6 +93,7 @@ export function TodayView({
               lang={lang}
               onComplete={onComplete}
               onEdit={onEdit}
+              listName={listNameById.get(task.listId)}
             />
           ))}
         </div>
