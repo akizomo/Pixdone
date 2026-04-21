@@ -15,3 +15,9 @@
   height: 100%;
   display: block;
 }
+
+/* Semantic sizes — used by sibling DS components that want a consistent
+ * icon scale (e.g. Chip passes 'sm' to nested PixelIcons via context). */
+.pxd-pixel-icon--sm { font-size: 14px; }
+.pxd-pixel-icon--md { font-size: 20px; }
+.pxd-pixel-icon--lg { font-size: 28px; }

@@ -1,5 +1,16 @@
-import { type CSSProperties, memo } from 'react';
+import { createContext, useContext, type CSSProperties, memo } from 'react';
 import './PixelIcon.css';
+
+/** Semantic icon sizes. 'sm' = 14px, 'md' = 20px, 'lg' = 28px. */
+export type PixelIconSize = 'sm' | 'md' | 'lg';
+
+/**
+ * Propagates a default icon size to descendant PixelIcons. Wrap a region of
+ * your UI (e.g. Chip) in `<PixelIconSizeContext.Provider value="sm">` so
+ * nested PixelIcons without an explicit `size` pick it up. An explicit
+ * `size` prop on PixelIcon always wins over the context value.
+ */
+export const PixelIconSizeContext = createContext<PixelIconSize | undefined>(undefined);
 
 // Import all needed pixelarticons as raw SVG strings.
 // Vite's `?raw` suffix returns the file contents as a string.
@@ -20,7 +31,18 @@ const closeSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
   'M17 5h2v2h-2zM15 7h2v2h-2zM13 9h2v2h-2zM9 13h2v2H9zM7 15h2v2H7zM5 17h2v2H5z"/></svg>';
 import contentCopySvg from 'pixelarticons/svg/copy.svg?raw';
 import darkModeSvg from 'pixelarticons/svg/moon.svg?raw';
-import deleteSvg from 'pixelarticons/svg/delete.svg?raw';
+// pixelarticons/delete.svg is a "Delete-key" glyph (box with X), not a bin.
+// Inline a classic pixel-art trash can: handle, lid, body with two vertical
+// stripes, matching the 24×24 / 2px-block grid style of the other icons.
+const deleteSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">' +
+  '<path d="M10 3h4v2h-4z"/>' +
+  '<path d="M2 5h20v2H2z"/>' +
+  '<path d="M4 7h16v2H4z"/>' +
+  '<path d="M4 9h2v12H4z"/>' +
+  '<path d="M9 9h2v10H9z"/>' +
+  '<path d="M13 9h2v10h-2z"/>' +
+  '<path d="M18 9h2v12h-2z"/>' +
+  '<path d="M4 21h16v2H4z"/></svg>';
 import desktopWindowsSvg from 'pixelarticons/svg/monitor.svg?raw';
 import driveFileMoveParens from 'pixelarticons/svg/folder.svg?raw';
 import editSvg from 'pixelarticons/svg/pen-square.svg?raw';
@@ -120,11 +142,22 @@ const ICON_MAP: Record<string, string> = {
 export interface PixelIconProps {
   /** Material Icons name (e.g. "close", "delete") */
   name: string;
-  /** CSS font-size style — controls the icon size (default: 1em, inherits parent) */
-  size?: string | number;
+  /**
+   * Semantic size ('sm' | 'md' | 'lg') or a raw CSS length. Semantic values
+   * add a modifier class (`pxd-pixel-icon--sm` etc.); raw values set inline
+   * `font-size`. When omitted, the icon picks up `PixelIconSizeContext` (or
+   * falls back to parent `font-size` via 1em).
+   */
+  size?: PixelIconSize | string | number;
   className?: string;
   style?: CSSProperties;
   'aria-hidden'?: boolean | 'true' | 'false';
+}
+
+const SEMANTIC_SIZES = new Set<PixelIconSize>(['sm', 'md', 'lg']);
+
+function isSemanticSize(size: unknown): size is PixelIconSize {
+  return typeof size === 'string' && SEMANTIC_SIZES.has(size as PixelIconSize);
 }
 
 /**
@@ -138,6 +171,9 @@ export const PixelIcon = memo(function PixelIcon({
   style,
   'aria-hidden': ariaHidden,
 }: PixelIconProps) {
+  const contextSize = useContext(PixelIconSizeContext);
+  const effectiveSize = size ?? contextSize;
+
   const raw = ICON_MAP[name];
   if (!raw) {
     if (import.meta.env.DEV) {
@@ -146,14 +182,30 @@ export const PixelIcon = memo(function PixelIcon({
     return null;
   }
 
+  const isSemantic = isSemanticSize(effectiveSize);
+  const inlineSize =
+    effectiveSize != null && !isSemantic
+      ? typeof effectiveSize === 'number'
+        ? `${effectiveSize}px`
+        : effectiveSize
+      : undefined;
+
   const mergedStyle: CSSProperties = {
     ...style,
-    ...(size != null ? { fontSize: typeof size === 'number' ? `${size}px` : size } : {}),
+    ...(inlineSize ? { fontSize: inlineSize } : {}),
   };
+
+  const classes = [
+    'pxd-pixel-icon',
+    isSemantic ? `pxd-pixel-icon--${effectiveSize}` : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <span
-      className={`pxd-pixel-icon${className ? ` ${className}` : ''}`}
+      className={classes}
       style={mergedStyle}
       aria-hidden={ariaHidden ?? true}
       dangerouslySetInnerHTML={{ __html: raw }}

@@ -1,4 +1,5 @@
 import { playSound } from '../../../services/sound';
+import { PixelIconSizeContext } from '../PixelIcon/PixelIcon';
 import type { ChipProps } from './Chip.types';
 import './Chip.css';
 
@@ -36,24 +37,26 @@ export function Chip({
     .join(' ');
 
   return (
-    <span
-      role={selected ? 'option' : undefined}
-      aria-selected={selected ? true : undefined}
-      className={classes}
-      onClick={(e) => { playSound('buttonClick'); onClick?.(e); }}
-      {...rest}
-    >
-      {children}
-      {removable && (
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); playSound('taskCancel'); onRemove?.(); }}
-          className="pxd-chip__remove"
-          aria-label="Remove"
-        >
-          ×
-        </button>
-      )}
-    </span>
+    <PixelIconSizeContext.Provider value="sm">
+      <span
+        role={selected ? 'option' : undefined}
+        aria-selected={selected ? true : undefined}
+        className={classes}
+        onClick={(e) => { playSound('buttonClick'); onClick?.(e); }}
+        {...rest}
+      >
+        {children}
+        {removable && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); playSound('taskCancel'); onRemove?.(); }}
+            className="pxd-chip__remove"
+            aria-label="Remove"
+          >
+            ×
+          </button>
+        )}
+      </span>
+    </PixelIconSizeContext.Provider>
   );
 }
