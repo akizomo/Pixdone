@@ -23,7 +23,7 @@ import { initSoundEngine } from './services/soundEngine';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useThemeEntitlements } from './hooks/useThemeEntitlements';
 import { useEffectProgress, bumpPending } from './hooks/useEffectProgress';
-import { useActiveChallenge } from './hooks/useActiveChallenge';
+import { useActiveChallenges } from './hooks/useActiveChallenges';
 import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked, trackScreenView } from './services/analytics';
@@ -170,7 +170,7 @@ function AppContent() {
   /* ---- Sync user plan to vanilla effect engine ---- */
   const { plan: userPlan, isPremium } = useThemeEntitlements();
   const { progress: effectProgressMap, ownedChallengeEffects, challengeProgressMap, optimisticIncrement, flushPending } = useEffectProgress();
-  const activeChallenge = useActiveChallenge(challengeProgressMap, ownedChallengeEffects);
+  const activeChallenges = useActiveChallenges(challengeProgressMap, ownedChallengeEffects);
   useEffect(() => {
     const w = window as unknown as {
       taskAnimationEffects?: { comicEffects?: { setUserPlan: (plan: string) => void } };
@@ -520,35 +520,39 @@ function AppContent() {
     bumpPending();
     void flushPending();
 
-    // 2. Optimistic UI: only for active incomplete challenges
-    if (!activeChallenge || activeChallenge.isCompleted) return;
+    // 2. Optimistic UI + completion detection for ALL active incomplete challenges.
+    //    Multi-challenge support: iterate the full array so every in-progress
+    //    challenge updates its progress bar without a server round-trip.
+    for (const challenge of activeChallenges) {
+      if (challenge.isCompleted) continue;
 
-    optimisticIncrement(activeChallenge.effect.key, activeChallenge.threshold);
+      optimisticIncrement(challenge.effect.key, challenge.threshold);
 
-    // 3. Detect completion for UX (toast + analytics)
-    if (activeChallenge.progress + 1 >= activeChallenge.threshold) {
-      trackChallengeUnlocked({
-        challenge_id: activeChallenge.effect.key,
-        effect_id: activeChallenge.effect.key,
-        tasks_completed: activeChallenge.threshold,
-      });
-      const effectName = activeChallenge.effect.name;
-      showToast({
-        message: lang === 'ja'
-          ? `チャレンジ達成！「${effectName}」を獲得しました`
-          : `Challenge complete! You earned "${effectName}"`,
-        action: {
-          label: lang === 'ja' ? '確認' : 'VIEW',
-          onClick: () => {
-            setCollectionInitialTab('effects');
-            setCollectionInitialEffectKey(activeChallenge.effect.key);
-            setActiveScreen('collection');
+      if (challenge.progress + 1 >= challenge.threshold) {
+        trackChallengeUnlocked({
+          challenge_id: challenge.effect.key,
+          effect_id: challenge.effect.key,
+          tasks_completed: challenge.threshold,
+        });
+        const effectName = challenge.effect.name;
+        const effectKey = challenge.effect.key;
+        showToast({
+          message: lang === 'ja'
+            ? `チャレンジ達成！「${effectName}」を獲得しました`
+            : `Challenge complete! You earned "${effectName}"`,
+          action: {
+            label: lang === 'ja' ? '確認' : 'VIEW',
+            onClick: () => {
+              setCollectionInitialTab('effects');
+              setCollectionInitialEffectKey(effectKey);
+              setActiveScreen('collection');
+            },
           },
-        },
-        duration: 8000,
-      });
+          duration: 8000,
+        });
+      }
     }
-  }, [activeChallenge, optimisticIncrement, flushPending, showToast, lang]);
+  }, [activeChallenges, optimisticIncrement, flushPending, showToast, lang]);
 
   /* ---- Dev / QA: ?effect=<key> forces that effect on every task completion ---- */
   const forcedEffectKey = useMemo(() => {
@@ -806,10 +810,8 @@ function AppContent() {
             ) : (
               user && (
                 <ChallengeMenu
-                  challenge={activeChallenge}
+                  challenges={activeChallenges}
                   lang={lang}
-                  effectProgress={effectProgressMap}
-                  isPremium={isPremium}
                   onPreviewEffect={(effectKey) => {
                     setCollectionInitialTab('effects');
                     setCollectionInitialEffectKey(effectKey);
@@ -837,10 +839,8 @@ function AppContent() {
             {/* Desktop-only: Challenge button stays on the right */}
             {isDesktop && user && (
               <ChallengeMenu
-                challenge={activeChallenge}
+                challenges={activeChallenges}
                 lang={lang}
-                effectProgress={effectProgressMap}
-                isPremium={isPremium}
                 onPreviewEffect={(effectKey) => {
                   setCollectionInitialTab('effects');
                   setCollectionInitialEffectKey(effectKey);

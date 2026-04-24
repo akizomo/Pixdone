@@ -235,7 +235,6 @@ export function EffectsTab({
                 isEquipped={activeEffects.includes(effect.key)}
                 isPremium={isPremium}
                 ownedChallengeEffects={ownedChallengeEffects}
-                equippedLevel={effectProgressMap[effect.key]?.equippedLevel}
                 onClick={() => { playSound('buttonClick'); onSelect(effect.key); }}
               />
             ))}
