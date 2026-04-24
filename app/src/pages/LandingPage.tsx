@@ -77,7 +77,7 @@ function useInView(ref: React.RefObject<HTMLElement | null>, threshold = 0.5): b
 // Excluded: bomb / freeze / owlBlink / neonBigBang / rainbowSmash / neonWarp
 // — these repaint the background or look weird as static stills on a card.
 const SMASH_CARD_SHOT_POOL = [
-  'fighter', 'butterflyFly',
+  'fighter_punch', 'butterflyFly',
   'giantTreeGrow', 'fireflyBurst', 'chomp',
   'laserCutter', 'scanDrone', 'leafScatter', 'glitchSlide',
 ] as const;

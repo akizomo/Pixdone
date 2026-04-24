@@ -15,7 +15,11 @@ import {
 } from "../shared/schema.js";
 import { db } from "./db.js";
 import { eq, and, gte, desc, sql } from "drizzle-orm";
-import { ACTIVE_CHALLENGE_EFFECTS, EVOLVABLE_EFFECTS } from "./constants/challengeEffects.js";
+import {
+  ACTIVE_CHALLENGE_EFFECTS,
+  EVOLVABLE_EFFECTS,
+  EVOLUTION_CHILD_UNLOCKS,
+} from "./constants/challengeEffects.js";
 
 // Interface for storage operations
 interface IStorage {
@@ -229,16 +233,98 @@ class DatabaseStorage implements IStorage {
   // Effect progress operations
 
   async getUserEffectProgress(userId: string): Promise<EffectProgressRow[]> {
+    await this.migrateLegacyFighterRows(userId);
     return await db
       .select()
       .from(effectProgress)
       .where(eq(effectProgress.userId, userId));
   }
 
+  /**
+   * Idempotent lazy migration: rename legacy `fighter` rows to `fighter_punch`
+   * so existing users' progress carries over into the new split-card structure.
+   *
+   * For users whose legacy row had `equippedLevel >= 2` (meaning they had already
+   * evolved to Kick), we additionally insert a `fighter_punch_lv2` row with
+   * `owned=true` so the Kick card appears in their collection.
+   *
+   * Safe to run on every read: the UPDATE skips rows that have already been
+   * renamed (WHERE effect_id = 'fighter'), and the INSERT is guarded by
+   * ON CONFLICT DO NOTHING.
+   */
+  private async migrateLegacyFighterRows(userId: string): Promise<void> {
+    // Step A: rename the legacy row to `fighter_punch`. If both rows somehow
+    // exist, prefer the existing `fighter_punch` and delete the legacy.
+    const [legacy] = await db
+      .select()
+      .from(effectProgress)
+      .where(and(
+        eq(effectProgress.userId, userId),
+        eq(effectProgress.effectId, 'fighter'),
+      ));
+
+    if (!legacy) return;
+
+    const [existingPunch] = await db
+      .select()
+      .from(effectProgress)
+      .where(and(
+        eq(effectProgress.userId, userId),
+        eq(effectProgress.effectId, 'fighter_punch'),
+      ));
+
+    if (existingPunch) {
+      // Collision: keep the already-migrated row and drop the legacy one.
+      await db
+        .delete(effectProgress)
+        .where(and(
+          eq(effectProgress.userId, userId),
+          eq(effectProgress.effectId, 'fighter'),
+        ));
+    } else {
+      await db
+        .update(effectProgress)
+        .set({
+          effectId: 'fighter_punch',
+          // Reset equippedLevel to 1 — levels are now separate cards.
+          equippedLevel: 1,
+          updatedAt: new Date(),
+        })
+        .where(and(
+          eq(effectProgress.userId, userId),
+          eq(effectProgress.effectId, 'fighter'),
+        ));
+    }
+
+    // Step B: if the legacy row had equippedLevel >= 2, they had already
+    // evolved to Kick. Grant them the Lv2 card as owned.
+    if (legacy.equippedLevel >= 2 && legacy.owned) {
+      await db
+        .insert(effectProgress)
+        .values({
+          userId,
+          effectId: 'fighter_punch_lv2',
+          owned: true,
+          equippedLevel: 1,
+          evolutionProgress: 0,
+          challengeProgress: 0,
+          earnedAt: legacy.earnedAt ?? new Date(),
+          updatedAt: new Date(),
+        })
+        .onConflictDoNothing({
+          target: [effectProgress.userId, effectProgress.effectId],
+        });
+    }
+  }
+
   async processChallengeProgressOnTaskComplete(userId: string): Promise<{ unlockedEffectIds: string[]; evolvedEffectIds: string[] }> {
     const unlockedEffectIds: string[] = [];
     const evolvedEffectIds: string[] = [];
     const now = Date.now();
+
+    // Make sure legacy data is migrated before we start writing so we don't
+    // accidentally double-count against `fighter` and `fighter_punch` rows.
+    await this.migrateLegacyFighterRows(userId);
 
     // ── 1. Challenge unlock progress ──────────────────────────────────────────
     // Atomic upsert: サーバー側で現在値+1 を計算し、閾値到達で owned を自動フリップ。
@@ -280,7 +366,59 @@ class DatabaseStorage implements IStorage {
       }
     }
 
-    // ── 2. Evolution progress for owned evolving effects ──────────────────────
+    // ── 2. Child-unlock (evolution-kind) progress ─────────────────────────────
+    // When the parent is already owned, we accrue challengeProgress on the
+    // child row; crossing the threshold flips owned=true on the child and the
+    // new card becomes available in the collection.
+    for (const unlock of EVOLUTION_CHILD_UNLOCKS) {
+      const [parent] = await db
+        .select()
+        .from(effectProgress)
+        .where(and(
+          eq(effectProgress.userId, userId),
+          eq(effectProgress.effectId, unlock.parentEffectId),
+        ));
+
+      if (!parent?.owned) continue; // Parent not yet earned — gate the child.
+
+      // Premium gate is applied at the moment of unlock (threshold crossing).
+      // Until then we keep counting so that the user can see progress grow
+      // once they upgrade.
+      const threshold = unlock.threshold;
+      const premium = unlock.requiresPremium ? await this.isPremium(userId) : true;
+
+      const [returned] = await db
+        .insert(effectProgress)
+        .values({
+          userId,
+          effectId: unlock.childEffectId,
+          owned: premium && 1 >= threshold,
+          equippedLevel: 1,
+          evolutionProgress: 0,
+          challengeProgress: 1,
+          earnedAt: premium && 1 >= threshold ? new Date() : null,
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: [effectProgress.userId, effectProgress.effectId],
+          setWhere: sql`${effectProgress.owned} = false`,
+          set: {
+            challengeProgress: sql`${effectProgress.challengeProgress} + 1`,
+            owned: sql`(${effectProgress.challengeProgress} + 1) >= ${threshold} AND ${premium}`,
+            earnedAt: sql`CASE WHEN (${effectProgress.challengeProgress} + 1) >= ${threshold} AND ${premium} THEN NOW() ELSE ${effectProgress.earnedAt} END`,
+            updatedAt: sql`NOW()`,
+          },
+        })
+        .returning();
+
+      if (returned?.owned && returned.challengeProgress >= threshold) {
+        evolvedEffectIds.push(unlock.childEffectId);
+      }
+    }
+
+    // ── 3. Legacy in-place evolution (EVOLVABLE_EFFECTS) ─────────────────────
+    // Retained so any future effect that opts into evolutionStages>=2 keeps
+    // working. `fighter` has moved out of this list in Phase 3.
     for (const evo of EVOLVABLE_EFFECTS) {
       const [existing] = await db
         .select()
@@ -290,13 +428,11 @@ class DatabaseStorage implements IStorage {
           eq(effectProgress.effectId, evo.effectId),
         ));
 
-      // Must own the effect and not already at max level
       if (!existing?.owned) continue;
       if (existing.equippedLevel >= evo.maxLevel) continue;
 
       const newEvolutionProgress = existing.evolutionProgress + 1;
 
-      // Check if evolution conditions are met
       let justEvolved = false;
       if (newEvolutionProgress >= evo.evolutionThreshold && evo.requiresPremium) {
         const premium = await this.isPremium(userId);

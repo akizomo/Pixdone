@@ -1,11 +1,13 @@
 /**
  * Effect Evolution System
  *
- * Handles Lv1 → Lv2 evolution for effects that support it.
- * Currently: fighter (Fighter) — Lv1 = Punch, Lv2 = Kick. Lv2 requires 50 cumulative completions + PixDone+.
+ * New structure (Phase 3+): Each "level" is a SEPARATE effect card.
+ *   - `fighter_punch` (Lv1) — unlocked via challenge
+ *   - `fighter_punch_lv2` — unlocked after owning Punch + 50 completions
  *
- * The effectId in the DB stays the same (e.g. 'fighter'); `equippedLevel` determines
- * which animation variant to play.
+ * Legacy structure (pre-Phase 3): A single `fighter` effect with `equippedLevel`
+ * toggling between base and Lv2 animation. The legacy `resolveAnimationKey`
+ * path below remains for any effect that still uses `evolutionStages >= 2`.
  */
 
 import { EFFECTS_REGISTRY } from './effectsRegistry';
@@ -13,19 +15,35 @@ import { EFFECTS_REGISTRY } from './effectsRegistry';
 // ── Animation key resolution ─────────────────────────────────────────────────
 
 /**
+ * Registry keys whose GIF/animation assets in `animations.js` are registered
+ * under a different legacy name. Used so we can rename registry entries
+ * without renaming baked animation assets.
+ */
+const LEGACY_ANIMATION_KEY: Record<string, string> = {
+  fighter_punch: 'fighter',
+  fighter_punch_lv2: 'fighterLv2',
+};
+
+/**
  * Given an effect registry key and the user's equippedLevel,
  * return the animation key that animations.js should play.
  *
- * For evolving effects at Lv2, appends 'Lv2' suffix (e.g. 'fighter' → 'fighterLv2').
- * Non-evolving effects or Lv1 always return the base key.
+ * Priority:
+ *   1. If the registry key has a LEGACY_ANIMATION_KEY mapping, use it.
+ *      (New-structure effects where Lv1/Lv2 are separate cards.)
+ *   2. Legacy evolution path: for effects with `evolutionStages >= 2`, append
+ *      `Lv{n}` suffix when `equippedLevel >= 2`.
+ *   3. Otherwise return the effect key as-is.
  */
 export function resolveAnimationKey(effectKey: string, equippedLevel: number): string {
+  const legacy = LEGACY_ANIMATION_KEY[effectKey];
+  if (legacy) return legacy;
+
   if (equippedLevel < 2) return effectKey;
 
   const def = EFFECTS_REGISTRY.find(e => e.key === effectKey);
   if (!def || def.evolutionStages < 2) return effectKey;
 
-  // Lv2 → 'fighterLv2', Lv3 → 'fighterLv3', etc.
   return `${effectKey}Lv${equippedLevel}`;
 }
 

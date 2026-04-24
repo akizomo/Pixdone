@@ -66,7 +66,12 @@ export const EFFECTS_REGISTRY: EffectDef[] = [
   { key: 'crumpleThrow', name: 'Crumple Throw', rarity: 'COMMON', themes: 'all', access: 'free_unlocked', description: { en: 'Crumples up like paper and gets tossed.',     ja: 'くしゃっと丸めて投げ捨て。'   }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
 
   // ── RARE — Arcade: CHALLENGE ──────────────────────────────────────────────
-  { key: 'fighter', name: 'Fighter', rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: "A fighter's punch sends it flying.", ja: 'ファイターのパンチで吹き飛ぶ。' }, evolutionStages: 2, evolutionCondition: 'cumulative_completions_50', evolutionThreshold: 50, challengeDeadline: new Date('2026-05-31T23:59:59+09:00'), challengeUnlockThreshold: 20 },
+  // `Fighter / Punch` is the base challenge card. `Fighter / Punch Lv2` is a
+  // SEPARATE card that unlocks after owning Punch + 50 additional task completions.
+  // Legacy animation asset names ('fighter' / 'fighterLv2') are preserved via
+  // `resolveAnimationKey` so existing GIFs continue to render without rename.
+  { key: 'fighter_punch',     name: 'Fighter / Punch',     rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: "A fighter's punch sends it flying.", ja: 'ファイターのパンチで吹き飛ぶ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: new Date('2026-05-31T23:59:59+09:00'), challengeUnlockThreshold: 20, category: 'fighter', unlockCondition: { kind: 'challenge',  threshold: 20, deadline: new Date('2026-05-31T23:59:59+09:00') } },
+  { key: 'fighter_punch_lv2', name: 'Fighter / Punch Lv2', rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: 'A fighter delivers a decisive kick.',  ja: 'ファイターの渾身のキック。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null, category: 'fighter', unlockCondition: { kind: 'evolution', parentKey: 'fighter_punch', threshold: 50 } },
 
   // ── RARE — Arcade (premium) ───────────────────────────────────────────────
   { key: 'chomp', name: 'Chomp', rarity: 'RARE', themes: ['arcade'], access: 'premium', description: { en: 'A pixel chomper runs in and bites the task away.', ja: 'ピクセルくんが走ってきてタスクをかじり取る。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null },
