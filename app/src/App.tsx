@@ -128,7 +128,11 @@ function AppContent() {
   );
 
   // Desktop zen-mode timer state (independent of FocusScreenContainer)
-  const desktopTimer = useFocusTimer(() => { stopBgm(); });
+  // Parity with FocusScreenContainer: play completion sound, then stop BGM.
+  const desktopTimer = useFocusTimer(() => {
+    playSound('focusPomodoroComplete');
+    stopBgm();
+  });
   const [desktopBgmOn, setDesktopBgmOn] = useState(() => isBgmOn());
   const [desktopBgmTrack, setDesktopBgmTrack] = useState<BgmTrack>(() => getBgmTrack());
 
