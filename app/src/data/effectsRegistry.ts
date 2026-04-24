@@ -3,6 +3,17 @@ import type { ThemeKey } from '../design-system/themes/themeRegistry';
 export type EffectRarity = 'COMMON' | 'RARE' | 'EPIC';
 export type EffectAccess = 'free_unlocked' | 'challenge' | 'premium';
 
+/**
+ * Phase 1 additions for the "category" naming scheme (e.g. `Fighter / Punch`).
+ *
+ * - `challenge`: unlocked by completing N tasks before deadline
+ * - `evolution`: unlocked after the parent effect is owned AND the user completes
+ *   `threshold` additional tasks. The evolved form is added as a SEPARATE card.
+ */
+export type UnlockCondition =
+  | { kind: 'challenge'; threshold: number; deadline: Date }
+  | { kind: 'evolution'; parentKey: string; threshold: number };
+
 export interface EffectDef {
   key: string;
   name: string;
@@ -19,6 +30,18 @@ export interface EffectDef {
   challengeDeadline: Date | null;
   /** Set only for challenge effects: total task completions needed to unlock */
   challengeUnlockThreshold: number | null;
+  /**
+   * Grouping label for related effects (e.g. `fighter` groups `fighter_punch`
+   * and `fighter_punch_lv2`). Used by ChallengeMenu to display category headers
+   * and by Collection UI to render `Category / Variant` naming.
+   */
+  category?: string;
+  /**
+   * New-structure unlock condition. When present, supersedes the legacy
+   * `evolutionStages` / `challengeUnlockThreshold` fields for progress tracking.
+   * Existing effects without this field continue to use the legacy fields.
+   */
+  unlockCondition?: UnlockCondition;
 }
 
 export const EFFECTS_REGISTRY: EffectDef[] = [
