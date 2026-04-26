@@ -40,6 +40,7 @@ import { CollectionPage } from './pages/CollectionPage';
 import { EffectRequestPage } from './pages/EffectRequestPage';
 import { LandingPage } from './pages/LandingPage';
 import { EffectCapturePage } from './pages/EffectCapturePage';
+import { ExtensionLinkPage } from './pages/ExtensionLinkPage';
 import { useUserTheme } from './hooks/useUserTheme';
 import { useHasSeenTutorial } from './hooks/useHasSeenTutorial';
 import { WorldLayer } from './components/WorldLayer';
@@ -757,6 +758,11 @@ function AppContent() {
   /* ---- Dev-only effect capture page for Playwright screenshots ---- */
   if (import.meta.env.DEV && pathname === '/__capture-effects') {
     return <EffectCapturePage />;
+  }
+
+  /* ---- PixDone Quick (Chrome extension) token hand-off page ---- */
+  if (pathname === '/extension-link') {
+    return <ExtensionLinkPage />;
   }
 
   /* ---- Unauthenticated landing page — rendered standalone, full-width, no app chrome ---- */

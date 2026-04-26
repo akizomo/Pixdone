@@ -11,6 +11,7 @@ import { createPlusCheckoutSession, cancelPlusSubscription, verifyStripeWebhook 
 import { StartupError } from "./startupError.js";
 import { assertDeploymentEnv } from "./validateDeploymentEnv.js";
 import { setupFirebaseSessionRoute } from "./firebaseSessionRoute.js";
+import { requireAuthEither, getExtensionAuthStatus } from "./extensionAuth.js";
 
 /** Passport session user id: OIDC uses `claims.sub`; Google OAuth stores DB user with `id`. */
 function getSessionUserId(req: any): string | undefined {
@@ -132,6 +133,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (e) {
     console.warn("⚠️ Firebase session route failed to register:", e);
   }
+
+  // ---- Extension (Chrome MV3) diagnostic endpoints ----
+  // The PixDone Quick extension talks directly to Firestore (same data store
+  // as the web app), so we don't expose task CRUD here. These two endpoints
+  // are only for diagnostics: checking auth-bridge configuration and verifying
+  // the Bearer ID token round-trip.
+
+  app.get('/api/quick/status', (_req, res) => {
+    res.json(getExtensionAuthStatus());
+  });
+
+  app.get('/api/quick/me', requireAuthEither, async (req: any, res) => {
+    const user = req.user;
+    res.json({
+      uid: user?.id ?? null,
+      email: user?.email ?? null,
+      authVia: req._authViaBearer ? 'bearer' : 'session',
+    });
+  });
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
