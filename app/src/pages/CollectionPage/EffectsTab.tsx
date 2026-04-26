@@ -31,7 +31,7 @@ interface EffectsTabProps {
 const FILTERS: FilterKey[] = ['ALL', 'COMMON', 'RARE', 'EPIC', 'OWNED', 'CHALLENGE'];
 
 export function EffectsTab({
-  isPremium, activeEffects, ownedChallengeEffects = [], effectProgressMap = {}, lang, onSelect,
+  isPremium, activeEffects, ownedChallengeEffects = [], lang, onSelect,
   selectedEffect, isDesktop = false, activeFilter: activeFilterProp,
   onFilterChange, onRequestEffect,
 }: EffectsTabProps) {
