@@ -8,7 +8,7 @@
  *  4. content script が background へ中継 → chrome.storage.local に保存
  *  5. ACK を受け取ったら「Signed in」を表示して 2 秒後に自動で閉じる
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { AuthModal } from '../components/AuthModal';
 import { useAuth } from '../contexts/AuthContext';
 import { auth as firebaseAuth } from '../lib/firebase';
@@ -23,6 +23,27 @@ interface AuthPayload {
 }
 
 type Status = 'pending' | 'sending' | 'done' | 'error';
+
+/**
+ * Pixel-art button styling that matches the "Sign in" CTA on this page.
+ * Primary = purple fill (used for the dominant action), secondary = white
+ * fill with the same border + drop-shadow (used for adjacent actions like
+ * Sign out).
+ */
+function pixelButtonStyle(variant: 'primary' | 'secondary'): CSSProperties {
+  const isPrimary = variant === 'primary';
+  return {
+    padding: '8px 16px',
+    fontFamily: 'inherit',
+    fontSize: 13,
+    fontWeight: 600,
+    background: isPrimary ? '#7b61ff' : '#fff',
+    color: isPrimary ? '#fff' : '#191d24',
+    border: '2px solid #191d24',
+    boxShadow: '2px 2px 0 rgba(25,29,36,0.9)',
+    cursor: 'pointer',
+  };
+}
 
 async function buildAuthPayload(user: import('firebase/auth').User): Promise<AuthPayload> {
   const idToken = await user.getIdToken(true);
@@ -192,12 +213,7 @@ export function ExtensionLinkPage() {
           <button
             type="button"
             onClick={() => window.close()}
-            style={{
-              padding: '6px 12px',
-              border: '2px solid #191d24',
-              background: '#fff',
-              cursor: 'pointer',
-            }}
+            style={pixelButtonStyle('primary')}
           >
             Close
           </button>
@@ -216,13 +232,7 @@ export function ExtensionLinkPage() {
               setError(null);
               void sendToExtension();
             }}
-            style={{
-              padding: '6px 12px',
-              border: '2px solid #191d24',
-              background: '#fff',
-              cursor: 'pointer',
-              marginRight: 8,
-            }}
+            style={{ ...pixelButtonStyle('primary'), marginRight: 8 }}
           >
             Retry
           </button>
@@ -231,12 +241,7 @@ export function ExtensionLinkPage() {
             onClick={() => {
               void logout();
             }}
-            style={{
-              padding: '6px 12px',
-              border: '2px solid #191d24',
-              background: '#fff',
-              cursor: 'pointer',
-            }}
+            style={pixelButtonStyle('secondary')}
           >
             Sign out
           </button>
