@@ -20,6 +20,12 @@ interface AuthPayload {
   uid: string;
   email: string | null;
   apiKey: string | null; // Firebase Web API key for token refresh (public value)
+  /**
+   * Free vs paid tier indicator — the extension uses this to gate Rare/Epic
+   * effects. Resolved from /api/billing/entitlements; defaults to `false` if
+   * the request fails (safe-default = treat as free).
+   */
+  isPremium: boolean;
 }
 
 type Status = 'pending' | 'sending' | 'done' | 'error';
@@ -45,6 +51,21 @@ function pixelButtonStyle(variant: 'primary' | 'secondary'): CSSProperties {
   };
 }
 
+async function fetchIsPremium(): Promise<boolean> {
+  try {
+    const resp = await fetch('/api/billing/entitlements', {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (!resp.ok) return false;
+    const data = (await resp.json()) as { isPremium?: unknown };
+    return data.isPremium === true;
+  } catch {
+    // Safe default — treat as free if entitlements API is unreachable.
+    return false;
+  }
+}
+
 async function buildAuthPayload(user: import('firebase/auth').User): Promise<AuthPayload> {
   const idToken = await user.getIdToken(true);
   const tokenResult = await user.getIdTokenResult();
@@ -52,6 +73,7 @@ async function buildAuthPayload(user: import('firebase/auth').User): Promise<Aut
   // We forward it so the extension's background can call the secure-token REST
   // endpoint to refresh the ID token without asking the user to re-sign-in.
   const apiKey = firebaseAuth.app.options.apiKey ?? null;
+  const isPremium = await fetchIsPremium();
   return {
     idToken,
     refreshToken: user.refreshToken,
@@ -59,6 +81,7 @@ async function buildAuthPayload(user: import('firebase/auth').User): Promise<Aut
     uid: user.uid,
     email: user.email,
     apiKey,
+    isPremium,
   };
 }
 
