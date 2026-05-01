@@ -58,6 +58,8 @@ import { useScrollDirection } from './hooks/useScrollDirection';
 import { FocusZenMode } from './components/FocusZenMode';
 import { useFocusTimer } from './hooks/useFocusTimer';
 import { setBgmOn, setBgmTrack, isBgmOn, getBgmTrack, stopBgm } from './services/bgm';
+import { useFocusBgm } from './hooks/useFocusBgm';
+import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
 import type { BgmTrack } from './services/bgm';
 import { useThemeStats } from './hooks/useThemeStats';
 import { useActivityDays, calcAgentCount } from './hooks/useActivityDays';
@@ -136,6 +138,14 @@ function AppContent() {
   });
   const [desktopBgmOn, setDesktopBgmOn] = useState(() => isBgmOn());
   const [desktopBgmTrack, setDesktopBgmTrack] = useState<BgmTrack>(() => getBgmTrack());
+
+  useFocusBgm({
+    bgmOn: desktopBgmOn,
+    bgmTrack: desktopBgmTrack,
+    isPomodoroMode: true,
+    timerState: desktopTimer.timerState,
+    remaining: desktopTimer.remaining,
+  });
 
   // List modal state (rendered in shell, triggered from TasksScreen via callback)
   const [listModal, setListModal] = useState<{ mode: ListModalMode; listId?: string } | null>(null);
@@ -656,6 +666,39 @@ function AppContent() {
     setActiveScreen('focus');
   }, []);
 
+  useGlobalShortcuts({
+    enabled: isDesktop && !focusZenOpen && !isSubPage && !signupOpen && !listModal,
+    onToday: () => {
+      playSound('buttonClick');
+      setSideView('today');
+      setActiveScreen('tasks');
+    },
+    onPlan: () => {
+      playSound('buttonClick');
+      setSideView('plan');
+      setActiveScreen('tasks');
+    },
+    onSmash: () => {
+      playSound('buttonClick');
+      setSideView('smash');
+      setActiveList('smash-list');
+      setActiveScreen('tasks');
+    },
+    onFocusZen: () => {
+      playSound('buttonClick');
+      setFocusZenOpen(true);
+    },
+    onCollection: () => {
+      if (!user) return;
+      playSound('buttonClick');
+      setCollectionInitialTab('effects');
+      setActiveScreen('collection');
+    },
+    onAddTask: () => {
+      playSound('taskAdd');
+      setAutoOpenAddTaskNonce((n) => n + 1);
+    },
+  });
 
   const runSmashShort = useCallback((taskId: string) => {
     const taskEl = document.querySelector(`[data-task-id="${taskId}"]`) as HTMLElement | null;

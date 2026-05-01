@@ -9,8 +9,9 @@ import { useListsData } from '../features/ListsContext';
 import { FocusScreen } from '../components';
 import { FocusZenMode } from '../components/FocusZenMode';
 import { useFocusTimer } from '../hooks/useFocusTimer';
+import { useFocusBgm } from '../hooks/useFocusBgm';
 import { playSound } from '../services/sound';
-import { stopBgm, startBgm, isBgmOn, getBgmTrack, isBgmContextSuspended } from '../services/bgm';
+import { stopBgm, isBgmOn, getBgmTrack } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
 import type { User } from 'firebase/auth';
 
@@ -44,8 +45,6 @@ export function FocusScreenContainer({
   const [bgmOn, setBgmOnState] = useState<boolean>(() => isBgmOn());
   const [bgmTrack, setBgmTrackState] = useState<BgmTrack>(() => getBgmTrack());
   const [, setBgmMenuOpen] = useState(false);
-  const prevBgmShouldPlayRef = useRef(false);
-  const prevBgmTrackRef = useRef<BgmTrack>(bgmTrack);
   const focusModeRef = useRef(focusMode);
   useEffect(() => { focusModeRef.current = focusMode; }, [focusMode]);
   const focusCountRef = useRef(focusPomodoroCount);
@@ -83,49 +82,13 @@ export function FocusScreenContainer({
   const focusTimerRef = useRef<ReturnType<typeof useFocusTimer> | null>(null);
   useEffect(() => { focusTimerRef.current = focusTimer; }, [focusTimer]);
 
-  // Safety: ensure BGM is stopped on timer reaching 0
-  useEffect(() => {
-    if (focusTimer.remaining === 0) stopBgm();
-  }, [focusTimer.remaining]);
-
-  // Fail-safe: never keep BGM while timer is not running.
-  useEffect(() => {
-    if (focusTimer.timerState !== 'running') stopBgm();
-  }, [focusTimer.timerState]);
-
-  // Single playback authority
-  useEffect(() => {
-    const shouldPlay =
-      bgmOn &&
-      focusMode === 'pomodoro' &&
-      focusTimer.timerState === 'running' &&
-      focusTimer.remaining > 0;
-    const wasPlaying = prevBgmShouldPlayRef.current;
-    const prevTrack = prevBgmTrackRef.current;
-
-    if (!shouldPlay) {
-      stopBgm();
-      prevBgmShouldPlayRef.current = shouldPlay;
-      prevBgmTrackRef.current = bgmTrack;
-      return;
-    }
-
-    if (shouldPlay && isBgmContextSuspended()) {
-      stopBgm();
-      startBgm(bgmTrack);
-      prevBgmShouldPlayRef.current = true;
-      prevBgmTrackRef.current = bgmTrack;
-      return;
-    } else if (!wasPlaying) {
-      startBgm(bgmTrack);
-    } else if (prevTrack !== bgmTrack) {
-      stopBgm();
-      startBgm(bgmTrack);
-    }
-
-    prevBgmShouldPlayRef.current = shouldPlay;
-    prevBgmTrackRef.current = bgmTrack;
-  }, [bgmOn, bgmTrack, focusMode, focusTimer.timerState, focusTimer.remaining]);
+  useFocusBgm({
+    bgmOn,
+    bgmTrack,
+    isPomodoroMode: focusMode === 'pomodoro',
+    timerState: focusTimer.timerState,
+    remaining: focusTimer.remaining,
+  });
 
   // ── Callbacks for FocusScreen props ──
 
