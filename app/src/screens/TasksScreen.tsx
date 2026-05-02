@@ -10,7 +10,7 @@ import { playSound } from '../services/sound';
 import { trackTaskAdd } from '../services/analytics';
 import { t } from '../lib/i18n';
 import { SMASH_TITLES } from '../features/useLists';
-import { Button, ModalDialog, PixelIcon } from '../design-system';
+import { Button, ModalDialog, PixelIcon, KeyHint } from '../design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel,
   TaskForm,
@@ -501,7 +501,10 @@ export function TasksScreen({
             }}
           >
             <PixelIcon name="add" size="18px" />
-            {lang === 'ja' ? '\u30BF\u30B9\u30AF\u3092\u8FFD\u52A0' : 'Add a task'}
+            <span style={{ flex: 1 }}>
+              {lang === 'ja' ? '\u30BF\u30B9\u30AF\u3092\u8FFD\u52A0' : 'Add a task'}
+            </span>
+            <KeyHint>N</KeyHint>
           </button>
         </div>
       )}

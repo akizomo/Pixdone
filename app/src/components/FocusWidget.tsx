@@ -107,6 +107,7 @@ export function FocusWidget({
           className="pd-focus-widget__btn"
           onClick={() => { playSound('buttonClick'); onOpenZen(); }}
           aria-label="Fullscreen"
+          title={lang === 'ja' ? 'フルスクリーン (F)' : 'Fullscreen (F)'}
         >
           <PixelIcon name="fullscreen" size="16px" />
         </button>

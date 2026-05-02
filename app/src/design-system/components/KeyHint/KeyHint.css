@@ -1,0 +1,30 @@
+/* KeyHint — single-key shortcut indicator (Claude-Desktop style).
+ * Hidden on coarse-pointer devices (mobile/touch) since keyboard shortcuts
+ * are not usable there.
+ */
+
+.pxd-kbd {
+  display: none;
+}
+
+@media (any-pointer: fine) {
+  .pxd-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5em;
+    height: 1.4em;
+    padding: 0 var(--pd-space-1);
+    font-family: var(--pd-font-brand);
+    font-size: var(--pd-font-size-xs);
+    font-weight: var(--pd-font-weight-medium, 500);
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--pd-color-text-muted);
+    background: var(--pd-color-background-elevated);
+    border: 1px solid var(--pd-color-border-default);
+    border-radius: var(--pd-radius-xs);
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+}

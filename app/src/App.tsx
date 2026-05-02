@@ -3,7 +3,7 @@ import {
   type ErrorInfo, type ReactNode,
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu, TextLink, PixelIcon } from './design-system';
+import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu, TextLink, PixelIcon, KeyHint } from './design-system';
 import {
   ThemeSelector, ListModal, AuthModal, BottomNav, HeaderSegment,
 } from './components';
@@ -930,7 +930,7 @@ function AppContent() {
                 {userMenuOpen && (
                   <PopoverMenu
                     items={[
-                      { id: 'collection', label: 'Effects / Themes', icon: 'auto_awesome', group: 'nav' },
+                      { id: 'collection', label: 'Effects / Themes', icon: 'auto_awesome', group: 'nav', trailing: <KeyHint>C</KeyHint> },
                       {
                         id: 'lang', label: lang === 'ja' ? '言語' : 'Language', icon: 'language', group: 'settings',
                         trailing: (

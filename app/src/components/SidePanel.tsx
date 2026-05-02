@@ -1,5 +1,5 @@
 import type { List } from '../types/list';
-import { PixelIcon } from '../design-system';
+import { PixelIcon, KeyHint } from '../design-system';
 import { playSound } from '../services/sound';
 import { t } from '../lib/i18n';
 import './SidePanel.css';
@@ -47,6 +47,7 @@ export function SidePanel({
     label: string,
     icon: string | { emoji: string },
     count?: number,
+    shortcut?: string,
   ) => {
     const isActive = activeView === key;
     return (
@@ -65,6 +66,7 @@ export function SidePanel({
         {count !== undefined && count > 0 && (
           <span className="pd-sidebar__item-count">{count}</span>
         )}
+        {shortcut && <KeyHint>{shortcut}</KeyHint>}
       </button>
     );
   };
@@ -92,9 +94,9 @@ export function SidePanel({
       </div>
       {/* Views */}
       <div className="pd-sidebar__section">
-        {navItem('today', lang === 'ja' ? '今日' : 'Today', 'calendar_today', todayCount)}
-        {navItem('plan', 'Plan', 'format_list_bulleted', planCount)}
-        {smashList && navItem('smash', 'Smash', { emoji: '💥' })}
+        {navItem('today', lang === 'ja' ? '今日' : 'Today', 'calendar_today', todayCount, 'T')}
+        {navItem('plan', 'Plan', 'format_list_bulleted', planCount, 'P')}
+        {smashList && navItem('smash', 'Smash', { emoji: '💥' }, undefined, 'S')}
       </div>
 
       {/* Lists */}
