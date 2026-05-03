@@ -20,6 +20,7 @@ import '@fontsource/handjet/500.css';
 import '@fontsource/handjet/700.css';
 
 import { mountQuickPanel } from './mount';
+import { dlog } from '../log';
 
 async function injectExtensionFontCss(): Promise<void> {
   try {
@@ -47,7 +48,7 @@ async function injectExtensionFontCss(): Promise<void> {
 
 void injectExtensionFontCss();
 
-console.log('[PixDone Quick/content] content script loaded on', location.href);
+dlog('[PixDone Quick/content] content script loaded on', location.href);
 
 // Mount the panel eagerly. It renders nothing until opened (open=false initial state),
 // but installing the React tree now means the in-page Cmd+Shift+Y listener works
@@ -82,7 +83,7 @@ window.addEventListener('message', (ev) => {
   const data = ev.data as { type?: string; payload?: unknown };
   // Only log auth-tagged messages so we don't spam on every postMessage.
   if (data?.type === 'PIXDONE_QUICK_AUTH') {
-    console.log('[PixDone Quick/content] PIXDONE_QUICK_AUTH received', {
+    dlog('[PixDone Quick/content] PIXDONE_QUICK_AUTH received', {
       origin: ev.origin,
       trusted: TRUSTED_AUTH_ORIGINS.has(ev.origin),
       hasPayload: !!data.payload,
@@ -99,7 +100,7 @@ window.addEventListener('message', (ev) => {
     (response) => {
       const lastErr = chrome.runtime.lastError?.message;
       const ok = !lastErr && response?.ok === true;
-      console.log('[PixDone Quick/content] auth relay response', {
+      dlog('[PixDone Quick/content] auth relay response', {
         ok,
         lastError: lastErr,
         response,
@@ -121,7 +122,7 @@ window.addEventListener('message', (ev) => {
 // ───────────────────────────────────────────────────────────────
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (!message || typeof message !== 'object') return;
-  console.log('[PixDone Quick/content] message:', message.type);
+  dlog('[PixDone Quick/content] message:', message.type);
   // Ping handler — background uses this to detect if content script is live.
   if (message.type === 'PIXDONE_PING') {
     sendResponse({ alive: true, mounted });

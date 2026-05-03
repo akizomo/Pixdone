@@ -13,7 +13,7 @@
     // message a tab that doesn't have our content script (chrome:// pages, the
     // Web Store, PDF viewer, etc). Log it at debug level and swallow.
     if (msg.includes('Receiving end does not exist')) {
-      console.debug('[PixDone Quick/bg] suppressed benign sendMessage rejection');
+      ddebug('[PixDone Quick/bg] suppressed benign sendMessage rejection');
       ev.preventDefault?.();
       return;
     }
@@ -44,6 +44,7 @@ import {
 import { getTodayTasks } from '@app/hooks/useTodayView';
 import { getTodayYMD } from '@app/lib/date';
 import type { Task } from '@app/types/task';
+import { dlog, ddebug, dinfo } from '../log';
 
 const CTX_MENU_ID = 'pixdone-add';
 const REFRESH_ALARM = 'pixdone-refresh-token';
@@ -104,7 +105,7 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.commands.onCommand.addListener((command, tab) => {
-  console.log('[PixDone Quick/bg] command fired:', command, 'tabId:', tab?.id);
+  dlog('[PixDone Quick/bg] command fired:', command, 'tabId:', tab?.id);
   if (command !== 'toggle-panel') return;
   if (!tab?.id) {
     console.warn('[PixDone Quick/bg] no tab id — focused window is a non-tab surface?');
@@ -246,7 +247,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
       refreshToken: next.refreshToken,
       expiresAt: next.expiresAt,
     });
-    console.info('[PixDone Quick] token refreshed');
+    dinfo('[PixDone Quick] token refreshed');
   } catch (e) {
     console.warn('[PixDone Quick] token refresh failed, clearing auth', e);
     await clearAuth();
@@ -257,7 +258,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type !== 'PIXDONE_AUTH_RELAY') return;
   const payload = message.payload as PixdoneAuth | undefined;
-  console.log('[PixDone Quick/bg] PIXDONE_AUTH_RELAY received', {
+  dlog('[PixDone Quick/bg] PIXDONE_AUTH_RELAY received', {
     hasIdToken: !!payload?.idToken,
     hasRefreshToken: !!payload?.refreshToken,
     expiresAtType: typeof payload?.expiresAt,
@@ -276,7 +277,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
   saveAuth(payload)
     .then(() => {
-      console.log('[PixDone Quick/bg] auth saved to chrome.storage.local');
+      dlog('[PixDone Quick/bg] auth saved to chrome.storage.local');
       sendResponse({ ok: true });
     })
     .catch((e) => {

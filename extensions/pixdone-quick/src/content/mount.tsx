@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { StrictMode } from 'react';
 import { QuickPanelApp } from '../panel/QuickPanelApp';
 import { getThemeCSSVariables } from '@app/design-system';
+import { dlog } from '../log';
 
 // DS tokens (shared across every DS component).
 import tokensCssRaw from '../panel/tokens.css?inline';
@@ -132,7 +133,7 @@ export function mountQuickPanel(): void {
   shadow.appendChild(portalContainer);
 
   document.documentElement.appendChild(host);
-  console.log('[PixDone Quick/content] shadow host mounted');
+  dlog('[PixDone Quick/content] shadow host mounted');
 
   createRoot(reactHost).render(
     <StrictMode>

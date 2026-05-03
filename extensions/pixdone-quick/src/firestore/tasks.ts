@@ -8,6 +8,7 @@
 import type { Task, RepeatConfig, Subtask } from '@app/types/task';
 import type { List } from '@app/types/list';
 import { runQuery, createDocument, updateDocument, deleteDocument } from './rest';
+import { dlog } from '../log';
 
 interface RawTaskDoc extends Record<string, unknown> {
   id: string;
@@ -75,7 +76,7 @@ export async function fetchLists(uid: string): Promise<List[]> {
 export async function fetchTasks(uid: string): Promise<Task[]> {
   const rows = await runQuery('tasks', { fieldPath: 'uid', op: 'EQUAL', value: uid });
   const tasks = rows.map((r) => hydrateTask(r as RawTaskDoc));
-  console.log(
+  dlog(
     `[PixDone Quick/fs] fetchTasks returned ${tasks.length} rows — completed counts:`,
     {
       completed: tasks.filter((t) => t.completed).length,

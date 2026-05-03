@@ -112,5 +112,4 @@
 
   // Pre-instantiate so the first effect doesn't pay construction cost.
   ensureEffects();
-  console.log('[pixdone-quick/bridge] MAIN-world bridge ready');
 })();

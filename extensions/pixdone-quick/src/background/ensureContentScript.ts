@@ -13,6 +13,7 @@
  *  3. Returns true if the tab now has a listener, false otherwise (e.g.
  *     chrome:// pages or the Web Store where scripting is disallowed).
  */
+import { ddebug } from '../log';
 
 async function pingTab(tabId: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -54,12 +55,12 @@ export async function ensureContentScript(tabId: number): Promise<boolean> {
       try {
         await chrome.scripting.insertCSS({ target: { tabId }, files: css });
       } catch (cssErr) {
-        console.debug('[PixDone Quick/bg] insertCSS failed (non-fatal):', cssErr);
+        ddebug('[PixDone Quick/bg] insertCSS failed (non-fatal):', cssErr);
       }
     }
     await chrome.scripting.executeScript({ target: { tabId }, files: js });
   } catch (e) {
-    console.debug('[PixDone Quick/bg] executeScript failed:', e);
+    ddebug('[PixDone Quick/bg] executeScript failed:', e);
     return false;
   }
 

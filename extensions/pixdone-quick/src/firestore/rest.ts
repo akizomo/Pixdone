@@ -9,6 +9,7 @@ import {
   toFirestoreFields,
   fromFirestoreDoc,
 } from './serializer';
+import { dlog } from '../log';
 
 const PROJECT_ID = 'red-girder-465715-n6';
 const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
@@ -34,14 +35,14 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     headers.set('Content-Type', 'application/json');
   }
   const method = init.method ?? 'GET';
-  console.log(`[PixDone Quick/fs] ${method} ${path}`, init.body);
+  dlog(`[PixDone Quick/fs] ${method} ${path}`, init.body);
   const resp = await fetch(`${BASE}${path}`, { ...init, headers });
   if (!resp.ok) {
     const text = await resp.text().catch(() => '');
     console.error(`[PixDone Quick/fs] ${method} ${path} failed: ${resp.status}`, text);
     throw new Error(`firestore ${method} ${path}: ${resp.status} ${text}`);
   }
-  console.log(`[PixDone Quick/fs] ${method} ${path} ok (${resp.status})`);
+  dlog(`[PixDone Quick/fs] ${method} ${path} ok (${resp.status})`);
   if (resp.status === 204) return undefined as T;
   return (await resp.json()) as T;
 }
