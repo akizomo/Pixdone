@@ -1,0 +1,299 @@
+/* PixDone Quick — panel shell.
+ * Quick-specific layout only; every interactive element is a DS component.
+ * All colors/spacing come from --pd-* tokens injected into the shadow root.
+ */
+
+.pq-shell {
+  position: fixed;
+  width: 340px;
+  max-height: min(75vh, 560px);
+  display: flex;
+  flex-direction: column;
+  background: var(--pd-color-surface-primary);
+  border: var(--pd-border-base) solid var(--pd-color-text-primary);
+  box-shadow: var(--pd-shadow-pixel-lg);
+  z-index: 9000;
+  animation: pq-shell-in var(--pd-motion-fast) var(--pd-easing-standard);
+  transform-origin: bottom left;
+}
+
+@keyframes pq-shell-in {
+  from { opacity: 0; transform: translate(-4px, 6px) scale(0.98); }
+  to   { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+.pq-shell__header {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-2);
+  padding: var(--pd-space-2) var(--pd-space-3);
+  background: var(--pd-color-surface-page-alt);
+  color: var(--pd-color-text-primary);
+  border-bottom: var(--pd-border-thin) solid var(--pd-color-border-outline);
+  /* Drag affordance — the header (except its buttons) is the drag handle. */
+  cursor: grab;
+  user-select: none;
+}
+
+.pq-shell__header:active {
+  cursor: grabbing;
+}
+
+/* Buttons inside the header should keep their normal pointer cursor. */
+.pq-shell__header button {
+  cursor: pointer;
+}
+
+.pq-shell__brand {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pd-space-2);
+  /* Same treatment as the main app's `.pd-app-title` — VT323 pixel font +
+   * 2px letter-spacing + pixel shadow. Scaled down to fit the 340px panel. */
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 var(--pd-color-shadow-default);
+  color: var(--pd-color-text-primary);
+  image-rendering: pixelated;
+  line-height: 1;
+}
+
+/* View selector trigger — replaces the static brand text when signed in.
+ * Uses the body font (not VT323) so the active view name reads quickly,
+ * with the brand-styled `.pq-shell__brand` reserved for the signed-out state. */
+.pq-view-trigger {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pd-space-1);
+  padding: var(--pd-space-1) var(--pd-space-2);
+  margin-left: calc(var(--pd-space-1) * -1);
+  background: transparent;
+  border: var(--pd-border-thin) solid transparent;
+  border-radius: var(--pd-radius-none);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  font-weight: var(--pd-font-weight-semibold);
+  color: var(--pd-color-text-primary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.pq-view-trigger__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pq-view-trigger:hover,
+.pq-view-trigger:focus-visible {
+  background: var(--pd-color-background-hover);
+  border-color: var(--pd-color-border-default);
+  outline: none;
+}
+
+.pq-view-trigger .pd-pixel-icon,
+.pq-view-trigger svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Form-mode header title ("New task" / "Edit task") — body font to
+ * distinguish from brand treatment. */
+.pq-shell__form-title {
+  flex: 1;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  font-weight: var(--pd-font-weight-semibold);
+  color: var(--pd-color-text-primary);
+}
+
+.pq-shell__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--pd-space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-2);
+}
+
+.pq-shell__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-1);
+}
+
+/* Plan view — sectioned task groups (Today / Tomorrow / Upcoming / Someday).
+ * Mirrors the desktop PlanView but stripped of drag/drop and "show more"
+ * collapsing — the Quick panel is short enough to scroll the whole thing. */
+.pq-shell__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-1);
+}
+
+.pq-shell__section-title {
+  margin: 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  font-weight: var(--pd-font-weight-semibold);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--pd-color-text-tertiary);
+}
+
+/* No wrapper styling — ListTabs renders with its own underline-tab styling
+ * (matching the main app's mobile Lists view). */
+
+.pq-shell__list-item {
+  position: relative;
+}
+
+.pq-shell__shortcut {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 14px;
+  padding: 1px 4px;
+  font-family: var(--pd-font-display);
+  font-size: 8px;
+  color: var(--pd-color-text-tertiary);
+  background: var(--pd-color-surface-page-alt);
+  border: var(--pd-border-thin) solid var(--pd-color-border-outline);
+  box-shadow: 1px 1px 0 rgba(25, 29, 36, 0.3);
+  line-height: 1.2;
+  text-align: center;
+  pointer-events: none;
+}
+
+.pq-shell__new-wrap {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: var(--pd-space-1);
+}
+
+.pq-shell__status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pd-space-2);
+  padding: var(--pd-space-4);
+  text-align: center;
+}
+
+.pq-shell__error-detail {
+  margin: 0;
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-tertiary);
+  word-break: break-word;
+  max-width: 24em;
+}
+
+/* DS PopoverMenu portals into our shadow root via PortalContainerProvider.
+ * Without an explicit stacking context it paints behind .pq-shell (z-index 9000). */
+.pxd-popover-menu,
+.pxd-popover-menu__backdrop {
+  z-index: 9500 !important;
+}
+
+/* Account avatar trigger — matches the main app's `.pd-agent-icon--header`. */
+.pq-account-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 0;
+  image-rendering: pixelated;
+}
+
+.pq-account-trigger:hover,
+.pq-account-trigger:focus-visible {
+  outline: 2px solid var(--pd-color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Close button — smaller than default `IconButton.sm` (36px) to fit the
+ * compact header. Only affects this panel (scoped via the shell). */
+.pq-shell__header .pxd-icon-button--sm {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+}
+
+.pq-shell__header .pxd-icon-button--sm .pxd-icon-button__icon {
+  width: 14px;
+  height: 14px;
+  font-size: 12px;
+}
+
+/* PixelIcon raw SVGs have 24x24 viewBox. Without explicit sizing, browsers
+ * default to ~24px which is too big for the compact panel's Chips. Scope a
+ * tighter default — callers can still override via `size` prop. */
+.pq-shell .pxd-chip .pd-pixel-icon,
+.pq-shell .pxd-chip svg {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+}
+
+.pq-shell__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-2);
+}
+
+.pq-shell__capture {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Unauthenticated state — PixDone brand symbol + sign-in CTA. */
+.pq-shell__signin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pd-space-3);
+  padding: var(--pd-space-6) var(--pd-space-4);
+  text-align: center;
+}
+
+.pq-shell__signin-logo {
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+}
+
+.pq-shell__signin-title {
+  margin: 0;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--pd-color-text-primary);
+  text-shadow: 2px 2px 0 var(--pd-color-shadow-default);
+}
+
+.pq-shell__signin-desc {
+  margin: 0;
+  max-width: 24em;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  line-height: var(--pd-line-height-normal);
+}
