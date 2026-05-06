@@ -133,6 +133,25 @@ export function mountQuickPanel(): void {
   shadow.appendChild(portalContainer);
 
   document.documentElement.appendChild(host);
+
+  // Prevent host-page keyboard shortcuts (Gmail's `c` for compose, Twitter's
+  // `t`/`p`, GitHub's `/` and `t`, etc.) from intercepting characters typed
+  // into TaskForm inputs. Those sites register bubble-phase keydown listeners
+  // on `document` / `window` that call `preventDefault()` on letter keys —
+  // which cancels the input's text-insertion default action.
+  //
+  // We stop propagation at the shadow host's BUBBLE phase so:
+  //  1. Capture path is untouched → events still reach the focused input and
+  //     the input's default action runs (character is inserted).
+  //  2. Bubble path stops at the host → host page's document/window keydown
+  //     listeners never fire on events that originated inside the panel.
+  //  3. Our own `useKeyboardShortcuts` hook listens on the SHADOW ROOT (one
+  //     level deeper than the host), so its handler still fires before the
+  //     stopPropagation here — see QuickPanelApp's `target: shadowRoot`.
+  for (const evt of ['keydown', 'keyup', 'keypress']) {
+    host.addEventListener(evt, (e) => e.stopPropagation());
+  }
+
   dlog('[PixDone Quick/content] shadow host mounted');
 
   createRoot(reactHost).render(

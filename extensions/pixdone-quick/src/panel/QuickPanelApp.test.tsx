@@ -28,7 +28,8 @@ function renderPanel() {
   const host = document.createElement('div');
   host.attachShadow({ mode: 'open' });
   const shadow = host.shadowRoot!;
-  return render(<QuickPanelApp shadowRoot={shadow} />);
+  const result = render(<QuickPanelApp shadowRoot={shadow} />);
+  return { ...result, shadow };
 }
 
 describe('QuickPanelApp initial mount', () => {
@@ -94,10 +95,10 @@ describe('QuickPanelApp keyboard shortcut', () => {
   });
 
   it('opens the panel on Cmd+Shift+Y (macOS)', () => {
-    renderPanel();
+    const { shadow } = renderPanel();
     expect(screen.queryByRole('dialog')).toBeNull();
     act(() => {
-      window.dispatchEvent(
+      shadow.dispatchEvent(
         new KeyboardEvent('keydown', {
           key: 'Y',
           shiftKey: true,
@@ -110,9 +111,9 @@ describe('QuickPanelApp keyboard shortcut', () => {
   });
 
   it('opens the panel on Ctrl+Shift+Y (Linux/Windows)', () => {
-    renderPanel();
+    const { shadow } = renderPanel();
     act(() => {
-      window.dispatchEvent(
+      shadow.dispatchEvent(
         new KeyboardEvent('keydown', {
           key: 'y',
           shiftKey: true,
@@ -125,11 +126,11 @@ describe('QuickPanelApp keyboard shortcut', () => {
   });
 
   it('closes the panel on Escape when open', () => {
-    renderPanel();
+    const { shadow } = renderPanel();
     fireWindowMessage('TOGGLE_PANEL');
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     act(() => {
-      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      shadow.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     });
     expect(screen.queryByRole('dialog')).toBeNull();
   });

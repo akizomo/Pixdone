@@ -606,6 +606,13 @@ function QuickPanelAppInner({ shadowRoot }: QuickPanelAppProps) {
       else if (open) setOpen(false);
     },
     isInputFocused: false,
+    // Listen on the shadow root, not window. The host element re-emits
+    // bubble-phase events with its `keydown stopPropagation` blocker (see
+    // mount.tsx) so window-level listeners would never fire — but more
+    // importantly, listening at the shadow root keeps `e.target` resolved to
+    // the real focused element (input vs panel chrome) so `isTypingTarget`
+    // can correctly suppress digit shortcuts while the user is typing.
+    target: shadowRoot,
   });
 
   // ── Drag-to-move header ────────────────────────────────────────

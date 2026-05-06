@@ -6,6 +6,14 @@ interface ShortcutHandlers {
   onSmashByIndex: (index: number) => void;
   onEscape: () => void;
   isInputFocused: boolean;
+  /**
+   * Where to listen. Pass the panel's shadow root so events still get caught
+   * even when the panel root sits inside a closed-CSS shadow boundary, AND so
+   * `e.target` resolves to the actual input element (not the retargeted host)
+   * — crucial for `isTypingTarget` to skip our shortcut handlers while the
+   * user is typing.
+   */
+  target: EventTarget;
 }
 
 function isTypingTarget(target: EventTarget | null): boolean {
@@ -20,7 +28,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
-  const { onTogglePanel, onOpenNewTask, onSmashByIndex, onEscape, isInputFocused } = handlers;
+  const { onTogglePanel, onOpenNewTask, onSmashByIndex, onEscape, isInputFocused, target } = handlers;
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -54,7 +62,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
       }
     };
 
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [onTogglePanel, onOpenNewTask, onSmashByIndex, onEscape, isInputFocused]);
+    target.addEventListener('keydown', onKeyDown as EventListener);
+    return () => target.removeEventListener('keydown', onKeyDown as EventListener);
+  }, [onTogglePanel, onOpenNewTask, onSmashByIndex, onEscape, isInputFocused, target]);
 }
