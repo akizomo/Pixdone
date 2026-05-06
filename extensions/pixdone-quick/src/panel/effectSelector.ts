@@ -102,6 +102,34 @@ export interface BuiltEffectClone {
   id: string;
 }
 
+// Curated list of CSS properties to copy onto each clone descendant. The
+// previous implementation iterated `getComputedStyle().length` (~500 props)
+// which is fine for correctness but stalls the event loop for ~50ms before
+// the first animation frame can render. Keeping the property set minimal
+// (visual + layout, no obscure properties like `block-size` or `view-
+// transition-name`) is the difference between a snappy effect and one that
+// feels delayed compared to the main app.
+const CLONE_CSS_PROPERTIES = [
+  // Layout
+  'display', 'flex-direction', 'align-items', 'justify-content', 'gap',
+  'flex', 'flex-grow', 'flex-shrink', 'flex-basis', 'flex-wrap',
+  'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
+  'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+  'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+  'box-sizing', 'overflow',
+  // Visual
+  'background', 'background-color', 'background-image',
+  'border', 'border-top', 'border-right', 'border-bottom', 'border-left',
+  'border-color', 'border-style', 'border-width', 'border-radius',
+  'box-shadow', 'opacity',
+  // Typography
+  'color', 'font-family', 'font-size', 'font-weight', 'font-style',
+  'line-height', 'letter-spacing', 'text-align', 'text-decoration',
+  'text-overflow', 'white-space', 'word-break', 'overflow-wrap',
+  // Pixel-art rendering
+  'image-rendering',
+] as const;
+
 export function buildEffectClone(
   src: HTMLElement,
   rect: { left: number; top: number; width: number; height: number },
@@ -124,6 +152,14 @@ export function buildEffectClone(
     srcStyle.getPropertyValue('--pd-color-accent-text').trim() || '#ffffff';
   const mutedColor =
     srcStyle.getPropertyValue('--pd-color-text-muted').trim() || '#9aa0a6';
+  // Pull the resolved body font from the source so the ✓ glyph renders in the
+  // panel's pixel font (Handjet) instead of whatever the host page has set on
+  // its own `span` selectors. Without this, sites that style spans with serif
+  // fonts produce a thin elegant ✓ that visibly clashes with the pixel-art UI.
+  const checkboxSrc = src.querySelector<HTMLElement>('.task-checkbox');
+  const checkboxFontFamily = checkboxSrc
+    ? window.getComputedStyle(checkboxSrc).fontFamily
+    : srcStyle.fontFamily;
 
   // Copy computed styles from the shadow-rooted source onto the clone tree.
   // Walk both trees in parallel; `cloneNode(true)` guarantees matching order.
@@ -135,9 +171,9 @@ export function buildEffectClone(
     const c = cloneTree[i]!;
     const cs = window.getComputedStyle(s);
     let declarations = '';
-    for (let j = 0; j < cs.length; j++) {
-      const prop = cs[j]!;
-      declarations += `${prop}:${cs.getPropertyValue(prop)};`;
+    for (const prop of CLONE_CSS_PROPERTIES) {
+      const value = cs.getPropertyValue(prop);
+      if (value) declarations += `${prop}:${value};`;
     }
     c.setAttribute('style', declarations);
   }
@@ -163,10 +199,16 @@ export function buildEffectClone(
       tick.className = 'task-checkbox__mark';
       tick.setAttribute('aria-hidden', 'true');
       tick.textContent = '✓';
-      // Match TaskItem.css `.task-checkbox__mark` (font-size sm, line-height 1)
-      // — inline because the cascade can't reach this clone outside the shadow.
+      // Match TaskItem.css `.task-checkbox__mark` exactly: font-size sm,
+      // line-height 1 — and inherit font-family from the panel's pixel font
+      // so the glyph shape matches the main app instead of the host page's
+      // default body font.
       tick.style.cssText =
-        `color:${accentTextColor};font-weight:700;font-size:0.875rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:100%;height:100%;`;
+        `font-family:${checkboxFontFamily};` +
+        `color:${accentTextColor};` +
+        `font-size:0.875rem;` +
+        `line-height:1;` +
+        `font-weight:700;`;
       checkbox.appendChild(tick);
     }
   }
