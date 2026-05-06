@@ -111,6 +111,20 @@ export function buildEffectClone(
   clone.dataset.pixdoneQuickClone = id;
   clone.setAttribute('aria-hidden', 'true');
 
+  // Resolve theme-driven colors at the source (still in shadow DOM where the
+  // `--pd-*` custom properties are defined). The clone gets appended to
+  // document.body where those vars are NOT defined, so we have to bake the
+  // resolved RGB values into the inline overrides — otherwise `var(...)`
+  // fallback chains would surface and the checkbox/title colors would drift
+  // from what the user sees in the panel.
+  const srcStyle = window.getComputedStyle(src);
+  const accentColor =
+    srcStyle.getPropertyValue('--pd-color-accent-default').trim() || '#7b61ff';
+  const accentTextColor =
+    srcStyle.getPropertyValue('--pd-color-accent-text').trim() || '#ffffff';
+  const mutedColor =
+    srcStyle.getPropertyValue('--pd-color-text-muted').trim() || '#9aa0a6';
+
   // Copy computed styles from the shadow-rooted source onto the clone tree.
   // Walk both trees in parallel; `cloneNode(true)` guarantees matching order.
   const srcTree: HTMLElement[] = [src, ...Array.from(src.querySelectorAll<HTMLElement>('*'))];
@@ -129,37 +143,42 @@ export function buildEffectClone(
   }
 
   // Mark as visually completed — mirrors `runVanillaCompletionEffect` in the
-  // web app. TaskItem renders the checkbox as a `<button role="checkbox">`;
-  // when `aria-checked="true"` its CSS fills with the accent color and a ✓.
-  // Since we've just inlined the UNCHECKED styles above, we need to override
-  // the checkbox's background explicitly.
+  // web app. TaskItem renders the checkbox as a `<button role="checkbox">`
+  // styled by `.task-checkbox--checked`. Since we've just inlined the
+  // UNCHECKED computed styles above, we have to override the checkbox's
+  // border/background back to the accent color, and add the ✓ mark element.
   clone.classList.add('completed');
   const checkbox =
     clone.querySelector<HTMLElement>('button[role="checkbox"]') ??
     clone.querySelector<HTMLElement>('.task-checkbox');
   if (checkbox) {
     checkbox.setAttribute('aria-checked', 'true');
-    checkbox.classList.add('completed');
-    // Override the inlined computed styles to show the "checked" fill.
-    checkbox.style.setProperty('background-color', '#34a853', 'important');
-    checkbox.style.setProperty('border-color', '#34a853', 'important');
-    if (!checkbox.textContent?.trim()) {
+    checkbox.classList.add('task-checkbox--checked');
+    checkbox.style.setProperty('background-color', accentColor, 'important');
+    checkbox.style.setProperty('background', accentColor, 'important');
+    checkbox.style.setProperty('border-color', accentColor, 'important');
+    checkbox.style.setProperty('color', accentTextColor, 'important');
+    if (!checkbox.querySelector('.task-checkbox__mark')) {
       const tick = document.createElement('span');
+      tick.className = 'task-checkbox__mark';
       tick.setAttribute('aria-hidden', 'true');
       tick.textContent = '✓';
+      // Match TaskItem.css `.task-checkbox__mark` (font-size sm, line-height 1)
+      // — inline because the cascade can't reach this clone outside the shadow.
       tick.style.cssText =
-        'color:#fff;font-weight:700;font-size:0.875rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:100%;height:100%;';
+        `color:${accentTextColor};font-weight:700;font-size:0.875rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:100%;height:100%;`;
       checkbox.appendChild(tick);
     }
   }
 
-  // Strikethrough + muted title (matches the app's `.completed` task item).
-  const title = clone.querySelector<HTMLElement>(
-    '.task-item-title, [data-task-title], .task-title',
-  );
+  // Muted + strikethrough title — TaskItem uses BEM `.task-item__title`, NOT
+  // any of the kebab-singular variants. Without the right selector the title
+  // stayed the same color through the effect, breaking parity with the web
+  // app's "completed" appearance.
+  const title = clone.querySelector<HTMLElement>('.task-item__title');
   if (title) {
+    title.style.setProperty('color', mutedColor, 'important');
     title.style.setProperty('text-decoration', 'line-through', 'important');
-    title.style.setProperty('opacity', '0.6', 'important');
   }
 
   // Position fixed at the source rect. Append these declarations AFTER the
