@@ -1,0 +1,227 @@
+/* /extension/privacy — public privacy policy for the PixDone Quick Chrome
+ * extension. Uses the same pixel-art language as LandingPage / ExtensionLink
+ * so reviewers and users see a coherent product, not a generic legal page. */
+
+.epp {
+  min-height: 100vh;
+  background: var(--pd-color-surface-page);
+  color: var(--pd-color-text-primary);
+  font-family: var(--pd-font-body);
+  padding: var(--pd-space-4) var(--pd-space-3);
+}
+
+.epp__shell {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-4);
+}
+
+/* Top bar: back link + lang toggle, mirrors the FeedbackPage layout so the
+ * navigation bone matches the rest of the app. */
+.epp__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pd-space-2);
+}
+
+.epp__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pd-space-1);
+  padding: 6px 12px;
+  background: transparent;
+  border: var(--pd-border-thin) solid transparent;
+  font-family: var(--pd-font-brand);
+  font-size: 0.875rem;
+  letter-spacing: 2px;
+  color: var(--pd-color-text-primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.epp__back:hover,
+.epp__back:focus-visible {
+  background: var(--pd-color-background-hover);
+  border-color: var(--pd-color-border-default);
+  outline: none;
+}
+
+.epp__lang {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.epp__lang-btn {
+  padding: 4px 10px;
+  background: var(--pd-color-surface-primary);
+  color: var(--pd-color-text-secondary);
+  border: var(--pd-border-thin) solid var(--pd-color-border-default);
+  font-family: var(--pd-font-brand);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  box-shadow: 1px 1px 0 var(--pd-color-shadow-default);
+  transition: transform 0.1s ease;
+}
+
+.epp__lang-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 var(--pd-color-shadow-default);
+}
+
+.epp__lang-btn--active {
+  background: var(--pd-color-accent-default);
+  color: var(--pd-color-accent-text);
+  border-color: var(--pd-color-accent-default);
+}
+
+/* Title block */
+.epp__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-1);
+  padding-top: var(--pd-space-3);
+  border-top: var(--pd-border-thin) solid var(--pd-color-border-outline);
+}
+
+.epp__eyebrow {
+  font-family: var(--pd-font-brand);
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  color: var(--pd-color-text-tertiary);
+  text-transform: uppercase;
+}
+
+.epp__title {
+  margin: 0;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 700;
+  letter-spacing: 2px;
+  line-height: 1;
+  color: var(--pd-color-text-primary);
+  text-shadow: 3px 3px 0 var(--pd-color-shadow-default);
+}
+
+.epp__updated {
+  font-size: 0.8125rem;
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-body);
+}
+
+/* Body */
+.epp__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-4);
+  background: var(--pd-color-surface-primary);
+  border: var(--pd-border-base) solid var(--pd-color-text-primary);
+  box-shadow: 4px 4px 0 var(--pd-color-shadow-default);
+  padding: var(--pd-space-4);
+}
+
+.epp__intro {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--pd-color-text-primary);
+}
+
+.epp__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-2);
+}
+
+.epp__section-title {
+  margin: 0;
+  font-family: var(--pd-font-brand);
+  font-size: 1rem;
+  letter-spacing: 2px;
+  color: var(--pd-color-text-primary);
+  text-transform: uppercase;
+  border-bottom: var(--pd-border-thin) solid var(--pd-color-border-outline);
+  padding-bottom: var(--pd-space-1);
+}
+
+.epp__section p {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--pd-color-text-primary);
+}
+
+.epp__section ul {
+  margin: 0;
+  padding-left: var(--pd-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-1);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.epp__section li {
+  color: var(--pd-color-text-primary);
+}
+
+.epp__section li strong {
+  color: var(--pd-color-text-primary);
+  font-weight: 600;
+}
+
+.epp__section a {
+  color: var(--pd-color-accent-default);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.epp__contact {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pd-space-1);
+  padding: 8px 14px;
+  background: var(--pd-color-accent-default);
+  color: var(--pd-color-accent-text);
+  font-family: var(--pd-font-brand);
+  font-size: 0.875rem;
+  letter-spacing: 2px;
+  text-decoration: none;
+  border: var(--pd-border-base) solid var(--pd-color-text-primary);
+  box-shadow: 2px 2px 0 var(--pd-color-shadow-default);
+  align-self: flex-start;
+  transition: transform 0.1s ease;
+}
+
+.epp__contact:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--pd-color-shadow-default);
+  text-decoration: none;
+}
+
+/* Footer link back to product */
+.epp__footer {
+  display: flex;
+  justify-content: center;
+  padding: var(--pd-space-3) 0 var(--pd-space-4);
+  font-size: 0.8125rem;
+  color: var(--pd-color-text-tertiary);
+}
+
+.epp__footer a {
+  color: var(--pd-color-accent-default);
+  text-decoration: underline;
+  margin-left: 6px;
+}
+
+@media (max-width: 480px) {
+  .epp__body {
+    padding: var(--pd-space-3);
+  }
+  .epp__topbar {
+    flex-wrap: wrap;
+  }
+}

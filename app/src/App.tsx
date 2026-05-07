@@ -41,6 +41,7 @@ import { EffectRequestPage } from './pages/EffectRequestPage';
 import { LandingPage } from './pages/LandingPage';
 import { EffectCapturePage } from './pages/EffectCapturePage';
 import { ExtensionLinkPage } from './pages/ExtensionLinkPage';
+import { ExtensionPrivacyPage } from './pages/ExtensionPrivacyPage';
 import { useUserTheme } from './hooks/useUserTheme';
 import { useHasSeenTutorial } from './hooks/useHasSeenTutorial';
 import { WorldLayer } from './components/WorldLayer';
@@ -806,6 +807,12 @@ function AppContent() {
   /* ---- PixDone Quick (Chrome extension) token hand-off page ---- */
   if (pathname === '/extension-link') {
     return <ExtensionLinkPage />;
+  }
+
+  /* ---- PixDone Quick public Privacy Policy — must be reachable without
+   * auth so Chrome Web Store reviewers can crawl it. ---- */
+  if (pathname === '/extension/privacy') {
+    return <ExtensionPrivacyPage />;
   }
 
   /* ---- Unauthenticated landing page — rendered standalone, full-width, no app chrome ---- */
