@@ -57,7 +57,11 @@ dlog('[PixDone Quick/content] content script loaded on', location.href);
 const TRUSTED_AUTH_ORIGINS = new Set([
   'https://pixdone.akizony.com',
   'https://pixdone.vercel.app',
-  'http://localhost:5173',
+  // Dev-only: gated behind the build mode the same way manifest.config.ts
+  // strips localhost from host_permissions / externally_connectable in prod.
+  // Without this gate the prod bundle would silently trust messages from a
+  // localhost origin even though the browser can't actually reach it.
+  ...(import.meta.env.DEV ? ['http://localhost:5173'] : []),
 ]);
 
 let mounted = false;
