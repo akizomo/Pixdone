@@ -58,10 +58,11 @@ shortly before it expires (1 hour). Without this, users would be silently
 signed out every hour and would have to re-link the extension manually.
 
 ### Host permissions
-- `https://pixdone.akizony.com/*`, `https://pixdone.vercel.app/*` —
-  receive the Firebase ID token from the PixDone web app's
-  `/extension-link` page when the user signs in, and read their premium
-  status from `/api/billing/entitlements`.
+- `https://pixdone.vercel.app/*` (canonical) and
+  `https://pixdone.akizony.com/*` (legacy alias) — receive the Firebase
+  ID token from the PixDone web app's `/extension-link` page when the
+  user signs in, and read their premium status from
+  `/api/billing/entitlements`.
 - `https://securetoken.googleapis.com/*` — Firebase's official token
   refresh endpoint, used by the background alarm above.
 - `https://firestore.googleapis.com/*` — read and write the user's own
@@ -115,11 +116,12 @@ Certifications:
 
 ## 4. Privacy Policy (publish at a stable HTTPS URL)
 
-> Recommended path: `https://pixdone.akizony.com/extension/privacy`.
-> The Chrome Web Store listing requires this URL — paste it into the
-> "Privacy policy" field in the Developer Dashboard. Both the English
-> and Japanese versions can live at that URL (e.g. with a language
-> toggle) or as two separate URLs.
+> Canonical URL: `https://pixdone.vercel.app/extension/privacy` (also
+> reachable at `https://pixdone.akizony.com/extension/privacy` since
+> both domains point at the same Vercel deployment). Paste the
+> vercel.app URL into the "Privacy policy" field in the Developer
+> Dashboard. Both the English and Japanese versions live at the same
+> URL via a language toggle.
 
 ---
 
@@ -208,7 +210,7 @@ release notes.
 #### Contact
 
 Questions about this policy or your data:
-**support@pixdone.akizony.com**
+**contact@akizony.com**
 
 ---
 
@@ -294,7 +296,7 @@ PixDone Quick（以下「本拡張」）は PixDone が提供する Chrome 拡�
 #### お問い合わせ
 
 ポリシーやデータに関するご質問:
-**support@pixdone.akizony.com**
+**contact@akizony.com**
 
 ---
 

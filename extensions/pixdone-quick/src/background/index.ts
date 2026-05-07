@@ -299,7 +299,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 // Open the Web sign-in popup (content scripts can't call `chrome.windows`).
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type !== 'PIXDONE_OPEN_SIGN_IN') return;
-  const url = String(message.url ?? 'https://pixdone.akizony.com/extension-link');
+  const url = String(message.url ?? 'https://pixdone.vercel.app/extension-link');
   chrome.windows.create(
     { url, type: 'popup', width: 420, height: 600 },
     () => {

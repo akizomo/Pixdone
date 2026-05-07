@@ -55,8 +55,11 @@ dlog('[PixDone Quick/content] content script loaded on', location.href);
 // without waiting for a chrome.commands ping. Also lets any subsequent OPEN_ADD_TASK
 // or TOGGLE_PANEL message be processed without a mount-time race.
 const TRUSTED_AUTH_ORIGINS = new Set([
-  'https://pixdone.akizony.com',
+  // Canonical Vercel URL — listed first so it's the obvious default when
+  // anyone reads the trust list. The akizony alias remains for back-compat
+  // with users who bookmarked the old domain.
   'https://pixdone.vercel.app',
+  'https://pixdone.akizony.com',
   // Dev-only: gated behind the build mode the same way manifest.config.ts
   // strips localhost from host_permissions / externally_connectable in prod.
   // Without this gate the prod bundle would silently trust messages from a

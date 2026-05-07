@@ -16,7 +16,7 @@ import { playSound } from '../services/sound';
 import './ExtensionPrivacyPage.css';
 
 const LAST_UPDATED = '2026-05-07';
-const SUPPORT_EMAIL = 'support@pixdone.akizony.com';
+const SUPPORT_EMAIL = 'contact@akizony.com';
 
 interface Section {
   title: string;

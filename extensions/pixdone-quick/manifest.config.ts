@@ -1,13 +1,14 @@
 import { defineManifest } from '@crxjs/vite-plugin';
 import pkg from './package.json' with { type: 'json' };
 
-// localhost is dev-only — the production build talks to pixdone.akizony.com /
-// pixdone.vercel.app exclusively. Including localhost in the published
-// manifest would (a) trigger reviewer questions about why the extension
-// needs HTTP access and (b) leave a permission users can't see being used.
+// localhost is dev-only — the production build talks to pixdone.vercel.app
+// (canonical) and pixdone.akizony.com (legacy alias) exclusively. Including
+// localhost in the published manifest would (a) trigger reviewer questions
+// about why the extension needs HTTP access and (b) leave a permission
+// users can't see being used.
 const PROD_AUTH_ORIGINS = [
-  'https://pixdone.akizony.com/*',
   'https://pixdone.vercel.app/*',
+  'https://pixdone.akizony.com/*',
 ];
 const DEV_AUTH_ORIGINS = ['http://localhost:5173/*'];
 
@@ -21,8 +22,8 @@ export default defineManifest((env) => {
     version: pkg.version,
     description:
       'Capture, sync, and smash tasks from any web page. Pixel-art completion effects, Today/Plan/Lists views, and PixDone sync.',
-    author: { email: 'support@pixdone.akizony.com' },
-    homepage_url: 'https://pixdone.akizony.com',
+    author: { email: 'contact@akizony.com' },
+    homepage_url: 'https://pixdone.vercel.app',
     action: {
       default_icon: {
         16: 'icons/icon-16.png',

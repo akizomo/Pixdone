@@ -12,7 +12,7 @@
 const DEFAULT_BASE =
   import.meta.env.MODE === 'development'
     ? 'http://localhost:5173'
-    : 'https://pixdone.akizony.com';
+    : 'https://pixdone.vercel.app';
 
 function getApiBase(): string {
   return DEFAULT_BASE;
