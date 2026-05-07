@@ -3,11 +3,16 @@
  * so reviewers and users see a coherent product, not a generic legal page. */
 
 .epp {
-  min-height: 100vh;
+  /* App.css pins #root to height:100dvh + overflow:hidden so the chrome of
+   * the main app stays put. Standalone pages like this one must scroll their
+   * own content — fill the parent and own the scroll container. */
+  height: 100%;
+  overflow-y: auto;
   background: var(--pd-color-surface-page);
   color: var(--pd-color-text-primary);
   font-family: var(--pd-font-body);
   padding: var(--pd-space-4) var(--pd-space-3);
+  box-sizing: border-box;
 }
 
 .epp__shell {
