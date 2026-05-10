@@ -383,7 +383,7 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
       {/* ─── LP Header (sticky, full-width) ───────────────────── */}
       <header className="lp-header">
         <div className="lp-header__brand">
-          <img src="/logo-white.svg" alt="PixDone" className="lp-header__logo" />
+          <img src="/pixdone-symbol-bland.svg" alt="PixDone" className="lp-header__logo" />
         </div>
         <div className="lp-header__actions">
           <div className="lp-header__lang">
@@ -613,7 +613,7 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
       {/* ─── Footer ───────────────────────────────────────────── */}
       <footer className="lp-footer">
         <div className="lp-container lp-footer__inner">
-          <img src="/logo-white.svg" alt="PixDone" className="lp-footer__logo" />
+          <img src="/pixdone-symbol-bland.svg" alt="PixDone" className="lp-footer__logo" />
           <div className="lp-footer__links">
             <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a>
             <a href="/terms.html" target="_blank" rel="noopener noreferrer">Terms</a>
