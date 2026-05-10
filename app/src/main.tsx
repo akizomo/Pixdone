@@ -34,15 +34,6 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// PWA service worker (minimal, app/public/sw.js)
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      // ignore
-    });
-  });
-}
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>

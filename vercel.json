@@ -4,6 +4,12 @@
   "installCommand": "npm install && cd app && npm install",
   "buildCommand": "npm run build && cd app && npm run build",
   "outputDirectory": "app/dist",
+  "headers": [
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    }
+  ],
   "rewrites": [
     { "source": "/api/link-preview", "destination": "/api/link-preview" },
     { "source": "/api/cron/stripe-to-notion", "destination": "/api/cron/stripe-to-notion" },

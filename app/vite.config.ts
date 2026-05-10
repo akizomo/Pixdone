@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
 import path from 'node:path';
@@ -12,7 +13,35 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      strategies: 'generateSW',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,png,svg,gif,webp,mp3,webmanifest}'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/.well-known\//],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\./,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'fonts',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+          {
+            urlPattern: /\/api\//,
+            handler: 'NetworkFirst',
+            options: { cacheName: 'api', networkTimeoutSeconds: 3 },
+          },
+        ],
+      },
+      manifest: false,
+    }),
+  ],
   server: {
     // Local dev: proxy `/api/*` requests to the Express backend.
     // This keeps `fetch('/api/...')` working from the Vite dev server.
