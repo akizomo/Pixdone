@@ -1,0 +1,83 @@
+.quick-extension-banner {
+  position: fixed;
+  bottom: var(--pd-space-4);
+  left: var(--pd-space-4);
+  z-index: 550;
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-3);
+  padding: var(--pd-space-3) var(--pd-space-4);
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  box-shadow: 4px 4px 0px var(--pd-color-shadow-default);
+  width: min(340px, calc(100vw - 32px));
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity var(--pd-motion-standard) var(--pd-easing-standard),
+              transform var(--pd-motion-standard) var(--pd-easing-standard);
+}
+
+.quick-extension-banner--entered {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.quick-extension-banner--exiting {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity var(--pd-motion-quick) var(--pd-easing-standard),
+              transform var(--pd-motion-quick) var(--pd-easing-standard);
+}
+
+.quick-extension-banner__icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.quick-extension-banner__text {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-primary);
+  line-height: var(--pd-line-height-normal);
+}
+
+.quick-extension-banner__cta {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  font-family: var(--pd-font-brand);
+  font-weight: var(--pd-font-weight-bold);
+  font-size: var(--pd-font-size-xs);
+  letter-spacing: 0.05em;
+  color: var(--pd-color-accent-default);
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity var(--pd-motion-quick) var(--pd-easing-standard);
+}
+
+.quick-extension-banner__cta:hover {
+  opacity: 0.7;
+}
+
+.quick-extension-banner__close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--pd-color-text-secondary);
+  cursor: pointer;
+  transition: color var(--pd-motion-quick) var(--pd-easing-standard);
+}
+
+.quick-extension-banner__close:hover {
+  color: var(--pd-color-text-primary);
+}

@@ -44,6 +44,7 @@ import { ExtensionLinkPage } from './pages/ExtensionLinkPage';
 import { ExtensionPrivacyPage } from './pages/ExtensionPrivacyPage';
 import { useUserTheme } from './hooks/useUserTheme';
 import { useHasSeenTutorial } from './hooks/useHasSeenTutorial';
+import { QuickExtensionBanner } from './components/QuickExtensionBanner';
 import { WorldLayer } from './components/WorldLayer';
 import { AgentIcon } from './components/AgentIcon';
 import { OnboardingTutorial } from './components/OnboardingTutorial';
@@ -1146,6 +1147,9 @@ function AppContent() {
           />
         )}
       </main>
+
+      {/* PixDone quick promo banner — desktop + Chrome only, one-time dismissible */}
+      <QuickExtensionBanner isDesktop={isDesktop} />
 
       {/* Focus widget — floating, desktop only, hidden during zen-mode */}
       {isDesktop && !focusZenOpen && !isSubPage && (
