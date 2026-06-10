@@ -1,0 +1,40 @@
+{
+  "packageId": "com.pixdone.app",
+  "host": "pixdone.vercel.app",
+  "name": "PixDone",
+  "launcherName": "PixDone",
+  "display": "standalone",
+  "themeColor": "#0A0A22",
+  "themeColorDark": "#0A0A22",
+  "navigationColor": "#0A0A22",
+  "navigationColorDark": "#0A0A22",
+  "navigationDividerColor": "#0A0A22",
+  "navigationDividerColorDark": "#0A0A22",
+  "backgroundColor": "#0A0A22",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://pixdone.vercel.app/icon-512.png",
+  "maskableIconUrl": "https://pixdone.vercel.app/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "pixdone"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://pixdone.vercel.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://pixdone.vercel.app/",
+  "minSdkVersion": 23,
+  "orientation": "default",
+  "fingerprints": []
+}
