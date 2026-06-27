@@ -49,13 +49,13 @@ const SMASH_DIALOGUES: Record<Lang, string[]> = {
     'Your first mission starts here.\nSmash this task.',
     'Something happens\nevery time you smash a task.',
     'Some are rarer than others.',
-    'Complete monthly challenges\nto unlock more.',
+    'Smash more tasks to\ngrow your collection.',
   ],
   ja: [
     'まずはこのタスクを消してみよう。',
     'タスクを消すたびに、何かが起きる。',
     'エフェクトにはレアリティがある。\nレアなほど、気持ちいい。',
-    'チャレンジをクリアして、\nもっと集めよう。',
+    'タスクを消すほど、\nコレクションが増えていく。',
   ],
 };
 

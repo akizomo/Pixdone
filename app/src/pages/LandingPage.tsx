@@ -213,7 +213,7 @@ function YourWorldCard({ lang }: { lang: Lang }) {
       <ul className="lp-feature-card__list">
         <li>{isJa ? '世界観・音・エフェクトが丸ごと変わるテーマ' : 'Choose a theme that changes everything — visuals, sounds, effects'}</li>
         <li>{isJa ? 'タスクを終わらせるほど、テーマが育つ (近日実装)' : 'Themes grow as you complete tasks (coming soon)'}</li>
-        <li>{isJa ? '月替わりチャレンジで限定エフェクトを獲得' : 'Earn limited effects through monthly challenges'}</li>
+
       </ul>
       <div className="lp-feature-card__accent lp-your-world">
         <span className="lp-your-world__icon" aria-hidden="true">{theme.icon}</span>
@@ -553,7 +553,7 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
                 <li>{isJa ? 'Smash List 無制限' : 'Unlimited Smash List'}</li>
                 <li>{isJa ? 'タスクリスト 3 件まで' : 'Up to 3 task lists'}</li>
                 <li>{isJa ? 'Common エフェクト' : 'Common effects'}</li>
-                <li>{isJa ? '月替わりチャレンジ (期間中)' : 'Monthly challenge effects (during event)'}</li>
+
                 <li>{isJa ? 'デフォルトテーマ (Arcade)' : 'Default theme (Arcade)'}</li>
               </ul>
               <Button variant="secondary" size="lg" onClick={handleSignup}>

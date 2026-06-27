@@ -11,7 +11,7 @@ const FREE_FEATURES = [
   { en: 'Smash List — unlimited', ja: 'Smash List（無制限）' },
   { en: 'Up to 3 task lists', ja: 'タスクリスト 3 件まで' },
   { en: 'Common effects', ja: 'Common エフェクト' },
-  { en: 'Challenge effects — earnable during events', ja: 'チャレンジエフェクト（イベント期間中に獲得可能）' },
+
   { en: 'Default theme (Arcade)', ja: 'デフォルトテーマ（Arcade）' },
   { en: 'Focus timer', ja: 'フォーカスタイマー' },
 ];
