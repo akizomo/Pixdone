@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from 're
 import { AuthModal } from '../components/AuthModal';
 import { useAuth } from '../contexts/AuthContext';
 import { auth as firebaseAuth } from '../lib/firebase';
+import { apiUrl } from '../lib/apiUrl';
 
 interface AuthPayload {
   idToken: string;
@@ -53,7 +54,7 @@ function pixelButtonStyle(variant: 'primary' | 'secondary'): CSSProperties {
 
 async function fetchIsPremium(): Promise<boolean> {
   try {
-    const resp = await fetch('/api/billing/entitlements', {
+    const resp = await fetch(apiUrl('/api/billing/entitlements'), {
       method: 'GET',
       credentials: 'include',
     });

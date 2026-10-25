@@ -5,6 +5,7 @@ import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
 import { Button } from '../design-system';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
+import { apiUrl } from '../lib/apiUrl';
 
 function formatDate(iso: string | null, lang: Lang): string {
   if (!iso) return '';
@@ -37,7 +38,7 @@ export function AccountPage() {
     setCancelling(true);
     playSound('taskCancel');
     try {
-      const resp = await fetch('/api/billing/cancel', {
+      const resp = await fetch(apiUrl('/api/billing/cancel'), {
         method: 'POST',
         credentials: 'include',
       });

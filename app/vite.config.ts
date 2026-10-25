@@ -12,11 +12,14 @@ import { playwright } from '@vitest/browser-playwright';
 const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
     VitePWA({
+      // Native (Capacitor) builds ship the bundle inside the app; a service worker
+      // there would only serve stale assets after an app update.
+      disable: mode === 'native',
       registerType: 'autoUpdate',
       strategies: 'generateSW',
       workbox: {
@@ -85,4 +88,4 @@ export default defineConfig({
       },
     ],
   }
-});
+}));

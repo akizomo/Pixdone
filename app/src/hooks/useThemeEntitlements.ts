@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { apiUrl } from '../lib/apiUrl';
 
 export type PremiumEntitlements = {
   plan: 'free' | 'plus';
@@ -72,7 +73,7 @@ export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements 
     let cancelled = false;
     (async () => {
       try {
-        const resp = await fetch('/api/billing/entitlements', {
+        const resp = await fetch(apiUrl('/api/billing/entitlements'), {
           method: 'GET',
           credentials: 'include',
         });

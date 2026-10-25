@@ -4,6 +4,7 @@ import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
 import { Button } from '../design-system';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
+import { apiUrl } from '../lib/apiUrl';
 
 const MAX_CHARS = 300;
 
@@ -24,7 +25,7 @@ export function EffectRequestPage() {
     setError(null);
     playSound('taskComplete');
     try {
-      const resp = await fetch('/api/effect-requests', {
+      const resp = await fetch(apiUrl('/api/effect-requests'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { apiUrl } from '../lib/apiUrl';
 
 export interface EffectProgressEntry {
   id: number;
@@ -154,7 +155,7 @@ export function useEffectProgress(): UseEffectProgressResult {
 
     setIsLoading(true);
     try {
-      const resp = await fetch('/api/effect-progress', { credentials: 'include' });
+      const resp = await fetch(apiUrl('/api/effect-progress'), { credentials: 'include' });
       if (cancelledRef.current) return;
       if (!resp.ok) return; // キャッシュの値を維持
       const rows: EffectProgressEntry[] = await resp.json();
@@ -202,7 +203,7 @@ export function useEffectProgress(): UseEffectProgressResult {
     const toDrain = Math.min(pending, PENDING_FLUSH_CAP);
     for (let i = 0; i < toDrain; i++) {
       try {
-        const resp = await fetch('/api/effect-progress/task-complete', {
+        const resp = await fetch(apiUrl('/api/effect-progress/task-complete'), {
           method: 'POST',
           credentials: 'include',
         });

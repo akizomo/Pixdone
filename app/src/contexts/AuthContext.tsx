@@ -13,6 +13,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { trackLogin, trackSignUp, setAnalyticsUserId } from '../services/analytics';
+import { apiUrl } from '../lib/apiUrl';
 
 export type ServerSessionSyncResult =
   | { ok: true }
@@ -23,7 +24,7 @@ async function syncServerSessionFromFirebase(user: User): Promise<ServerSessionS
   try {
     // 強制リフレッシュで期限切れ・キャッシュずれによる 401 を減らす
     const idToken = await user.getIdToken(true);
-    const resp = await fetch('/api/auth/firebase-session', {
+    const resp = await fetch(apiUrl('/api/auth/firebase-session'), {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },

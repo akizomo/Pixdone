@@ -5,6 +5,7 @@ import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
 import { Button } from '../design-system';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
+import { apiUrl } from '../lib/apiUrl';
 
 
 const FREE_FEATURES = [
@@ -61,7 +62,7 @@ export function PricingPage() {
         window.alert(sync.message || (isJa ? 'ログイン同期に失敗しました。' : 'Session sync failed.'));
         return;
       }
-      const resp = await fetch('/api/billing/create-checkout-session', {
+      const resp = await fetch(apiUrl('/api/billing/create-checkout-session'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

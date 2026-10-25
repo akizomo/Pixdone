@@ -8,6 +8,7 @@ import {
   ThemeSelector, ListModal, AuthModal, BottomNav, HeaderSegment,
 } from './components';
 import type { ListModalMode, MobileSubView } from './components';
+import { apiUrl } from './lib/apiUrl';
 
 /** Main screens on mobile + desktop. Sub-pages are URL-routed separately. */
 type ActiveScreen = 'tasks' | 'focus' | 'collection';
@@ -388,7 +389,7 @@ function AppContent() {
         window.alert(sync.message || 'Session sync failed.');
         return;
       }
-      const resp = await fetch('/api/billing/create-checkout-session', {
+      const resp = await fetch(apiUrl('/api/billing/create-checkout-session'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

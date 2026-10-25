@@ -4,6 +4,7 @@ import { themes } from '../design-system/themes/themeRegistry';
 import type { ThemeKey } from '../design-system/themes/themeRegistry';
 import type { ColorModePreference } from '../design-system/tokens';
 import { trackThemeSwitch } from '../services/analytics';
+import { apiUrl } from '../lib/apiUrl';
 
 /**
  * Hook for reading and updating the active visual theme.
@@ -35,7 +36,7 @@ export function useUserTheme() {
 
       // Best-effort server sync – ignore errors (unauthenticated or network failure)
       try {
-        await fetch('/api/user/theme', {
+        await fetch(apiUrl('/api/user/theme'), {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ themeKey: key }),
