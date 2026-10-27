@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiUrl } from '../lib/apiUrl';
+import { ENTITLEMENTS_REFRESH_EVENT } from '../lib/storeBilling';
 
 export type PremiumEntitlements = {
   plan: 'free' | 'plus';
@@ -10,6 +11,8 @@ export type PremiumEntitlements = {
   isPremium: boolean;
   isTrialing: boolean;
   trialEnd: string | null;
+  /** Where the active subscription was bought (null on free). */
+  provider: 'stripe' | 'app_store' | 'play_store' | null;
 };
 
 /** @deprecated Use PremiumEntitlements instead */
@@ -25,7 +28,12 @@ const DEFAULT_ENTITLEMENTS: PremiumEntitlements = {
   isPremium: false,
   isTrialing: false,
   trialEnd: null,
+  provider: null,
 };
+
+function parseProvider(v: unknown): PremiumEntitlements['provider'] {
+  return v === 'stripe' || v === 'app_store' || v === 'play_store' ? v : null;
+}
 
 function loadInitialFromStorage(): PremiumEntitlements {
   if (typeof window === 'undefined') return DEFAULT_ENTITLEMENTS;
@@ -41,6 +49,7 @@ function loadInitialFromStorage(): PremiumEntitlements {
       isPremium: parsed.isPremium === true,
       isTrialing: (parsed as any).isTrialing === true,
       trialEnd: typeof (parsed as any).trialEnd === 'string' ? (parsed as any).trialEnd : null,
+      provider: parseProvider((parsed as any).provider),
     };
   } catch {
     return DEFAULT_ENTITLEMENTS;
@@ -55,6 +64,14 @@ export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements 
   const { user, loading: authLoading, serverSessionReady } = useAuth();
   const [entitlements, setEntitlements] = useState<PremiumEntitlements>(() => loadInitialFromStorage());
   const [loading, setLoading] = useState<boolean>(true);
+  // Bumped after an in-app purchase so every hook instance re-fetches.
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  useEffect(() => {
+    const onRefresh = () => setRefreshTick((n) => n + 1);
+    window.addEventListener(ENTITLEMENTS_REFRESH_EVENT, onRefresh);
+    return () => window.removeEventListener(ENTITLEMENTS_REFRESH_EVENT, onRefresh);
+  }, []);
 
   useEffect(() => {
     // Auth ローディング中はキャッシュを維持
@@ -92,6 +109,7 @@ export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements 
           isPremium: data.isPremium === true,
           isTrialing: data.isTrialing === true,
           trialEnd: data.trialEnd ?? null,
+          provider: parseProvider(data.provider),
         };
         setEntitlements(next);
         try {
@@ -110,7 +128,7 @@ export function useThemeEntitlements(): PremiumEntitlements & ThemeEntitlements 
       cancelled = true;
       setLoading(false);
     };
-  }, [user, authLoading, serverSessionReady]);
+  }, [user, authLoading, serverSessionReady, refreshTick]);
 
   // synthwavePremium は isPremium と同義（後方互換）
   return { ...entitlements, synthwavePremium: entitlements.isPremium, loading };

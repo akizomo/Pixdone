@@ -6,6 +6,12 @@ import { playSound } from '../services/sound';
 import { Button } from '../design-system';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
+import { Capacitor } from '@capacitor/core';
+import {
+  isStoreBillingAvailable, loadStorePackages, purchaseStorePackage, restoreStorePurchases, waitForServerPlus,
+  type StorePackages,
+} from '../lib/storeBilling';
+import './PricingPage.css';
 
 
 const FREE_FEATURES = [
@@ -32,6 +38,10 @@ export function PricingPage() {
   const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [loading, setLoading] = useState(false);
   const [successBanner, setSuccessBanner] = useState(false);
+  // Native store apps buy through the App Store / Google Play (never Stripe).
+  const isNativeApp = Capacitor.isNativePlatform();
+  const storeReady = isStoreBillingAvailable();
+  const [storePackages, setStorePackages] = useState<StorePackages | null>(null);
   const lang: Lang = detectDefaultLang();
   const isJa = lang === 'ja';
 
@@ -48,7 +58,62 @@ export function PricingPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!storeReady) return;
+    let cancelled = false;
+    loadStorePackages()
+      .then((p) => { if (!cancelled) setStorePackages(p); })
+      .catch(() => { if (!cancelled) setStorePackages({ monthly: null, yearly: null }); });
+    return () => { cancelled = true; };
+  }, [storeReady]);
+
+  const showPurchased = () => {
+    setSuccessBanner(true);
+    window.setTimeout(() => setSuccessBanner(false), 5000);
+  };
+
+  const handleStorePurchase = async () => {
+    const pkg = cycle === 'monthly' ? storePackages?.monthly : storePackages?.yearly;
+    if (!pkg) return;
+    setLoading(true);
+    try {
+      if ((await purchaseStorePackage(pkg)) === 'cancelled') return;
+      if (await waitForServerPlus()) {
+        showPurchased();
+      } else {
+        window.alert(isJa
+          ? '購入は完了しました。反映に少し時間がかかっています。しばらくしてからアプリを開き直してください。'
+          : 'Purchase complete. It is taking a moment to apply — please reopen the app shortly.');
+      }
+    } catch {
+      window.alert(isJa ? '購入に失敗しました。もう一度お試しください。' : 'Purchase failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    setLoading(true);
+    try {
+      await restoreStorePurchases();
+      if (await waitForServerPlus(8000)) {
+        showPurchased();
+      } else {
+        window.alert(isJa ? '復元できる購入が見つかりませんでした。' : 'No purchases to restore were found.');
+      }
+    } catch {
+      window.alert(isJa ? '購入の復元に失敗しました。' : 'Could not restore purchases.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleUpgrade = async () => {
+    if (isNativeApp) {
+      if (!user) { navigate('/?auth=1'); return; }
+      await handleStorePurchase();
+      return;
+    }
     if (!user) {
       // Not logged in: go back to main and open auth modal via URL param (simple approach)
       navigate('/?auth=1');
@@ -89,6 +154,15 @@ export function PricingPage() {
   };
 
   const isPlusUser = plan === 'plus';
+
+  // Prices come from the store (localized, store-tax-aware), never hard-coded in the apps.
+  const storePrice = {
+    main: cycle === 'monthly'
+      ? storePackages?.monthly?.product.priceString
+      : storePackages?.yearly?.product.pricePerMonthString ?? storePackages?.yearly?.product.priceString,
+    yearly: storePackages?.yearly?.product.priceString,
+  };
+  const storeUnavailable = isNativeApp && (!storeReady || (storePackages !== null && !(cycle === 'monthly' ? storePackages.monthly : storePackages.yearly)));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
@@ -289,11 +363,15 @@ export function PricingPage() {
                   color: 'var(--pd-color-text-primary)',
                 }}
               >
-                {cycle === 'monthly' ? '¥600' : '¥500'}<span style={{ fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)' }}>{isJa ? '/月' : '/mo'}</span>
+                {isNativeApp
+                  ? (storePrice.main ?? '—')
+                  : (cycle === 'monthly' ? '¥600' : '¥500')}<span style={{ fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)' }}>{isJa ? '/月' : '/mo'}</span>
               </p>
               {cycle === 'yearly' && (
                 <p style={{ fontSize: '0.75rem', color: 'var(--pd-color-text-tertiary)', margin: '0 0 4px' }}>
-                  {isJa ? '年払い ¥6,000' : '¥6,000 billed yearly'}
+                  {isNativeApp
+                    ? (storePrice.yearly ? (isJa ? `年払い ${storePrice.yearly}` : `${storePrice.yearly} billed yearly`) : '')
+                    : (isJa ? '年払い ¥6,000' : '¥6,000 billed yearly')}
                 </p>
               )}
               <p style={{ fontSize: '0.6875rem', color: 'var(--pd-color-text-tertiary)', margin: '0 0 16px' }}>
@@ -308,9 +386,24 @@ export function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <Button variant="primary" fullWidth loading={loading} onClick={handleUpgrade}>
-                {isJa ? '7日間無料で試す' : 'START 7-DAY FREE TRIAL'}
+              <Button
+                variant="primary"
+                fullWidth
+                loading={loading || (isNativeApp && storeReady && storePackages === null)}
+                disabled={storeUnavailable}
+                onClick={handleUpgrade}
+              >
+                {storeUnavailable
+                  ? (isJa ? '準備中です' : 'COMING SOON')
+                  : (isJa ? '7日間無料で試す' : 'START 7-DAY FREE TRIAL')}
               </Button>
+              {isNativeApp && storeReady && user && (
+                <div className="pricing-restore">
+                  <Button variant="ghost" size="sm" disabled={loading} onClick={handleRestore}>
+                    {isJa ? '購入を復元' : 'Restore purchases'}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -1,0 +1,6 @@
+/* Native store paywall extras (the rest of PricingPage predates the CSS-class rule). */
+.pricing-restore {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--pd-space-3);
+}

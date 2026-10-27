@@ -6,6 +6,7 @@ import { playSound } from '../services/sound';
 import { Button } from '../design-system';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
+import { getStoreManagementUrl } from '../lib/storeBilling';
 
 function formatDate(iso: string | null, lang: Lang): string {
   if (!iso) return '';
@@ -21,12 +22,18 @@ function formatDate(iso: string | null, lang: Lang): string {
 export function AccountPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { plan, billingCycle, currentPeriodEnd } = useThemeEntitlements();
+  const { plan, billingCycle, currentPeriodEnd, provider } = useThemeEntitlements();
+  const isStoreSubscription = provider === 'app_store' || provider === 'play_store';
   const [cancelling, setCancelling] = useState(false);
   const [cancelledUntil, setCancelledUntil] = useState<string | null>(null);
   const lang: Lang = detectDefaultLang();
   const isJa = lang === 'ja';
   const isPlusUser = plan === 'plus';
+
+  // Store subscriptions can only be changed or cancelled in the store itself.
+  const handleManageInStore = async () => {
+    window.location.href = await getStoreManagementUrl();
+  };
 
   const handleCancel = async () => {
     const confirmed = window.confirm(
@@ -165,9 +172,11 @@ export function AccountPage() {
               </p>
               {billingCycle && (
                 <p style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', margin: '0 0 4px' }}>
-                  {billingCycle === 'monthly'
-                    ? (isJa ? '月払い · ¥600/月' : 'Monthly · ¥600/mo')
-                    : (isJa ? '年払い · ¥6,000/年' : 'Yearly · ¥6,000/yr')}
+                  {isStoreSubscription
+                    ? (billingCycle === 'monthly' ? (isJa ? '月払い' : 'Monthly') : (isJa ? '年払い' : 'Yearly'))
+                    : billingCycle === 'monthly'
+                      ? (isJa ? '月払い · ¥600/月' : 'Monthly · ¥600/mo')
+                      : (isJa ? '年払い · ¥6,000/年' : 'Yearly · ¥6,000/yr')}
                 </p>
               )}
               {cancelledUntil ? (
@@ -186,7 +195,13 @@ export function AccountPage() {
                 <div style={{ marginBottom: '16px' }} />
               )}
 
-              {!cancelledUntil && (
+              {isStoreSubscription ? (
+                <Button variant="secondary" size="sm" soundKey="buttonClick" onClick={handleManageInStore}>
+                  {provider === 'app_store'
+                    ? (isJa ? 'App Store でプランを管理' : 'MANAGE IN APP STORE')
+                    : (isJa ? 'Google Play でプランを管理' : 'MANAGE IN GOOGLE PLAY')}
+                </Button>
+              ) : !cancelledUntil && (
                 <Button variant="secondary" size="sm" soundKey="taskDelete" loading={cancelling} onClick={handleCancel}>
                   {isJa ? 'プランをキャンセル' : 'CANCEL PLAN'}
                 </Button>

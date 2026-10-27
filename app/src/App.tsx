@@ -43,6 +43,7 @@ import { LandingPage } from './pages/LandingPage';
 import { NativeWelcomePage } from './pages/NativeWelcomePage';
 import { Capacitor } from '@capacitor/core';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { isStoreBillingAvailable, loginStoreBilling, logoutStoreBilling } from './lib/storeBilling';
 import { EffectCapturePage } from './pages/EffectCapturePage';
 import { ExtensionLinkPage } from './pages/ExtensionLinkPage';
 import { ExtensionPrivacyPage } from './pages/ExtensionPrivacyPage';
@@ -118,6 +119,13 @@ function AppContent() {
   useEffect(() => {
     if (!authLoading && Capacitor.isNativePlatform()) void SplashScreen.hide();
   }, [authLoading]);
+
+  // Native: attach store purchases to this account (RevenueCat app_user_id = Firebase uid).
+  useEffect(() => {
+    if (authLoading || !isStoreBillingAvailable()) return;
+    const sync = user ? loginStoreBilling(user.uid) : logoutStoreBilling();
+    sync.catch((e) => console.warn('store billing session sync failed', e));
+  }, [authLoading, user?.uid]);
   const { hasSeenTutorial, markTutorialSeen } = useHasSeenTutorial();
   const navigate = useNavigate();
   const { pathname } = useLocation();
