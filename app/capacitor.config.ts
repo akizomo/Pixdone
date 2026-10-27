@@ -20,13 +20,13 @@ const config: CapacitorConfig = {
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
     },
-    // Route fetch/XHR through native HTTP so calls to https://pixdone.vercel.app/api
-    // are not subject to WebView CORS, and keep the session cookie in the native store.
     // Native sign-in only returns the credential; the Firebase JS SDK owns the session.
     FirebaseAuthentication: {
       skipNativeAuth: true,
-      providers: ['google.com'],
+      providers: ['google.com', 'apple.com'],
     },
+    // Route fetch/XHR through native HTTP so calls to https://pixdone.vercel.app/api
+    // are not subject to WebView CORS, and keep the session cookie in the native store.
     CapacitorHttp: { enabled: true },
     CapacitorCookies: { enabled: true },
   },

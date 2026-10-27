@@ -10,10 +10,12 @@ import {
   sendPasswordResetEmail,
   deleteUser,
   GoogleAuthProvider,
+  OAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
 import { Capacitor } from '@capacitor/core';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import type { SignInResult } from '@capacitor-firebase/authentication';
 import { auth } from '../lib/firebase';
 import { trackLogin, trackSignUp, setAnalyticsUserId } from '../services/analytics';
 import { apiUrl } from '../lib/apiUrl';
@@ -65,24 +67,36 @@ async function syncServerSessionFromFirebase(user: User): Promise<ServerSessionS
 
 /**
  * signInWithPopup does not work inside the app's WebView. Sign in with the native
- * Google SDK instead, then hand its ID token to the JS SDK so everything else
+ * SDK instead, then hand its credential to the JS SDK so everything else
  * (onAuthStateChanged, Firestore, getIdToken) keeps working unchanged.
  */
-async function signInWithGoogleNative(): Promise<UserCredential> {
-  let result;
+async function nativeSignIn(signIn: () => Promise<SignInResult>): Promise<SignInResult> {
   try {
-    result = await FirebaseAuthentication.signInWithGoogle();
+    return await signIn();
   } catch (e) {
-    // Dismissing the native account picker should be as silent as closing the web
-    // popup; the message wording varies by OS, so match on "cancel".
-    if (/cancel/i.test(e instanceof Error ? e.message : String(e))) {
+    // Dismissing the native sign-in sheet should be as silent as closing the web
+    // popup. Android/Google say "cancel"; Apple only gives a localized
+    // "AuthorizationError … 1001" (ASAuthorizationError.canceled).
+    if (/cancel|AuthorizationError\D*1001/i.test(e instanceof Error ? e.message : String(e))) {
       throw Object.assign(new Error('cancelled'), { code: 'auth/popup-closed-by-user' });
     }
     throw e;
   }
+}
+
+async function signInWithGoogleNative(): Promise<UserCredential> {
+  const result = await nativeSignIn(() => FirebaseAuthentication.signInWithGoogle());
   const idToken = result.credential?.idToken;
   if (!idToken) throw new Error('google_sign_in_failed');
   return signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
+}
+
+/** iOS only — required by App Store guideline 4.8 alongside Google sign-in. */
+async function signInWithAppleNative(): Promise<UserCredential> {
+  const result = await nativeSignIn(() => FirebaseAuthentication.signInWithApple());
+  const { idToken, nonce } = result.credential ?? {};
+  if (!idToken) throw new Error('apple_sign_in_failed');
+  return signInWithCredential(auth, new OAuthProvider('apple.com').credential({ idToken, rawNonce: nonce }));
 }
 
 interface AuthContextValue {
@@ -96,6 +110,8 @@ interface AuthContextValue {
   syncServerSession: () => Promise<ServerSessionSyncResult>;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
+  /** Native iOS only. */
+  loginWithApple: () => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -160,18 +176,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await runServerSessionSync(cred.user);
   };
 
+  const finishProviderLogin = async (cred: UserCredential, method: 'google' | 'apple') => {
+    const meta = cred.user.metadata;
+    const isNewUser = !!(meta.creationTime && meta.lastSignInTime && meta.creationTime === meta.lastSignInTime);
+    if (isNewUser) {
+      trackSignUp({ method });
+    } else {
+      trackLogin({ method });
+    }
+    await runServerSessionSync(cred.user);
+  };
+
   const loginWithGoogle = async () => {
     const cred = Capacitor.isNativePlatform()
       ? await signInWithGoogleNative()
       : await signInWithPopup(auth, new GoogleAuthProvider());
-    const meta = cred.user.metadata;
-    const isNewUser = !!(meta.creationTime && meta.lastSignInTime && meta.creationTime === meta.lastSignInTime);
-    if (isNewUser) {
-      trackSignUp({ method: 'google' });
-    } else {
-      trackLogin({ method: 'google' });
-    }
-    await runServerSessionSync(cred.user);
+    await finishProviderLogin(cred, 'google');
+  };
+
+  const loginWithApple = async () => {
+    await finishProviderLogin(await signInWithAppleNative(), 'apple');
   };
 
   const register = async (email: string, password: string) => {
@@ -209,6 +233,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         syncServerSession,
         login,
         loginWithGoogle,
+        loginWithApple,
         register,
         logout,
         resetPassword,

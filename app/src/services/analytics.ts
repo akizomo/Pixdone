@@ -67,7 +67,7 @@ interface ChallengeUnlockedParams {
   tasks_completed: number;
 }
 
-type AuthMethod = 'email' | 'google';
+type AuthMethod = 'email' | 'google' | 'apple';
 
 interface SignUpParams {
   method: AuthMethod;
