@@ -1,0 +1,98 @@
+.nw-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--pd-color-background-default);
+  color: var(--pd-color-text-primary);
+  overflow: hidden;
+}
+
+.nw-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pd-space-10);
+  padding: var(--pd-space-6);
+}
+
+/* ─── Brand ─────────────────────────────────────────── */
+.nw-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pd-space-3);
+}
+
+.nw-brand__icon {
+  /* 96px — app-icon scale; no size token exists, so derive from the spacing scale. */
+  width: calc(var(--pd-space-12) * 2);
+  height: calc(var(--pd-space-12) * 2);
+  border-radius: var(--pd-radius-xl);
+  image-rendering: pixelated;
+}
+
+.nw-brand__name {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-xl);
+  letter-spacing: 1px;
+}
+
+/* ─── Smash demo ────────────────────────────────────── */
+.nw-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pd-space-4);
+  width: 100%;
+  max-width: 360px;
+}
+
+.nw-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pd-space-1);
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-accent-default);
+  letter-spacing: 2px;
+}
+
+.nw-hint__arrow {
+  font-size: var(--pd-font-size-xl);
+  line-height: 1;
+  animation: nw-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes nw-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nw-hint__arrow { animation: none; }
+}
+
+/* ─── Headline ──────────────────────────────────────── */
+.nw-headline {
+  margin: 0;
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-3xl);
+  line-height: 1.1;
+  text-align: center;
+  color: var(--pd-color-text-primary);
+}
+
+.nw-accent { color: var(--pd-color-accent-default); }
+.nw-nowrap { white-space: nowrap; }
+
+/* ─── Actions (pinned to the bottom, thumb reach) ───── */
+.nw-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-2);
+  padding: var(--pd-space-4) var(--pd-space-6);
+  padding-bottom: max(var(--pd-space-6), env(safe-area-inset-bottom));
+}

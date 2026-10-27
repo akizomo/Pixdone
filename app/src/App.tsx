@@ -40,6 +40,8 @@ import { FeedbackPage } from './pages/FeedbackPage';
 import { CollectionPage } from './pages/CollectionPage';
 import { EffectRequestPage } from './pages/EffectRequestPage';
 import { LandingPage } from './pages/LandingPage';
+import { NativeWelcomePage } from './pages/NativeWelcomePage';
+import { Capacitor } from '@capacitor/core';
 import { EffectCapturePage } from './pages/EffectCapturePage';
 import { ExtensionLinkPage } from './pages/ExtensionLinkPage';
 import { ExtensionPrivacyPage } from './pages/ExtensionPrivacyPage';
@@ -821,12 +823,20 @@ function AppContent() {
   if (!user && pathname === '/') {
     return (
       <>
-        <LandingPage
-          lang={lang}
-          onChangeLang={changeLang}
-          onOpenLogin={() => openAuth('login')}
-          onOpenSignup={() => openAuth('signup')}
-        />
+        {Capacitor.isNativePlatform() ? (
+          <NativeWelcomePage
+            lang={lang}
+            onOpenLogin={() => openAuth('login')}
+            onOpenSignup={() => openAuth('signup')}
+          />
+        ) : (
+          <LandingPage
+            lang={lang}
+            onChangeLang={changeLang}
+            onOpenLogin={() => openAuth('login')}
+            onOpenSignup={() => openAuth('signup')}
+          />
+        )}
         <AuthModal
           open={signupOpen}
           onClose={() => { playSound('taskCancel'); setSignupOpen(false); }}
