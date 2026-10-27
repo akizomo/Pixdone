@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, initializeAuth, indexedDBLocalPersistence } from 'firebase/auth';
+import { Capacitor } from '@capacitor/core';
 import { getFirestore } from 'firebase/firestore';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import type { Analytics } from 'firebase/analytics';
@@ -15,7 +16,12 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+// In the native app, getAuth() loads Google's gapi iframe (used for popup/redirect
+// sign-in), which fails under capacitor:// and stalls auth initialization for
+// seconds. Native sign-in doesn't need it, so initialize without that resolver.
+export const auth = Capacitor.isNativePlatform()
+  ? initializeAuth(app, { persistence: indexedDBLocalPersistence })
+  : getAuth(app);
 export const db = getFirestore(app);// Analytics はブラウザ環境でのみ初期化（SSR / テスト時はスキップ）
 export let analytics: Analytics | null = null;
 

@@ -11,6 +11,15 @@ const config: CapacitorConfig = {
     contentInset: 'always',
   },
   plugins: {
+    // Hidden from App.tsx once Firebase Auth resolves. launchShowDuration is the
+    // safety net if that never happens (e.g. a JS error before mount).
+    SplashScreen: {
+      launchAutoHide: true,
+      launchShowDuration: 10000,
+      backgroundColor: '#7B61FF',
+      androidScaleType: 'CENTER_CROP',
+      showSpinner: false,
+    },
     // Route fetch/XHR through native HTTP so calls to https://pixdone.vercel.app/api
     // are not subject to WebView CORS, and keep the session cookie in the native store.
     CapacitorHttp: { enabled: true },

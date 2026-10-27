@@ -26,6 +26,7 @@
     "@capacitor/android": "^8.5.3",
     "@capacitor/core": "^8.5.3",
     "@capacitor/ios": "^8.5.3",
+    "@capacitor/splash-screen": "^8.0.2",
     "@floating-ui/react": "^0.27.19",
     "@vercel/analytics": "^2.0.1",
     "firebase": "^12.10.0",

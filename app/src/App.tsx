@@ -42,6 +42,7 @@ import { EffectRequestPage } from './pages/EffectRequestPage';
 import { LandingPage } from './pages/LandingPage';
 import { NativeWelcomePage } from './pages/NativeWelcomePage';
 import { Capacitor } from '@capacitor/core';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { EffectCapturePage } from './pages/EffectCapturePage';
 import { ExtensionLinkPage } from './pages/ExtensionLinkPage';
 import { ExtensionPrivacyPage } from './pages/ExtensionPrivacyPage';
@@ -110,7 +111,13 @@ function AppContent() {
     resetRepeatingTasks,
   } = useListsActions();
 
-  const { user, logout, syncServerSession } = useAuth();
+  const { user, loading: authLoading, logout, syncServerSession } = useAuth();
+
+  // Native: keep the launch splash up until Firebase Auth has resolved, so users
+  // never see a blank WebView or a flash of the logged-out screen.
+  useEffect(() => {
+    if (!authLoading && Capacitor.isNativePlatform()) void SplashScreen.hide();
+  }, [authLoading]);
   const { hasSeenTutorial, markTutorialSeen } = useHasSeenTutorial();
   const navigate = useNavigate();
   const { pathname } = useLocation();
