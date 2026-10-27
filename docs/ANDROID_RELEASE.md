@@ -22,7 +22,7 @@ PWA はそのまま Android アプリの中身になる（別途ネイティブ�
 
 ## Phase A（完了済み・記録）
 
-- `app/public/icon-192.png` / `icon-512.png` を生成（`app/scripts/generate-pwa-icons.mjs`）
+- `app/public/icon-192.png` / `icon-512.png` を生成（`app/scripts/generate-app-icons.mjs`）
 - `app/public/manifest.webmanifest` がアイコンを参照（`any` / `any maskable`）
 - `index.html` の apple-touch-icon を `/icon-192.png` に統一
 - vite-plugin-pwa（Workbox generateSW）で SW を自動生成、アイコンをプリキャッシュ
