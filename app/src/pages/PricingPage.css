@@ -4,3 +4,15 @@
   justify-content: center;
   margin-top: var(--pd-space-3);
 }
+
+.pricing-legal {
+  margin: var(--pd-space-3) 0 0;
+  text-align: center;
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-tertiary);
+}
+
+.pricing-legal a {
+  color: inherit;
+  text-decoration: underline;
+}

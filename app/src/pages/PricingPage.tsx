@@ -404,6 +404,15 @@ export function PricingPage() {
                   </Button>
                 </div>
               )}
+              {isNativeApp && (
+                // App Store guideline 3.1.2: subscription screens must link Terms and Privacy.
+                // apiUrl() makes these absolute so they open in the system browser, not the app bundle.
+                <p className="pricing-legal">
+                  <a href={apiUrl('/terms.html')} target="_blank" rel="noopener noreferrer">{isJa ? '利用規約' : 'Terms of Use'}</a>
+                  {' · '}
+                  <a href={apiUrl('/privacy.html')} target="_blank" rel="noopener noreferrer">{isJa ? 'プライバシーポリシー' : 'Privacy Policy'}</a>
+                </p>
+              )}
             </div>
           </div>
         )}
