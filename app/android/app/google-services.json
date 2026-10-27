@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "516445042682",
+    "project_id": "red-girder-465715-n6",
+    "storage_bucket": "red-girder-465715-n6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:516445042682:android:5db571493ef7b29de09643",
+        "android_client_info": {
+          "package_name": "com.pixdone.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "516445042682-1kueqtb6nqrv2ho6j5al53ujjuiiol41.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjzVXwt8sAseeUj4bGGqyiqva0qoe-07g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "516445042682-1kueqtb6nqrv2ho6j5al53ujjuiiol41.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

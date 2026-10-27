@@ -1,7 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import type { User } from 'firebase/auth';
+import type { User, UserCredential } from 'firebase/auth';
 import {
   onAuthStateChanged,
+  signInWithCredential,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendEmailVerification,
@@ -11,6 +12,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
+import { Capacitor } from '@capacitor/core';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { auth } from '../lib/firebase';
 import { trackLogin, trackSignUp, setAnalyticsUserId } from '../services/analytics';
 import { apiUrl } from '../lib/apiUrl';
@@ -58,6 +61,28 @@ async function syncServerSessionFromFirebase(user: User): Promise<ServerSessionS
     const message = e instanceof Error ? e.message : String(e);
     return { ok: false, status: 0, message };
   }
+}
+
+/**
+ * signInWithPopup does not work inside the app's WebView. Sign in with the native
+ * Google SDK instead, then hand its ID token to the JS SDK so everything else
+ * (onAuthStateChanged, Firestore, getIdToken) keeps working unchanged.
+ */
+async function signInWithGoogleNative(): Promise<UserCredential> {
+  let result;
+  try {
+    result = await FirebaseAuthentication.signInWithGoogle();
+  } catch (e) {
+    // Dismissing the native account picker should be as silent as closing the web
+    // popup; the message wording varies by OS, so match on "cancel".
+    if (/cancel/i.test(e instanceof Error ? e.message : String(e))) {
+      throw Object.assign(new Error('cancelled'), { code: 'auth/popup-closed-by-user' });
+    }
+    throw e;
+  }
+  const idToken = result.credential?.idToken;
+  if (!idToken) throw new Error('google_sign_in_failed');
+  return signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
 }
 
 interface AuthContextValue {
@@ -136,8 +161,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    const cred = await signInWithPopup(auth, provider);
+    const cred = Capacitor.isNativePlatform()
+      ? await signInWithGoogleNative()
+      : await signInWithPopup(auth, new GoogleAuthProvider());
     const meta = cred.user.metadata;
     const isNewUser = !!(meta.creationTime && meta.lastSignInTime && meta.creationTime === meta.lastSignInTime);
     if (isNewUser) {
@@ -156,6 +182,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    // Also clear the native Google session so the account picker shows next time.
+    if (Capacitor.isNativePlatform()) await FirebaseAuthentication.signOut();
     await signOut(auth);
     setServerSessionReady(false);
     setServerSessionError(null);

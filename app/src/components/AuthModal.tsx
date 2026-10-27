@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ModalDialog, Button, PixelIcon } from '../design-system';
 import { useAuth } from '../contexts/AuthContext';
 import { playSound } from '../services/sound';
-import { Capacitor } from '@capacitor/core';
 
 const ERROR_MESSAGES: Record<string, { en: string; ja: string }> = {
   'auth/invalid-email': { en: 'Invalid email address.', ja: 'メールアドレスが無効です。' },
@@ -134,9 +133,9 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {/* Google Sign-In — signup and login modes only. Hidden in the native app:
-            signInWithPopup does not work inside a WebView (needs native sign-in). */}
-        {mode !== 'reset' && !Capacitor.isNativePlatform() && (
+        {/* Google Sign-In — signup and login modes only (native apps use the
+            native Google SDK via loginWithGoogle). */}
+        {mode !== 'reset' && (
           <>
             <button
               type="button"
