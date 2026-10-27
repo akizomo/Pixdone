@@ -26,7 +26,7 @@ interface IStorage {
   // User operations
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  getUserByStripeCustomerId(customerId: string): Promise<Pick<User, 'id'> | undefined>;
+  getUserByStripeCustomerId(customerId: string): Promise<Pick<User, 'id' | 'subscriptionPlan' | 'subscriptionProvider'> | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserTheme(userId: string, themeKey: string): Promise<User>;
   isPremium(userId: string): Promise<boolean>;
@@ -37,8 +37,9 @@ interface IStorage {
     stripeSubscriptionId?: string | null;
     currentPeriodEnd?: Date | null;
     trialEnd?: Date | null;
+    provider?: string | null;
   }): Promise<User>;
-  getSubscription(userId: string): Promise<{ plan: string; billingCycle: string | null; currentPeriodEnd: Date | null; stripeSubscriptionId: string | null; trialEnd: Date | null } | undefined>;
+  getSubscription(userId: string): Promise<{ plan: string; billingCycle: string | null; currentPeriodEnd: Date | null; stripeSubscriptionId: string | null; trialEnd: Date | null; provider: string | null } | undefined>;
 
   // Task operations
   getUserTasks(userId: string): Promise<Task[]>;
@@ -75,8 +76,11 @@ class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async getUserByStripeCustomerId(customerId: string): Promise<Pick<User, 'id'> | undefined> {
-    const [row] = await db.select({ id: users.id }).from(users).where(eq(users.stripeCustomerId, customerId));
+  async getUserByStripeCustomerId(customerId: string): Promise<Pick<User, 'id' | 'subscriptionPlan' | 'subscriptionProvider'> | undefined> {
+    const [row] = await db
+      .select({ id: users.id, subscriptionPlan: users.subscriptionPlan, subscriptionProvider: users.subscriptionProvider })
+      .from(users)
+      .where(eq(users.stripeCustomerId, customerId));
     return row;
   }
 
@@ -121,6 +125,7 @@ class DatabaseStorage implements IStorage {
     stripeSubscriptionId?: string | null;
     currentPeriodEnd?: Date | null;
     trialEnd?: Date | null;
+    provider?: string | null;
   }): Promise<User> {
     const setData: Partial<typeof users.$inferInsert> = {
       subscriptionPlan: data.plan,
@@ -131,6 +136,7 @@ class DatabaseStorage implements IStorage {
     if (data.stripeCustomerId !== undefined) setData.stripeCustomerId = data.stripeCustomerId;
     if (data.stripeSubscriptionId !== undefined) setData.stripeSubscriptionId = data.stripeSubscriptionId;
     if (data.trialEnd !== undefined) setData.trialEnd = data.trialEnd;
+    if (data.provider !== undefined) setData.subscriptionProvider = data.provider;
     const [user] = await db
       .update(users)
       .set(setData)
@@ -139,7 +145,7 @@ class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async getSubscription(userId: string): Promise<{ plan: string; billingCycle: string | null; currentPeriodEnd: Date | null; stripeSubscriptionId: string | null; trialEnd: Date | null } | undefined> {
+  async getSubscription(userId: string): Promise<{ plan: string; billingCycle: string | null; currentPeriodEnd: Date | null; stripeSubscriptionId: string | null; trialEnd: Date | null; provider: string | null } | undefined> {
     const user = await this.getUser(userId);
     if (!user) return undefined;
     return {
@@ -148,6 +154,7 @@ class DatabaseStorage implements IStorage {
       currentPeriodEnd: user.subscriptionCurrentPeriodEnd ?? null,
       stripeSubscriptionId: user.stripeSubscriptionId ?? null,
       trialEnd: user.trialEnd ?? null,
+      provider: user.subscriptionProvider ?? null,
     };
   }
 

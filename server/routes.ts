@@ -8,6 +8,8 @@ import { setupEmailAuth } from "./emailAuth.js";
 import { sql } from "drizzle-orm";
 import { db } from "./db.js";
 import { createPlusCheckoutSession, cancelPlusSubscription, verifyStripeWebhook } from "./billing/stripe.js";
+import { revenueCatEventToAction, mayUpdateSubscription } from "./billing/revenuecat.js";
+import crypto from "crypto";
 import { StartupError } from "./startupError.js";
 import { assertDeploymentEnv } from "./validateDeploymentEnv.js";
 import { setupFirebaseSessionRoute } from "./firebaseSessionRoute.js";
@@ -200,6 +202,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentPeriodEnd: sub?.currentPeriodEnd ?? null,
         unlockedThemes: [],
         isPremium: sub?.plan === 'plus',
+        // Where the active subscription was bought — the apps hide store purchase for
+        // 'stripe' subscribers and the web hides Stripe checkout for store subscribers.
+        provider: sub?.provider ?? null,
         isTrialing,
         trialEnd,
         activeSEId: user?.activeSEId ?? null,
@@ -256,6 +261,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
       const sub = await storage.getSubscription(userId);
+      if (sub?.plan === 'plus' && (sub.provider === 'app_store' || sub.provider === 'play_store')) {
+        // Store subscriptions can only be cancelled by the user in the store itself.
+        return res.status(409).json({ message: "Managed by the app store", provider: sub.provider });
+      }
       if (!sub?.stripeSubscriptionId) {
         return res.status(404).json({ message: "No active subscription found" });
       }
@@ -272,6 +281,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error cancelling subscription:", error);
       res.status(500).json({ message: "Failed to cancel subscription", detail: error?.message });
+    }
+  });
+
+  // Webhook from RevenueCat (App Store / Google Play subscriptions bought in the apps).
+  // Authenticated by the Authorization header value configured in the RevenueCat dashboard.
+  app.post('/api/billing/revenuecat-webhook', async (req: any, res) => {
+    try {
+      const expected = process.env.REVENUECAT_WEBHOOK_AUTH;
+      if (!expected) return res.status(500).send('Missing REVENUECAT_WEBHOOK_AUTH');
+      const given = Buffer.from(String(req.header?.('authorization') ?? ''));
+      const want = Buffer.from(expected);
+      if (given.length !== want.length || !crypto.timingSafeEqual(given, want)) {
+        return res.status(401).send('Unauthorized');
+      }
+
+      const action = revenueCatEventToAction(req.body?.event ?? {});
+      if (action.kind === 'ignore') {
+        console.info('[revenuecat-webhook] ignored:', action.reason);
+        return res.status(200).json({ received: true });
+      }
+
+      const user = await storage.getUser(action.userId);
+      if (!user) {
+        // Not retried usefully — the uid has no server account yet. Log and ack.
+        console.warn('[revenuecat-webhook] no user for app_user_id', action.userId.slice(0, 6) + '…');
+        return res.status(200).json({ received: true });
+      }
+      if (!mayUpdateSubscription(user.subscriptionProvider, user.subscriptionPlan, action.update.provider, action.update.plan)) {
+        console.warn('[revenuecat-webhook] skipped, active plan is owned by', user.subscriptionProvider);
+        return res.status(200).json({ received: true });
+      }
+      await storage.updateSubscription(action.userId, action.update);
+      res.status(200).json({ received: true });
+    } catch (error) {
+      console.error('[revenuecat-webhook] error:', error);
+      // 5xx makes RevenueCat retry.
+      res.status(500).json({ message: 'Webhook handler failed' });
     }
   });
 
@@ -319,6 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             stripeCustomerId: customerId,
             stripeSubscriptionId: subscriptionId,
             trialEnd,
+            provider: 'stripe',
           });
           break;
         }
@@ -339,6 +386,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const subTrialEnd = obj?.trial_end
             ? new Date(obj.trial_end * 1000)
             : null;
+          if (!mayUpdateSubscription(user.subscriptionProvider, user.subscriptionPlan, 'stripe', plan)) {
+            console.warn('[stripe-webhook] subscription.updated: skipped, active plan is owned by', user.subscriptionProvider);
+            break;
+          }
           await storage.updateSubscription(userId, {
             plan,
             billingCycle,
@@ -351,7 +402,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const customerId = obj?.customer as string | undefined;
           if (!customerId) break;
           const user = await storage.getUserByStripeCustomerId(customerId);
-          if (user) {
+          if (user && !mayUpdateSubscription(user.subscriptionProvider, user.subscriptionPlan, 'stripe', 'free')) {
+            console.warn('[stripe-webhook] subscription.deleted: skipped, active plan is owned by', user.subscriptionProvider);
+          } else if (user) {
             await storage.updateSubscription(user.id, { plan: 'free', billingCycle: null, currentPeriodEnd: null });
           } else {
             console.warn('[stripe-webhook] subscription.deleted: no user for customer', customerId?.slice(0, 7) + '…');

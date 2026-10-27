@@ -10,7 +10,7 @@ Key points to keep in mind:
 
 - Core loop: **Write → Smash → Reward**
 - Free tier: Smash List (unlimited), up to 3 Lists, Common effects, default theme only
-- PixDone+: unlimited Lists, Rare/Epic effects, all preset themes — ¥600/month or ¥6,000/year
+- PixDone+: unlimited Lists, Rare/Epic effects, all preset themes — ¥300/month or ¥3,000/year (same on web / App Store / Google Play)
 - Common effects use CSS variables for theming — **never hardcode colors inside effect logic**
 - Rare/Epic effects are theme-specific and must be conditionally loaded
 - Theme Progression System is **Phase 2** (not yet implemented)
@@ -25,7 +25,7 @@ Key points to keep in mind:
 | Backend        | Node.js + Express (TypeScript) |
 | Database       | Firebase Firestore |
 | Auth           | Firebase Auth |
-| Payments       | Stripe |
+| Payments       | Stripe (web), App Store / Google Play via RevenueCat (apps) |
 | Deployment     | Vercel |
 
 ## Project Structure

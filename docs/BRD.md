@@ -238,7 +238,7 @@ Current stack:
 | Backend        | Node.js, Express (TypeScript) |
 | Database       | Firebase Firestore |
 | Authentication | Firebase Auth |
-| Payments       | Stripe (subscription billing) |
+| Payments       | Stripe (web subscriptions), App Store / Google Play via RevenueCat (app subscriptions) |
 | Deployment     | Vercel |
 
 PWA support via Service Worker.
@@ -293,8 +293,11 @@ PixDone operates on a freemium model with a subscription plan called **PixDone+*
 - Default theme only
 
 ### PixDone+ (Paid Subscription)
-- Monthly: ¥600 JPY / month
-- Annual: ¥6,000 JPY / year (equivalent to ¥500/month)
+- Monthly: ¥300 JPY / month
+- Annual: ¥3,000 JPY / year (equivalent to ¥250/month)
+- 7-day free trial for new subscribers (web and app stores)
+- Same price on web (Stripe), iOS (App Store) and Android (Google Play). Revised from ¥600 / ¥6,000 in 2026-10; existing subscribers move to the new price at their next renewal.
+- A subscription bought on any platform unlocks PixDone+ on all platforms (same account).
 
 Includes:
 - Lists: unlimited

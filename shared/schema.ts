@@ -41,6 +41,7 @@ export const users = pgTable("users", {
   stripeSubscriptionId: varchar("stripe_subscription_id"),
   subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
   trialEnd: timestamp("trial_end"),                                         // 無料トライアル終了日
+  subscriptionProvider: varchar("subscription_provider"),                // 'stripe' | 'app_store' | 'play_store' | null（購入元）
   unlockedThemes: jsonb("unlocked_themes").default([]),                   // AI生成テーマID配列 (将来用)
   customSoundEffect: varchar("custom_sound_effect"),                      // カスタムSE (データモデルのみ)
   activeSEId: varchar("active_se_id"),                                    // SEオーバーライド (将来用)

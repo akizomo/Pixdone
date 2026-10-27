@@ -50,6 +50,13 @@
       "when": 1775839000000,
       "tag": "0006_add_effect_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793083537104,
+      "tag": "0007_add_subscription_provider",
+      "breakpoints": true
     }
   ]
 }
