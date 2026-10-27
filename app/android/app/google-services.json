@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "516445042682-k3cc1r3kcreljob2lste2psl8rssohj1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pixdone.app",
+            "certificate_hash": "0fc7f93da4dd74d8ad1d8ae64e2f8f306d2fa061"
+          }
+        },
+        {
           "client_id": "516445042682-1kueqtb6nqrv2ho6j5al53ujjuiiol41.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "516445042682-1kueqtb6nqrv2ho6j5al53ujjuiiol41.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "516445042682-v6g0gft3r44er4oi6iv45brnfd6jm6t4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.pixdone.app"
+              }
             }
           ]
         }

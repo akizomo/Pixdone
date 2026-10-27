@@ -16,6 +16,19 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     tailwindcss(),
+    {
+      // Native: the Google Fonts stylesheet blocks every script after it until it
+      // loads, so a slow or offline network left the app blank (20s+ measured on
+      // the Android emulator). Load it without blocking; fonts swap in when ready.
+      name: 'native-nonblocking-fonts',
+      transformIndexHtml(html) {
+        if (mode !== 'native') return html;
+        return html.replace(
+          /<link href="(https:\/\/fonts\.googleapis\.com[^"]+)" rel="stylesheet">/,
+          `<link href="$1" rel="stylesheet" media="print" onload="this.media='all'">`,
+        );
+      },
+    },
     VitePWA({
       // Native (Capacitor) builds ship the bundle inside the app; a service worker
       // there would only serve stale assets after an app update.
