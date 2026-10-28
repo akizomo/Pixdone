@@ -3,11 +3,17 @@
  *
  * Extracting this from AppContent means timer ticks (every 100ms while running)
  * only re-render this subtree, not the tasks screen or collection screen.
+ *
+ * It stays MOUNTED while the user is on other screens (`active` = false), so the timer
+ * and BGM keep running. In that state it shows a MiniPlayer above the bottom nav
+ * instead of the full focus UI.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useListsData } from '../features/ListsContext';
 import { FocusScreen } from '../components';
 import { FocusZenMode } from '../components/FocusZenMode';
+import { MiniPlayer, Button } from '../design-system';
+import { t } from '../lib/i18n';
 import { useFocusTimer } from '../hooks/useFocusTimer';
 import { useFocusBgm } from '../hooks/useFocusBgm';
 import { playSound } from '../services/sound';
@@ -24,6 +30,20 @@ export interface FocusScreenContainerProps {
   onNavigateToFocus: () => void;
   focusZenOpen: boolean;
   onFocusZenOpenChange: (open: boolean) => void;
+  /** True while the focus screen is the one being shown. False = keep running in the background. */
+  active: boolean;
+  /** False on pages without the bottom nav (pricing/account…): no MiniPlayer there. */
+  showMiniPlayer: boolean;
+  /** Bottom nav is slid away (hide-on-scroll). */
+  bottomNavHidden: boolean;
+  /** Reports whether the MiniPlayer is showing, so the app can make room for it. */
+  onMiniPlayerVisibleChange: (visible: boolean) => void;
+}
+
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
 export function FocusScreenContainer({
@@ -35,6 +55,10 @@ export function FocusScreenContainer({
   onNavigateToFocus,
   focusZenOpen,
   onFocusZenOpenChange,
+  active,
+  showMiniPlayer,
+  bottomNavHidden,
+  onMiniPlayerVisibleChange,
 }: FocusScreenContainerProps) {
   const { lists } = useListsData();
 
@@ -135,8 +159,17 @@ export function FocusScreenContainer({
     setBgmMenuOpen(false);
   }, [onFocusZenOpenChange]);
 
+  const isBreakMode = focusMode !== 'pomodoro';
+  const isRunning = focusTimer.timerState === 'running';
+  const miniPlayerVisible = showMiniPlayer && !active && !focusZenOpen && focusTimer.timerState !== 'idle';
+  useEffect(() => {
+    onMiniPlayerVisibleChange(miniPlayerVisible);
+    return () => onMiniPlayerVisibleChange(false);
+  }, [miniPlayerVisible, onMiniPlayerVisibleChange]);
+
   return (
     <>
+    {active && (
     <FocusScreen
       lists={lists}
       lang={lang}
@@ -166,6 +199,35 @@ export function FocusScreenContainer({
       onTutorialSmashLinkClick={onNavigateToSmashList}
       onTutorialFocusLinkClick={onNavigateToFocus}
     />
+    )}
+    {miniPlayerVisible && (
+      <MiniPlayer
+        title={isBreakMode ? (lang === 'ja' ? '休憩' : 'Break') : 'Focus'}
+        time={formatTime(focusTimer.remaining)}
+        openLabel={lang === 'ja' ? 'フォーカス画面を開く' : 'Open focus timer'}
+        onOpen={onNavigateToFocus}
+        soundKey={null} /* navigateToFocus plays the click itself */
+        navHidden={bottomNavHidden}
+        actions={
+          <>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                if (isRunning) { focusTimer.pause(); stopBgm(); } else { focusTimer.resume(); }
+              }}
+            >
+              {isRunning ? (lang === 'ja' ? '一時停止' : 'Pause') : (lang === 'ja' ? '再開' : 'Resume')}
+            </Button>
+            {isBreakMode ? (
+              <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={handleSkipBreak}>{t('skipBreak', lang)}</Button>
+            ) : (
+              <Button variant="ghost" size="sm" soundKey="taskComplete" onClick={handleCompleteFocus}>{lang === 'ja' ? '完了' : 'Complete'}</Button>
+            )}
+          </>
+        }
+      />
+    )}
     {focusZenOpen && (
       <FocusZenMode
         lang={lang}

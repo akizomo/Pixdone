@@ -1,0 +1,82 @@
+/* MiniPlayer – mini controller docked above the mobile BottomNav */
+
+.pxd-mini-player {
+  position: fixed;
+  left: 0;
+  right: 0;
+  /* Sits directly on top of the BottomNav (56px + safe area, see BottomNav.css). */
+  bottom: calc(56px + env(safe-area-inset-bottom));
+  z-index: 250; /* above BottomNav (200), below the FAB (300) */
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-2);
+  box-sizing: border-box;
+  height: var(--pd-space-12);
+  padding: 0 var(--pd-space-3) 0 0;
+  background-color: var(--pd-color-background-elevated);
+  border-top: var(--pd-border-base) solid var(--pd-color-border-interactive);
+  color: var(--pd-color-text-primary);
+  transition: bottom var(--pd-motion-base) var(--pd-easing-standard, ease);
+}
+
+/* BottomNav slid away (hide-on-scroll): drop to the screen edge. */
+.pxd-mini-player--nav-hidden {
+  bottom: env(safe-area-inset-bottom);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pxd-mini-player { transition: none; }
+}
+
+/* Contract with the app shell: while a MiniPlayer shows, the app body carries
+   data-mini-player="true"; the FAB and the scroll area add this offset (pixel.css). */
+[data-mini-player="true"] {
+  --pd-mini-player-offset: var(--pd-space-12);
+}
+
+.pxd-mini-player__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-2);
+  height: 100%;
+  padding: 0 var(--pd-space-3);
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: var(--pd-font-body);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.pxd-mini-player__main:focus {
+  outline: none;
+}
+
+.pxd-mini-player__main:focus-visible {
+  outline: 2px solid var(--pd-color-accent-default);
+  outline-offset: -2px;
+}
+
+.pxd-mini-player__title {
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  white-space: nowrap;
+}
+
+.pxd-mini-player__time {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-lg);
+  color: var(--pd-color-accent-default);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pxd-mini-player__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-2);
+  flex-shrink: 0;
+}

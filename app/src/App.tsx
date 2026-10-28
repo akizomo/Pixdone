@@ -146,6 +146,10 @@ function AppContent() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   // userMenuRef removed — PopoverMenu handles outside-click internally
   const [focusZenOpen, setFocusZenOpen] = useState(false);
+  // The mobile focus screen stays mounted once opened, so the timer keeps running (with a
+  // MiniPlayer) while the user is on other screens. It is not mounted before the first visit.
+  const [focusVisited, setFocusVisited] = useState(false);
+  const [miniPlayerVisible, setMiniPlayerVisible] = useState(false);
   const [sidePanelOpen, setSidePanelOpen] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth >= 900 : true
   );
@@ -432,6 +436,7 @@ function AppContent() {
   }, [user, syncServerSession, markTutorialSeen]);
 
   const isFocusScreen = activeScreen === 'focus';
+  if (isFocusScreen && !isDesktop && !focusVisited) setFocusVisited(true);
   const isCollectionScreen = activeScreen === 'collection';
 
   // Side panel counts
@@ -1044,7 +1049,7 @@ function AppContent() {
       )}
 
       {/* Content area: SidePanel + Main */}
-      <div className="pd-app-body">
+      <div className="pd-app-body" data-mini-player={miniPlayerVisible ? 'true' : undefined}>
       {/* Desktop side panel — always in DOM for transition */}
       {isDesktop && (
         <SidePanel
@@ -1068,6 +1073,22 @@ function AppContent() {
         />
       )}
       <main>
+        {!isDesktop && focusVisited && (
+          <FocusScreenContainer
+            lang={lang}
+            user={user}
+            onComplete={handleComplete}
+            onEdit={() => setActiveScreen('tasks')}
+            onNavigateToSmashList={navigateToSmashList}
+            onNavigateToFocus={navigateToFocus}
+            focusZenOpen={focusZenOpen}
+            onFocusZenOpenChange={setFocusZenOpen}
+            active={isFocusScreen && !isSubPage}
+            showMiniPlayer={!isSubPage}
+            bottomNavHidden={mobileChromHidden}
+            onMiniPlayerVisibleChange={setMiniPlayerVisible}
+          />
+        )}
         {pathname === '/pricing' ? (
           <PricingPage />
         ) : pathname === '/account' ? (
@@ -1095,16 +1116,8 @@ function AppContent() {
             onRequestEffect={() => navigate('/effect-request')}
           />
         ) : isFocusScreen && !isDesktop ? (
-          <FocusScreenContainer
-            lang={lang}
-            user={user}
-            onComplete={handleComplete}
-            onEdit={() => setActiveScreen('tasks')}
-            onNavigateToSmashList={navigateToSmashList}
-            onNavigateToFocus={navigateToFocus}
-            focusZenOpen={focusZenOpen}
-            onFocusZenOpenChange={setFocusZenOpen}
-          />
+          // Rendered by the persistent FocusScreenContainer above.
+          null
         ) : (isDesktop && sideView === 'today') || (!isDesktop && activeScreen === 'tasks' && mobileSubView === 'today') ? (
           <TodayView
             lists={lists}

@@ -158,7 +158,7 @@
   position: fixed;
   z-index: 300;
   /* Same row as SubMenu, above BottomNav */
-  bottom: calc(56px + env(safe-area-inset-bottom) + var(--pd-space-3, 12px));
+  bottom: calc(56px + env(safe-area-inset-bottom) + var(--pd-space-3, 12px) + var(--pd-mini-player-offset, 0px));
   right: var(--pd-space-4, 16px);
   left: auto;
   /* Rapid taps (Smash) must not trigger double-tap-to-zoom. */
@@ -249,7 +249,7 @@
 
   /* Reserve exactly the fixed BottomNav height (56px) + safe-area. */
   .pd-app-body > main {
-    padding-bottom: calc(56px + env(safe-area-inset-bottom));
+    padding-bottom: calc(56px + env(safe-area-inset-bottom) + var(--pd-mini-player-offset, 0px));
   }
 }
 
