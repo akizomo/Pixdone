@@ -14,6 +14,7 @@ import { FocusScreen } from '../components';
 import { FocusZenMode } from '../components/FocusZenMode';
 import { MiniPlayer, Button } from '../design-system';
 import { t } from '../lib/i18n';
+import { startBackgroundTimer, stopBackgroundTimer } from '../services/backgroundTimer';
 import { useFocusTimer } from '../hooks/useFocusTimer';
 import { useFocusBgm } from '../hooks/useFocusBgm';
 import { playSound } from '../services/sound';
@@ -74,7 +75,9 @@ export function FocusScreenContainer({
   const focusCountRef = useRef(focusPomodoroCount);
   useEffect(() => { focusCountRef.current = focusPomodoroCount; }, [focusPomodoroCount]);
 
+  const timerEndedAtRef = useRef(0);
   const focusTimer = useFocusTimer(() => {
+    timerEndedAtRef.current = Date.now();
     const m = focusModeRef.current;
     if (m === 'pomodoro') playSound('focusPomodoroComplete');
     else playSound('focusBreakComplete');
@@ -161,6 +164,25 @@ export function FocusScreenContainer({
 
   const isBreakMode = focusMode !== 'pomodoro';
   const isRunning = focusTimer.timerState === 'running';
+
+  // Keep the timer + BGM alive in the background (Android foreground service with a native
+  // countdown notification). `remaining` is read through a ref: the end time is fixed when a
+  // running stretch starts, so ticks must not restart the service.
+  const remainingRef = useRef(focusTimer.remaining);
+  remainingRef.current = focusTimer.remaining;
+  useEffect(() => {
+    if (!isRunning) {
+      // Right after the timer ends, give the completion sound a moment before letting go.
+      stopBackgroundTimer(Date.now() - timerEndedAtRef.current < 2000 ? 8000 : 0);
+      return;
+    }
+    void startBackgroundTimer({
+      title: isBreakMode ? (lang === 'ja' ? '休憩中' : 'Break') : (lang === 'ja' ? 'フォーカス中' : 'Focusing'),
+      text: lang === 'ja' ? 'タップして PixDone を開く' : 'Tap to open PixDone',
+      endAt: Date.now() + remainingRef.current * 1000,
+    });
+  }, [isRunning, isBreakMode, lang]);
+  useEffect(() => () => stopBackgroundTimer(), []);
   const miniPlayerVisible = showMiniPlayer && !active && !focusZenOpen && focusTimer.timerState !== 'idle';
   useEffect(() => {
     onMiniPlayerVisibleChange(miniPlayerVisible);

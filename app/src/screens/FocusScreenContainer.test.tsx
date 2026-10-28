@@ -1,9 +1,11 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { FocusScreenContainer, type FocusScreenContainerProps } from './FocusScreenContainer';
+import { startBackgroundTimer, stopBackgroundTimer } from '../services/backgroundTimer';
 
 vi.mock('../features/ListsContext', () => ({ useListsData: () => ({ lists: [] }) }));
 vi.mock('../services/sound', () => ({ playSound: vi.fn() }));
+vi.mock('../services/backgroundTimer', () => ({ startBackgroundTimer: vi.fn(), stopBackgroundTimer: vi.fn() }));
 vi.mock('../services/analytics', () => ({ trackPomodoroComplete: vi.fn() }));
 vi.mock('../services/bgm', () => ({
   stopBgm: vi.fn(),
@@ -98,5 +100,31 @@ describe('FocusScreenContainer — timer keeps running off the focus screen', ()
     act(() => { vi.advanceTimersByTime(3000); });
     rerender(<FocusScreenContainer {...props} active />);
     expect(screen.getByTestId('remaining').textContent).toBe('1497');
+  });
+
+  it('runs the background service only while the timer runs, with the end time fixed at start', () => {
+    vi.mocked(startBackgroundTimer).mockClear();
+    vi.mocked(stopBackgroundTimer).mockClear();
+    const props = makeProps();
+    const { rerender } = render(<FocusScreenContainer {...props} />);
+
+    fireEvent.click(screen.getByText('start'));
+    expect(startBackgroundTimer).toHaveBeenCalledTimes(1);
+    const { endAt, title } = vi.mocked(startBackgroundTimer).mock.calls[0][0];
+    expect(title).toBe('Focusing');
+    expect(endAt).toBeGreaterThan(Date.now() + 1499 * 1000); // ~25:00 from now
+
+    // Ticking (and leaving the screen) must not restart it or move the end time.
+    act(() => { vi.advanceTimersByTime(10_000); });
+    rerender(<FocusScreenContainer {...props} active={false} />);
+    expect(startBackgroundTimer).toHaveBeenCalledTimes(1);
+
+    // Pausing from the MiniPlayer stops it.
+    fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
+    expect(stopBackgroundTimer).toHaveBeenLastCalledWith(0);
+
+    // Resuming starts it again with a new end time.
+    fireEvent.click(screen.getByRole('button', { name: 'Resume' }));
+    expect(startBackgroundTimer).toHaveBeenCalledTimes(2);
   });
 });

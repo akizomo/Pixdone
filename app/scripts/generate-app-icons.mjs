@@ -7,7 +7,7 @@
 // Usage (from app/): node scripts/generate-app-icons.mjs
 
 import { chromium } from 'playwright';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
@@ -97,6 +97,23 @@ try {
   };
   for (const [dir, [w, h]] of Object.entries(androidSplash)) {
     await renderRect(splashSvg(w, h, Math.round(Math.min(w, h) * 0.4)), w, h, resolve(ANDROID_RES, dir, 'splash.png'));
+  }
+
+  // Android notification small icon (focus timer foreground service): the pixel clock as a
+  // white silhouette on transparent, 24dp per density. The system tints it.
+  const clockSvg = readFileSync(resolve(ROOT, 'node_modules/pixelarticons/svg/clock.svg'), 'utf8')
+    .replace(/currentColor/g, '#FFFFFF')
+    .replace(/<svg /, '<svg width="100%" height="100%" ');
+  const statSizes = { mdpi: 24, hdpi: 36, xhdpi: 48, xxhdpi: 72, xxxhdpi: 96 };
+  for (const [d, px] of Object.entries(statSizes)) {
+    const page = await browser.newPage({ viewport: { width: px, height: px }, deviceScaleFactor: 1 });
+    await page.setContent(`<!doctype html><html><head><style>*{margin:0;padding:0}html,body{background:transparent}svg{display:block;width:${px}px;height:${px}px}</style></head><body>${clockSvg}</body></html>`);
+    const dir = resolve(ANDROID_RES, `drawable-${d}`);
+    mkdirSync(dir, { recursive: true });
+    const out = resolve(dir, 'ic_stat_focus.png');
+    writeFileSync(out, await page.screenshot({ clip: { x: 0, y: 0, width: px, height: px }, omitBackground: true }));
+    await page.close();
+    console.log(`wrote ${out}`);
   }
 
   writeFileSync(
