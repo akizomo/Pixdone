@@ -21,5 +21,8 @@
         "server/**/*.ts",
         "api/**/*.ts",
         "shared/**/*.ts"
+    ],
+    "exclude": [
+        "**/*.test.ts"
     ]
 }
