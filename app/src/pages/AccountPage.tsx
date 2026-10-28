@@ -260,7 +260,7 @@ export function AccountPage() {
                 ? 'アカウントとすべてのデータを完全に削除します。元に戻せません。'
                 : 'Permanently deletes your account and all data. This cannot be undone.'}
             </p>
-            <Button variant="ghost" size="sm" className="account-danger__button" soundKey="taskDelete" loading={deleting} onClick={handleDeleteAccount}>
+            <Button variant="dangerGhost" size="sm" soundKey="taskDelete" loading={deleting} onClick={handleDeleteAccount}>
               {isJa ? 'アカウントを削除' : 'DELETE ACCOUNT'}
             </Button>
           </section>

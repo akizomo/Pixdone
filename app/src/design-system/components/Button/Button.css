@@ -163,6 +163,25 @@
   box-shadow: 1px 1px 0px var(--pd-color-shadow-default);
 }
 
+/* Destructive but quiet: text only (like ghost) in the danger color. For actions that
+   must be findable yet not eye-catching, e.g. "Delete account" (confirm in a dialog). */
+.pxd-button--danger-ghost {
+  background-color: transparent;
+  color: var(--pd-color-text-danger);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  .pxd-button--danger-ghost:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--pd-color-semantic-danger) 12%, transparent);
+  }
+}
+
+.pxd-button--danger-ghost:active:not(:disabled) {
+  background-color: color-mix(in srgb, var(--pd-color-semantic-danger) 12%, transparent);
+}
+
 .pxd-button--reward {
   background-color: var(--pd-color-semantic-success);
   color: var(--pd-color-semantic-successText);

@@ -14,7 +14,7 @@ const meta: Meta<typeof Button> = {
     },
   },
   argTypes: {
-    variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger', 'reward', 'signup', 'icon'] },
+    variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger', 'dangerOutline', 'dangerGhost', 'reward', 'signup', 'icon'] },
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
   },
 };
@@ -26,6 +26,7 @@ export const Primary: Story = { args: { variant: 'primary', children: 'Save' } }
 export const Secondary: Story = { args: { variant: 'secondary', children: 'Cancel' } };
 export const Ghost: Story = { args: { variant: 'ghost', children: 'Skip' } };
 export const Danger: Story = { args: { variant: 'danger', children: 'Delete' } };
+export const DangerGhost: Story = { args: { variant: 'dangerGhost', children: 'Delete account' } };
 export const Reward: Story = { args: { variant: 'reward', children: 'Done' } };
 
 export const SizeSm: Story = { args: { size: 'sm', children: 'Small' } };
@@ -43,6 +44,7 @@ export const AllVariants: Story = {
       <Button variant="secondary">Secondary</Button>
       <Button variant="ghost">Ghost</Button>
       <Button variant="danger">Danger</Button>
+      <Button variant="dangerGhost">Danger ghost</Button>
       <Button variant="reward">Reward</Button>
     </div>
   ),

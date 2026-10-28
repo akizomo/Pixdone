@@ -9,6 +9,7 @@ const variantMap = {
   ghost: 'pxd-button--ghost',
   danger: 'pxd-button--danger',
   dangerOutline: 'pxd-button--danger-outline',
+  dangerGhost: 'pxd-button--danger-ghost',
   reward: 'pxd-button--reward',
   signup: 'pxd-button--signup',
   icon: 'pxd-button--icon',

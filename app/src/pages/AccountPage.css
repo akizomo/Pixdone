@@ -13,10 +13,3 @@
   font-size: var(--pd-font-size-xs);
   color: var(--pd-color-text-tertiary);
 }
-
-/* Quiet, text-only destructive action: it must be findable, not eye-catching. The
-   danger tint comes from the token; two classes beat the Button's variant color. */
-.account-danger .account-danger__button {
-  color: var(--pd-color-text-danger);
-  padding-inline: 0;
-}
