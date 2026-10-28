@@ -8,7 +8,7 @@ import { setupEmailAuth } from "./emailAuth.js";
 import { sql } from "drizzle-orm";
 import { db } from "./db.js";
 import { createPlusCheckoutSession, cancelPlusSubscription, verifyStripeWebhook } from "./billing/stripe.js";
-import { revenueCatEventToAction, mayUpdateSubscription } from "./billing/revenuecat.js";
+import { revenueCatEventToAction, mayUpdateSubscription, authorizationMatches } from "./billing/revenuecat.js";
 import crypto from "crypto";
 import admin from "firebase-admin";
 import { deleteAccount, createAccountDeletionDeps } from "./accountDeletion.js";
@@ -330,10 +330,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/billing/revenuecat-webhook', async (req: any, res) => {
     try {
       const expected = process.env.REVENUECAT_WEBHOOK_AUTH;
-      if (!expected) return res.status(500).send('Missing REVENUECAT_WEBHOOK_AUTH');
-      const given = Buffer.from(String(req.header?.('authorization') ?? ''));
-      const want = Buffer.from(expected);
-      if (given.length !== want.length || !crypto.timingSafeEqual(given, want)) {
+      if (!expected?.trim()) return res.status(500).send('Missing REVENUECAT_WEBHOOK_AUTH');
+      if (!authorizationMatches(req.header?.('authorization'), expected)) {
         return res.status(401).send('Unauthorized');
       }
 

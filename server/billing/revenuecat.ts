@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 /**
  * RevenueCat webhook → subscription state.
  *
@@ -112,4 +114,17 @@ export function mayUpdateSubscription(
   if (incomingPlan === 'plus') return true;
   if (!currentProvider || currentPlan !== 'plus') return true;
   return currentProvider === incomingProvider;
+}
+
+/**
+ * Constant-time check of the webhook's Authorization header against the configured
+ * secret. Surrounding whitespace is ignored on both sides: a trailing newline pasted
+ * into an environment variable is easy to miss and would otherwise reject every event.
+ */
+export function authorizationMatches(given: string | undefined, expected: string | undefined): boolean {
+  const want = (expected ?? '').trim();
+  if (!want) return false; // never accept anything when no secret is configured
+  const got = Buffer.from((given ?? '').trim());
+  const wantBuf = Buffer.from(want);
+  return got.length === wantBuf.length && crypto.timingSafeEqual(got, wantBuf);
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mayUpdateSubscription, revenueCatEventToAction } from './revenuecat.js';
+import { authorizationMatches, mayUpdateSubscription, revenueCatEventToAction } from './revenuecat.js';
 
 const NOW = new Date('2026-11-01T00:00:00Z');
 const FUTURE = Date.parse('2026-12-01T00:00:00Z');
@@ -60,5 +60,25 @@ describe('mayUpdateSubscription', () => {
     expect(mayUpdateSubscription('app_store', 'plus', 'app_store', 'free')).toBe(true);
     expect(mayUpdateSubscription(null, 'plus', 'stripe', 'free')).toBe(true);
     expect(mayUpdateSubscription('app_store', 'free', 'stripe', 'free')).toBe(true);
+  });
+});
+
+describe('authorizationMatches', () => {
+  it('accepts the exact secret', () => {
+    expect(authorizationMatches('abc123', 'abc123')).toBe(true);
+  });
+  it('ignores surrounding whitespace on either side (pasted newline in an env var)', () => {
+    expect(authorizationMatches('abc123', 'abc123\n')).toBe(true);
+    expect(authorizationMatches(' abc123 ', 'abc123')).toBe(true);
+  });
+  it('rejects a wrong, missing or empty value, and never matches when no secret is set', () => {
+    expect(authorizationMatches('abc124', 'abc123')).toBe(false);
+    expect(authorizationMatches(undefined, 'abc123')).toBe(false);
+    expect(authorizationMatches('', '')).toBe(false);
+    expect(authorizationMatches('anything', undefined)).toBe(false);
+    expect(authorizationMatches('anything', '   ')).toBe(false);
+  });
+  it('does not strip inside the value', () => {
+    expect(authorizationMatches('abc 123', 'abc123')).toBe(false);
   });
 });
