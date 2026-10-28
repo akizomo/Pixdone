@@ -8,7 +8,6 @@ import {
   sendEmailVerification,
   signOut,
   sendPasswordResetEmail,
-  deleteUser,
   GoogleAuthProvider,
   OAuthProvider,
   signInWithPopup,
@@ -218,9 +217,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteAccount = async () => {
-    if (auth.currentUser) {
-      await deleteUser(auth.currentUser);
+    const current = auth.currentUser;
+    if (!current) throw new Error('Not logged in');
+    // The server deletes everything (Stripe, Firestore, DB, and the Firebase user itself).
+    // A fresh ID token proves this is the signed-in user, not just a leftover cookie.
+    const idToken = await current.getIdToken(true);
+    const resp = await fetch(apiUrl('/api/account'), {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+    if (!resp.ok) {
+      let message = `Failed to delete account (${resp.status})`;
+      try {
+        const j = (await resp.json()) as { message?: string };
+        if (j.message) message = j.message;
+      } catch { /* keep default */ }
+      throw new Error(message);
     }
+    // The Firebase user no longer exists; drop the local session and native Google/Apple state.
+    if (Capacitor.isNativePlatform()) await FirebaseAuthentication.signOut().catch(() => {});
+    await signOut(auth).catch(() => {});
+    setServerSessionReady(false);
+    setServerSessionError(null);
   };
 
   return (

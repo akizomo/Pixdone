@@ -10,6 +10,9 @@ import { db } from "./db.js";
 import { createPlusCheckoutSession, cancelPlusSubscription, verifyStripeWebhook } from "./billing/stripe.js";
 import { revenueCatEventToAction, mayUpdateSubscription } from "./billing/revenuecat.js";
 import crypto from "crypto";
+import admin from "firebase-admin";
+import { deleteAccount, createAccountDeletionDeps } from "./accountDeletion.js";
+import { ensureFirebaseAdmin } from "./firebaseAdmin.js";
 import { StartupError } from "./startupError.js";
 import { assertDeploymentEnv } from "./validateDeploymentEnv.js";
 import { setupFirebaseSessionRoute } from "./firebaseSessionRoute.js";
@@ -182,6 +185,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating user theme:", error);
       res.status(500).json({ message: "Failed to update theme" });
+    }
+  });
+
+  // DELETE /api/account — permanently delete the signed-in user's account and all data.
+  // The caller must also send a fresh Firebase ID token for the SAME uid, so a stolen or
+  // stale session cookie alone cannot wipe an account.
+  app.options('/api/account', (_req, res) => res.sendStatus(204));
+  app.delete('/api/account', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getSessionUserId(req);
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+      const idToken = typeof req.body?.idToken === 'string' ? req.body.idToken : '';
+      if (!idToken) return res.status(400).json({ message: "idToken is required" });
+      ensureFirebaseAdmin();
+      const decoded = await admin.auth().verifyIdToken(idToken).catch(() => null);
+      if (!decoded || decoded.uid !== userId) {
+        return res.status(401).json({ message: "Re-authentication required" });
+      }
+
+      const user = await storage.getUser(userId);
+      await deleteAccount(
+        { uid: userId, stripeCustomerId: user?.stripeCustomerId ?? null },
+        createAccountDeletionDeps(process.env.STRIPE_SECRET_KEY),
+      );
+      console.info('[account-deletion] deleted account', userId.slice(0, 6) + '…');
+
+      // The session row is already gone; clear the cookie and the in-memory session.
+      req.logout?.(() => {
+        req.session?.destroy?.(() => {
+          res.clearCookie('connect.sid');
+          res.json({ ok: true });
+        });
+      });
+    } catch (error) {
+      console.error('[account-deletion] failed:', error);
+      // Every step is retry-safe; tell the client it can try again.
+      res.status(500).json({ message: "Failed to delete account. Please try again." });
     }
   });
 

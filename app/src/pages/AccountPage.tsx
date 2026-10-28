@@ -7,6 +7,7 @@ import { Button } from '../design-system';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
 import { getStoreManagementUrl } from '../lib/storeBilling';
+import './AccountPage.css';
 
 function formatDate(iso: string | null, lang: Lang): string {
   if (!iso) return '';
@@ -21,10 +22,11 @@ function formatDate(iso: string | null, lang: Lang): string {
 
 export function AccountPage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
   const { plan, billingCycle, currentPeriodEnd, provider } = useThemeEntitlements();
   const isStoreSubscription = provider === 'app_store' || provider === 'play_store';
   const [cancelling, setCancelling] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [cancelledUntil, setCancelledUntil] = useState<string | null>(null);
   const lang: Lang = detectDefaultLang();
   const isJa = lang === 'ja';
@@ -33,6 +35,36 @@ export function AccountPage() {
   // Store subscriptions can only be changed or cancelled in the store itself.
   const handleManageInStore = async () => {
     window.location.href = await getStoreManagementUrl();
+  };
+
+  // Permanently deletes the account and all data (store requirement: in-app account deletion).
+  const handleDeleteAccount = async () => {
+    const storeNote = isStoreSubscription
+      ? (isJa
+        ? '\n\n※ App Store / Google Play の契約は、この操作では解約されません。先にストアで解約してください。'
+        : '\n\nNote: your App Store / Google Play subscription is NOT cancelled by this. Cancel it in the store first.')
+      : (isPlusUser
+        ? (isJa ? '\n\nPixDone+ の契約は同時に解約されます（返金はありません）。' : '\n\nYour PixDone+ subscription will be cancelled immediately (no refund).')
+        : '');
+    const first = window.confirm(
+      (isJa
+        ? 'アカウントを削除しますか？タスク・リスト・進捗など、すべてのデータが完全に削除され、元に戻せません。'
+        : 'Delete your account? All tasks, lists and progress will be permanently deleted. This cannot be undone.') + storeNote,
+    );
+    if (!first) return;
+    const second = window.confirm(isJa ? '本当に削除しますか？' : 'Are you absolutely sure?');
+    if (!second) return;
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      navigate('/');
+    } catch (e) {
+      window.alert(e instanceof Error && e.message
+        ? e.message
+        : (isJa ? 'アカウントの削除に失敗しました。もう一度お試しください。' : 'Failed to delete account. Please try again.'));
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleCancel = async () => {
@@ -218,6 +250,20 @@ export function AccountPage() {
           <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={() => { logout(); navigate('/'); }}>
             {isJa ? 'ログアウト' : 'SIGN OUT'}
           </Button>
+        )}
+
+        {/* Delete account */}
+        {user && (
+          <section className="account-danger">
+            <p className="account-danger__note">
+              {isJa
+                ? 'アカウントとすべてのデータを完全に削除します。元に戻せません。'
+                : 'Permanently deletes your account and all data. This cannot be undone.'}
+            </p>
+            <Button variant="danger" size="sm" soundKey="taskDelete" loading={deleting} onClick={handleDeleteAccount}>
+              {isJa ? 'アカウントを削除' : 'DELETE ACCOUNT'}
+            </Button>
+          </section>
         )}
       </div>
     </div>

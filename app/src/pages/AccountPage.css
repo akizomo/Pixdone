@@ -1,0 +1,15 @@
+/* Delete-account block (store requirement: in-app account deletion). */
+.account-danger {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pd-space-2);
+  padding-top: var(--pd-space-4);
+  border-top: var(--pd-border-thin) solid var(--pd-color-border-default);
+}
+
+.account-danger__note {
+  margin: 0;
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-tertiary);
+}
