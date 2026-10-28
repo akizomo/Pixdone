@@ -24,15 +24,21 @@ describe('backgroundTimer', () => {
   });
   afterEach(() => vi.useRealTimers());
 
-  it('does nothing on the web and on iOS', async () => {
+  it('does nothing on the web', async () => {
     const m = await import('./backgroundTimer');
-    for (const p of ['web', 'ios']) {
-      platform.current = p;
-      await m.startBackgroundTimer(opts);
-      m.stopBackgroundTimer();
-    }
+    platform.current = 'web';
+    await m.startBackgroundTimer(opts);
+    m.stopBackgroundTimer();
     expect(plugin.start).not.toHaveBeenCalled();
     expect(plugin.stop).not.toHaveBeenCalled();
+  });
+
+  it('runs on iOS too, passing the iOS-specific fields through', async () => {
+    platform.current = 'ios';
+    const m = await import('./backgroundTimer');
+    const ios = { ...opts, keepAlive: true, endTitle: 'Done', endText: 'Take a break' };
+    await m.startBackgroundTimer(ios);
+    expect(plugin.start).toHaveBeenCalledWith(ios);
   });
 
   it('asks for the notification permission once, then starts the service with the end time', async () => {

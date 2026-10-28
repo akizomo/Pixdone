@@ -180,8 +180,12 @@ export function FocusScreenContainer({
       title: isBreakMode ? (lang === 'ja' ? '休憩中' : 'Break') : (lang === 'ja' ? 'フォーカス中' : 'Focusing'),
       text: lang === 'ja' ? 'タップして PixDone を開く' : 'Tap to open PixDone',
       endAt: Date.now() + remainingRef.current * 1000,
+      // iOS: BGM only plays in pomodoro mode; that audio is what keeps the app running.
+      keepAlive: bgmOn && !isBreakMode,
+      endTitle: isBreakMode ? (lang === 'ja' ? '休憩おわり' : 'Break over') : (lang === 'ja' ? 'フォーカス完了' : 'Focus complete'),
+      endText: isBreakMode ? (lang === 'ja' ? 'フォーカスを始めましょう' : 'Ready for the next focus?') : (lang === 'ja' ? 'おつかれさま！休憩しましょう' : 'Nice work! Take a break.'),
     });
-  }, [isRunning, isBreakMode, lang]);
+  }, [isRunning, isBreakMode, lang, bgmOn]);
   useEffect(() => () => stopBackgroundTimer(), []);
   const miniPlayerVisible = showMiniPlayer && !active && !focusZenOpen && focusTimer.timerState !== 'idle';
   useEffect(() => {

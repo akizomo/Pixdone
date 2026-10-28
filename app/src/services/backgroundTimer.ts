@@ -5,10 +5,16 @@ import { Capacitor, registerPlugin } from '@capacitor/core';
  *
  * Android freezes a backgrounded app after ~2 minutes, which silently stops the timer and
  * BGM. A foreground service (native, `FocusServicePlugin`) prevents that and shows a native
- * countdown notification. No-op outside the Android app (web, iOS).
+ * countdown notification.
+ *
+ * iOS only keeps the app running in the background while audio plays, so there the plugin
+ * activates a playback audio session while BGM plays (`keepAlive`) and schedules a local
+ * notification for the end time (for when BGM is off and iOS suspends the app).
+ *
+ * No-op on the web.
  */
 interface FocusServicePlugin {
-  start(options: { title: string; text: string; endAt: number }): Promise<void>;
+  start(options: BackgroundTimerOptions): Promise<void>;
   stop(): Promise<void>;
   checkPermissions(): Promise<{ notifications: string }>;
   requestPermissions(): Promise<{ notifications: string }>;
@@ -16,7 +22,7 @@ interface FocusServicePlugin {
 
 const FocusService = registerPlugin<FocusServicePlugin>('FocusService');
 
-const isSupported = () => Capacitor.getPlatform() === 'android';
+const isSupported = () => Capacitor.getPlatform() === 'android' || Capacitor.getPlatform() === 'ios';
 
 let askedForNotificationPermission = false;
 let pendingStop: ReturnType<typeof setTimeout> | null = null;
@@ -33,14 +39,20 @@ export interface BackgroundTimerOptions {
   text: string;
   /** Unix ms when the timer reaches 0; the notification counts down to it. */
   endAt: number;
+  /** iOS: BGM is playing, so keep the app alive with a playback audio session. */
+  keepAlive?: boolean;
+  /** iOS: text of the local notification delivered at `endAt`. */
+  endTitle?: string;
+  endText?: string;
 }
 
 export async function startBackgroundTimer(options: BackgroundTimerOptions): Promise<void> {
   if (!isSupported()) return;
   cancelPendingStop();
   try {
-    // Android 13+: ask once, on the first timer start (a user gesture). The service works
-    // either way — a denied permission only hides the notification.
+    // Ask once, on the first timer start (a user gesture): Android 13+ notification
+    // permission / iOS notification permission. The timer works either way — a denied
+    // permission only hides the notification.
     if (!askedForNotificationPermission) {
       askedForNotificationPermission = true;
       const { notifications } = await FocusService.checkPermissions();
