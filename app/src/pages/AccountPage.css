@@ -10,6 +10,6 @@
 
 .account-danger__note {
   margin: 0;
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-2xs);
   color: var(--pd-color-text-tertiary);
 }

@@ -23,7 +23,7 @@
   border: none;
   padding: 0;
   font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-2xs);
   color: var(--pd-color-text-secondary);
   cursor: pointer;
   outline: none;
@@ -155,7 +155,7 @@
   border: var(--pd-border-base) solid var(--pd-color-border-default);
   border-radius: var(--pd-radius-none);
   font-family: var(--pd-font-body);
-  font-size: 0.8125rem;
+  font-size: var(--pd-font-size-xs);
   text-align: center;
   background: var(--pd-color-background-default);
   color: var(--pd-color-text-primary);
@@ -166,7 +166,7 @@
   border: var(--pd-border-base) solid var(--pd-color-border-default);
   border-radius: var(--pd-radius-none);
   font-family: var(--pd-font-body);
-  font-size: 0.8125rem;
+  font-size: var(--pd-font-size-xs);
   background: var(--pd-color-background-default);
   color: var(--pd-color-text-primary);
   cursor: pointer;
@@ -190,7 +190,7 @@
   background: transparent;
   color: var(--pd-color-text-secondary);
   font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-2xs);
   cursor: pointer;
   border-radius: var(--pd-radius-none);
 }
@@ -209,7 +209,7 @@
   background: var(--pd-color-accent-filled);
   color: var(--pd-color-accent-text);
   font-family: var(--pd-font-body);
-  font-size: 0.8125rem;
+  font-size: var(--pd-font-size-xs);
   cursor: pointer;
   border-radius: var(--pd-radius-none);
 }
@@ -229,7 +229,7 @@
 
 .pd-task-form__subtask-text {
   flex: 1;
-  font-size: 0.8125rem;
+  font-size: var(--pd-font-size-xs);
   font-family: var(--pd-font-body);
   color: var(--pd-color-text-primary);
   cursor: text;
@@ -280,7 +280,7 @@
 .pd-task-form--compact .pd-task-form__title--compact .pxd-rich-text-field__input,
 .pd-task-form--compact .pd-task-form__title--compact .pxd-rich-text-field__input:hover,
 .pd-task-form--compact .pd-task-form__title--compact .pxd-rich-text-field__input:focus {
-  font-size: 1.125rem;
+  font-size: var(--pd-font-size-lg);
   font-weight: var(--pd-font-weight-semibold);
   padding: var(--pd-space-1) 0;
   min-height: 0;
@@ -298,7 +298,7 @@
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  font-size: 0.9375rem;
+  font-size: var(--pd-font-size-md);
   color: var(--pd-color-text-secondary);
 }
 
@@ -350,7 +350,7 @@
   padding: var(--pd-space-1) var(--pd-space-2);
   color: var(--pd-color-text-secondary);
   font-family: var(--pd-font-body);
-  font-size: 0.875rem;
+  font-size: var(--pd-font-size-sm);
   cursor: pointer;
   border-radius: var(--pd-radius-none);
   min-height: 32px;
@@ -391,7 +391,7 @@
   background: transparent !important;
   padding: var(--pd-space-2) 0 !important;
   color: var(--pd-color-accent-default);
-  font-size: 0.9375rem;
+  font-size: var(--pd-font-size-md);
   min-height: 0;
 }
 .pd-task-form--edit .pd-task-form__add-subtask-input .pxd-text-field__input::placeholder {

@@ -19,7 +19,7 @@
 /* Timer display — theme accent color */
 .pd-focus-widget__time {
   font-family: 'VT323', 'Courier New', monospace;
-  font-size: 1.5rem;
+  font-size: var(--pd-font-size-2xl);
   color: var(--pd-color-accent-default);
   letter-spacing: 0.05em;
   line-height: 1;

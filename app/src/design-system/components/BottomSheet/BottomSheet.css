@@ -103,7 +103,7 @@
 .pxd-sheet-title {
   margin: 0;
   font-family: var(--pd-font-brand);
-  font-size: 1.375rem;
+  font-size: var(--pd-font-size-xl);
   font-weight: 700;
   line-height: 1.2;
   color: var(--pd-color-text-primary);
@@ -142,7 +142,7 @@
   padding: 20px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom) + var(--pd-keyboard-inset, 0px));
   font-family: var(--pd-font-body);
-  font-size: 0.875rem;
+  font-size: var(--pd-font-size-sm);
   color: var(--pd-color-text-primary);
 }
 

@@ -51,7 +51,7 @@
   border: none;
   font-family: var(--pd-font-brand);
   font-weight: var(--pd-font-weight-bold);
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 0.05em;
   color: var(--pd-color-accent-default);
   text-decoration: none;

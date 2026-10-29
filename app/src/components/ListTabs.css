@@ -61,7 +61,7 @@
 .pd-list-tabs__count {
   margin-left: 2px;
   padding: 1px var(--pd-space-1);
-  font-size: 0.6875rem;
+  font-size: var(--pd-font-size-3xs);
   border-radius: var(--pd-radius-none);
   border: var(--pd-border-thin) solid var(--pd-color-border-default);
   background: var(--pd-color-background-elevated);
@@ -89,7 +89,7 @@
   background: none;
   color: var(--pd-color-text-secondary);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: var(--pd-font-size-md);
   transition: background var(--pd-motion-fast) ease,
               color var(--pd-motion-fast) ease;
 }

@@ -21,7 +21,7 @@
   border: 2px solid var(--pd-color-border-default);
   box-shadow: 4px 4px 0px var(--pd-color-shadow-default);
   font-family: var(--pd-font-body);
-  font-size: 0.85rem;
+  font-size: var(--pd-font-size-sm);
   color: var(--pd-color-text-primary);
   width: min(440px, calc(100vw - 24px));
   opacity: 0;
@@ -52,7 +52,7 @@
   border: none;
   font-family: var(--pd-font-brand);
   font-weight: 700;
-  font-size: 0.7rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 1px;
   color: var(--pd-color-accent-default);
   cursor: pointer;

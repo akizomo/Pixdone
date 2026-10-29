@@ -16,7 +16,7 @@
     height: 1.4em;
     padding: 0 var(--pd-space-1);
     font-family: var(--pd-font-brand);
-    font-size: var(--pd-font-size-xs);
+    font-size: var(--pd-font-size-2xs);
     font-weight: var(--pd-font-weight-medium, 500);
     line-height: 1;
     letter-spacing: 0;

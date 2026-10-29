@@ -34,17 +34,17 @@
 
 .pd-agent-icon__badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 14px;
-  height: 14px;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--pd-color-accent-default);
   color: var(--pd-color-background-default);
   font-family: var(--pd-font-brand);
-  font-size: 10px;
+  font-size: var(--pd-font-size-sm);
   font-weight: bold;
   line-height: 1;
   border-radius: 0;

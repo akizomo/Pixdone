@@ -72,7 +72,7 @@
 /* Page title — matches ListHeader list-name size (1.5rem, brand font, bold, uppercase) */
 .pd-today-view__title,
 .pd-plan-view__title {
-  font-size: 1.5rem;
+  font-size: var(--pd-font-size-2xl);
   font-weight: 700;
   color: var(--pd-color-text-primary);
   margin: 0;

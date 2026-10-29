@@ -88,7 +88,7 @@
 }
 
 .user-menu-account__email {
-  font-size: var(--pd-font-size-xs, 0.75rem);
+  font-size: var(--pd-font-size-2xs, 0.75rem);
   color: var(--pd-color-text-secondary);
   font-family: var(--pd-font-body);
   word-break: break-all;
@@ -104,7 +104,7 @@
 
 .user-menu-account__badge {
   font-family: var(--pd-font-brand);
-  font-size: 0.6rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 1px;
   padding: 2px 7px;
   border: 1px solid var(--pd-color-border-default);
@@ -136,7 +136,7 @@
   gap: var(--pd-space-2, 8px);
   color: var(--pd-color-text-primary);
   font-family: var(--pd-font-body);
-  font-size: 0.875rem;
+  font-size: var(--pd-font-size-sm);
 }
 
 .user-menu-lang__label .pxd-pixel-icon {
@@ -161,7 +161,7 @@
 
 .user-menu-footer a {
   font-family: var(--pd-font-body);
-  font-size: 0.625rem;
+  font-size: var(--pd-font-size-3xs);
   color: var(--pd-color-text-muted);
   text-decoration: none;
 }

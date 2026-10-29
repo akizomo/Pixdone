@@ -89,8 +89,8 @@ export const tokens = {
   },
   typography: {
     fontFamily: {
-      brand: "'Handjet', 'VT323', 'Courier New', monospace",
-      brandJa: "'PixelMplus10', 'Handjet', 'VT323', 'Courier New', monospace",
+      brand: "'PD Handjet', 'PD VT323', 'Courier New', monospace",
+      brandJa: "'PixelMplus10', 'PD Handjet', 'PD VT323', 'Courier New', monospace",
       body: "'Inter', system-ui, sans-serif",
     },
     scale: {

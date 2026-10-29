@@ -59,7 +59,7 @@
 }
 
 .pd-bottom-nav__label {
-  font-size: 0.625rem;
+  font-size: var(--pd-font-size-3xs);
   font-weight: var(--pd-font-weight-regular);
   line-height: 1;
   white-space: nowrap;

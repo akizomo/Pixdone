@@ -100,7 +100,7 @@
 .pxd-rich-text-field__helper {
   margin-top: var(--pd-space-2);
   font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-2xs);
   line-height: var(--pd-line-height-normal);
   color: var(--pd-color-text-secondary);
 }

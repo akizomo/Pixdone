@@ -78,7 +78,7 @@
 
 .pd-onboarding__splash-sub {
   font-family: var(--pd-font-brand, var(--pd-font-display));
-  font-size: clamp(12px, 2.6vw, 16px);
+  font-size: clamp(var(--pd-font-size-sm), 2.6vw, var(--pd-font-size-md));
   color: var(--pd-color-text-secondary);
   letter-spacing: 0.12em;
 }
@@ -336,11 +336,11 @@
 .pd-onboarding__tap-hint {
   text-align: center;
   font-family: var(--pd-font-brand, var(--pd-font-display));
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-sm);
   color: var(--pd-gray-500);
   letter-spacing: 0.2em;
   padding-top: var(--pd-space-4);
-  min-height: calc(var(--pd-font-size-xs) + var(--pd-space-4));
+  min-height: calc(var(--pd-font-size-sm) + var(--pd-space-4));
   visibility: hidden; /* space reserved, text hidden */
   animation: pd-onboarding-blink 1.6s ease-in-out infinite;
 }
@@ -676,14 +676,14 @@
 
 .pd-onboarding__challenge-card-name {
   font-family: var(--pd-font-brand);
-  font-size: 1rem;
+  font-size: var(--pd-font-size-md);
   color: var(--pd-color-text-primary);
   line-height: 1.2;
 }
 
 .pd-onboarding__challenge-card-rarity {
   font-family: var(--pd-font-brand);
-  font-size: 0.7rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 1px;
   padding: 2px 6px;
   border: 1px solid var(--pd-color-border-default);
@@ -693,7 +693,7 @@
 .pd-onboarding__challenge-card-desc {
   margin: 0;
   font-family: var(--pd-font-body);
-  font-size: 0.85rem;
+  font-size: var(--pd-font-size-sm);
   line-height: 1.3;
   color: var(--pd-color-text-secondary);
   display: -webkit-box;
@@ -708,7 +708,7 @@
   gap: var(--pd-space-2, 8px);
   margin-top: 2px;
   font-family: var(--pd-font-body);
-  font-size: 0.8rem;
+  font-size: var(--pd-font-size-xs);
   color: var(--pd-color-text-muted);
 }
 
@@ -716,7 +716,7 @@
 .pd-onboarding__trial-note {
   margin: calc(var(--pd-space-1) * -1) 0 0;
   font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-xs, 0.75rem);
+  font-size: var(--pd-font-size-2xs, 0.75rem);
   line-height: 1.4;
   color: var(--pd-color-text-muted);
   text-align: center;
@@ -766,7 +766,7 @@
 
 .pd-onboarding__cycle-label {
   font-family: var(--pd-font-brand, var(--pd-font-display));
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 0.16em;
   color: var(--pd-cyan-300);
 }
@@ -781,7 +781,7 @@
 }
 
 .pd-onboarding__cycle-price small {
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-2xs);
   color: var(--pd-color-text-muted);
   font-weight: var(--pd-font-weight-regular);
 }
@@ -794,7 +794,7 @@
   background: var(--pd-pink-500);
   color: var(--pd-white);
   font-family: var(--pd-font-brand, var(--pd-font-display));
-  font-size: 10px;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 0.12em;
   box-shadow: var(--pd-shadow-pixel-sm);
   transform: rotate(4deg);

@@ -44,7 +44,7 @@
 /* ---- Sizes ---- */
 
 .pxd-text-link--sm {
-  font-size: var(--pd-font-size-xs, 0.75rem);
+  font-size: var(--pd-font-size-2xs, 0.75rem);
 }
 
 .pxd-text-link--md {

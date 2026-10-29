@@ -89,7 +89,7 @@
   max-width: 280px;
   text-align: center;
   font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-2xs);
   color: var(--pd-color-text-secondary);
   line-height: 1.4;
 }
@@ -135,7 +135,7 @@
 
 .pd-focus__section-title {
   font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-2xs);
   color: var(--pd-color-text-secondary);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -154,7 +154,7 @@
   padding: 0;
   cursor: pointer;
   font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-2xs);
   color: var(--pd-color-text-secondary);
   font-weight: var(--pd-font-weight-medium);
   line-height: 1.2;
@@ -197,7 +197,7 @@
   padding: 2px 0;
   cursor: pointer;
   font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-2xs);
   white-space: nowrap;
   color: var(--pd-color-text-secondary);
   border-bottom: var(--pd-border-base) solid transparent;

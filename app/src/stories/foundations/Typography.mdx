@@ -29,7 +29,8 @@ Authoritative scale definitions used in TS / components. These do not change whe
   caption="Font families for body, display, and code."
   rows={[
     { token: 'typography.fontFamily.body', value: typography.fontFamily.body, description: 'Body text, labels, UI', preview: 'none' },
-    { token: 'typography.fontFamily.display', value: typography.fontFamily.display, description: 'Pixel-style headings, labels', preview: 'none' },
+    { token: 'typography.fontFamily.brand', value: typography.fontFamily.brand, description: 'Pixel brand font (size-adjusted)', preview: 'none' },
+    { token: 'typography.fontFamily.display', value: typography.fontFamily.display, description: 'Legacy pixel display font', preview: 'none' },
     { token: 'typography.fontFamily.mono', value: typography.fontFamily.mono, description: 'Code, monospace', preview: 'none' },
   ]}
 />
@@ -37,15 +38,18 @@ Authoritative scale definitions used in TS / components. These do not change whe
 ### Font size
 
 <TokensTable
-  caption="Font sizes (px)."
+  caption="Font sizes (px). Leading is in typography.leading with the same keys."
   rows={[
-    { token: 'typography.fontSize.xs', value: typography.fontSize.xs, description: '12px', preview: 'none' },
-    { token: 'typography.fontSize.sm', value: typography.fontSize.sm, description: '14px', preview: 'none' },
-    { token: 'typography.fontSize.md', value: typography.fontSize.md, description: '16px – body default', preview: 'none' },
-    { token: 'typography.fontSize.lg', value: typography.fontSize.lg, description: '18px', preview: 'none' },
-    { token: 'typography.fontSize.xl', value: typography.fontSize.xl, description: '20px', preview: 'none' },
-    { token: 'typography.fontSize.2xl', value: typography.fontSize['2xl'], description: '24px', preview: 'none' },
-    { token: 'typography.fontSize.3xl', value: typography.fontSize['3xl'], description: '32px', preview: 'none' },
+    { token: 'typography.fontSize.3xs', value: typography.fontSize['3xs'], description: '11px – Badge only. Never for the pixel font', preview: 'none' },
+    { token: 'typography.fontSize.2xs', value: typography.fontSize['2xs'], description: '12px – Captions, timestamps', preview: 'none' },
+    { token: 'typography.fontSize.xs', value: typography.fontSize['xs'], description: '13px – Descriptions', preview: 'none' },
+    { token: 'typography.fontSize.sm', value: typography.fontSize['sm'], description: '14px – Secondary text, buttons. Pixel font minimum', preview: 'none' },
+    { token: 'typography.fontSize.md', value: typography.fontSize['md'], description: '16px – Body default, input fields (min 16px to avoid iOS focus zoom)', preview: 'none' },
+    { token: 'typography.fontSize.lg', value: typography.fontSize['lg'], description: '18px – Section headings', preview: 'none' },
+    { token: 'typography.fontSize.xl', value: typography.fontSize['xl'], description: '22px – Screen titles', preview: 'none' },
+    { token: 'typography.fontSize.2xl', value: typography.fontSize['2xl'], description: '24px – Pixel headings', preview: 'none' },
+    { token: 'typography.fontSize.3xl', value: typography.fontSize['3xl'], description: '28px – Modal headings', preview: 'none' },
+    { token: 'typography.fontSize.4xl', value: typography.fontSize['4xl'], description: '34px – App title, reward display', preview: 'none' },
   ]}
 />
 
@@ -80,18 +84,21 @@ Authoritative scale definitions used in TS / components. These do not change whe
 ### Text styles (presets)
 
 <TokensTable
-  caption="Combined text styles for display, heading, body, label."
+  caption="Role-based text styles. Pixel styles never go below 14px."
   rows={[
-    { token: 'typography.textStyle.displayLg', value: '24px display', description: 'Pixel-style large display', preview: 'none' },
-    { token: 'typography.textStyle.displayMd', value: '20px display', description: 'Pixel-style medium display', preview: 'none' },
-    { token: 'typography.textStyle.headingLg', value: '24px bold', description: 'Section heading', preview: 'none' },
-    { token: 'typography.textStyle.headingMd', value: '20px bold', description: 'Card heading', preview: 'none' },
-    { token: 'typography.textStyle.headingSm', value: '18px semibold', description: 'Subheading', preview: 'none' },
-    { token: 'typography.textStyle.bodyMd', value: '16px regular', description: 'Body default', preview: 'none' },
+    { token: 'typography.textStyle.display', value: '34px bold', description: 'Screen display', preview: 'none' },
+    { token: 'typography.textStyle.titleLg', value: '22px bold', description: 'Screen title', preview: 'none' },
+    { token: 'typography.textStyle.titleMd', value: '18px semibold', description: 'Section heading', preview: 'none' },
+    { token: 'typography.textStyle.body', value: '16px regular', description: 'Body default', preview: 'none' },
     { token: 'typography.textStyle.bodySm', value: '14px regular', description: 'Small body', preview: 'none' },
-    { token: 'typography.textStyle.labelMd', value: '14px semibold', description: 'Labels, buttons', preview: 'none' },
-    { token: 'typography.textStyle.labelSm', value: '12px semibold', description: 'Small labels', preview: 'none' },
-    { token: 'typography.textStyle.pixelLabel', value: '12px display', description: 'Pixel badge/label', preview: 'none' },
+    { token: 'typography.textStyle.caption', value: '13px regular', description: 'Description', preview: 'none' },
+    { token: 'typography.textStyle.label', value: '14px semibold', description: 'Labels, buttons', preview: 'none' },
+    { token: 'typography.textStyle.labelSm', value: '12px medium', description: 'Small labels', preview: 'none' },
+    { token: 'typography.textStyle.micro', value: '11px medium', description: 'Badges (smallest)', preview: 'none' },
+    { token: 'typography.textStyle.pixelDisplay', value: '34px pixel', description: 'Reward / app title', preview: 'none' },
+    { token: 'typography.textStyle.pixelTitle', value: '24px pixel', description: 'Pixel heading', preview: 'none' },
+    { token: 'typography.textStyle.pixelLabel', value: '16px pixel', description: 'Pixel label', preview: 'none' },
+    { token: 'typography.textStyle.pixelLabelSm', value: '14px pixel', description: 'Smallest pixel text', preview: 'none' },
   ]}
 />
 
@@ -101,11 +108,11 @@ Authoritative scale definitions used in TS / components. These do not change whe
   <p style={{ fontSize: 'var(--pd-font-size-md)', lineHeight: 'var(--pd-line-height-normal)', color: 'var(--pd-color-text-primary)' }}>
     <strong>Body Md</strong> – Readable sans-serif for most UI.
   </p>
-  <p style={{ fontFamily: 'var(--pd-font-display)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', marginTop: 8 }}>
+  <p style={{ fontFamily: 'var(--pd-font-display)', fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-secondary)', marginTop: 8 }}>
     Pixel label (display font)
   </p>
 </div>
 
 ## CSS variables
 
-`--pd-font-body`, `--pd-font-display`, `--pd-font-size-xs` … `--pd-font-size-3xl`, `--pd-line-height-normal`, `--pd-font-weight-bold`. See `tokens.css`.
+`--pd-font-body`, `--pd-font-display`, `--pd-font-size-3xs` … `--pd-font-size-4xl`, `--pd-line-height-normal`, `--pd-font-weight-bold`. See `tokens.css`.

@@ -48,11 +48,11 @@
 [lang="ja"] .lp-headline       { font-size: clamp(1.875rem, 4.2vw, 3.25rem); line-height: 1.28; }
 [lang="ja"] .lp-h2             { font-size: clamp(1.5rem, 2.8vw, 2.125rem); }
 [lang="ja"] .lp-final__headline { font-size: clamp(1.625rem, 4vw, 3rem); line-height: 1.25; }
-[lang="ja"] .lp-feature-card__title { font-size: 1.375rem; }
-[lang="ja"] .lp-pricing-card__tier  { font-size: 1.125rem; }
+[lang="ja"] .lp-feature-card__title { font-size: var(--pd-font-size-xl); }
+[lang="ja"] .lp-pricing-card__tier  { font-size: var(--pd-font-size-lg); }
 [lang="ja"] .lp-pricing-card__price { font-size: 2.25rem; }
-[lang="ja"] .lp-your-world__name    { font-size: 1rem; }
-[lang="ja"] .lp-theme-preview__name { font-size: 0.9375rem; }
+[lang="ja"] .lp-your-world__name    { font-size: var(--pd-font-size-md); }
+[lang="ja"] .lp-theme-preview__name { font-size: var(--pd-font-size-sm); }
 [lang="ja"] .lp-subcopy             { font-size: clamp(0.9375rem, 1.3vw, 1.0625rem); }
 
 /* ── Header ───────────────────────────────────────────────────────────── */
@@ -107,7 +107,7 @@
 }
 
 .lp-header__tag {
-  font-size: 0.6875rem;
+  font-size: var(--pd-font-size-3xs);
   letter-spacing: 1px;
   color: var(--pd-color-text-tertiary);
   text-transform: uppercase;
@@ -132,7 +132,7 @@
   all: unset;
   cursor: pointer;
   font-family: var(--pd-font-brand);
-  font-size: 0.75rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 1.5px;
   padding: 4px 10px;
   color: var(--pd-color-text-tertiary);
@@ -258,7 +258,7 @@
 }
 
 .lp-smash-hint__label {
-  font-size: 0.9375rem;
+  font-size: var(--pd-font-size-sm);
 }
 
 @keyframes lp-bounce {
@@ -299,7 +299,7 @@
 }
 
 .lp-cta-note {
-  font-size: 0.75rem;
+  font-size: var(--pd-font-size-2xs);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--pd-color-text-tertiary);
@@ -355,7 +355,7 @@
 
 .lp-feature-card__hint {
   font-family: var(--pd-font-brand);
-  font-size: 0.625rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--pd-color-text-tertiary);
@@ -379,7 +379,7 @@
 
 .lp-feature-card__title {
   font-family: var(--pd-font-brand);
-  font-size: 1.625rem;
+  font-size: var(--pd-font-size-2xl);
   letter-spacing: 1px;
   color: var(--pd-color-accent-default);
   margin: 0;
@@ -392,7 +392,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: 0.9375rem;
+  font-size: var(--pd-font-size-md);
   line-height: 1.5;
   color: var(--pd-color-text-secondary);
   flex: 1 1 auto;
@@ -421,7 +421,7 @@
 
 .lp-rarity-badge {
   font-family: var(--pd-font-brand);
-  font-size: 0.625rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   padding: 3px 8px;
@@ -501,7 +501,7 @@
 
 .lp-your-world__name {
   font-family: var(--pd-font-brand);
-  font-size: 1.125rem;
+  font-size: var(--pd-font-size-lg);
   letter-spacing: 1.5px;
   color: var(--pd-color-accent-default);
   transition: color 0.4s;
@@ -560,7 +560,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 0.875rem;
+  font-size: var(--pd-font-size-sm);
   color: var(--pd-color-text-secondary);
 }
 
@@ -596,7 +596,7 @@
 
 .lp-h2-sub {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: var(--pd-font-size-xs);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--pd-color-text-tertiary);
@@ -650,7 +650,7 @@
   margin: clamp(20px, 3vw, 32px) 0 0;
   text-align: center;
   font-family: var(--pd-font-brand);
-  font-size: 0.8125rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--pd-color-text-tertiary);
@@ -674,7 +674,7 @@
 
 .lp-theme-preview__name {
   font-family: var(--pd-font-brand);
-  font-size: 1rem;
+  font-size: var(--pd-font-size-md);
   letter-spacing: 1px;
   color: var(--pd-color-text-primary);
   display: inline-flex;
@@ -718,7 +718,7 @@
 
 .lp-pricing-card__tier {
   font-family: var(--pd-font-brand);
-  font-size: 1.5rem;
+  font-size: var(--pd-font-size-2xl);
   letter-spacing: 2px;
   color: var(--pd-color-text-primary);
   margin: 0;
@@ -734,7 +734,7 @@
 }
 
 .lp-pricing-card__price small {
-  font-size: 0.8125rem;
+  font-size: var(--pd-font-size-xs);
   letter-spacing: 1.5px;
   color: var(--pd-color-text-tertiary);
   text-transform: uppercase;
@@ -749,7 +749,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  font-size: 0.9375rem;
+  font-size: var(--pd-font-size-md);
   color: var(--pd-color-text-secondary);
   flex: 1 1 auto;
 }
@@ -765,7 +765,7 @@
 
 .lp-pricing-foot {
   text-align: center;
-  font-size: 0.75rem;
+  font-size: var(--pd-font-size-2xs);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--pd-color-text-tertiary);
@@ -824,7 +824,7 @@
 }
 
 .lp-final__note {
-  font-size: 0.75rem;
+  font-size: var(--pd-font-size-2xs);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--pd-color-text-tertiary);
@@ -836,7 +836,7 @@
   cursor: pointer;
   margin-top: 8px;
   color: var(--pd-color-text-tertiary);
-  font-size: 0.75rem;
+  font-size: var(--pd-font-size-2xs);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   text-decoration: underline;
@@ -861,13 +861,13 @@
   align-items: center;
   justify-content: space-between;
   color: var(--pd-color-text-tertiary);
-  font-size: 0.75rem;
+  font-size: var(--pd-font-size-2xs);
   letter-spacing: 1px;
 }
 
 .lp-footer__brand {
   font-family: var(--pd-font-brand);
-  font-size: 1.125rem;
+  font-size: var(--pd-font-size-lg);
   letter-spacing: 2.5px;
   color: var(--pd-color-accent-default);
 }

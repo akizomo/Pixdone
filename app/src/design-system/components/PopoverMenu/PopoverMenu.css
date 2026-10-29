@@ -61,7 +61,7 @@
   border-bottom: 2px solid var(--pd-color-border-default);
   color: var(--pd-color-text-secondary);
   font-family: var(--pd-font-body);
-  font-size: 0.6875rem;
+  font-size: var(--pd-font-size-3xs);
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -82,7 +82,7 @@
   border-bottom: 1px solid var(--pd-color-border-default);
   color: var(--pd-color-text-primary);
   font-family: var(--pd-font-body);
-  font-size: 0.875rem;
+  font-size: var(--pd-font-size-sm);
   cursor: pointer;
   transition: background var(--pd-motion-fast, 120ms) ease,
               color var(--pd-motion-fast, 120ms) ease;

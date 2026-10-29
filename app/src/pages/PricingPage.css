@@ -8,7 +8,7 @@
 .pricing-legal {
   margin: var(--pd-space-3) 0 0;
   text-align: center;
-  font-size: var(--pd-font-size-xs);
+  font-size: var(--pd-font-size-2xs);
   color: var(--pd-color-text-tertiary);
 }
 

@@ -1244,8 +1244,28 @@
     }
   },
   "fontSize": {
-    "xs": {
+    "3xs": {
+      "$value": "11px",
+      "$type": "fontSizes",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-size-3xs",
+          "set": "core"
+        }
+      }
+    },
+    "2xs": {
       "$value": "12px",
+      "$type": "fontSizes",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-size-2xs",
+          "set": "core"
+        }
+      }
+    },
+    "xs": {
+      "$value": "13px",
       "$type": "fontSizes",
       "$extensions": {
         "pixdone": {
@@ -1285,7 +1305,7 @@
       }
     },
     "xl": {
-      "$value": "20px",
+      "$value": "22px",
       "$type": "fontSizes",
       "$extensions": {
         "pixdone": {
@@ -1305,11 +1325,21 @@
       }
     },
     "3xl": {
-      "$value": "32px",
+      "$value": "28px",
       "$type": "fontSizes",
       "$extensions": {
         "pixdone": {
           "cssVar": "--pd-font-size-3xl",
+          "set": "core"
+        }
+      }
+    },
+    "4xl": {
+      "$value": "34px",
+      "$type": "fontSizes",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-size-4xl",
           "set": "core"
         }
       }
@@ -1574,6 +1604,108 @@
       "$extensions": {
         "pixdone": {
           "cssVar": "--pd-opacity-muted",
+          "set": "core"
+        }
+      }
+    }
+  },
+  "fontLeading": {
+    "3xs": {
+      "$value": "16px",
+      "$type": "lineHeights",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-leading-3xs",
+          "set": "core"
+        }
+      }
+    },
+    "2xs": {
+      "$value": "16px",
+      "$type": "lineHeights",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-leading-2xs",
+          "set": "core"
+        }
+      }
+    },
+    "xs": {
+      "$value": "18px",
+      "$type": "lineHeights",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-leading-xs",
+          "set": "core"
+        }
+      }
+    },
+    "sm": {
+      "$value": "20px",
+      "$type": "lineHeights",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-leading-sm",
+          "set": "core"
+        }
+      }
+    },
+    "md": {
+      "$value": "24px",
+      "$type": "lineHeights",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-leading-md",
+          "set": "core"
+        }
+      }
+    },
+    "lg": {
+      "$value": "24px",
+      "$type": "lineHeights",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-leading-lg",
+          "set": "core"
+        }
+      }
+    },
+    "xl": {
+      "$value": "28px",
+      "$type": "lineHeights",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-leading-xl",
+          "set": "core"
+        }
+      }
+    },
+    "2xl": {
+      "$value": "32px",
+      "$type": "lineHeights",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-leading-2xl",
+          "set": "core"
+        }
+      }
+    },
+    "3xl": {
+      "$value": "36px",
+      "$type": "lineHeights",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-leading-3xl",
+          "set": "core"
+        }
+      }
+    },
+    "4xl": {
+      "$value": "40px",
+      "$type": "lineHeights",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-font-leading-4xl",
           "set": "core"
         }
       }

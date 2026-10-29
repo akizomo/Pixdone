@@ -16,7 +16,7 @@
 .pxd-toggle__label {
   font-family: var(--pd-font-brand);
   font-weight: 700;
-  font-size: 0.6875rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 1px;
   color: var(--pd-color-text-secondary);
   line-height: 1;

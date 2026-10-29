@@ -8,7 +8,7 @@
   padding: 4px 10px;
   font-family: var(--pd-font-brand);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: var(--pd-font-size-md);
   border-width: 2px;
   border-style: solid;
   border-radius: 0;
@@ -81,12 +81,12 @@
 /* Size overrides */
 .pxd-chip--sm {
   padding: 2px 8px;
-  font-size: 0.875rem;
+  font-size: var(--pd-font-size-sm);
 }
 
 .pxd-chip--md {
   padding: 4px 10px;
-  font-size: 1rem;
+  font-size: var(--pd-font-size-md);
 }
 
 /* Semantic variants (kept minimal) */
@@ -111,7 +111,7 @@
 /* Font variant: readable body font for form chips (date, repeat, etc.) */
 .pxd-chip--font-body {
   font-family: var(--pd-font-body);
-  font-size: 0.8125rem;
+  font-size: var(--pd-font-size-xs);
   font-weight: var(--pd-font-weight-regular);
 }
 

@@ -40,7 +40,7 @@
   background: transparent;
   border: var(--pd-border-thin) solid transparent;
   font-family: var(--pd-font-brand);
-  font-size: 0.875rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 2px;
   color: var(--pd-color-text-primary);
   text-decoration: none;
@@ -65,7 +65,7 @@
   color: var(--pd-color-text-secondary);
   border: var(--pd-border-thin) solid var(--pd-color-border-default);
   font-family: var(--pd-font-brand);
-  font-size: 0.75rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 2px;
   cursor: pointer;
   box-shadow: 1px 1px 0 var(--pd-color-shadow-default);
@@ -94,7 +94,7 @@
 
 .epp__eyebrow {
   font-family: var(--pd-font-brand);
-  font-size: 0.75rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 3px;
   color: var(--pd-color-text-tertiary);
   text-transform: uppercase;
@@ -112,7 +112,7 @@
 }
 
 .epp__updated {
-  font-size: 0.8125rem;
+  font-size: var(--pd-font-size-xs);
   color: var(--pd-color-text-secondary);
   font-family: var(--pd-font-body);
 }
@@ -130,7 +130,7 @@
 
 .epp__intro {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: var(--pd-font-size-md);
   line-height: 1.6;
   color: var(--pd-color-text-primary);
 }
@@ -144,7 +144,7 @@
 .epp__section-title {
   margin: 0;
   font-family: var(--pd-font-brand);
-  font-size: 1rem;
+  font-size: var(--pd-font-size-md);
   letter-spacing: 2px;
   color: var(--pd-color-text-primary);
   text-transform: uppercase;
@@ -154,7 +154,7 @@
 
 .epp__section p {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: var(--pd-font-size-md);
   line-height: 1.6;
   color: var(--pd-color-text-primary);
 }
@@ -165,7 +165,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--pd-space-1);
-  font-size: 0.9375rem;
+  font-size: var(--pd-font-size-md);
   line-height: 1.6;
 }
 
@@ -192,7 +192,7 @@
   background: var(--pd-color-accent-default);
   color: var(--pd-color-accent-text);
   font-family: var(--pd-font-brand);
-  font-size: 0.875rem;
+  font-size: var(--pd-font-size-sm);
   letter-spacing: 2px;
   text-decoration: none;
   border: var(--pd-border-base) solid var(--pd-color-text-primary);
@@ -212,7 +212,7 @@
   display: flex;
   justify-content: center;
   padding: var(--pd-space-3) 0 var(--pd-space-4);
-  font-size: 0.8125rem;
+  font-size: var(--pd-font-size-xs);
   color: var(--pd-color-text-tertiary);
 }
 

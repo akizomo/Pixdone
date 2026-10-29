@@ -34,19 +34,19 @@
 
 .pxd-button--sm {
   padding: 4px 10px;
-  font-size: 0.875rem;
+  font-size: var(--pd-font-size-sm);
   min-height: 28px;
 }
 
 .pxd-button--md {
   padding: 8px 14px;
-  font-size: 1rem;
+  font-size: var(--pd-font-size-md);
   min-height: 36px;
 }
 
 .pxd-button--lg {
   padding: 10px 16px;
-  font-size: 1rem;
+  font-size: var(--pd-font-size-md);
   min-height: 44px;
 }
 
