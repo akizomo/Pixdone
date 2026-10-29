@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>サポート / Support — PixDone</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design-system primitives (subset of tokens.css) ── */
+    :root {
+      --pxd-gray-50:  #F7F7F8;
+      --pxd-gray-100: #EFEFF1;
+      --pxd-gray-300: #C7C9D1;
+      --pxd-gray-600: #666C7A;
+      --pxd-gray-700: #4C5160;
+      --pxd-gray-900: #191D24;
+      --pxd-white:    #FFFFFF;
+      --pxd-ink-50:  #E8EBF4;
+      --pxd-ink-100: #9DA3B4;
+      --pxd-ink-200: #5E6478;
+      --pxd-ink-500: #354262;
+      --pxd-ink-700: #252D40;
+      --pxd-ink-800: #1E2435;
+      --pxd-ink-900: #1A1F2C;
+      --pxd-ink-950: #12151C;
+      --pxd-purple-400: #A590FF;
+      --pxd-purple-500: #7B61FF;
+      --pxd-font-body:  "Inter", system-ui, sans-serif;
+      --pxd-font-brand: "VT323", monospace;
+
+      /* Semantic – light mode */
+      --pxd-color-surface-page:      var(--pxd-gray-50);
+      --pxd-color-surface-secondary: var(--pxd-gray-100);
+      --pxd-color-surface-primary:   var(--pxd-white);
+      --pxd-color-text-primary:      var(--pxd-gray-900);
+      --pxd-color-text-secondary:    var(--pxd-gray-700);
+      --pxd-color-text-tertiary:     var(--pxd-gray-600);
+      --pxd-color-border-outline:    var(--pxd-gray-300);
+      --pxd-color-action-primary:    var(--pxd-purple-500);
+
+      /* App design-system aliases (keep in sync with app/src/design-system/theme/global.css) */
+      --pd-color-accent-default: var(--pxd-color-action-primary);
+      --pd-color-accent-hover:   var(--pxd-color-action-primary);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --pxd-color-surface-page:      var(--pxd-ink-950);
+        --pxd-color-surface-secondary: var(--pxd-ink-900);
+        --pxd-color-surface-primary:   var(--pxd-ink-800);
+        --pxd-color-text-primary:      var(--pxd-ink-50);
+        --pxd-color-text-secondary:    var(--pxd-ink-100);
+        --pxd-color-text-tertiary:     var(--pxd-ink-200);
+        --pxd-color-border-outline:    var(--pxd-ink-500);
+        --pxd-color-action-primary:    var(--pxd-purple-400);
+
+        --pd-color-accent-default: var(--pxd-color-action-primary);
+        --pd-color-accent-hover:   var(--pxd-color-action-primary);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--pxd-color-surface-page);
+      color: var(--pxd-color-text-primary);
+      font-family: var(--pxd-font-body);
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    .page-header {
+      background: var(--pxd-color-surface-primary);
+      border-bottom: 1px solid var(--pxd-color-border-outline);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      font-family: var(--pxd-font-brand);
+      font-size: 1.5rem;
+      color: var(--pxd-color-text-primary);
+      text-decoration: none;
+    }
+    .page-header-sep { color: var(--pxd-color-text-tertiary); }
+    .page-header-label { font-size: 0.875rem; color: var(--pxd-color-text-secondary); }
+    .lang-toggle {
+      margin-left: auto;
+      display: flex;
+      gap: 4px;
+    }
+    .lang-btn {
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-family: var(--pxd-font-body);
+      background: none;
+      border: 1px solid var(--pxd-color-border-outline);
+      color: var(--pxd-color-text-secondary);
+      cursor: pointer;
+    }
+    .lang-btn.active {
+      background: var(--pxd-color-action-primary);
+      border-color: var(--pxd-color-action-primary);
+      color: #fff;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      border-bottom: 2px solid var(--pxd-color-action-primary);
+      padding-bottom: 12px;
+    }
+    .updated {
+      color: var(--pxd-color-text-tertiary);
+      font-size: 0.8125rem;
+      margin-bottom: 36px;
+    }
+    h2 { font-size: 1.0625rem; font-weight: 600; margin: 32px 0 10px; }
+    h3 { font-size: 0.9375rem; font-weight: 600; margin: 22px 0 8px; }
+    p { margin-bottom: 12px; }
+    ul { margin: 8px 0 12px 20px; }
+    ul li { margin-bottom: 4px; }
+    /* Links: match app design-system (accent color, underline on hover) */
+    a { color: var(--pd-color-accent-default); text-decoration: none; }
+    a:hover { color: var(--pd-color-accent-hover); text-decoration: underline; }
+    a:hover { text-decoration: underline; }
+    footer {
+      text-align: center;
+      padding: 24px 20px;
+      border-top: 1px solid var(--pxd-color-border-outline);
+      color: var(--pxd-color-text-tertiary);
+      font-size: 0.8125rem;
+    }
+    footer a { color: var(--pxd-color-text-tertiary); text-decoration: underline; }
+    footer a:hover { color: var(--pxd-color-text-secondary); }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <a href="/" class="logo">PixDone</a>
+    <span class="page-header-sep">/</span>
+    <span class="page-header-label" id="header-label"></span>
+    <div class="lang-toggle">
+      <button class="lang-btn" id="btn-ja" onclick="setLang('ja')">Ja</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">En</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Japanese -->
+    <div id="content-ja">
+      <h1>サポート</h1>
+      <p>PixDone についてのご質問・ご要望は、こちらからご連絡ください。</p>
+
+      <h2>お問い合わせ</h2>
+      <p><a href="mailto:contact@akizony.com">contact@akizony.com</a>（メール）。順次ご返信します。ご契約や不具合に関するお問い合わせでは、ご利用の端末（iPhone／Android／ブラウザ）と、登録しているメールアドレスをお知らせください。</p>
+
+      <h2>よくある質問</h2>
+
+      <h3>アカウントを削除したい</h3>
+      <p>アプリ内のアカウントページの「アカウントを削除」から、いつでも削除できます。アカウント、タスク・リスト、進捗、設定が削除され、元に戻せません。</p>
+      <ul>
+        <li>Web（Stripe）で契約中の場合は、削除と同時に解約されます。</li>
+        <li>App Store・Google Play で契約中の場合は、削除しても契約は解約されません。先に、各ストアの設定で解約してください。</li>
+        <li>アプリにログインできない場合は、登録したメールアドレスから <a href="mailto:contact@akizony.com">contact@akizony.com</a> に「アカウント削除の依頼」とご連絡ください。本人確認のうえ、削除します。</li>
+      </ul>
+
+      <h3>サブスクリプション（PixDone+）を解約したい</h3>
+      <ul>
+        <li><strong>Webで契約した場合</strong>: アカウントページの「プランをキャンセル」から解約できます。現在の期間が終わるまで、有料機能をご利用いただけます。</li>
+        <li><strong>iPhone（App Store）で契約した場合</strong>: 「設定」アプリ → 画面上部のご自分の名前 → 「サブスクリプション」 → PixDone から解約できます。アプリのアカウントページの「App Store でプランを管理」からも開けます。</li>
+        <li><strong>Android（Google Play）で契約した場合</strong>: Google Play ストアアプリ → 右上のプロフィールアイコン → 「お支払いと定期購入」 → 「定期購入」 → PixDone から解約できます。アプリのアカウントページの「Google Play でプランを管理」からも開けます。</li>
+      </ul>
+
+      <h3>返金してほしい</h3>
+      <ul>
+        <li><strong>Web（Stripe）でのご購入</strong>: ご購入日または更新日から7日以内であれば返金を受け付けます。<a href="mailto:pixdone@akizony.com">pixdone@akizony.com</a> までご連絡ください。</li>
+        <li><strong>App Store でのご購入</strong>: Apple の「<a href="https://reportaproblem.apple.com" target="_blank" rel="noopener">問題を報告</a>」から、Apple にお申し込みください。</li>
+        <li><strong>Google Play でのご購入</strong>: <a href="https://support.google.com/googleplay" target="_blank" rel="noopener">Google Play ヘルプ</a>の案内に従い、Google にお申し込みください。</li>
+      </ul>
+
+      <h3>購入したのに PixDone+ が反映されない／機種変更をした</h3>
+      <p>購入したときと同じアカウントでログインしているか、ご確認ください。iPhone・Androidアプリでは、料金ページの「購入を復元」を押すと、契約が反映されます。反映されない場合は、上記のメールアドレスまでご連絡ください。</p>
+
+      <h3>ログインできない</h3>
+      <p>ログイン画面の「パスワードを忘れた方」からパスワードを再設定できます。メールアドレスで新規登録した場合は、届いた確認メールのリンクを開いて、メールアドレスを確認してください。</p>
+
+      <h2>関連ページ</h2>
+      <ul>
+        <li><a href="/privacy.html">プライバシーポリシー</a></li>
+        <li><a href="/terms.html">利用規約</a></li>
+        <li><a href="/tokushoho.html">特定商取引法に基づく表示</a></li>
+      </ul>
+    </div>
+
+    <!-- English -->
+    <div id="content-en">
+      <h1>Support</h1>
+      <p>For questions or requests about PixDone, please get in touch here.</p>
+
+      <h2>Contact</h2>
+      <p><a href="mailto:contact@akizony.com">contact@akizony.com</a> (email). We reply as soon as we can. For subscription or bug reports, please tell us your device (iPhone / Android / browser) and the email address you registered with.</p>
+
+      <h2>FAQ</h2>
+
+      <h3>How do I delete my account?</h3>
+      <p>You can delete your account at any time from "Delete account" on the Account page in the app. Your account, tasks and lists, progress and settings are deleted and cannot be recovered.</p>
+      <ul>
+        <li>If you subscribed on the web (Stripe), the subscription is cancelled when you delete your account.</li>
+        <li>If you subscribed through the App Store or Google Play, deleting your account does NOT cancel the subscription. Please cancel it first in the store's settings.</li>
+        <li>If you cannot log in to the app, email <a href="mailto:contact@akizony.com">contact@akizony.com</a> from your registered address with "Account deletion request". We will delete it after verifying your identity.</li>
+      </ul>
+
+      <h3>How do I cancel my subscription (PixDone+)?</h3>
+      <ul>
+        <li><strong>Subscribed on the web</strong>: Use "Cancel plan" on the Account page. You keep paid features until the end of the current period.</li>
+        <li><strong>Subscribed on iPhone (App Store)</strong>: Settings app → your name at the top → Subscriptions → PixDone. You can also open it from "Manage in App Store" on the Account page in the app.</li>
+        <li><strong>Subscribed on Android (Google Play)</strong>: Google Play Store app → profile icon at the top right → Payments &amp; subscriptions → Subscriptions → PixDone. You can also open it from "Manage in Google Play" on the Account page in the app.</li>
+      </ul>
+
+      <h3>How do I get a refund?</h3>
+      <ul>
+        <li><strong>Purchased on the web (Stripe)</strong>: Refunds are available within 7 days of the purchase or renewal. Email <a href="mailto:pixdone@akizony.com">pixdone@akizony.com</a>.</li>
+        <li><strong>Purchased on the App Store</strong>: Request it from Apple via "<a href="https://reportaproblem.apple.com" target="_blank" rel="noopener">Report a Problem</a>".</li>
+        <li><strong>Purchased on Google Play</strong>: Follow the <a href="https://support.google.com/googleplay" target="_blank" rel="noopener">Google Play Help</a> instructions to request it from Google.</li>
+      </ul>
+
+      <h3>I purchased but PixDone+ isn't active / I changed devices</h3>
+      <p>Please check that you are logged in with the same account you purchased with. In the iPhone and Android apps, tap "Restore purchases" on the pricing page to bring your subscription back. If it still doesn't show, email us at the address above.</p>
+
+      <h3>I can't log in</h3>
+      <p>Use "Forgot password?" on the login screen to reset it. If you signed up with an email address, open the verification link we emailed you to confirm the address.</p>
+
+      <h2>Related pages</h2>
+      <ul>
+        <li><a href="/privacy.html">Privacy Policy</a></li>
+        <li><a href="/terms.html">Terms of Service</a></li>
+        <li><a href="/tokushoho.html">Commerce Disclosure</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <a href="/">PixDone</a> &nbsp;|&nbsp;
+    <a href="/privacy.html" id="footer-privacy-link"></a> &nbsp;|&nbsp;
+    <a href="/terms.html" id="footer-terms-link"></a>
+    &nbsp;|&nbsp;
+    <a href="/tokushoho.html" id="footer-commerce-link"></a>
+  </footer>
+
+  <script>
+    const i18n = {
+      ja: { headerLabel: 'サポート', privacyLink: 'プライバシーポリシー', termsLink: '利用規約', commerceLink: '特定商取引法に基づく表示' },
+      en: { headerLabel: 'Support', privacyLink: 'Privacy Policy', termsLink: 'Terms of Service', commerceLink: 'Commerce Disclosure' },
+    };
+
+    function setLang(lang) {
+      document.getElementById('content-ja').style.display = lang === 'ja' ? '' : 'none';
+      document.getElementById('content-en').style.display = lang === 'en' ? '' : 'none';
+      document.getElementById('btn-ja').classList.toggle('active', lang === 'ja');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.getElementById('header-label').textContent = i18n[lang].headerLabel;
+      document.getElementById('footer-privacy-link').textContent = i18n[lang].privacyLink;
+      document.getElementById('footer-terms-link').textContent = i18n[lang].termsLink;
+      document.getElementById('footer-commerce-link').textContent = i18n[lang].commerceLink;
+      document.documentElement.lang = lang;
+      try { localStorage.setItem('pixdone-lang', lang); } catch(e) {}
+    }
+
+    const saved = (() => { try { return localStorage.getItem('pixdone-lang'); } catch(e) { return null; } })();
+    setLang(saved === 'en' ? 'en' : 'ja');
+  </script>
+</body>
+</html>
