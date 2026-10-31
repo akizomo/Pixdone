@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, PixelIcon, TextArea } from '../design-system';
+import { Button, TextArea } from '../design-system';
+import { SubPageHeader } from '../components/SubPageHeader';
 import { playSound } from '../services/sound';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { PH_REVIEW_URL } from '../services/phReviewBanner';
@@ -25,22 +26,7 @@ export function FeedbackPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
-        <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={() => navigate('/')}>
-          <PixelIcon name="arrow_back" size="sm" />
-          {isJa ? 'もどる' : 'BACK'}
-        </Button>
-        <span
-          style={{
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-sm)',
-            color: 'var(--pd-color-text-primary)',
-            letterSpacing: '2px',
-          }}
-        >
-          {isJa ? 'フィードバック' : 'FEEDBACK'}
-        </span>
-      </div>
+      <SubPageHeader title={isJa ? 'フィードバック' : 'FEEDBACK'} isJa={isJa} onBack={() => navigate('/')} />
 
       <div
         style={{

@@ -4,7 +4,8 @@ import { DemoTaskItem } from './DemoTaskItem';
 import { EFFECTS_REGISTRY, isEffectLocked, canDeactivateEffect } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
 import { playSound } from '../../services/sound';
-import { Toggle, PixelIcon } from '../../design-system';
+import { Toggle } from '../../design-system';
+import { DetailViewHeader } from '../../components/SubPageHeader';
 import { badgeColor } from './rarityColors';
 
 interface EffectDetailViewProps {
@@ -64,21 +65,7 @@ export function EffectDetailView({
       background: 'var(--pd-color-background-default)',
     }}>
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: '12px 16px',
-        borderBottom: '1px solid var(--pd-color-border-default)',
-        gap: '10px',
-        flexShrink: 0,
-      }}>
-        <button type="button" onClick={() => { playSound('taskCancel'); onClose(); }} aria-label={lang === 'ja' ? '戻る' : 'Back'}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--pd-color-text-primary)', flexShrink: 0 }}>
-          <PixelIcon name="arrow_back" size="24px" />
-        </button>
-        <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', color: 'var(--pd-color-text-primary)', flex: 1, minWidth: 0 }}>
-          {effect.name.toUpperCase()}
-        </span>
+      <DetailViewHeader title={effect.name.toUpperCase()} isJa={lang === 'ja'} onBack={onClose}>
         <span style={{
           fontSize: 'var(--pd-font-size-sm)', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
           color: badgeColor(effect.rarity, isChallenge),
@@ -100,7 +87,7 @@ export function EffectDetailView({
             />
           </div>
         )}
-      </div>
+      </DetailViewHeader>
 
       {/* Demo area */}
       <div style={{

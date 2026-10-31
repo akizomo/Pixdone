@@ -6,7 +6,7 @@ import type { ThemeKey } from '../../design-system/themes/themeRegistry';
 import { getRandomThemeLimitedEffectKey } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
 import { playSound } from '../../services/sound';
-import { PixelIcon } from '../../design-system';
+import { DetailViewHeader } from '../../components/SubPageHeader';
 
 function ensureFontLink(url: string): void {
   const id = `pd-font-${btoa(url).slice(0, 16)}`;
@@ -71,22 +71,11 @@ export function ThemeDetailView({
       background: 'var(--pd-color-background-default)',
     }}>
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: '12px 16px',
-        borderBottom: '1px solid var(--pd-color-border-default)',
-        gap: '12px',
-        flexShrink: 0,
-      }}>
-        <button type="button" onClick={() => { playSound('taskCancel'); onClose(); }} aria-label={lang === 'ja' ? '戻る' : 'Back'}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--pd-color-text-primary)' }}>
-          <PixelIcon name="arrow_back" size="24px" />
-        </button>
-        <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', color: 'var(--pd-color-text-primary)' }}>
-          {theme.icon} {theme.name.toUpperCase()}
-        </span>
-      </div>
+      <DetailViewHeader
+        title={<>{theme.icon} {theme.name.toUpperCase()}</>}
+        isJa={lang === 'ja'}
+        onBack={onClose}
+      />
 
       {/* Demo area with theme vars */}
       <div style={{

@@ -1,0 +1,33 @@
+/* SubPageHeader / DetailViewHeader */
+
+.pd-subpage-header {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-3);
+  padding: var(--pd-space-3) 0 var(--pd-space-2);
+}
+
+.pd-subpage-header__title {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 2px;
+  color: var(--pd-color-text-primary);
+}
+
+.pd-detail-header {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--pd-space-3);
+  padding: var(--pd-space-2) var(--pd-space-4);
+  border-bottom: var(--pd-border-thin) solid var(--pd-color-border-default);
+}
+
+.pd-detail-header__title {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  color: var(--pd-color-text-primary);
+}

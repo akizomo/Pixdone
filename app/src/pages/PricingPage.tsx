@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
-import { Button, PixelIcon } from '../design-system';
+import { Button } from '../design-system';
+import { SubPageHeader } from '../components/SubPageHeader';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
 import { Capacitor } from '@capacitor/core';
@@ -165,21 +166,7 @@ export function PricingPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-      {/* Sub-page nav */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
-        <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={() => navigate('/')}>
-          <PixelIcon name="arrow_back" size="sm" />
-          {isJa ? 'もどる' : 'BACK'}
-        </Button>
-        <span style={{
-          fontFamily: 'var(--pd-font-brand)',
-          fontSize: 'var(--pd-font-size-sm)',
-          color: 'var(--pd-color-text-primary)',
-          letterSpacing: '2px',
-        }}>
-          PIXDONE+
-        </span>
-      </div>
+      <SubPageHeader title="PIXDONE+" isJa={isJa} onBack={() => navigate('/')} />
 
       {/* Success banner */}
       {successBanner && (
