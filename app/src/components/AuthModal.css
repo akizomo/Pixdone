@@ -24,29 +24,6 @@
   color: var(--pd-color-text-muted);
 }
 
-.auth-modal__text-2 {
-  font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-xs);
-  color: var(--pd-color-text-secondary);
-}
-
-.auth-modal__pos-1 {
-  position: relative;
-}
-
-.auth-modal__row-2 {
-  position: absolute;
-  right: var(--pd-space-2);
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--pd-color-text-muted);
-  display: flex;
-  align-items: center;
-}
-
 .auth-modal__text-3 {
   background: none;
   border: none;

@@ -85,68 +85,26 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
           }}
           aria-label={lang === 'ja' ? 'BGM設定' : 'BGM settings'}
           aria-expanded={open}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '36px',
-            height: '36px',
-            background: open ? 'var(--pd-color-background-hover)' : 'var(--pd-color-background-elevated)',
-            border: '2px solid var(--pd-color-border-default)',
-            color: bgmOn ? 'var(--pd-color-text-primary)' : 'var(--pd-color-text-secondary)',
-            cursor: 'pointer',
-            boxShadow: '2px 2px 0 var(--pd-color-shadow-default)',
-            transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease',
-            flexShrink: 0,
-            imageRendering: 'pixelated',
-          }}
+          className={`bgm-control__trigger${bgmOn ? ' bgm-control__trigger--on' : ''}${open ? ' bgm-control__trigger--open' : ''}`}
         >
           <PixelIcon name={bgmOn ? 'music_note' : 'music_off'} size="16px" />
         </button>
       )}
 
-      {/* Popover menu — uses DS PopoverMenu for consistent outside-click + Escape */}
+      {/* Track picker + volume — DS PopoverMenu (items, outside-click, Escape) */}
       {open && (
         <PopoverMenu
-          items={[]}
-          onSelect={() => {}}
+          items={TRACKS.map((tr) => ({
+            id: tr.id,
+            label: lang === 'ja' ? tr.labelJa : tr.labelEn,
+            selected: selected === tr.id,
+            group: 'tracks',
+          }))}
+          onSelect={(id) => handleTrackSelect(id as TrackOption)}
           onClose={handleClose}
           align="right"
-        >
-          {/* Track list */}
-          <div className="bgm-control__track-list">
-            {TRACKS.map(tr => {
-              const isActive = selected === tr.id;
-              return (
-                <button
-                  key={tr.id}
-                  type="button"
-                  role="menuitem"
-                  onClick={() => handleTrackSelect(tr.id)}
-                  className={`pxd-popover-menu__item${isActive ? ' pxd-popover-menu__item--selected' : ''}`}
-                  style={{
-                    background: isActive ? 'var(--pd-color-background-hover)' : undefined,
-                    border: 'none',
-                    borderBottom: 'none',
-                  }}
-                >
-                  <span className="pxd-popover-menu__label">{lang === 'ja' ? tr.labelJa : tr.labelEn}</span>
-                  {isActive && (
-                    <PixelIcon name="check" className="pxd-popover-menu__check" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Volume slider */}
-          <div style={{
-            borderTop: variant === 'zen' ? 'none' : '1px solid var(--pd-color-border-default)',
-            padding: '10px 14px 8px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '6px',
-          }}>
+          footer={
+            <div className={`bgm-control__volume${variant === 'zen' ? ' bgm-control__volume--zen' : ''}`}>
               <div className="bgm-control__text-1">
                 <span>{lang === 'ja' ? 'ボリューム' : 'Volume'}</span>
                 <span>{vol}%</span>
@@ -161,8 +119,9 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
                 onPointerDown={() => playSound('buttonClick')}
                 className="bgm-control__box-1"
               />
-          </div>
-        </PopoverMenu>
+            </div>
+          }
+        />
       )}
     </div>
   );

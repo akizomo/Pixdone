@@ -150,7 +150,7 @@ export function FocusScreen({
 
           <div className="pd-focus__cta">
             {timerState === 'idle' ? (
-              <Button onClick={onStart} style={{ minWidth: '120px' }}>Start</Button>
+              <Button onClick={onStart} className="pd-focus__cta-btn">Start</Button>
             ) : (
               <div className="pd-focus__cta-row">
                 <Button variant="secondary" onClick={isRunning ? onPause : onResume}>

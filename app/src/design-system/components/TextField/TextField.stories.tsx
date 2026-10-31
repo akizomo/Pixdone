@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
+import { useState } from 'react';
 import { TextField } from './TextField';
+import { IconButton } from '../IconButton/IconButton';
+import { PixelIcon } from '../PixelIcon/PixelIcon';
 
 const meta: Meta<typeof TextField> = {
   title: 'Components/TextField',
@@ -79,4 +83,40 @@ export const SmallField: Story = {
     size: 'sm',
   },
   parameters: { docs: { description: { story: 'Compact small text field used for subtask input.' } } },
+};
+
+function PasswordField() {
+  const [show, setShow] = useState(false);
+  return (
+    <TextField
+      label="Password"
+      placeholder="Password"
+      type={show ? 'text' : 'password'}
+      endAdornment={
+        <IconButton
+          variant="ghost"
+          size="sm"
+          aria-label={show ? 'Hide password' : 'Show password'}
+          icon={<PixelIcon name={show ? 'visibility_off' : 'visibility'} size="18px" />}
+          onClick={() => setShow((v) => !v)}
+        />
+      }
+    />
+  );
+}
+
+export const WithEndAdornment: Story = {
+  render: () => <PasswordField />,
+  parameters: {
+    docs: { description: { story: 'Trailing control inside the field via `endAdornment` (here: show / hide password). The input reserves space on the right so text never runs under the control.' } },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('Password') as HTMLInputElement;
+    expect(input.type).toBe('password');
+    await userEvent.click(canvas.getByRole('button', { name: 'Show password' }));
+    expect(input.type).toBe('text');
+    await userEvent.click(canvas.getByRole('button', { name: 'Hide password' }));
+    expect(input.type).toBe('password');
+  },
 };

@@ -123,3 +123,7 @@
   display: inline-flex;
   align-items: center;
 }
+
+.pd-zen-actions__btn {
+  min-width: 140px;
+}

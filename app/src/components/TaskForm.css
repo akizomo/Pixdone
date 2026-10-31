@@ -426,3 +426,8 @@
   align-items: center;
   gap: var(--pd-space-1);
 }
+
+.task-form__field-grow {
+  flex: 1;
+  min-width: 0;
+}

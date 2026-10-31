@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ChangeEvent } from 'react';
+import type { InputHTMLAttributes, ChangeEvent, ReactNode } from 'react';
 
 export type TextFieldType = 'text' | 'email' | 'password' | 'search';
 
@@ -17,4 +17,6 @@ export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElemen
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   type?: TextFieldType;
   size?: TextFieldSize;
+  /** Control placed inside the field at the trailing edge (e.g. a show/hide password IconButton). */
+  endAdornment?: ReactNode;
 }

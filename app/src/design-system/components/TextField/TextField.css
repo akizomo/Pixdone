@@ -94,3 +94,21 @@
 .pxd-text-field__helper-error[role="alert"] {
   margin-top: var(--pd-space-1);
 }
+
+/* Trailing adornment (e.g. show/hide password). Only rendered when `endAdornment` is passed. */
+.pxd-text-field__control {
+  position: relative;
+}
+
+.pxd-text-field__input--with-adornment {
+  padding-right: var(--pd-space-10);
+}
+
+.pxd-text-field__adornment {
+  position: absolute;
+  top: 50%;
+  right: var(--pd-space-1);
+  display: flex;
+  align-items: center;
+  transform: translateY(-50%);
+}

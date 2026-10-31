@@ -99,7 +99,7 @@ export function EffectsTab({
                   </div>
                   <div className="effects-tab__row-1">
                     {activeEffects.includes(effect.key) && !locked && (
-                      <PixelIcon name="check" size="0.875rem" style={{ color: 'var(--pd-color-text-primary)' }} />
+                      <PixelIcon name="check" size="0.875rem" className="effects-tab__check" />
                     )}
                     {locked && <span className="effects-tab__text-2">🔒</span>}
                   </div>

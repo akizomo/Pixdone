@@ -67,3 +67,7 @@
   font-size: var(--pd-font-size-sm);
   color: var(--pd-color-text-muted);
 }
+
+.pd-plan-view__chevron {
+  transform: rotate(90deg);
+}

@@ -90,3 +90,11 @@
   color: var(--pd-color-text-secondary);
   font-family: var(--pd-font-body);
 }
+
+.tasks__chevron {
+  transition: transform var(--pd-motion-base) var(--pd-easing-standard);
+}
+
+.tasks__chevron--open {
+  transform: rotate(90deg);
+}

@@ -182,7 +182,7 @@ export function FocusZenMode({
 
           <div className="pd-zen-actions">
             {timerState === 'idle' ? (
-              <Button onClick={onStart} style={{ minWidth: '140px' }}>
+              <Button onClick={onStart} className="pd-zen-actions__btn">
                 {lang === 'ja' ? '開始' : 'Start'}
               </Button>
             ) : (
@@ -190,18 +190,18 @@ export function FocusZenMode({
                 <Button
                   variant="secondary"
                   onClick={isRunning ? onPause : onResume}
-                  style={{ minWidth: '140px' }}
+                  className="pd-zen-actions__btn"
                 >
                   {isRunning
                     ? (lang === 'ja' ? '一時停止' : 'Pause')
                     : (lang === 'ja' ? '再開' : 'Resume')}
                 </Button>
                 {isBreakMode ? (
-                  <Button variant="secondary" soundKey="taskCancel" onClick={onSkipBreak} style={{ minWidth: '140px' }}>
+                  <Button variant="secondary" soundKey="taskCancel" onClick={onSkipBreak} className="pd-zen-actions__btn">
                     {lang === 'ja' ? '休憩をスキップ' : 'Skip break'}
                   </Button>
                 ) : (
-                  <Button soundKey="taskComplete" onClick={onCompleteFocus} style={{ minWidth: '140px' }}>
+                  <Button soundKey="taskComplete" onClick={onCompleteFocus} className="pd-zen-actions__btn">
                     {lang === 'ja' ? '完了' : 'Complete'}
                   </Button>
                 )}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ModalDialog, Button, PixelIcon } from '../design-system';
+import { ModalDialog, Button, IconButton, PixelIcon, TextField } from '../design-system';
 import { useAuth } from '../contexts/AuthContext';
 import { playSound } from '../services/sound';
 import { Capacitor } from '@capacitor/core';
@@ -200,61 +200,46 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
         )}
 
         {/* Email */}
-        <div className="pxd-text-field" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <label
-            htmlFor="auth-email-input"
-            className="auth-modal__text-2"
-          >
-            {lang === 'ja' ? 'メールアドレス' : 'Email'}
-          </label>
-          <input
-            id="auth-email-input"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={lang === 'ja' ? 'example@email.com' : 'your.email@example.com'}
-            className="pxd-text-field__input"
-            onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-            autoComplete="email"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-        </div>
+        <TextField
+          id="auth-email-input"
+          type="email"
+          label={lang === 'ja' ? 'メールアドレス' : 'Email'}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder={lang === 'ja' ? 'example@email.com' : 'your.email@example.com'}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+          autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+        />
 
         {/* Password */}
         {mode !== 'reset' && (
-          <div className="pxd-text-field" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label
-              htmlFor="auth-password-input"
-              className="auth-modal__text-2"
-            >
-              {lang === 'ja' ? 'パスワード' : 'Password'}
-            </label>
-            <div className="auth-modal__pos-1">
-              <input
-                id="auth-password-input"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={lang === 'ja' ? 'パスワード' : 'Password'}
-                className="pxd-text-field__input"
-                style={{ paddingRight: '36px' }}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-                autoComplete="current-password"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
+          <TextField
+            id="auth-password-input"
+            type={showPassword ? 'text' : 'password'}
+            label={lang === 'ja' ? 'パスワード' : 'Password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={lang === 'ja' ? 'パスワード' : 'Password'}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+            autoComplete="current-password"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            endAdornment={
+              <IconButton
+                variant="ghost"
+                size="sm"
+                aria-label={showPassword
+                  ? (lang === 'ja' ? 'パスワードを隠す' : 'Hide password')
+                  : (lang === 'ja' ? 'パスワードを表示' : 'Show password')}
+                icon={<PixelIcon name={showPassword ? 'visibility_off' : 'visibility'} size="18px" />}
+                onClick={() => setShowPassword((v) => !v)}
               />
-              <button
-                type="button"
-                onClick={() => { playSound('buttonClick'); setShowPassword((v) => !v); }}
-                className="auth-modal__row-2"
-              >
-                <PixelIcon name={showPassword ? 'visibility_off' : 'visibility'} size="18px" />
-              </button>
-            </div>
-          </div>
+            }
+          />
         )}
 
         {/* Forgot password link */}

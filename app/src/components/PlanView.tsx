@@ -105,7 +105,7 @@ function PlanSection({
           onClick={() => { playSound('buttonClick'); setExpanded(true); }}
         >
           {lang === 'ja' ? `さらに ${hiddenCount} 件表示` : `Show ${hiddenCount} more`}
-          <PixelIcon name="chevron_right_2" size="0.75rem" style={{ transform: 'rotate(90deg)' }} />
+          <PixelIcon name="chevron_right_2" size="0.75rem" className="pd-plan-view__chevron" />
         </button>
       )}
     </div>

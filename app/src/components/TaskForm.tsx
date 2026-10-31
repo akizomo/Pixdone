@@ -544,7 +544,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
                   }}
                   onBlur={() => commitEditSubtask(s.id)}
                   size="sm"
-                  style={{ flex: 1 }}
+                  className="task-form__field-grow"
                 />
               ) : (
                 <span
@@ -682,7 +682,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
                     }}
                     onBlur={() => commitEditSubtask(s.id)}
                     size="sm"
-                    style={{ flex: 1 }}
+                    className="task-form__field-grow"
                   />
                 ) : (
                   <span
@@ -1049,7 +1049,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
                 }}
                 onBlur={() => commitEditSubtask(s.id)}
                 size="sm"
-                style={{ flex: 1 }}
+                className="task-form__field-grow"
               />
             ) : (
               <span

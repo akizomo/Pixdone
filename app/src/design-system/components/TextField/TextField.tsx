@@ -17,11 +17,33 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
   id: idProp,
   className = '',
   size = 'md',
+  endAdornment,
   ...rest
 }: TextFieldProps, ref) {
   const generatedId = useId();
   const id = idProp ?? generatedId;
   const hasError = Boolean(errorText);
+
+  const inputEl = (
+    <input
+      id={id}
+      type={type}
+      ref={ref}
+      value={value}
+      defaultValue={defaultValue}
+      placeholder={placeholder}
+      disabled={disabled}
+      required={required}
+      maxLength={maxLength}
+      onChange={onChange}
+      aria-invalid={hasError}
+      aria-describedby={
+        [helperText && `${id}-helper`, errorText && `${id}-error`].filter(Boolean).join(' ') || undefined
+      }
+      className={`pxd-text-field__input ${hasError ? 'pxd-text-field__input--error' : ''}${endAdornment ? ' pxd-text-field__input--with-adornment' : ''}`}
+      {...rest}
+    />
+  );
 
   return (
     <div className={`pxd-text-field pxd-text-field--${size} ${className}`.trim()}>
@@ -31,24 +53,12 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
           {required && <span className="pxd-text-field__required" aria-hidden> *</span>}
         </label>
       )}
-      <input
-        id={id}
-        type={type}
-        ref={ref}
-        value={value}
-        defaultValue={defaultValue}
-        placeholder={placeholder}
-        disabled={disabled}
-        required={required}
-        maxLength={maxLength}
-        onChange={onChange}
-        aria-invalid={hasError}
-        aria-describedby={
-          [helperText && `${id}-helper`, errorText && `${id}-error`].filter(Boolean).join(' ') || undefined
-        }
-        className={`pxd-text-field__input ${hasError ? 'pxd-text-field__input--error' : ''}`}
-        {...rest}
-      />
+      {endAdornment ? (
+        <div className="pxd-text-field__control">
+          {inputEl}
+          <div className="pxd-text-field__adornment">{endAdornment}</div>
+        </div>
+      ) : inputEl}
       {(helperText || errorText) && (
         <div id={`${id}-helper`} className="pxd-text-field__helper">
           {errorText && (

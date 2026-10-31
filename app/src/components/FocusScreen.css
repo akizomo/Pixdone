@@ -218,3 +218,7 @@
   font-size: var(--pd-font-size-2xs);
   line-height: 1;
 }
+
+.pd-focus__cta-btn {
+  min-width: 120px;
+}

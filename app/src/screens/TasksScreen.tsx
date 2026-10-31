@@ -537,7 +537,7 @@ export function TasksScreen({
                   onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
                   className="tasks__text-2"
                 >
-                  <PixelIcon name="chevron_right_2" size="0.625rem" style={{ transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
+                  <PixelIcon name="chevron_right_2" size="0.625rem" className={`tasks__chevron${completedExpanded ? ' tasks__chevron--open' : ''}`} />
                   {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
                 </button>
                 {completedExpanded && (
@@ -587,7 +587,7 @@ export function TasksScreen({
                 onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
                 className="tasks__text-2"
               >
-                <PixelIcon name="chevron_right_2" size="0.625rem" style={{ transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
+                <PixelIcon name="chevron_right_2" size="0.625rem" className={`tasks__chevron${completedExpanded ? ' tasks__chevron--open' : ''}`} />
                 {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
               </button>
               {completedExpanded && (
@@ -670,7 +670,7 @@ export function TasksScreen({
                   onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
                   className="tasks__text-2"
                 >
-                  <PixelIcon name="chevron_right_2" size="0.625rem" style={{ transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
+                  <PixelIcon name="chevron_right_2" size="0.625rem" className={`tasks__chevron${completedExpanded ? ' tasks__chevron--open' : ''}`} />
                   {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
                 </button>
                 {completedExpanded && (
