@@ -280,7 +280,7 @@
 .pd-onboarding__weapon {
   position: absolute;
   image-rendering: pixelated;
-  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 1px 0 var(--pd-color-shadow-default));
   will-change: transform;
   z-index: 2;
 }
@@ -603,7 +603,7 @@
   color: var(--pd-cyan-300);
   background: color-mix(in srgb, var(--pd-color-reward-glow-cyan) 50%, transparent);
   border: var(--pd-border-thin) solid var(--pd-cyan-500);
-  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.12);
+  box-shadow: var(--pd-shadow-pixel-inset);
   image-rendering: pixelated;
 }
 

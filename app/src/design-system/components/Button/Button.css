@@ -204,7 +204,7 @@
   background-color: var(--pd-color-semantic-success);
   color: var(--pd-color-semantic-successText);
   border-color: var(--pd-color-semantic-success);
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
 
 @media (hover: hover) {
@@ -212,13 +212,13 @@
     background-color: var(--pd-color-semantic-successHover);
     border-color: var(--pd-color-semantic-successHover);
     transform: translate(-1px, -1px);
-    box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
   }
 }
 
 .pxd-button--signup:active:not(:disabled) {
   transform: translate(0, 0);
-  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 1px 1px 0px var(--pd-color-shadow-default);
 }
 
 /* Icon: ghost, square */

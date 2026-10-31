@@ -71,7 +71,7 @@
     z-index: 250;
     width: 200px;
     border-right: 2px solid var(--pd-color-border-default);
-    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 4px 0 12px var(--pd-color-shadow-default);
     transition: transform 240ms cubic-bezier(0.25, 1, 0.5, 1);
     transform: translate3d(0, 0, 0);
   }

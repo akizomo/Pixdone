@@ -202,7 +202,7 @@
   height: clamp(56px, 8vw, 96px);
   width: auto;
   image-rendering: pixelated;
-  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 4px 0 var(--pd-color-shadow-default));
   animation: lp-float 2.8s ease-in-out infinite;
   pointer-events: none;
   user-select: none;
@@ -426,7 +426,7 @@
   pointer-events: none;
   user-select: none;
   opacity: 1;
-  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 3px 0 var(--pd-color-shadow-default));
   transform: rotate(var(--lp-shot-rot, 0deg));
   transform-origin: center;
 }

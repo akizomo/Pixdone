@@ -169,7 +169,7 @@
 
 .pd-mobile-fab:active {
   transform: translateZ(0) scale(0.9);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--pd-shadow-soft-sm);
 }
 
 /* Onboarding Step 5 tour: lift the FAB above the translucent overlay
@@ -208,7 +208,7 @@
 
 .pd-mobile-fab--smash {
   background-color: white;
-  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.4);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--pd-color-brand-smash) 40%, transparent);
 }
 
 .pd-mobile-fab--smash:active {
@@ -313,33 +313,7 @@
   100% { opacity: 0.8; transform: scale(1); }
 }
 
-/* ===== Empty state: "READY?" ===== */
-.pd-empty-ready-text {
-  font-family: var(--pd-font-brand);
-  font-size: 2rem;
-  color: var(--pd-color-accent-default);
-  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
-  animation: pd-retro-blink 1s infinite;
-  image-rendering: pixelated;
-  margin: 0 0 8px;
-}
-
-[lang="ja"] .pd-empty-ready-text {
-  font-family: var(--pd-font-brand-ja);
-}
-
 /* ===== Empty state: sleeping pixel character ===== */
-.pd-pixel-character {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: pd-sleeping-char 3s infinite;
-  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.1));
-  height: 120px;
-  justify-content: center;
-}
-
 .pd-sleep-bubble {
   position: relative;
   background-color: var(--pd-color-background-default);
@@ -395,21 +369,6 @@
 }
 
 /* ===== Tutorial complete CTA ===== */
-.pd-tutorial-cta-text {
-  font-family: var(--pd-font-brand);
-  font-size: 1.5rem;
-  color: #33ff33;
-  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
-  margin-bottom: 12px;
-  animation: pd-retro-blink 1.5s infinite;
-  image-rendering: pixelated;
-  line-height: 1.6;
-}
-
-[lang="ja"] .pd-tutorial-cta-text {
-  font-family: var(--pd-font-brand-ja);
-}
-
 .pd-tutorial-cta-sub {
   font-family: var(--pd-font-brand);
   font-size: 1.125rem;
@@ -439,7 +398,7 @@
   font-family: 'Press Start 2P', monospace;
   font-size: var(--md-headline-small, 1.5rem);
   color: var(--pixel-cyan);
-  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  text-shadow: var(--pd-shadow-pixel-sm);
   animation: pd-retro-blink 1s infinite;
   image-rendering: pixelated;
   margin-bottom: 8px;
@@ -477,7 +436,7 @@
   flex-direction: column;
   align-items: center;
   animation: pd-sleeping-char 3s infinite;
-  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.1));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--pd-color-text-primary) 10%, transparent));
   height: 120px;
   justify-content: center;
 }
@@ -542,7 +501,7 @@
   font-family: 'Press Start 2P', monospace;
   font-size: var(--md-title-medium, 1rem);
   color: var(--pixel-green);
-  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+  text-shadow: var(--pd-shadow-pixel-sm);
   margin-bottom: 12px;
   animation: pd-retro-blink 1.5s infinite;
   image-rendering: pixelated;
@@ -556,38 +515,6 @@
   margin-bottom: 24px;
   line-height: 1.4;
   image-rendering: pixelated;
-}
-
-.tutorial-complete-cta-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 14px 28px;
-  font-size: var(--md-label-large, 0.875rem);
-  font-weight: 600;
-  font-family: 'Press Start 2P', monospace;
-  color: #fff;
-  background: var(--completed-color);
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
-  transition: all 0.15s ease;
-  image-rendering: pixelated;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.tutorial-complete-cta-btn:hover {
-  background: #2e7d32;
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.3);
-}
-
-.tutorial-complete-cta-btn:active {
-  transform: translate(0, 0);
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
 }
 
 .tutorial-feature-note {
