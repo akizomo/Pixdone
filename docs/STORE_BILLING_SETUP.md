@@ -38,7 +38,7 @@ PixDone+ をアプリ内で購入できるようにするための、ストア�
    2. `pixdone_plus_monthly`（1か月・**¥300**）と `pixdone_plus_yearly`（1年・**¥3,000**）を追加
    3. それぞれに「**導入オファー**」→ 無料 → **1週間**（対象: 新規購読者）
    4. 表示名・説明（日本語・英語）とレビュー用スクリーンショット（料金ページ）を入力
-4. **RevenueCat 用の鍵**: 「ユーザとアクセス」→「統合」→「App 内課金」→ **In-App Purchase キー**を生成し、`.p8` ファイルを保管（RevenueCat に登録します）
+4. **RevenueCat 用の鍵**: 「ユーザとアクセス」→「統合」→「App 内課金」→ **In-App Purchase キー**を生成し、`.p8` ファイルを**ダウンロード**（ダウンロードできるのは**1回だけ**。1Password などに保管）。同じ画面に表示される **Issuer ID** も控える（RevenueCat に登録します）
 5. **サンドボックステスター**: 「ユーザとアクセス」→「サンドボックス」で購入テスト用の Apple アカウントを作成
 6. Apple Developer の App ID（`com.pixdone.app`）で **Sign in with Apple** と **In-App Purchase** が有効なことを確認（Xcode の Automatically manage signing で自動登録されます）
 
@@ -57,17 +57,36 @@ PixDone+ をアプリ内で購入できるようにするための、ストア�
 
 ## 3. RevenueCat
 
+画面のメニュー名は、RevenueCat の更新で変わることがあります。違っていたら、スクリーンショットを送ってください。
+**料金**: 新規のアカウントは「Pro」プランで、**月の追跡売上が $2,500 まで無料**、超えた分の 1% が料金です（公式の料金ページ。Webhook は Pro の機能とされていますが、この無料の範囲で使えるはずです。Integrations 画面に Webhooks が出ない場合は、教えてください）。
+
+**ストア側の準備が要らない作業（先にやれる）**
 1. https://app.revenuecat.com でアカウントとプロジェクト `PixDone` を作成
-2. **アプリを2つ追加**
-   - **App Store**: バンドル ID `com.pixdone.app`、手順 1-4 の In-App Purchase キー（`.p8` / Key ID / Issuer ID）を登録
-   - **Play Store**: パッケージ名 `com.pixdone.app`、手順 2-5 のサービスアカウント JSON を登録
-3. **Products**: 各ストアの商品を取り込む（0 の表のとおり）
-4. **Entitlements**: `plus` を作り、4つの商品をすべて紐付ける
-5. **Offerings**: `default` を作り **Current** に設定。パッケージは **Monthly** と **Annual** を追加し、それぞれ月額・年額の商品を割り当てる
-6. **SDK キー（公開用）** をコピー: 「API keys」→ iOS 用（`appl_…`）と Android 用（`goog_…`）
-7. **Webhook**: 「Integrations」→「Webhooks」→ 追加
+2. **Webhook**: 左メニューの「Integrations」→「Webhooks」→「Add new configuration」
+   - 名前: `PixDone server`
    - URL: `https://pixdone.vercel.app/api/billing/revenuecat-webhook`
-   - **Authorization header value**: 推測されない長いランダム文字列（下の手順 4 で同じ値を Vercel に設定します）
+   - **Authorization header value**: Vercel の `REVENUECAT_WEBHOOK_AUTH` と同じ文字列（1Password に保存したもの）
+   - 環境: **Production と Sandbox の両方**（TestFlight・内部テストの購入も確認できます）
+   - アプリの範囲: 全アプリ。イベントの種類のフィルター: なし（すべて）
+   - 「HMAC webhook signing」は、オフのまま（認証は Authorization ヘッダーで行っています）
+   - 保存したら、ダッシュボードの「テストイベントを送る」で送り、サーバーが `200` を返すことを確認（TEST イベントは無視されます）
+
+**ストア側の準備ができてから（手順 1・2 の商品と鍵が必要）**
+3. **App Store のアプリを追加**: 「Apps」（または Project settings）→ 新規 → **App Store**
+   - バンドル ID: `com.pixdone.app`
+   - 追加したアプリの設定の「**In-app purchase key configuration**」タブで、手順 1-4 の **`.p8` ファイルをアップロード**し、**Issuer ID**（App Store Connect の「ユーザとアクセス」→「統合」→「App 内課金」の画面に表示）を貼って「Save changes」。**「Valid credentials」と表示される**ことを確認
+4. **Play Store のアプリを追加**: 新規 → **Play Store**
+   - パッケージ名: `com.pixdone.app`
+   - 「Project settings」→「Google Play App Settings」→「Service account credentials」に、手順 2-5 の **JSON をアップロード**
+   - ⚠ **Google 側の権限が反映されるまで、最大36時間かかります**。それまでは「Invalid Play Store credentials」と出ても、慌てず待ってください
+   - 購入の通知（Pub/Sub）の設定も、同じ画面の案内に従う（サービスアカウントに「Pub/Sub 編集者」と「モニタリング閲覧者」の役割が必要）
+5. **Products**: 「Product catalog」→「Products」で、各ストアの商品を取り込む（0 の表のとおり。Google Play は `pixdone_plus:monthly`・`pixdone_plus:yearly` のように見えます）
+6. **Entitlements**: 「Product catalog」→「Entitlements」タブ →「+ New entitlement」→ 識別子 `plus` → 開いて「Attach」で、**4つの商品をすべて**紐付ける
+7. **Offerings**: 「Offerings」タブ →「+ New」→ 識別子 `default`（**あとから変更できません**）→ Save → 開いて「+ Add package」
+   - 識別子のドロップダウンから **Monthly** を選び、月額の商品（iOS・Android）を紐付けて Save
+   - もう一つ、**Annual** を選び、年額の商品（iOS・Android）を紐付けて Save
+   - この `default` が、アプリから見て「現在の Offering」になるようにする（Default Offering / Current と表示される設定。最初の Offering は自動で、そうなることが多いです。違っていたら切り替える）
+8. **SDK キー（公開用）**: 「API keys」から、iOS 用（`appl_…`）と Android 用（`goog_…`）をコピー → 私に渡す
 
 ## 4. キーの設定（私に渡す・自分で入れる）
 
@@ -75,7 +94,7 @@ PixDone+ をアプリ内で購入できるようにするための、ストア�
 |---|---|---|---|
 | `app/.env`（ビルド時） | `VITE_REVENUECAT_IOS_KEY` | `appl_…` | 公開用の SDK キー。Git には入れません |
 | `app/.env`（ビルド時） | `VITE_REVENUECAT_ANDROID_KEY` | `goog_…` | 同上 |
-| Vercel（Production） | `REVENUECAT_WEBHOOK_AUTH` | 手順 3-7 の文字列 | **本番サーバー用。未設定だと Webhook は 500 を返します** |
+| Vercel（Production） | `REVENUECAT_WEBHOOK_AUTH` | 手順 3-2 の文字列 | **本番サーバー用。未設定だと Webhook は 500 を返します** |
 
 キーを設定したら `cd app && npm run build:native` で再ビルドします（キーなしのビルドでは料金ページが「準備中」になります）。
 
