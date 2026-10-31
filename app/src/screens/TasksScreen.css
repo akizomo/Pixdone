@@ -98,3 +98,9 @@
 .tasks__chevron--open {
   transform: rotate(90deg);
 }
+
+.tasks__col-8 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

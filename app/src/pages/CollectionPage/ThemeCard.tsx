@@ -33,22 +33,7 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
     <button
       type="button"
       onClick={onClick}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '16px',
-        padding: '16px',
-        background: isActive
-          ? 'var(--pd-color-accent-subtle)'
-          : 'var(--pd-color-background-elevated)',
-        border: `2px solid ${isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
-        borderRadius: 0,
-        cursor: 'pointer',
-        textAlign: 'left',
-        opacity: isLocked ? 0.7 : 1,
-        width: '100%',
-        transition: 'border-color 0.15s, background 0.15s',
-      }}
+      className={`theme-card__row-4${isActive ? ' theme-card__row-4--is-active' : ''}${isLocked ? ' theme-card__row-4--is-locked' : ''}`}
     >
       {/* Theme icon */}
       <span className="theme-card__theme-icon">{theme.icon}</span>
@@ -56,13 +41,7 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
       {/* Info */}
       <div className="theme-card__info">
         <div
-          style={{
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-md)',
-            letterSpacing: '1px',
-            color: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
-            marginBottom: '6px',
-          }}
+          className={`theme-card__text-5${isActive ? ' theme-card__text-5--is-active' : ''}`}
         >
           {theme.name}
         </div>
@@ -72,14 +51,8 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
             {swatches.map((color, i) => (
               <span
                 key={i}
-                style={{
-                  width: '16px',
-                  height: '16px',
-                  background: color,
-                  border: '1px solid var(--pd-color-border-default)',
-                  display: 'inline-block',
-                  flexShrink: 0,
-                }}
+                className="theme-card__box-6"
+                style={{ background: color }}
               />
             ))}
           </div>

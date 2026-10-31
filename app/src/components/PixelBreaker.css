@@ -19,3 +19,19 @@
   margin-bottom: var(--pd-space-3);
   text-align: center;
 }
+
+.pixel-breaker__box-2 {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+  transition: filter var(--pd-motion-base) var(--pd-easing-standard), opacity var(--pd-motion-base) var(--pd-easing-standard);
+  cursor: default;
+  filter: grayscale(1) contrast(1.15) brightness(0.95);
+  opacity: 0.7;
+}
+
+.pixel-breaker__box-2--phase-playing {
+  cursor: none;
+  filter: none;
+  opacity: 1;
+}

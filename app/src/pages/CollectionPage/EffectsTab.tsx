@@ -63,37 +63,13 @@ export function EffectsTab({
                   key={effect.key}
                   type="button"
                   onClick={() => { playSound('buttonClick'); onSelect(effect.key); }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    width: '100%',
-                    padding: '10px 12px',
-                    textAlign: 'left',
-                    background: isSelected ? 'var(--pd-color-accent-subtle)' : 'none',
-                    border: 'none',
-                    borderLeft: `3px solid ${isSelected ? 'var(--pd-color-accent-default)' : 'transparent'}`,
-                    cursor: 'pointer',
-                    transition: 'background 0.1s',
-                  }}
+                  className={`effects-tab__row-4${isSelected ? ' effects-tab__row-4--is-selected' : ''}`}
                 >
                   <div className="effects-tab__box-2">
-                    <div style={{
-                      fontFamily: 'var(--pd-font-brand)',
-                      fontSize: 'var(--pd-font-size-sm)',
-                      letterSpacing: '0.5px',
-                      color: isSelected ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}>
+                    <div className={`effects-tab__text-5${isSelected ? ' effects-tab__text-5--is-selected' : ''}`}>
                       {effect.name}
                     </div>
-                    <div style={{
-                      fontSize: 'var(--pd-font-size-sm)',
-                      fontFamily: 'var(--pd-font-brand)',
-                      letterSpacing: '1px',
-                      color: badgeColor(effect.rarity, effect.access === 'challenge'),
-                      marginTop: '1px',
-                    }}>
+                    <div className="effects-tab__text-6" style={{ color: badgeColor(effect.rarity, effect.access === 'challenge') }}>
                       {effect.access === 'challenge' ? 'CHALLENGE' : effect.rarity}
                     </div>
                   </div>
@@ -126,23 +102,7 @@ export function EffectsTab({
               setLocalFilter(f);
               onFilterChange?.(f);
             }}
-            style={{
-              padding: '4px 10px',
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-sm)',
-              letterSpacing: '1px',
-              whiteSpace: 'nowrap',
-              cursor: 'pointer',
-              background: localFilter === f
-                ? 'var(--pd-color-accent-default)'
-                : 'var(--pd-color-background-elevated)',
-              color: localFilter === f
-                ? 'var(--pd-color-background-default)'
-                : 'var(--pd-color-text-secondary)',
-              border: `2px solid ${localFilter === f ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
-              borderRadius: 0,
-              transition: 'background 0.15s, color 0.15s',
-            }}
+            className={`effects-tab__text-7${localFilter === f ? ' effects-tab__text-7--local-filter-f' : ''}`}
           >
             {f}
           </button>

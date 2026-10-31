@@ -492,8 +492,7 @@ export function TasksScreen({
       <div
         ref={setMainScrollRef}
         key={activeListId}
-        className={['pd-task-area', 'pd-list-enter', 'pd-list-swipe', listSlideClass].filter(Boolean).join(' ')}
-        style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+        className={`${['pd-task-area', 'pd-list-enter', 'pd-list-swipe', listSlideClass].filter(Boolean).join(' ')} tasks__col-8`}
       >
         {isSmash ? (
           <SmashListPanel

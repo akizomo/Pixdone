@@ -64,3 +64,61 @@
 .effects-tab__check {
   color: var(--pd-color-text-primary);
 }
+
+.effects-tab__row-4 {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--pd-space-3) var(--pd-space-3);
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  transition: background var(--pd-motion-fast);
+  background: none;
+  border-left: var(--pd-border-strong) solid transparent;
+}
+
+.effects-tab__row-4--is-selected {
+  background: var(--pd-color-accent-subtle);
+  border-left: var(--pd-border-strong) solid var(--pd-color-accent-default);
+}
+
+.effects-tab__text-5 {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  color: var(--pd-color-text-primary);
+}
+
+.effects-tab__text-5--is-selected {
+  color: var(--pd-color-accent-default);
+}
+
+.effects-tab__text-6 {
+  font-size: var(--pd-font-size-sm);
+  font-family: var(--pd-font-brand);
+  letter-spacing: 1px;
+  margin-top: 1px;
+}
+
+.effects-tab__text-7 {
+  padding: var(--pd-space-1) var(--pd-space-3);
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background var(--pd-motion-base), color var(--pd-motion-base);
+  background: var(--pd-color-background-elevated);
+  color: var(--pd-color-text-secondary);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+}
+
+.effects-tab__text-7--local-filter-f {
+  background: var(--pd-color-accent-default);
+  color: var(--pd-color-background-default);
+  border: var(--pd-border-base) solid var(--pd-color-accent-default);
+}

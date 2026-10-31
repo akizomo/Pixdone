@@ -42,3 +42,49 @@
 .evolution-section__text-2 {
   font-size: var(--pd-font-size-2xs);
 }
+
+.evolution-section__text-3 {
+  font-family: var(--pd-font-brand);
+  letter-spacing: 1px;
+  font-weight: var(--pd-font-weight-bold);
+  color: var(--pd-color-rarity-legendary);
+}
+
+.evolution-section__text-3--status-is-max-level {
+  color: var(--pd-color-feedback-success);
+}
+
+.evolution-section__text-4 {
+  font-family: var(--pd-font-body);
+  color: var(--pd-color-text-primary);
+}
+
+.evolution-section__text-5 {
+  font-family: var(--pd-font-body);
+  color: var(--pd-color-text-secondary);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.evolution-section__pos-6 {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  transition: width var(--pd-motion-slower);
+  background: var(--pd-color-rarity-legendary);
+}
+
+.evolution-section__pos-6--status-blocked-reason-ne {
+  background: var(--pd-color-text-tertiary);
+}
+
+.evolution-section__text-7 {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--pd-font-body);
+  color: var(--pd-color-text-secondary);
+  text-decoration: underline;
+}

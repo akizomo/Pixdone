@@ -53,9 +53,8 @@ function PacmanSprite({ frame, arriving }: { frame: number[][]; arriving: boolea
       width={PAC_SIZE}
       height={PAC_SIZE}
       viewBox={`0 0 ${PAC_SIZE} ${PAC_SIZE}`}
-      className={arriving ? 'pxd-pacman--arrive' : undefined}
+      className={`pd-pacman-svg${arriving ? ' pxd-pacman--arrive' : ''}`}
       shapeRendering="crispEdges"
-      style={{ display: 'block', overflow: 'visible' }}
       aria-hidden="true"
     >
       {frame.flatMap((row, ry) =>
@@ -204,19 +203,12 @@ export function PacmanProgress({ remaining, totalSeconds, timerState }: PacmanPr
   return (
     <div
       ref={containerRef}
-      style={{ width: '100%', position: 'relative', height: `${HEIGHT}px` }}
+      className="pacman-progress__pos-2"
+      style={{ height: `${HEIGHT}px` }}
       aria-hidden="true"
     >
       {/* Ground line */}
-      <div style={{
-        position:   'absolute',
-        bottom:     `${GROUND_BTM - 1}px`,
-        left:       0,
-        right:      0,
-        height:     '2px',
-        background: 'var(--pd-color-border-outline-variant)',
-        opacity:    0.3,
-      }} />
+      <div className="pacman-progress__pos-3" style={{ bottom: `${GROUND_BTM - 1}px` }} />
 
       {/* Dots */}
       {Array.from({ length: DOT_COUNT }, (_, i) => {
@@ -243,20 +235,14 @@ export function PacmanProgress({ remaining, totalSeconds, timerState }: PacmanPr
 
       {/* Pac-Man */}
       <div
-        style={{
-          position:   'absolute',
-          left:       `${charX}px`,
-          bottom:     `${GROUND_BTM}px`,
-          width:      `${PAC_SIZE}px`,
-          height:     `${PAC_SIZE}px`,
-          transition: isRunning ? 'left 0.65s linear' : 'none',
-        }}
+        className={`pacman-progress__pos-4${isRunning ? ' pacman-progress__pos-4--is-running' : ''}`}
+        style={{ left: `${charX}px`, bottom: `${GROUND_BTM}px`, width: `${PAC_SIZE}px`, height: `${PAC_SIZE}px` }}
       >
         <PacmanSprite frame={frame} arriving={isComplete} />
       </div>
 
       {/* Goal flag */}
-      <div style={{ position: 'absolute', right: '1px', bottom: `${GROUND_BTM}px` }}>
+      <div className="pacman-progress__pos-5" style={{ bottom: `${GROUND_BTM}px` }}>
         <FlagSprite flagClass={flagClass} totalHeight={flagH} />
       </div>
     </div>

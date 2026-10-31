@@ -72,15 +72,7 @@ export function ThemeDetailView({
       />
 
       {/* Demo area with theme vars */}
-      <div style={{
-        ...(previewVars as React.CSSProperties),
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px 16px',
-        background: bgColor,
-      }}>
+      <div className="theme-detail__row-4" style={{ ...(previewVars as React.CSSProperties), background: bgColor }}>
         <ThemeHomePreview
           lang={lang}
           onTriggerEffect={triggerDemo}
@@ -110,17 +102,7 @@ export function ThemeDetailView({
           type="button"
           onClick={handleAction}
           disabled={isActive}
-          style={{
-            padding: '12px',
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-sm)',
-            letterSpacing: '2px',
-            cursor: isActive ? 'default' : 'pointer',
-            background: isActive ? 'var(--pd-color-accent-subtle)' : isLocked ? 'var(--pd-color-background-elevated)' : 'var(--pd-color-accent-default)',
-            color: isActive ? 'var(--pd-color-accent-default)' : isLocked ? 'var(--pd-color-text-primary)' : 'var(--pd-color-background-default)',
-            border: `2px solid ${isActive || isLocked ? 'var(--pd-color-border-default)' : 'transparent'}`,
-            marginTop: '4px',
-          }}
+          className={`theme-detail__text-5${isActive ? ' theme-detail__text-5--is-active' : ''}${isActive || isLocked ? ' theme-detail__text-5--is-active-is-locked' : ''} theme-detail__text-6${isLocked ? ' theme-detail__text-6--is-locked' : ''}${isActive ? ' theme-detail__text-6--is-active' : ''}`}
         >
           {isActive
             ? (lang === 'ja' ? '使用中' : 'ACTIVE')

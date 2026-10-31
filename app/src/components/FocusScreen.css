@@ -222,3 +222,14 @@
 .pd-focus__cta-btn {
   min-width: 120px;
 }
+
+.focus__row-2 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1ch;
+}
+
+.focus__row-2--ch {
+  width: 0.6ch;
+}

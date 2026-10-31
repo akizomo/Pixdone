@@ -431,3 +431,7 @@
   flex: 1;
   min-width: 0;
 }
+
+.pd-task-form__repeat-preset.task-form__box-2 {
+  border-bottom: none;
+}

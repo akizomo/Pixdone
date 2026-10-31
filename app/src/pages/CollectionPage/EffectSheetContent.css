@@ -159,3 +159,91 @@
   color: var(--pd-color-text-secondary);
   line-height: var(--pd-line-height-snug);
 }
+
+.effect-sheet-content__text-9 {
+  width: var(--pd-tap-target-min);
+  height: 36px;
+  border-radius: 0;
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  background: var(--pd-color-background-elevated);
+  color: var(--pd-color-text-primary);
+  cursor: pointer;
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  opacity: 0.5;
+}
+
+.effect-sheet-content__text-9--can-prev-next {
+  opacity: 1;
+}
+
+.effect-sheet-content__text-10 {
+  font-size: var(--pd-font-size-sm);
+  font-family: var(--pd-font-brand);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.effect-sheet-content__pos-11 {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--pd-color-rarity-legendary);
+}
+
+.effect-sheet-content__text-12 {
+  margin: 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+  line-height: var(--pd-line-height-normal);
+  display: -webkit-box;
+  -webkit-line-clamp: 2px;
+  overflow: hidden;
+  min-height: 2.45rem;
+}
+
+.effect-sheet-content__row-13 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pd-space-3);
+  min-height: 20px;
+}
+
+.effect-sheet-content__text-14 {
+  width: 100%;
+  padding: var(--pd-space-3) var(--pd-space-3);
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  background: var(--pd-color-background-elevated);
+  color: var(--pd-color-text-primary);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  border-radius: 0;
+}
+
+.effect-sheet-content__box-15 {
+  -webkit-box-orient: vertical;
+}
+
+.effect-sheet-content__box-16 {
+  visibility: hidden;
+}
+
+.effect-sheet-content__box-16--is-locked-effect-access- {
+  visibility: visible;
+}
+
+.effect-sheet-content__box-17 {
+  cursor: default;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.effect-sheet-content__box-17--is-locked-effect-access- {
+  cursor: pointer;
+  opacity: 1;
+  pointer-events: auto;
+}

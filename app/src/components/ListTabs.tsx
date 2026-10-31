@@ -123,14 +123,8 @@ export function ListTabs({
 
       {contextMenu && contextMenuItems.length > 0 && (
         <div
-          style={{
-            position: 'fixed',
-            left: contextMenu.x,
-            top: contextMenu.y,
-            width: 0,
-            height: 0,
-            zIndex: 300,
-          }}
+          className="list-tabs__pos-1"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
         >
           <PopoverMenu
             items={contextMenuItems}

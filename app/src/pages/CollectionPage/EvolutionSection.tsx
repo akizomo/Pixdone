@@ -47,13 +47,7 @@ export function EvolutionSection({
     <div className="evolution-section__col-1">
       {/* Level badge */}
       <div className="evolution-section__level-badge">
-        <span style={{
-          fontFamily: 'var(--pd-font-brand)',
-          fontSize: smallFontSize,
-          letterSpacing: '1px',
-          color: status.isMaxLevel ? 'var(--pd-color-feedback-success)' : 'var(--pd-color-rarity-legendary)',
-          fontWeight: 'bold',
-        }}>
+        <span className={`evolution-section__text-3${status.isMaxLevel ? ' evolution-section__text-3--status-is-max-level' : ''}`} style={{ fontSize: smallFontSize }}>
           {`Lv${status.currentLevel}`}
         </span>
         {!status.isMaxLevel && (
@@ -67,11 +61,7 @@ export function EvolutionSection({
       {!status.isMaxLevel && (
         <div>
           <div className="evolution-section__row-1">
-            <span style={{
-              fontFamily: 'var(--pd-font-body)',
-              fontSize,
-              color: 'var(--pd-color-text-primary)',
-            }}>
+            <span className="evolution-section__text-4" style={{ fontSize }}>
               {status.blockedReason === 'need_premium'
                 ? (lang === 'ja' ? 'PixDone+で進化解放' : 'Upgrade to evolve')
                 : status.blockedReason === 'ready'
@@ -80,23 +70,12 @@ export function EvolutionSection({
                     ? `あと${remaining}回でLv${status.currentLevel + 1}に進化`
                     : `${remaining} more to evolve to Lv${status.currentLevel + 1}`)}
             </span>
-            <span style={{
-              fontFamily: 'var(--pd-font-body)',
-              fontSize,
-              color: 'var(--pd-color-text-secondary)',
-              flexShrink: 0,
-              fontVariantNumeric: 'tabular-nums',
-            }}>
+            <span className="evolution-section__text-5" style={{ fontSize }}>
               {status.progress} / {status.threshold}
             </span>
           </div>
           <div className="evolution-section__pos-1">
-            <div style={{
-              position: 'absolute', left: 0, top: 0, bottom: 0,
-              width: `${Math.min(100, status.threshold > 0 ? (status.progress / status.threshold) * 100 : 0)}%`,
-              background: status.blockedReason === 'need_premium' ? 'var(--pd-color-text-tertiary)' : 'var(--pd-color-rarity-legendary)',
-              transition: 'width 0.3s',
-            }} />
+            <div className={`evolution-section__pos-6${status.blockedReason === 'need_premium' ? ' evolution-section__pos-6--status-blocked-reason-ne' : ''}`} style={{ width: `${Math.min(100, status.threshold > 0 ? (status.progress / status.threshold) * 100 : 0)}%` }} />
           </div>
         </div>
       )}
@@ -108,16 +87,8 @@ export function EvolutionSection({
           <button
             type="button"
             onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              cursor: 'pointer',
-              fontFamily: 'var(--pd-font-body)',
-              fontSize: smallFontSize,
-              color: 'var(--pd-color-text-secondary)',
-              textDecoration: 'underline',
-            }}
+            className="evolution-section__text-7"
+            style={{ fontSize: smallFontSize }}
           >
             {lang === 'ja' ? 'PixDone+で進化解放' : 'Unlock evolution with PixDone+'}
           </button>

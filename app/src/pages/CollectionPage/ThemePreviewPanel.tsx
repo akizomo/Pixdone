@@ -66,16 +66,8 @@ export function ThemePreviewPanel({
     <div className="theme-preview-panel__col-1">
       {/* Demo area — theme vars applied as inline styles */}
       <div
-        style={{
-          ...(previewVars as React.CSSProperties),
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '32px 24px',
-          background: bgColor,
-        }}
+        className="theme-preview-panel__col-4"
+        style={{ ...(previewVars as React.CSSProperties), background: bgColor }}
       >
         <ThemeHomePreview
           lang={lang}
@@ -109,24 +101,7 @@ export function ThemePreviewPanel({
           type="button"
           onClick={handleAction}
           disabled={isActive}
-          style={{
-            padding: '10px 12px',
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-sm)',
-            letterSpacing: '2px',
-            cursor: isActive ? 'default' : 'pointer',
-            background: isActive
-              ? 'var(--pd-color-accent-subtle)'
-              : isLocked
-                ? 'var(--pd-color-background-elevated)'
-                : 'var(--pd-color-accent-default)',
-            color: isActive
-              ? 'var(--pd-color-accent-default)'
-              : isLocked
-                ? 'var(--pd-color-text-primary)'
-                : 'var(--pd-color-background-default)',
-            border: `2px solid ${isActive || isLocked ? 'var(--pd-color-border-default)' : 'transparent'}`,
-          }}
+          className={`theme-preview-panel__text-5${isActive ? ' theme-preview-panel__text-5--is-active' : ''}${isActive || isLocked ? ' theme-preview-panel__text-5--is-active-is-locked' : ''} theme-preview-panel__text-6${isLocked ? ' theme-preview-panel__text-6--is-locked' : ''}${isActive ? ' theme-preview-panel__text-6--is-active' : ''}`}
         >
           {isActive
             ? (lang === 'ja' ? '使用中' : 'ACTIVE')

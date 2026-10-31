@@ -40,12 +40,7 @@ function TimeDigits({ value }: { value: string }) {
       {value.split('').map((ch, i) => (
         <span
           key={`${i}-${ch}`}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: ch === ':' ? '0.6ch' : '1ch',
-          }}
+          className={`focus-zen-mode__row-2${ch === ':' ? ' focus-zen-mode__row-2--ch' : ''}`}
         >
           {ch}
         </span>

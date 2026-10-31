@@ -974,8 +974,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
                     ))}
                     <button
                       type="button"
-                      className={`pd-task-form__repeat-preset${isCustomRepeat(repeat) ? ' pd-task-form__repeat-preset--active' : ''}`}
-                      style={{ borderBottom: 'none' }}
+                      className={`pd-task-form__repeat-preset${isCustomRepeat(repeat) ? ' pd-task-form__repeat-preset--active' : ''} task-form__box-2`}
                       onClick={() => { playSound('buttonClick'); setShowCustom(true); }}
                     >
                       <PixelIcon name="settings" size="14px" />

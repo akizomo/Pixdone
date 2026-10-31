@@ -32,34 +32,13 @@ export function ThemesTab({
               key={theme.key}
               type="button"
               onClick={() => { playSound('buttonClick'); onSelect(theme.key as ThemeKey); }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                width: '100%',
-                padding: '10px 12px',
-                textAlign: 'left',
-                background: isSelected ? 'var(--pd-color-accent-subtle)' : 'none',
-                border: 'none',
-                borderLeft: `3px solid ${isSelected ? 'var(--pd-color-accent-default)' : 'transparent'}`,
-                cursor: 'pointer',
-                transition: 'background 0.1s',
-                gap: '8px',
-              }}
+              className={`themes-tab__row-7${isSelected ? ' themes-tab__row-7--is-selected' : ''}`}
             >
               <span className="themes-tab__text-1">
                 {theme.icon}
               </span>
               <div className="themes-tab__box-2">
-                <div style={{
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'var(--pd-font-size-sm)',
-                  letterSpacing: '0.5px',
-                  color: isSelected ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  lineHeight: 1.2,
-                }}>
+                <div className={`themes-tab__text-8${isSelected ? ' themes-tab__text-8--is-selected' : ''}`}>
                   {theme.name}
                   {isActive && <span className="themes-tab__text-2"><PixelIcon name="play" size="sm" /></span>}
                   {isLocked && <span className="themes-tab__text-3">🔒</span>}
@@ -84,33 +63,13 @@ export function ThemesTab({
             key={theme.key}
             type="button"
             onClick={() => onSelect(theme.key as ThemeKey)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              width: '100%',
-              padding: '12px 16px',
-              textAlign: 'left',
-              background: isActive ? 'var(--pd-color-accent-subtle)' : 'none',
-              border: 'none',
-              borderLeft: `3px solid ${isActive ? 'var(--pd-color-accent-default)' : 'transparent'}`,
-              cursor: 'pointer',
-              gap: '10px',
-            }}
+            className={`themes-tab__row-9${isActive ? ' themes-tab__row-9--is-active' : ''}`}
           >
             <span className="themes-tab__text-4">
               {theme.icon}
             </span>
             <div className="themes-tab__box-2">
-              <div style={{
-                fontFamily: 'var(--pd-font-brand)',
-                fontSize: 'var(--pd-font-size-sm)',
-                letterSpacing: '0.5px',
-                color: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                lineHeight: 1.2,
-              }}>
+              <div className={`themes-tab__text-10${isActive ? ' themes-tab__text-10--is-active' : ''}`}>
                 {theme.name}
                 {isActive && <span className="themes-tab__text-5">ACTIVE</span>}
                 {isLocked && <span className="themes-tab__text-6">🔒</span>}

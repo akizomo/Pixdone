@@ -87,14 +87,7 @@ export function EffectSheetContent({
             type="button"
             onClick={onPrev}
             disabled={!canPrevNext}
-            style={{
-              width: '44px', height: '36px', borderRadius: 0,
-              border: '2px solid var(--pd-color-border-default)',
-              background: 'var(--pd-color-background-elevated)',
-              color: 'var(--pd-color-text-primary)',
-              cursor: 'pointer', fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
-              opacity: canPrevNext ? 1 : 0.5,
-            }}
+            className={`effect-sheet-content__text-9${canPrevNext ? ' effect-sheet-content__text-9--can-prev-next' : ''}`}
             aria-label={lang === 'ja' ? '前のエフェクト' : 'Previous effect'}
           >
             {'<'}
@@ -108,14 +101,7 @@ export function EffectSheetContent({
             type="button"
             onClick={onNext}
             disabled={!canPrevNext}
-            style={{
-              width: '44px', height: '36px', borderRadius: 0,
-              border: '2px solid var(--pd-color-border-default)',
-              background: 'var(--pd-color-background-elevated)',
-              color: 'var(--pd-color-text-primary)',
-              cursor: 'pointer', fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
-              opacity: canPrevNext ? 1 : 0.5,
-            }}
+            className={`effect-sheet-content__text-9${canPrevNext ? ' effect-sheet-content__text-9--can-prev-next' : ''}`}
             aria-label={lang === 'ja' ? '次のエフェクト' : 'Next effect'}
           >
             {'>'}
@@ -149,11 +135,7 @@ export function EffectSheetContent({
         {/* Rarity / challenge badge + lock icon */}
         <div className="effect-sheet-content__rarity-challenge-badge-lock-">
           <div className="effect-sheet-content__row-3">
-            <span style={{
-              fontSize: 'var(--pd-font-size-sm)', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
-              color: effect ? badgeColor(effect.rarity, isChallenge) : 'var(--pd-color-text-secondary)',
-              flexShrink: 0,
-            }}>
+            <span className="effect-sheet-content__text-10" style={{ color: effect ? badgeColor(effect.rarity, isChallenge) : 'var(--pd-color-text-secondary)' }}>
               {isChallenge ? 'CHALLENGE' : (effect?.rarity ?? '')}
             </span>
             {isLocked && (
@@ -184,11 +166,7 @@ export function EffectSheetContent({
                 </span>
               </div>
               <div className="effect-sheet-content__pos-1">
-                <div style={{
-                  position: 'absolute', left: 0, top: 0, bottom: 0,
-                  width: `${Math.min(100, challengeThreshold > 0 ? (challengeProgress / challengeThreshold) * 100 : 0)}%`,
-                  background: 'var(--pd-color-rarity-legendary)',
-                }} />
+                <div className="effect-sheet-content__pos-11" style={{ width: `${Math.min(100, challengeThreshold > 0 ? (challengeProgress / challengeThreshold) * 100 : 0)}%` }} />
               </div>
             </div>
           )}
@@ -203,23 +181,13 @@ export function EffectSheetContent({
           />
 
           {/* Description */}
-          <p style={{
-            margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
-            color: 'var(--pd-color-text-secondary)', lineHeight: 1.5,
-            display: '-webkit-box',
-            WebkitBoxOrient: 'vertical' as unknown as 'vertical',
-            WebkitLineClamp: 2, overflow: 'hidden', minHeight: '2.45rem',
-          }}>
+          <p className="effect-sheet-content__text-12 effect-sheet-content__box-15" >
             {effect ? effect.description[lang] : ''}
           </p>
 
           {/* Lock CTA area */}
           <div className="effect-sheet-content__lock-cta-area">
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              gap: '10px', minHeight: '20px',
-              visibility: isLocked && effect?.access === 'premium' ? 'visible' : 'hidden',
-            }}>
+            <div className={`effect-sheet-content__row-13 effect-sheet-content__box-16${isLocked && effect?.access === 'premium' ? ' effect-sheet-content__box-16--is-locked-effect-access-' : ''}`} >
               <span className="effect-sheet-content__text-8">
                 {lang === 'ja' ? 'PixDone+ が必要' : 'Requires PixDone+'}
               </span>
@@ -228,16 +196,7 @@ export function EffectSheetContent({
             <button
               type="button"
               onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}
-              style={{
-                width: '100%', padding: '10px 12px',
-                fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px',
-                cursor: isLocked && effect?.access === 'premium' ? 'pointer' : 'default',
-                background: 'var(--pd-color-background-elevated)',
-                color: 'var(--pd-color-text-primary)',
-                border: '2px solid var(--pd-color-border-default)', borderRadius: 0,
-                opacity: isLocked && effect?.access === 'premium' ? 1 : 0,
-                pointerEvents: isLocked && effect?.access === 'premium' ? 'auto' : 'none',
-              }}
+              className={`effect-sheet-content__text-14 effect-sheet-content__box-17${isLocked && effect?.access === 'premium' ? ' effect-sheet-content__box-17--is-locked-effect-access-' : ''}`}
               aria-hidden={!(isLocked && effect?.access === 'premium')}
               tabIndex={isLocked && effect?.access === 'premium' ? 0 : -1}
             >

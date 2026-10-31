@@ -234,3 +234,21 @@
   margin: 0 0 var(--pd-space-4);
   font-size: var(--pd-font-size-sm);
 }
+
+.pricing__text-19 {
+  padding: var(--pd-space-1) var(--pd-space-3);
+  border: none;
+  cursor: pointer;
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  transition: background var(--pd-motion-base);
+  background: transparent;
+  color: var(--pd-color-text-secondary);
+}
+
+.pricing__text-19--cycle-c {
+  background: var(--pd-color-action-primary);
+  color: var(--pd-color-text-inverse);
+}

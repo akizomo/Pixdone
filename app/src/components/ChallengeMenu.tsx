@@ -219,13 +219,7 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
 
   return (
     <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 12,
-        paddingTop: withDivider ? 16 : 0,
-        borderTop: withDivider ? '1px solid var(--pd-color-border-default)' : undefined,
-      }}
+      className={`challenge-menu__col-6${withDivider ? ' challenge-menu__col-6--with-divider' : ''}`}
     >
       {gifSrc && (
         <div className="challenge-menu__row-2">
@@ -246,12 +240,7 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
           {effect.rarity}
         </span>
         {!isCompleted && deadlineText && (
-          <span style={{
-            marginLeft: 'auto',
-            fontFamily: 'var(--pd-font-body)',
-            fontSize: 'var(--pd-font-size-2xs)',
-            color: isUrgent ? 'var(--pd-color-feedback-error)' : 'var(--pd-color-text-secondary)',
-          }}>
+          <span className={`challenge-menu__text-7${isUrgent ? ' challenge-menu__text-7--is-urgent' : ''}`}>
             ~{deadlineText}
           </span>
         )}
@@ -274,12 +263,7 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
             <span>{progress} / {threshold}</span>
           </div>
           <div className="challenge-menu__box-4">
-            <div style={{
-              height: '100%',
-              width: `${pct}%`,
-              background: 'var(--pd-color-accent-default)',
-              transition: 'width 0.3s ease',
-            }} />
+            <div className="challenge-menu__box-8" style={{ width: `${pct}%` }} />
           </div>
         </div>
       )}

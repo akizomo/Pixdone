@@ -60,11 +60,7 @@ export function EffectDetailView({
     <div className="effect-detail__col-1">
       {/* Header */}
       <DetailViewHeader title={effect.name.toUpperCase()} isJa={lang === 'ja'} onBack={onClose}>
-        <span style={{
-          fontSize: 'var(--pd-font-size-sm)', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
-          color: badgeColor(effect.rarity, isChallenge),
-          flexShrink: 0,
-        }}>
+        <span className="effect-detail__text-8" style={{ color: badgeColor(effect.rarity, isChallenge) }}>
           {isChallenge ? 'CHALLENGE' : effect.rarity}
         </span>
         {/* Toggle (shown only once challenge is earned, or for non-challenge effects) */}
@@ -116,12 +112,7 @@ export function EffectDetailView({
               </span>
             </div>
             <div className="effect-detail__pos-1">
-              <div style={{
-                position: 'absolute', left: 0, top: 0, bottom: 0,
-                width: `${Math.min(100, challengeThreshold > 0 ? (challengeProgress / challengeThreshold) * 100 : 0)}%`,
-                background: 'var(--pd-color-rarity-legendary)',
-                transition: 'width 0.3s',
-              }} />
+              <div className="effect-detail__pos-9" style={{ width: `${Math.min(100, challengeThreshold > 0 ? (challengeProgress / challengeThreshold) * 100 : 0)}%` }} />
             </div>
             {effect.challengeDeadline && (
               <p className="effect-detail__text-5">

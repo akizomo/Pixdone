@@ -112,11 +112,7 @@ export function EffectPreviewPanel({
               </span>
             </div>
             <div className="effect-preview-panel__pos-1">
-              <div style={{
-                position: 'absolute', left: 0, top: 0, bottom: 0,
-                width: `${Math.min(100, challengeThreshold > 0 ? (challengeProgress / challengeThreshold) * 100 : 0)}%`,
-                background: 'var(--pd-color-rarity-legendary)',
-              }} />
+              <div className="effect-preview-panel__pos-8" style={{ width: `${Math.min(100, challengeThreshold > 0 ? (challengeProgress / challengeThreshold) * 100 : 0)}%` }} />
             </div>
           </div>
         )}

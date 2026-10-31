@@ -31,3 +31,30 @@
   color: var(--pd-color-rarity-legendary);
   margin-top: 2px;
 }
+
+.effect-card__col-4 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pd-space-2);
+  padding: var(--pd-space-3);
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  border-radius: 0;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  width: 100%;
+  transition: opacity var(--pd-motion-base);
+  opacity: 1;
+}
+
+.effect-card__col-4--is-locked {
+  opacity: 0.7;
+}
+
+.effect-card__text-5 {
+  font-size: var(--pd-font-size-sm);
+  font-family: var(--pd-font-brand);
+  letter-spacing: 1px;
+}

@@ -99,3 +99,19 @@
   color: var(--pd-color-text-primary);
   border: var(--pd-border-thin) solid var(--pd-color-border-default);
 }
+
+.effect-detail__text-8 {
+  font-size: var(--pd-font-size-sm);
+  font-family: var(--pd-font-brand);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.effect-detail__pos-9 {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--pd-color-rarity-legendary);
+  transition: width var(--pd-motion-slower);
+}

@@ -253,20 +253,8 @@ export function PricingPage() {
                     <button
                       key={c}
                       type="button"
-                      className="pd-tap-area"
+                      className={`pd-tap-area pricing__text-19${cycle === c ? ' pricing__text-19--cycle-c' : ''}`}
                       onClick={() => { playSound('buttonClick'); setCycle(c); }}
-                      style={{
-                        padding: '4px 10px',
-                        background: cycle === c ? 'var(--pd-color-action-primary)' : 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontFamily: 'var(--pd-font-brand)',
-                        fontSize: 'var(--pd-font-size-sm)',
-                        color: cycle === c ? 'var(--pd-color-text-inverse)' : 'var(--pd-color-text-secondary)',
-                        letterSpacing: '1px',
-                        whiteSpace: 'nowrap',
-                        transition: 'background 0.15s',
-                      }}
                     >
                       {c === 'monthly'
                         ? (isJa ? '月払い' : 'MONTHLY')

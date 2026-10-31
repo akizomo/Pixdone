@@ -86,3 +86,42 @@
   flex: 1;
   min-height: 0;
 }
+
+.collection__text-4 {
+  flex: 1;
+  padding: var(--pd-space-3);
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color var(--pd-motion-base), border-color var(--pd-motion-base);
+  margin-bottom: -2px;
+  border-bottom: var(--pd-border-strong) solid transparent;
+  color: var(--pd-color-text-secondary);
+}
+
+.collection__text-4--is-active {
+  border-bottom: var(--pd-border-strong) solid var(--pd-color-accent-default);
+  color: var(--pd-color-accent-default);
+}
+
+.collection__text-5 {
+  padding: var(--pd-space-1) var(--pd-space-2);
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 0;
+  background: var(--pd-color-background-elevated);
+  color: var(--pd-color-text-secondary);
+  border: var(--pd-border-thin) solid var(--pd-color-border-default);
+}
+
+.collection__text-5--desktop-filter-f {
+  background: var(--pd-color-accent-default);
+  color: var(--pd-color-background-default);
+  border: var(--pd-border-thin) solid var(--pd-color-accent-default);
+}

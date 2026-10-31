@@ -84,17 +84,8 @@ export function ThemeSheetContent({
       {/* Preview — theme vars scoped here */}
       <div className="theme-sheet-content__preview-theme-vars-scoped-he">
         <div
-          style={{
-            ...(previewVars as React.CSSProperties),
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '14px 16px',
-            background: bgColor,
-            minHeight: 0,
-            overflow: 'hidden',
-          }}
+          className="theme-sheet-content__row-4"
+          style={{ ...(previewVars as React.CSSProperties), background: bgColor }}
         >
           <ThemeHomePreview lang={lang} onTriggerEffect={triggerDemo} />
         </div>
@@ -133,12 +124,7 @@ export function ThemeSheetContent({
 
         <div className="theme-sheet-content__col-2">
           {/* Description — always reserves 2 lines */}
-          <p style={{
-            margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
-            color: 'var(--pd-color-text-secondary)', lineHeight: 1.5,
-            display: '-webkit-box', WebkitBoxOrient: 'vertical' as unknown as 'vertical',
-            WebkitLineClamp: 2, overflow: 'hidden', minHeight: '2.45rem',
-          }}>
+          <p className="theme-sheet-content__text-5 theme-sheet-content__box-7" >
             {theme.description?.[lang] ?? ''}
           </p>
 
@@ -147,23 +133,7 @@ export function ThemeSheetContent({
             type="button"
             onClick={handleAction}
             disabled={isActive && !isLocked}
-            style={{
-              width: '100%', padding: '10px 12px',
-              fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
-              letterSpacing: '1px', borderRadius: 0,
-              cursor: isActive ? 'default' : 'pointer',
-              background: isActive
-                ? 'var(--pd-color-accent-subtle)'
-                : isLocked
-                  ? 'var(--pd-color-background-elevated)'
-                  : 'var(--pd-color-accent-default)',
-              color: isActive
-                ? 'var(--pd-color-accent-default)'
-                : isLocked
-                  ? 'var(--pd-color-text-primary)'
-                  : 'var(--pd-color-background-default)',
-              border: `2px solid ${isActive || isLocked ? 'var(--pd-color-border-default)' : 'transparent'}`,
-            }}
+            className={`theme-sheet-content__text-6${isActive ? ' theme-sheet-content__text-6--is-active' : ''}${isActive || isLocked ? ' theme-sheet-content__text-6--is-active-is-locked' : ''} theme-sheet-content__text-8${isLocked ? ' theme-sheet-content__text-8--is-locked' : ''}${isActive ? ' theme-sheet-content__text-8--is-active' : ''}`}
           >
             {isActive
               ? (lang === 'ja' ? '使用中' : 'ACTIVE')

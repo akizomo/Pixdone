@@ -277,15 +277,7 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
       <div ref={wrapRef} className="pixel-breaker__pos-1">
         <canvas
           ref={canvasRef}
-          style={{
-            display: 'block',
-            width: '100%',
-            imageRendering: 'pixelated',
-            cursor: phase === 'playing' ? 'none' : 'default',
-            filter: phase === 'playing' ? 'none' : 'grayscale(1) contrast(1.15) brightness(0.95)',
-            opacity: phase === 'playing' ? 1 : 0.7,
-            transition: 'filter 0.2s ease, opacity 0.2s ease',
-          }}
+          className={`pixel-breaker__box-2${phase === 'playing' ? ' pixel-breaker__box-2--phase-playing' : ''}`}
         />
         {phase === 'ready' && (
           <div style={overlayStyle}>

@@ -61,25 +61,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
                 key={mode.key}
                 type="button"
                 onClick={() => { playSound('buttonClick'); setColorMode(mode.key); }}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  padding: '8px 4px',
-                  background: isActive
-                    ? 'var(--pd-color-accent-subtle)'
-                    : 'var(--pd-color-background-elevated)',
-                  border: `2px solid ${isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
-                  borderRadius: 0,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'var(--pd-font-size-sm)',
-                  color: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
-                  letterSpacing: '1px',
-                  transition: 'background 0.15s, border-color 0.15s, color 0.15s',
-                }}
+                className={`theme-selector__text-5${isActive ? ' theme-selector__text-5--is-active' : ''}`}
               >
                 <PixelIcon name={mode.icon} size="1rem" />
                 {lang === 'ja' ? mode.labelJa : mode.labelEn}
@@ -106,36 +88,14 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
                 key={theme.key}
                 type="button"
                 onClick={() => handleSelect(theme.key as ThemeKey, isLocked)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px 16px',
-                  background: isActive
-                    ? 'var(--pd-color-accent-subtle)'
-                    : 'var(--pd-color-background-elevated)',
-                  border: `2px solid ${isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
-                  borderRadius: '0',
-                  cursor: 'pointer',
-                  opacity: isLocked ? 0.65 : 1,
-                  fontFamily: 'var(--pd-font-body)',
-                  textAlign: 'left',
-                  transition: 'background 0.15s, border-color 0.15s',
-                }}
+                className={`theme-selector__text-6${isActive ? ' theme-selector__text-6--is-active' : ''}${isLocked ? ' theme-selector__text-6--is-locked' : ''}`}
               >
                 <span className="theme-selector__text-3">
                   {theme.icon}
                 </span>
                 <span className="theme-selector__box-1">
                   <span
-                    style={{
-                      display: 'block',
-                      fontFamily: 'var(--pd-font-brand)',
-                      fontSize: 'var(--pd-font-size-sm)',
-                      color: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
-                      letterSpacing: '1px',
-                      lineHeight: 1.2,
-                    }}
+                    className={`theme-selector__text-7${isActive ? ' theme-selector__text-7--is-active' : ''}`}
                   >
                     {theme.name}
                   </span>

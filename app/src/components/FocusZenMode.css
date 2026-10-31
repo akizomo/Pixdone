@@ -127,3 +127,14 @@
 .pd-zen-actions__btn {
   min-width: 140px;
 }
+
+.focus-zen-mode__row-2 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1ch;
+}
+
+.focus-zen-mode__row-2--ch {
+  width: 0.6ch;
+}

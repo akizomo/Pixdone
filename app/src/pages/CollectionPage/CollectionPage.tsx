@@ -195,20 +195,7 @@ export function CollectionPage({
             role="tab"
             aria-selected={isActive}
             onClick={() => { playSound('buttonClick'); setActiveTab(tab); }}
-            style={{
-              flex: 1,
-              padding: '12px',
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-sm)',
-              letterSpacing: '1px',
-              cursor: 'pointer',
-              background: 'none',
-              border: 'none',
-              borderBottom: `3px solid ${isActive ? 'var(--pd-color-accent-default)' : 'transparent'}`,
-              color: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-secondary)',
-              transition: 'color 0.15s, border-color 0.15s',
-              marginBottom: '-2px',
-            }}
+            className={`collection__text-4${isActive ? ' collection__text-4--is-active' : ''}`}
           >
             {label}
           </button>
@@ -234,22 +221,7 @@ export function CollectionPage({
                 key={f}
                 type="button"
                 onClick={() => { playSound('buttonClick'); setDesktopFilter(f); }}
-                style={{
-                  padding: '3px 8px',
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'var(--pd-font-size-sm)',
-                  letterSpacing: '1px',
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
-                  background: desktopFilter === f
-                    ? 'var(--pd-color-accent-default)'
-                    : 'var(--pd-color-background-elevated)',
-                  color: desktopFilter === f
-                    ? 'var(--pd-color-background-default)'
-                    : 'var(--pd-color-text-secondary)',
-                  border: `1px solid ${desktopFilter === f ? 'var(--pd-color-accent-default)' : 'var(--pd-color-border-default)'}`,
-                  borderRadius: 0,
-                }}
+                className={`collection__text-5${desktopFilter === f ? ' collection__text-5--desktop-filter-f' : ''}`}
               >
                 {f}
               </button>

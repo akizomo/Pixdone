@@ -3,3 +3,36 @@
 .pacman-progress__box-1 {
   display: block;
 }
+
+.pacman-progress__pos-2 {
+  width: 100%;
+  position: relative;
+}
+
+.pacman-progress__pos-3 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--pd-color-border-outline-variant);
+  opacity: 0.3;
+}
+
+.pacman-progress__pos-4 {
+  position: absolute;
+  transition: none;
+}
+
+.pacman-progress__pos-4--is-running {
+  transition: left var(--pd-motion-slower) linear;
+}
+
+.pacman-progress__pos-5 {
+  position: absolute;
+  right: 1px;
+}
+
+.pd-pacman-svg {
+  display: block;
+  overflow: visible;
+}
