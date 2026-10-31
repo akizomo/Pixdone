@@ -217,12 +217,9 @@ export function TasksScreen({
     lastConsumedNonce.current = autoOpenAddTaskNonce;
     setTaskFormMode('add');
     if (!hasFinePointer) {
-      const prefill = isOnboardingTour ? t('tutorialFirstTaskPrefill', lang) : undefined;
-      window.requestAnimationFrame(() =>
-        mobileTaskSheetRef.current?.openAdd(prefill ? { initialTitle: prefill } : undefined),
-      );
+      window.requestAnimationFrame(() => mobileTaskSheetRef.current?.openAdd());
     }
-  }, [autoOpenAddTaskNonce, hasFinePointer, isOnboardingTour, lang]);
+  }, [autoOpenAddTaskNonce, hasFinePointer]);
 
   // Shell forwards edit requests from Today/Plan via pendingEditRequest.
   // Init ref to 0 (not the incoming nonce) so the first request always fires on
@@ -609,7 +606,6 @@ export function TasksScreen({
                     ref={taskFormRef}
                     lang={lang}
                     listId={currentList?.id ?? ''}
-                    initialTitle={isOnboardingTour ? t('tutorialFirstTaskPrefill', lang) : undefined}
                     onSave={handleTaskFormSave}
                     onCancel={handleTaskFormCancel}
                   />

@@ -27,6 +27,8 @@ export type { ToggleProps } from './Toggle/Toggle.types';
 export { PopoverMenu } from './PopoverMenu/PopoverMenu';
 export type { PopoverMenuProps, PopoverMenuItem } from './PopoverMenu/PopoverMenu.types';
 export { ToastProvider, useToast } from './Toast/Toast';
+export { Coachmark } from './Coachmark/Coachmark';
+export type { CoachmarkProps, CoachmarkPlacement } from './Coachmark/Coachmark.types';
 export { MiniPlayer } from './MiniPlayer/MiniPlayer';
 export type { MiniPlayerProps } from './MiniPlayer/MiniPlayer.types';
 export { TextLink } from './TextLink/TextLink';

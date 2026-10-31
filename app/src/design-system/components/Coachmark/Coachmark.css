@@ -1,0 +1,49 @@
+/* ── Coachmark ── */
+
+/* Positioned via inline `style` from Floating UI. z-index matches the
+   `tooltip` step of the z-index scale (above toasts and modals). */
+.pd-coachmark {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 700;
+  max-width: min(280px, calc(100vw - var(--pd-space-4)));
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-base) solid var(--pd-color-accent-default);
+  box-shadow: var(--pd-shadow-pixel-md);
+  border-radius: var(--pd-radius-none);
+  image-rendering: pixelated;
+  pointer-events: none;
+  animation: pd-coachmark-in var(--pd-motion-base) var(--pd-easing-decelerate);
+}
+
+.pd-coachmark__body {
+  position: relative;
+  padding: var(--pd-space-2) var(--pd-space-3);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  line-height: var(--pd-line-height-normal);
+  color: var(--pd-color-text-primary);
+  white-space: pre-line;
+}
+
+/* Square rotated 45° — only the two borders facing the anchor are drawn, so it
+   reads as a notch in the bubble's border. Static side is set inline. */
+.pd-coachmark__arrow {
+  position: absolute;
+  width: var(--pd-space-3);
+  height: var(--pd-space-3);
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-base) solid var(--pd-color-accent-default);
+  transform: rotate(45deg);
+}
+
+.pd-coachmark[data-side="bottom"] .pd-coachmark__arrow { border-right: none; border-bottom: none; }
+.pd-coachmark[data-side="top"] .pd-coachmark__arrow { border-left: none; border-top: none; }
+.pd-coachmark[data-side="left"] .pd-coachmark__arrow { border-left: none; border-bottom: none; }
+.pd-coachmark[data-side="right"] .pd-coachmark__arrow { border-right: none; border-top: none; }
+
+@keyframes pd-coachmark-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

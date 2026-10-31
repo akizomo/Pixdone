@@ -66,9 +66,7 @@
   transition: transform var(--pd-motion-base) ease,
               box-shadow var(--pd-motion-base) ease;
   box-shadow: var(--pd-shadow-pixel-sm);
-  color: white;
-  font-size: 0.75rem;
-  font-weight: var(--pd-font-weight-bold);
+  color: var(--pd-color-accent-text);
   image-rendering: pixelated;
 }
 
@@ -77,10 +75,6 @@
   background: var(--pd-color-accent-default);
 }
 
-.task-checkbox__mark {
-  font-size: var(--pd-font-size-sm);
-  line-height: 1;
-}
 
 /* Priority indicator — colored arrow icon, inline in meta row */
 .task-item__priority {

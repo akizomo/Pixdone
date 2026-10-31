@@ -133,7 +133,7 @@ export const TaskItem = memo(function TaskItem({
             onComplete(task.id);
           }}
         >
-          {task.completed && <span className="task-checkbox__mark" aria-hidden>✓</span>}
+          {task.completed && <PixelIcon name="check" size="sm" className="task-checkbox__mark" aria-hidden />}
         </button>
       </div>
 

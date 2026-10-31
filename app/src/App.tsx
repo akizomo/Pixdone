@@ -3,7 +3,7 @@ import {
   type ErrorInfo, type ReactNode,
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu, TextLink, PixelIcon, KeyHint } from './design-system';
+import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu, TextLink, PixelIcon, KeyHint, Coachmark } from './design-system';
 import {
   ThemeSelector, ListModal, AuthModal, BottomNav, HeaderSegment,
 } from './components';
@@ -392,6 +392,11 @@ function AppContent() {
     playSound('taskAdd');
   }, [lists, addTask]);
 
+  // Onboarding epilogue: once the first real task is saved, point at the Smash
+  // List tab. `smashHintBaseline` is the task count when the tour handed off.
+  const [smashHintBaseline, setSmashHintBaseline] = useState<number | null>(null);
+  const [smashHintAnchor, setSmashHintAnchor] = useState<HTMLElement | null>(null);
+
   // Closes the onboarding tour the moment the user presses the real Add
   // button on the Today/Plan view during Step 5. No-op outside the tour.
   const handleTourAddButtonClick = useCallback(() => {
@@ -399,7 +404,20 @@ function AppContent() {
     setOnboardingTourActive(false);
     setShowOnboarding(false);
     markTutorialSeen();
-  }, [onboardingTourActive, markTutorialSeen]);
+    setSmashHintBaseline(lists.reduce((n, l) => n + (l.id === 'smash-list' ? 0 : l.tasks.length), 0));
+  }, [onboardingTourActive, markTutorialSeen, lists]);
+
+  useEffect(() => {
+    if (smashHintBaseline === null) return;
+    const taskCount = lists.reduce((n, l) => n + (l.id === 'smash-list' ? 0 : l.tasks.length), 0);
+    if (taskCount <= smashHintBaseline) return;
+    setSmashHintBaseline(null);
+    const anchor = isDesktop
+      ? document.querySelector<HTMLElement>('.pd-sidebar__item[data-view="smash"]')
+      : document.getElementById('pd-list-tab-smash');
+    anchor?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    setSmashHintAnchor(anchor);
+  }, [lists, smashHintBaseline, isDesktop]);
 
   const handleOnboardingUpgrade = useCallback(async (billingCycle: 'monthly' | 'yearly') => {
     if (!user) return;
@@ -1471,6 +1489,15 @@ function AppContent() {
 
     </div>
 
+    {smashHintAnchor && (
+      <Coachmark
+        anchorEl={smashHintAnchor}
+        placement={isDesktop ? 'right' : 'bottom'}
+        onDismiss={() => setSmashHintAnchor(null)}
+      >
+        {t('smashListCoachmark', lang)}
+      </Coachmark>
+    )}
     {showOnboarding && (
       <OnboardingTutorial
         themeKey={visualTheme}

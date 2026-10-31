@@ -54,6 +54,7 @@ export function SidePanel({
       <button
         key={key}
         type="button"
+        data-view={key}
         className={`pd-sidebar__item${isActive ? ' pd-sidebar__item--active' : ''}`}
         onClick={() => { playSound('buttonClick'); onSelectView(key); }}
       >

@@ -41,19 +41,19 @@ describe('TaskItem', () => {
 
   describe('completed state', () => {
     it('shows checkmark when completed', () => {
-      render(
+      const { container } = render(
         <TaskItem task={makeTask({ completed: true })} onComplete={vi.fn()} onEdit={vi.fn()} />,
       );
       expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'true');
-      expect(screen.getByText('✓')).toBeInTheDocument();
+      expect(container.querySelector('.task-checkbox__mark svg')).toBeInTheDocument();
     });
 
     it('does not show checkmark when not completed', () => {
-      render(
+      const { container } = render(
         <TaskItem task={makeTask({ completed: false })} onComplete={vi.fn()} onEdit={vi.fn()} />,
       );
       expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'false');
-      expect(screen.queryByText('✓')).toBeNull();
+      expect(container.querySelector('.task-checkbox__mark')).toBeNull();
     });
   });
 

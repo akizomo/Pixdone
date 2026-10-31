@@ -242,18 +242,18 @@ describe('OnboardingTutorial', () => {
     const firstRow = screen.getByText('Monday Meeting').closest('.task-item-row') as HTMLElement;
     fireEvent.click(firstRow.querySelector('button[role="checkbox"]')!);
     flushTypewriter();
-    expect(within(getDialogue()).getByText(/Something happens/i)).toBeInTheDocument();
+    expect(within(getDialogue()).getByText(/vanishes differently every time/i)).toBeInTheDocument();
 
     const secondRow = screen.getByText('Overdue Report').closest('.task-item-row') as HTMLElement;
     fireEvent.click(secondRow.querySelector('button[role="checkbox"]')!);
     flushTypewriter();
-    expect(within(getDialogue()).getByText(/Some are rarer than others/i)).toBeInTheDocument();
+    expect(within(getDialogue()).getByText(/rarely seen/i)).toBeInTheDocument();
 
     const thirdRow = screen.getByText('That Email').closest('.task-item-row') as HTMLElement;
     fireEvent.click(thirdRow.querySelector('button[role="checkbox"]')!);
     flushTypewriter();
     // Last smash dialogue is shown; user must tap to advance (no auto-advance now).
-    expect(within(getDialogue()).getByText(/grow your collection/i)).toBeInTheDocument();
+    expect(within(getDialogue()).getByText(/your own tasks/i)).toBeInTheDocument();
   });
 
   it('hides smashed tasks from the list', () => {

@@ -4,6 +4,18 @@
  * playTaskCompleteEffect: legacy React-only effect (kept for fallback if vanilla not loaded).
  */
 
+import checkSvg from 'pixelarticons/svg/check.svg?raw';
+
+/** Adds the same pixel-art check icon TaskItem renders (PixelIcon "check", size sm). */
+function appendCheckMark(checkbox: HTMLElement): void {
+  if (checkbox.querySelector('.task-checkbox__mark')) return;
+  const check = document.createElement('span');
+  check.className = 'pxd-pixel-icon pxd-pixel-icon--sm task-checkbox__mark';
+  check.setAttribute('aria-hidden', 'true');
+  check.innerHTML = checkSvg;
+  checkbox.appendChild(check);
+}
+
 export interface EffectRect {
   left: number;
   top: number;
@@ -112,13 +124,7 @@ export function runVanillaCompletionEffect(
     cloneCheckbox.setAttribute('aria-checked', 'true');
     cloneCheckbox.style.borderColor = 'var(--pd-color-accent-default)';
     cloneCheckbox.style.background = 'var(--pd-color-accent-default)';
-    if (!cloneCheckbox.textContent?.trim()) {
-      const check = document.createElement('span');
-      check.setAttribute('aria-hidden', 'true');
-      check.style.cssText = 'font-size: 0.875rem; line-height: 1;';
-      check.textContent = '✓';
-      cloneCheckbox.appendChild(check);
-    }
+    appendCheckMark(cloneCheckbox);
   }
 
   // Completed look for title (muted + strikethrough) — task body is second child (flex:1) > first span
@@ -213,13 +219,7 @@ export function playDemoEffect(effectKey: string, el: HTMLElement): void {
     cloneCheckbox.setAttribute('aria-checked', 'true');
     cloneCheckbox.style.borderColor = 'var(--pd-color-accent-default)';
     cloneCheckbox.style.background = 'var(--pd-color-accent-default)';
-    if (!cloneCheckbox.textContent?.trim()) {
-      const check = document.createElement('span');
-      check.setAttribute('aria-hidden', 'true');
-      check.style.cssText = 'font-size: 0.875rem; line-height: 1;';
-      check.textContent = '✓';
-      cloneCheckbox.appendChild(check);
-    }
+    appendCheckMark(cloneCheckbox);
   }
 
   const taskBody = clone.children[1];

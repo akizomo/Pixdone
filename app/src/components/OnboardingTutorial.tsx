@@ -46,16 +46,16 @@ const SPLASH_DURATION_MS = 1800;
 
 const SMASH_DIALOGUES: Record<Lang, string[]> = {
   en: [
-    'Your first mission starts here.\nSmash this task.',
-    'Something happens\nevery time you smash a task.',
-    'Some are rarer than others.',
-    'Smash more tasks to\ngrow your collection.',
+    'Your first mission.\nSmash this task.',
+    'It vanishes differently every time.\nYou never know until you smash it.',
+    'Some vanishings are rarely seen.',
+    'Now make your own tasks\nvanish just as satisfyingly.',
   ],
   ja: [
-    'まずはこのタスクを消してみよう。',
-    'タスクを消すたびに、何かが起きる。',
-    'エフェクトにはレアリティがある。\nレアなほど、気持ちいい。',
-    'タスクを消すほど、\nコレクションが増えていく。',
+    '最初の任務だ。\nこのタスクを消してみよう。',
+    '消え方は毎回ちがう。\n何が起きるかは、消すまでわからない。',
+    '中には、めったに見られない消え方もある。',
+    'さあ、あなたのタスクも\n気持ちよく片付けよう。',
   ],
 };
 
