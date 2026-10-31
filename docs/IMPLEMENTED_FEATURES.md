@@ -110,7 +110,7 @@ API: `GET/POST/PUT/DELETE /api/lists`, `GET /api/lists/:id/tasks`
 | 価格ページ | ✅ | `pages/PricingPage.tsx` |
 | アップセルモーダル | ✅ | `components/UpsellModal.tsx` |
 | アカウントページ | ✅ | `pages/AccountPage.tsx` |
-| 月額 / 年額プラン | ✅ | ¥600/月, ¥6,000/年 (BRD) |
+| 月額 / 年額プラン | ✅ | ¥300/月, ¥3,000/年 (BRD) |
 
 ## 9. サウンド / BGM
 

@@ -104,7 +104,7 @@ const COPY: Record<Lang, {
     upgradeYearly: 'Yearly',
     upgradeSaveBadge: 'SAVE 17%',
     upgradePerMo: '/mo',
-    upgradeTrialNote: 'Free for 7 days, then ¥600/mo (or ¥500/mo on yearly). Cancel anytime.',
+    upgradeTrialNote: 'Free for 7 days, then ¥300/mo (or ¥250/mo on yearly). Cancel anytime.',
     upgradePremiumNote: 'Tap Later to continue.',
     tapToContinue: 'TAP TO CONTINUE',
   },
@@ -120,7 +120,7 @@ const COPY: Record<Lang, {
     upgradeYearly: '年払い',
     upgradeSaveBadge: '17% お得',
     upgradePerMo: '/月',
-    upgradeTrialNote: '7日間無料、以降 ¥600/月（年払いは ¥500/月）。いつでもキャンセル可。',
+    upgradeTrialNote: '7日間無料、以降 ¥300/月（年払いは ¥250/月）。いつでもキャンセル可。',
     upgradePremiumNote: '「あとで」をタップして続ける。',
     tapToContinue: 'タップで続ける',
   },
@@ -400,7 +400,7 @@ export function OnboardingTutorial({
                 onClick={() => { playSound('buttonClick'); setBillingCycle('monthly'); }}
               >
                 <span className="pd-onboarding__cycle-label">{copy.upgradeMonthly}</span>
-                <span className="pd-onboarding__cycle-price">¥600<small>{copy.upgradePerMo}</small></span>
+                <span className="pd-onboarding__cycle-price">¥300<small>{copy.upgradePerMo}</small></span>
               </button>
               <button
                 type="button"
@@ -412,7 +412,7 @@ export function OnboardingTutorial({
               >
                 <span className="pd-onboarding__cycle-badge" aria-hidden="true">{copy.upgradeSaveBadge}</span>
                 <span className="pd-onboarding__cycle-label">{copy.upgradeYearly}</span>
-                <span className="pd-onboarding__cycle-price">¥500<small>{copy.upgradePerMo}</small></span>
+                <span className="pd-onboarding__cycle-price">¥250<small>{copy.upgradePerMo}</small></span>
               </button>
             </div>
             <Button
