@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { usePortalContainer } from '../../portal/PortalContainerContext';
 import {
   autoUpdate,
   flip,
@@ -47,6 +48,9 @@ export function PopoverMenu(props: PopoverMenuProps) {
   const isAnchored = anchorEl != null || anchorRect != null;
 
   const menuRef = useRef<HTMLDivElement>(null);
+  // Called unconditionally so hooks-rules are respected; only read for the
+  // portal branch below. Defaults to document.body when no provider wraps.
+  const portalContainer = usePortalContainer();
 
   // Close on Escape (both modes)
   useEffect(() => {
@@ -196,7 +200,7 @@ export function PopoverMenu(props: PopoverMenuProps) {
         {backdrop}
         {menuBody}
       </>,
-      document.body,
+      portalContainer ?? document.body,
     );
   }
 

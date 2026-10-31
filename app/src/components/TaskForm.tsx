@@ -17,6 +17,8 @@ export interface TaskFormProps {
   initialTitle?: string;
   /** Prefill the due-date field when creating a new task (ignored when `task` is set). */
   initialDueDate?: string | null;
+  /** Prefill the details/description field when creating a new task (ignored when `task` is set). */
+  initialDetails?: string;
   onSave: (fields: Partial<Task> & { title: string }) => void;
   onCancel: () => void;
   onClose?: () => void;
@@ -67,9 +69,9 @@ export interface TaskFormHandle {
   dismissSubmenus: () => boolean;
 }
 
-export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskForm({ lang, task, listId, initialTitle, initialDueDate, onSave, onCancel, onClose, onDelete, availableLists, onMoveToList, onListChange, mobile = false }, ref) {
+export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskForm({ lang, task, listId, initialTitle, initialDueDate, initialDetails, onSave, onCancel, onClose, onDelete, availableLists, onMoveToList, onListChange, mobile = false }, ref) {
   const [title, setTitle] = useState(task?.title ?? initialTitle ?? '');
-  const [details, setDetails] = useState(task?.details ?? '');
+  const [details, setDetails] = useState(task?.details ?? initialDetails ?? '');
   const [dueDate, setDueDate] = useState<string | null>(task?.dueDate ?? initialDueDate ?? null);
   const [repeat, setRepeat] = useState<RepeatConfig>(task?.repeat ?? 'none');
   const [showRepeat, setShowRepeat] = useState(false);
@@ -196,13 +198,22 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
     if (id === 'tomorrow') { setDueDate(tomorrow); setShowDateMenu(false); return; }
     if (id === 'pick') {
       // Try native picker first; fall back to focus (iOS) for the tap target.
+      // showPicker() can throw in contexts where the input isn't considered
+      // "interactable" (e.g. when embedded in certain shadow DOM setups).
+      // The try/catch keeps the Quick panel (which runs inside a shadow root)
+      // from silently failing — we fall through to the click+focus path.
       const el = dateInputRef.current;
-      if (el && typeof (el as HTMLInputElement & { showPicker?: () => void }).showPicker === 'function') {
-        (el as HTMLInputElement & { showPicker: () => void }).showPicker();
-      } else {
-        el?.click();
-        el?.focus();
+      const native = el as HTMLInputElement & { showPicker?: () => void };
+      try {
+        if (native && typeof native.showPicker === 'function') {
+          native.showPicker();
+          return;
+        }
+      } catch {
+        /* fall through to click+focus */
       }
+      el?.click();
+      el?.focus();
       return;
     }
     if (id === 'clear') { setDueDate(null); setShowDateMenu(false); }
