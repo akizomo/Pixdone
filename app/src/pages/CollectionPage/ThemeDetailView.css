@@ -1,0 +1,49 @@
+/* ThemeDetailView */
+
+.theme-detail__col-1 {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  background: var(--pd-color-background-default);
+}
+
+.theme-detail__info-cta {
+  padding: var(--pd-space-5) var(--pd-space-4);
+  border-top: var(--pd-border-thin) solid var(--pd-color-border-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-3);
+  flex-shrink: 0;
+}
+
+.theme-detail__row-1 {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-3);
+}
+
+.theme-detail__text-1 {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-md);
+  letter-spacing: 1px;
+  color: var(--pd-color-text-primary);
+}
+
+.theme-detail__text-2 {
+  font-size: var(--pd-font-size-sm);
+  font-family: var(--pd-font-brand);
+  letter-spacing: 1px;
+  padding: 2px var(--pd-space-2);
+  border: var(--pd-border-thin) solid var(--pd-color-border-default);
+  color: var(--pd-color-text-secondary);
+}
+
+.theme-detail__text-3 {
+  margin: 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  line-height: var(--pd-line-height-normal);
+}

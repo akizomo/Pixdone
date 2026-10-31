@@ -1,0 +1,29 @@
+/* UpsellModal */
+
+.upsell-modal__row-1 {
+  display: flex;
+  gap: var(--pd-space-2);
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.upsell-modal__box-1 {
+  padding: var(--pd-space-1) 0 var(--pd-space-2);
+}
+
+.upsell-modal__text-1 {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-primary);
+  letter-spacing: 1px;
+  margin: 0 0 var(--pd-space-3);
+}
+
+.upsell-modal__text-2 {
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  margin: 0;
+  white-space: pre-line;
+  line-height: var(--pd-line-height-relaxed);
+}

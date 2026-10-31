@@ -1493,9 +1493,9 @@ class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Erro
   render() {
     if (this.state.error) {
       return (
-        <div className="app__text-11">
+        <div className="app__crash-screen">
           <h2>App crashed</h2>
-          <pre className="app__text-12">{String(this.state.error)}</pre>
+          <pre className="app__crash-detail">{String(this.state.error)}</pre>
         </div>
       );
     }

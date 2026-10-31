@@ -1,0 +1,20 @@
+/* TutorialPanel */
+
+.tutorial-panel__row-1 {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tutorial-panel__text-1 {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+  text-decoration: underline;
+  padding: var(--pd-space-1) 0;
+}

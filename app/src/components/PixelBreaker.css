@@ -1,0 +1,21 @@
+/* PixelBreaker */
+
+.pixel-breaker__box-1 {
+  margin-bottom: var(--pd-space-2);
+  min-height: 1em;
+}
+
+.pixel-breaker__pos-1 {
+  position: relative;
+  width: 100%;
+}
+
+.pixel-breaker__text-1 {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-xl);
+  color: var(--pd-color-accent-default);
+  letter-spacing: 0.12em;
+  text-shadow: var(--pd-shadow-pixel-sm);
+  margin-bottom: var(--pd-space-3);
+  text-align: center;
+}

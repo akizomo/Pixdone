@@ -1,0 +1,101 @@
+/* EffectDetailView */
+
+.effect-detail__col-1 {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  background: var(--pd-color-background-default);
+}
+
+.effect-detail__row-1 {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-2);
+  flex-shrink: 0;
+}
+
+.effect-detail__text-1 {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  color: var(--pd-color-text-secondary);
+}
+
+.effect-detail__demo-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pd-space-6) var(--pd-space-4);
+}
+
+.effect-detail__info {
+  padding: var(--pd-space-4);
+  border-top: var(--pd-border-thin) solid var(--pd-color-border-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-3);
+  flex-shrink: 0;
+}
+
+.effect-detail__text-2 {
+  margin: 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+}
+
+.effect-detail__row-2 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--pd-space-2);
+}
+
+.effect-detail__text-3 {
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-primary);
+}
+
+.effect-detail__text-4 {
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+  align-self: center;
+  line-height: var(--pd-line-height-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.effect-detail__pos-1 {
+  height: 6px;
+  background: var(--pd-color-border-default);
+  position: relative;
+}
+
+.effect-detail__text-5 {
+  margin: var(--pd-space-2) 0 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-2xs);
+  color: var(--pd-color-text-secondary);
+}
+
+.effect-detail__text-6 {
+  margin: 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  line-height: var(--pd-line-height-normal);
+}
+
+.effect-detail__text-7 {
+  padding: var(--pd-space-3);
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  cursor: pointer;
+  background: var(--pd-color-background-elevated);
+  color: var(--pd-color-text-primary);
+  border: var(--pd-border-thin) solid var(--pd-color-border-default);
+}

@@ -336,7 +336,9 @@
   line-height: 1;
 }
 
-.app__text-11 {
+/* Root error boundary fallback. Raw colors on purpose: when the app crashes the
+   theme (CSS variables) may be unavailable, so this screen must not depend on tokens. */
+.app__crash-screen {
   padding: var(--pd-space-6);
   font-family: monospace;
   color: red;
@@ -344,7 +346,7 @@
   min-height: 100vh;
 }
 
-.app__text-12 {
+.app__crash-detail {
   white-space: pre-wrap;
   font-size: var(--pd-font-size-2xs);
 }

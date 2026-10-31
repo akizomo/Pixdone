@@ -51,7 +51,7 @@ export function EvolutionSection({
           fontFamily: 'var(--pd-font-brand)',
           fontSize: smallFontSize,
           letterSpacing: '1px',
-          color: status.isMaxLevel ? '#64ffda' : '#ffd54f',
+          color: status.isMaxLevel ? 'var(--pd-color-feedback-success)' : 'var(--pd-color-rarity-legendary)',
           fontWeight: 'bold',
         }}>
           {`Lv${status.currentLevel}`}
@@ -94,7 +94,7 @@ export function EvolutionSection({
             <div style={{
               position: 'absolute', left: 0, top: 0, bottom: 0,
               width: `${Math.min(100, status.threshold > 0 ? (status.progress / status.threshold) * 100 : 0)}%`,
-              background: status.blockedReason === 'need_premium' ? '#9e9e9e' : '#ffd54f',
+              background: status.blockedReason === 'need_premium' ? 'var(--pd-color-text-tertiary)' : 'var(--pd-color-rarity-legendary)',
               transition: 'width 0.3s',
             }} />
           </div>

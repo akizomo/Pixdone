@@ -1,0 +1,53 @@
+/* FeedbackPage */
+
+.feedback__col-1 {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.feedback__col-2 {
+  flex: 1;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--pd-space-6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-5);
+}
+
+.feedback__text-1 {
+  margin: 0;
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  line-height: var(--pd-line-height-relaxed);
+}
+
+.feedback__box-1 {
+  border-top: var(--pd-border-thin) solid var(--pd-color-border-default);
+  margin-top: var(--pd-space-2);
+}
+
+.feedback__col-3 {
+  padding: var(--pd-space-4);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-3);
+}
+
+.feedback__text-2 {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  color: var(--pd-color-text-muted);
+  margin: 0;
+}
+
+.feedback__text-3 {
+  margin: 0;
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+  line-height: var(--pd-line-height-relaxed);
+}

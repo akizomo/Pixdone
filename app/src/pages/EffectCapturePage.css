@@ -1,0 +1,48 @@
+/* EffectCapturePage */
+
+.effect-capture__row-1 {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.effect-capture__text-1 {
+  width: 360px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-3);
+  padding: var(--pd-space-4) var(--pd-space-5);
+  background: var(--pd-color-surface-primary, #1f1f2e);
+  border: var(--pd-border-base) solid var(--pd-color-border-outline);
+  color: var(--pd-color-text-primary, #e8eaed);
+  font-family: var(--pd-font-body, sans-serif);
+  font-size: var(--pd-font-size-md);
+}
+
+.effect-capture__box-1 {
+  width: 24px;
+  height: 24px;
+  border: var(--pd-border-base) solid var(--pd-color-accent-default, #A78BFA);
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.effect-capture__box-2 {
+  flex: 1;
+  min-width: 0;
+}
+
+.effect-capture__text-2 {
+  position: fixed;
+  bottom: var(--pd-space-4);
+  left: var(--pd-space-4);
+  right: var(--pd-space-4);
+  text-align: center;
+  font-family: monospace;
+  font-size: var(--pd-font-size-2xs);
+  color: var(--pd-color-text-secondary);
+}

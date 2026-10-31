@@ -1,0 +1,8 @@
+/* linkify */
+
+.linkify__text-1 {
+  color: var(--pd-color-accent-default);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}

@@ -1,0 +1,38 @@
+/* ThemeCard */
+
+.theme-card__theme-icon {
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.theme-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.theme-card__row-1 {
+  display: flex;
+  gap: var(--pd-space-1);
+}
+
+.theme-card__text-1 {
+  font-size: var(--pd-font-size-sm);
+  font-family: var(--pd-font-brand);
+  letter-spacing: 1px;
+  color: var(--pd-color-accent-default);
+  flex-shrink: 0;
+}
+
+.theme-card__text-2 {
+  font-size: var(--pd-font-size-sm);
+  flex-shrink: 0;
+}
+
+.theme-card__text-3 {
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-brand);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}

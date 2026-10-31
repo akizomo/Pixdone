@@ -1,0 +1,27 @@
+/* BgmControl */
+
+.bgm-control__pos-1 {
+  position: relative;
+  display: inline-block;
+}
+
+.bgm-control__track-list {
+  padding: var(--pd-space-2) var(--pd-space-1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bgm-control__text-1 {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-3xs);
+  color: var(--pd-color-text-secondary);
+}
+
+.bgm-control__box-1 {
+  width: 100%;
+  accent-color: var(--pd-color-accent-default);
+  cursor: pointer;
+}

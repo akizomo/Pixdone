@@ -8,7 +8,8 @@
  *  4. content script が background へ中継 → chrome.storage.local に保存
  *  5. ACK を受け取ったら「Signed in」を表示して 2 秒後に自動で閉じる
  */
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Button } from '../design-system';
 import { AuthModal } from '../components/AuthModal';
 import { useAuth } from '../contexts/AuthContext';
 import { auth as firebaseAuth } from '../lib/firebase';
@@ -31,27 +32,6 @@ interface AuthPayload {
 }
 
 type Status = 'pending' | 'sending' | 'done' | 'error';
-
-/**
- * Pixel-art button styling that matches the "Sign in" CTA on this page.
- * Primary = purple fill (used for the dominant action), secondary = white
- * fill with the same border + drop-shadow (used for adjacent actions like
- * Sign out).
- */
-function pixelButtonStyle(variant: 'primary' | 'secondary'): CSSProperties {
-  const isPrimary = variant === 'primary';
-  return {
-    padding: '8px 16px',
-    fontFamily: 'inherit',
-    fontSize: 'var(--pd-font-size-xs)',
-    fontWeight: 600,
-    background: isPrimary ? '#7b61ff' : '#fff',
-    color: isPrimary ? '#fff' : '#191d24',
-    border: '2px solid #191d24',
-    boxShadow: '2px 2px 0 rgba(25,29,36,0.9)',
-    cursor: 'pointer',
-  };
-}
 
 async function fetchIsPremium(): Promise<boolean> {
   try {
@@ -181,13 +161,9 @@ export function ExtensionLinkPage() {
         <p className="extension-link__text-4">
           Sign in to connect the PixDone Quick Chrome extension to your account.
         </p>
-        <button
-          type="button"
-          onClick={() => setAuthModalOpen(true)}
-          className="extension-link__text-5"
-        >
+        <Button variant="primary" size="md" onClick={() => setAuthModalOpen(true)}>
           Sign in
-        </button>
+        </Button>
         <AuthModal
           open={authModalOpen}
           onClose={() => setAuthModalOpen(false)}
@@ -215,13 +191,9 @@ export function ExtensionLinkPage() {
           <p className="extension-link__text-8">
             ✓ Connected. You can close this tab.
           </p>
-          <button
-            type="button"
-            onClick={() => window.close()}
-            style={pixelButtonStyle('primary')}
-          >
+          <Button variant="primary" size="md" onClick={() => window.close()}>
             Close
-          </button>
+          </Button>
         </>
       )}
       {status === 'error' && (
@@ -229,27 +201,23 @@ export function ExtensionLinkPage() {
           <p className="extension-link__text-9">
             {error ?? 'Something went wrong.'}
           </p>
-          <button
-            type="button"
-            onClick={() => {
-              hasSentRef.current = false;
-              setStatus('pending');
-              setError(null);
-              void sendToExtension();
-            }}
-            style={{ ...pixelButtonStyle('primary'), marginRight: 8 }}
-          >
-            Retry
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              void logout();
-            }}
-            style={pixelButtonStyle('secondary')}
-          >
-            Sign out
-          </button>
+          <div className="extension-link__actions">
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => {
+                hasSentRef.current = false;
+                setStatus('pending');
+                setError(null);
+                void sendToExtension();
+              }}
+            >
+              Retry
+            </Button>
+            <Button variant="secondary" size="md" onClick={() => { void logout(); }}>
+              Sign out
+            </Button>
+          </div>
         </>
       )}
     </div>

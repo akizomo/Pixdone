@@ -1,0 +1,7 @@
+/* ListModal */
+
+.list-modal__text-1 {
+  font-family: var(--pd-font-body);
+  color: var(--pd-color-text-secondary);
+  margin: 0;
+}

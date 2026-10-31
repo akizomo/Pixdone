@@ -187,7 +187,7 @@ export function EffectSheetContent({
                 <div style={{
                   position: 'absolute', left: 0, top: 0, bottom: 0,
                   width: `${Math.min(100, challengeThreshold > 0 ? (challengeProgress / challengeThreshold) * 100 : 0)}%`,
-                  background: '#ffd54f',
+                  background: 'var(--pd-color-rarity-legendary)',
                 }} />
               </div>
             </div>

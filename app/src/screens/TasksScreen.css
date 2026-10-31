@@ -1,0 +1,92 @@
+/* TasksScreen */
+
+.tasks__box-1 {
+  padding-bottom: var(--pd-space-2);
+}
+
+.tasks__text-1 {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-3);
+  width: 100%;
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  border-radius: 0;
+  color: var(--pd-color-text-secondary);
+  font-size: var(--pd-font-size-sm);
+  cursor: pointer;
+  padding: var(--pd-space-3) var(--pd-space-4);
+  text-align: left;
+  box-shadow: var(--pd-shadow-pixel-sm);
+  image-rendering: pixelated;
+  font-family: var(--pd-font-body);
+  transition: transform var(--pd-motion-base) var(--pd-easing-standard), box-shadow var(--pd-motion-base) var(--pd-easing-standard), background var(--pd-motion-base) var(--pd-easing-standard), color var(--pd-motion-base) var(--pd-easing-standard), border-color var(--pd-motion-base) var(--pd-easing-standard);
+}
+
+.tasks__box-2 {
+  flex: 1;
+}
+
+.tasks__box-3 {
+  margin-top: var(--pd-space-6);
+}
+
+.tasks__text-2 {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-2);
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--pd-space-2) var(--pd-space-1);
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  text-align: left;
+}
+
+.tasks__col-1 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-2);
+  opacity: 0.75;
+}
+
+.tasks__box-4 {
+  margin-bottom: var(--pd-space-6);
+}
+
+.tasks__still-show-completed-tasks-c {
+  text-align: left;
+}
+
+.tasks__active-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-2);
+}
+
+.tasks__box-5 {
+  padding-top: var(--pd-space-4);
+  padding-bottom: var(--pd-space-4);
+}
+
+.tasks__box-6 {
+  height: 4px;
+  background: var(--pd-color-accent-default);
+  margin-bottom: var(--pd-space-2);
+  box-shadow: 0 0 0 1px var(--pd-color-border-default);
+  flex-shrink: 0;
+  border-radius: 0;
+  image-rendering: pixelated;
+}
+
+.tasks__box-7 {
+  margin-top: var(--pd-space-4);
+}
+
+.tasks__text-3 {
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-body);
+}

@@ -1,0 +1,33 @@
+/* EffectCard */
+
+.effect-card__effect-name {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 0.5px;
+  color: var(--pd-color-text-primary);
+  line-height: var(--pd-line-height-tight);
+}
+
+.effect-card__text-1 {
+  position: absolute;
+  top: var(--pd-space-2);
+  right: var(--pd-space-2);
+  font-size: var(--pd-font-size-sm);
+  font-family: var(--pd-font-brand);
+  color: var(--pd-color-text-primary);
+}
+
+.effect-card__text-2 {
+  position: absolute;
+  top: var(--pd-space-2);
+  right: var(--pd-space-2);
+  font-size: var(--pd-font-size-2xs);
+}
+
+.effect-card__text-3 {
+  font-size: var(--pd-font-size-sm);
+  font-family: var(--pd-font-brand);
+  letter-spacing: 1px;
+  color: var(--pd-color-rarity-legendary);
+  margin-top: 2px;
+}

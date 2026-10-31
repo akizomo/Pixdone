@@ -1,0 +1,104 @@
+/* AuthModal */
+
+.auth-modal__col-1 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-3);
+}
+
+.auth-modal__row-1 {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-2);
+}
+
+.auth-modal__box-1 {
+  flex: 1;
+  height: 1px;
+  background: var(--pd-color-border-default, #e5e7eb);
+}
+
+.auth-modal__text-1 {
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-2xs);
+  color: var(--pd-color-text-muted);
+}
+
+.auth-modal__text-2 {
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+}
+
+.auth-modal__pos-1 {
+  position: relative;
+}
+
+.auth-modal__row-2 {
+  position: absolute;
+  right: var(--pd-space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--pd-color-text-muted);
+  display: flex;
+  align-items: center;
+}
+
+.auth-modal__text-3 {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--pd-color-accent-default);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  text-align: left;
+  padding: 0;
+}
+
+.auth-modal__text-4 {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  text-align: left;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pd-space-1);
+}
+
+.auth-modal__text-5 {
+  margin-top: var(--pd-space-1);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+}
+
+.auth-modal__text-6 {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--pd-color-accent-default);
+  padding: 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+}
+
+.auth-modal__text-7 {
+  color: var(--pd-color-semantic-danger, #ef4444);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  margin: 0;
+}
+
+.auth-modal__text-8 {
+  color: var(--pd-color-accent-default);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  margin: 0;
+}

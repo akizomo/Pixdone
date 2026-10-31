@@ -1,0 +1,105 @@
+/* ChallengeMenu */
+
+.challenge-menu__col-1 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-5);
+}
+
+.challenge-menu__row-1 {
+  position: relative;
+  display: inline-flex;
+}
+
+.challenge-menu__pos-1 {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pd-color-feedback-error);
+}
+
+.challenge-menu__box-1 {
+  padding: 0 var(--pd-space-2) var(--pd-space-2);
+}
+
+.challenge-menu__box-2 {
+  padding: 0 var(--pd-space-4) var(--pd-space-6);
+}
+
+.challenge-menu__row-2 {
+  display: flex;
+  justify-content: center;
+}
+
+.challenge-menu__box-3 {
+  width: 160px;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.challenge-menu__name-rarity-deadline {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-2);
+}
+
+.challenge-menu__text-1 {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-md);
+  color: var(--pd-color-text-primary);
+}
+
+.challenge-menu__text-2 {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  padding: 2px var(--pd-space-2);
+  border: var(--pd-border-thin) solid var(--pd-color-border-default);
+  color: var(--pd-color-text-secondary);
+}
+
+.challenge-menu__description {
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  margin: 0;
+}
+
+.challenge-menu__text-3 {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-accent-default);
+  text-align: center;
+  padding: var(--pd-space-2) 0;
+}
+
+.challenge-menu__text-4 {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+  margin-bottom: var(--pd-space-1);
+}
+
+.challenge-menu__box-4 {
+  height: 8px;
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-thin) solid var(--pd-color-border-default);
+  overflow: hidden;
+}
+
+.challenge-menu__pos-2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  pointer-events: none;
+}
+
+.challenge-menu__box-5 {
+  transition: stroke-dashoffset var(--pd-motion-slower) var(--pd-easing-standard);
+}

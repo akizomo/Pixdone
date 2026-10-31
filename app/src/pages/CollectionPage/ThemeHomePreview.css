@@ -1,0 +1,80 @@
+/* ThemeHomePreview */
+
+.theme-home-preview__box-1 {
+  width: 100%;
+  max-width: 560px;
+}
+
+.theme-home-preview__match-tasks-tab-spacing-no-o {
+  padding: var(--pd-space-1) var(--pd-space-1) 0;
+}
+
+.theme-home-preview__row-1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pd-app-title.theme-home-preview__text-1 {
+  font-size: var(--pd-font-size-2xl);
+  text-shadow: 1px 1px 0px var(--pd-color-shadow-default);
+}
+
+.theme-home-preview__keep-empty-space-similar-to- {
+  width: 56px;
+}
+
+.theme-home-preview__box-2 {
+  margin-top: var(--pd-space-3);
+}
+
+.pd-list-tabs-scroll.theme-home-preview__tabs-visual-only {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-2);
+  overflow-x: auto;
+}
+
+.theme-home-preview__text-2 {
+  padding: var(--pd-space-1) var(--pd-space-2);
+  border: none;
+  border-bottom: var(--pd-border-base) solid var(--pd-color-accent-default);
+  background: none;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-primary);
+  font-weight: var(--pd-font-weight-semibold);
+  line-height: var(--pd-line-height-tight);
+  cursor: default;
+}
+
+.theme-home-preview__text-3 {
+  padding: var(--pd-space-1) var(--pd-space-2);
+  border: none;
+  border-bottom: var(--pd-border-base) solid transparent;
+  background: none;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+  font-weight: var(--pd-font-weight-regular);
+  line-height: var(--pd-line-height-tight);
+  cursor: default;
+}
+
+.theme-home-preview__text-4 {
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-lg);
+  font-weight: var(--pd-font-weight-bold);
+  color: var(--pd-color-text-primary);
+  margin: 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0px var(--pd-color-shadow-default);
+  padding: var(--pd-space-2) 0;
+}
+
+.theme-home-preview__col-1 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-2);
+}

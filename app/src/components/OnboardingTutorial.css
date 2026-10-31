@@ -556,7 +556,7 @@
   margin: 0;
   text-align: center;
   line-height: var(--pd-line-height-tight);
-  text-shadow: 2px 2px 0 rgba(67, 203, 234, 0.35);
+  text-shadow: 2px 2px 0 var(--pd-color-reward-glow-cyan);
 }
 
 /* Upgrade benefit list — framed like a briefing dossier */
