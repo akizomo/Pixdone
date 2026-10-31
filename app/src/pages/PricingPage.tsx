@@ -28,7 +28,6 @@ const PLUS_FEATURES = [
   { en: 'Unlimited task lists', ja: '無制限のタスクリスト' },
   { en: 'All preset themes (Synthwave, Forestbit…)', ja: 'プリセットテーマ全種（Synthwave / Forestbit…）' },
   { en: 'Rare & Epic effects', ja: 'Rare・Epic エフェクト' },
-  { en: 'Monthly effect request (1/month)', ja: 'エフェクトリクエスト（月1回）' },
 ];
 
 export function PricingPage() {

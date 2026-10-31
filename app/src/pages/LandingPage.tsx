@@ -570,7 +570,6 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
                 <li>{isJa ? '無制限のタスクリスト' : 'Unlimited task lists'}</li>
                 <li>{isJa ? '全プリセットテーマ + 進化' : 'All preset themes + progression'}</li>
                 <li>{isJa ? 'Rare + Epic エフェクト' : 'Rare + Epic effects'}</li>
-                <li>{isJa ? 'エフェクトリクエスト (月1回)' : 'Monthly effect request'}</li>
                 <li>{isJa ? '年払いなら ¥3,000 (2ヶ月分おトク)' : '¥3,000 / year (2 months free)'}</li>
               </ul>
               <Button variant="primary" size="lg" onClick={handleSignup}>

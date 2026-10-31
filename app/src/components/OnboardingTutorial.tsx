@@ -64,14 +64,12 @@ const PLUS_BENEFITS: Record<Lang, string[]> = {
     'Unlock all themes — build your own pixel world',
     'Your theme evolves as you complete tasks',
     'Unlock all Rare & Epic effects',
-    "Request your own effect — we'll make it once a month",
     'Unlimited task lists',
   ],
   ja: [
     'すべてのテーマをアンロック — 自分だけのピクセル世界を',
     'タスクを完了するたびにテーマが進化',
     'レア・エピックエフェクトを全解放',
-    'エフェクトをリクエスト — 月1回作ります',
     'リスト数無制限',
   ],
 };

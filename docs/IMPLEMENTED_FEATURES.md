@@ -71,7 +71,6 @@ API: `GET/POST/PUT/DELETE /api/lists`, `GET /api/lists/:id/tasks`
 | エフェクト進捗フック | ✅ | `hooks/useEffectProgress.ts` |
 | コレクション画面 (Effects / Themes タブ) | ✅ | `pages/CollectionPage/` |
 | エフェクト詳細 / プレビュー | ✅ | `EffectDetailView.tsx`, `EffectPreviewPanel.tsx` |
-| エフェクトリクエスト (ユーザー投稿) | ✅ | `pages/EffectRequestPage.tsx` |
 
 ## 6. テーマ
 

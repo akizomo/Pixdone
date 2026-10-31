@@ -38,7 +38,6 @@ import { PricingPage } from './pages/PricingPage';
 import { AccountPage } from './pages/AccountPage';
 import { FeedbackPage } from './pages/FeedbackPage';
 import { CollectionPage } from './pages/CollectionPage';
-import { EffectRequestPage } from './pages/EffectRequestPage';
 import { LandingPage } from './pages/LandingPage';
 import { NativeWelcomePage } from './pages/NativeWelcomePage';
 import { Capacitor } from '@capacitor/core';
@@ -129,7 +128,7 @@ function AppContent() {
   const { hasSeenTutorial, markTutorialSeen } = useHasSeenTutorial();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/effect-request' || pathname === '/feedback';
+  const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/feedback';
 
   const [lang, setLang] = useState<'en' | 'ja'>(() => detectDefaultLang());
 
@@ -1095,8 +1094,6 @@ function AppContent() {
           <AccountPage />
         ) : pathname === '/feedback' ? (
           <FeedbackPage />
-        ) : pathname === '/effect-request' ? (
-          <EffectRequestPage />
         ) : isCollectionScreen ? (
           <CollectionPage
             key={`${collectionInitialTab}-${collectionInitialFilter ?? ''}-${collectionInitialEffectKey ?? ''}`}
@@ -1113,7 +1110,6 @@ function AppContent() {
             ownedChallengeEffects={ownedChallengeEffects}
             challengeProgressMap={challengeProgressMap}
             effectProgressMap={effectProgressMap}
-            onRequestEffect={() => navigate('/effect-request')}
           />
         ) : isFocusScreen && !isDesktop ? (
           // Rendered by the persistent FocusScreenContainer above.

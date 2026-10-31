@@ -30,7 +30,6 @@ export interface CollectionPageProps {
   ownedChallengeEffects?: string[];
   challengeProgressMap?: Record<string, number>;
   effectProgressMap?: Record<string, import('../../hooks/useEffectProgress').EffectProgressEntry>;
-  onRequestEffect?: () => void | Promise<void>;
 }
 
 export function CollectionPage({
@@ -47,7 +46,6 @@ export function CollectionPage({
   ownedChallengeEffects = [],
   challengeProgressMap = {},
   effectProgressMap = {},
-  onRequestEffect,
 }: CollectionPageProps) {
   const [activeTab, setActiveTab] = useState<'effects' | 'themes'>(initialTab);
   const [selectedEffect, setSelectedEffect] = useState<string | null>(initialEffectKey);
@@ -300,7 +298,6 @@ export function CollectionPage({
                 selectedEffect={selectedEffect}
                 isDesktop
                 activeFilter={desktopFilter}
-                onRequestEffect={onRequestEffect}
               />
             ) : (
               <ThemesTab
@@ -388,7 +385,6 @@ export function CollectionPage({
                 }
               }
             }}
-            onRequestEffect={onRequestEffect}
           />
         ) : (
           <ThemesTab

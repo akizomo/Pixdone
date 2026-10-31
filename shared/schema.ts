@@ -75,7 +75,7 @@ export const tasks = pgTable("tasks", {
   completedAt: timestamp("completed_at"),
 });
 
-// Effect requests table (PixDone+ users submit effect ideas; rate-limited to 1/month)
+// Effect requests table (feature retired; kept so existing rows can still be deleted with the account)
 export const effectRequests = pgTable("effect_requests", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),

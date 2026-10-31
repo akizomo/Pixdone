@@ -166,14 +166,13 @@ describe('OnboardingTutorial', () => {
     expect(onReachCta).toHaveBeenCalledTimes(1);
   });
 
-  it('lists the five PixDone+ benefits on the upgrade step', () => {
+  it('lists the four PixDone+ benefits on the upgrade step', () => {
     renderTutorial();
     advanceToSmashStep();
     smashAll();
     expect(screen.getByText(/Unlock all themes/i)).toBeInTheDocument();
     expect(screen.getByText(/Grow your theme/i)).toBeInTheDocument();
     expect(screen.getByText(/Rare & Epic effects/i)).toBeInTheDocument();
-    expect(screen.getByText(/Request your own effect/i)).toBeInTheDocument();
     expect(screen.getByText(/Unlimited task lists/i)).toBeInTheDocument();
   });
 

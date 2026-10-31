@@ -68,7 +68,6 @@ Arcade・Synthwave・Forest Bit。テーマごとに、見た目・サウンド�
 ・タスクリスト無制限
 ・すべてのテーマ（Synthwave・Forest Bit など）
 ・Rare・Epic エフェクト
-・エフェクトのリクエスト（月1回）
 初めてご契約の方は、7日間の無料トライアルをご利用いただけます。
 
 ■ サブスクリプションについて
@@ -121,7 +120,6 @@ Browse the effects you've earned in your collection.
 • Unlimited task lists
 • All themes (Synthwave, Forest Bit and more)
 • Rare and Epic effects
-• Effect requests (once a month)
 New subscribers can try it free for 7 days.
 
 ■ About subscriptions
@@ -181,7 +179,7 @@ How to test:
 |---|---|---|
 | 連絡先情報: メールアドレス | App の機能 | はい |
 | 連絡先情報: 氏名（Google・Apple ログイン時） | App の機能 | はい |
-| ユーザコンテンツ: その他のユーザコンテンツ（タスク・リスト・エフェクトのリクエスト） | App の機能 | はい |
+| ユーザコンテンツ: その他のユーザコンテンツ（タスク・リスト） | App の機能 | はい |
 | 識別子: ユーザ ID | App の機能、分析 | はい |
 | 購入: 購入履歴 | App の機能 | はい |
 | 使用状況データ: 製品の操作（画面の表示・主な操作） | 分析 | はい |

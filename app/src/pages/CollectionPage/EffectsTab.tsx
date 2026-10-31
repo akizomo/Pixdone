@@ -25,7 +25,6 @@ interface EffectsTabProps {
   activeFilter?: FilterKey;
   /** Mobile only: allow CollectionPage to control filter (for sheet nav) */
   onFilterChange?: (next: FilterKey) => void;
-  onRequestEffect?: () => void;
 }
 
 const FILTERS: FilterKey[] = ['ALL', 'COMMON', 'RARE', 'EPIC', 'OWNED', 'CHALLENGE'];
@@ -33,7 +32,7 @@ const FILTERS: FilterKey[] = ['ALL', 'COMMON', 'RARE', 'EPIC', 'OWNED', 'CHALLEN
 export function EffectsTab({
   isPremium, activeEffects, ownedChallengeEffects = [], lang, onSelect,
   selectedEffect, isDesktop = false, activeFilter: activeFilterProp,
-  onFilterChange, onRequestEffect,
+  onFilterChange,
 }: EffectsTabProps) {
   const [localFilter, setLocalFilter] = useState<FilterKey>('ALL');
   const activeFilter = isDesktop && activeFilterProp !== undefined ? activeFilterProp : localFilter;
@@ -120,45 +119,6 @@ export function EffectsTab({
                 </button>
               );
             })}
-            {/* Effect request entry */}
-            <button
-              type="button"
-              onClick={() => { playSound('buttonClick'); onRequestEffect?.(); }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                width: '100%',
-                padding: '10px 12px',
-                textAlign: 'left',
-                background: 'none',
-                border: 'none',
-                borderLeft: '3px solid transparent',
-                borderTop: '1px solid var(--pd-color-border-default)',
-                cursor: 'pointer',
-                marginTop: '4px',
-              }}
-            >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'var(--pd-font-size-sm)',
-                  letterSpacing: '0.5px',
-                  color: 'var(--pd-color-text-secondary)',
-                }}>
-                  {lang === 'ja' ? 'エフェクトをリクエスト' : 'Request an Effect'}
-                </div>
-                <div style={{
-                  fontSize: 'var(--pd-font-size-sm)',
-                  fontFamily: 'var(--pd-font-brand)',
-                  letterSpacing: '1px',
-                  color: 'var(--pd-color-accent-default)',
-                  marginTop: '1px',
-                }}>
-                  PIXDONE+
-                </div>
-              </div>
-              <span style={{ flexShrink: 0, color: 'var(--pd-color-text-secondary)', display: 'inline-flex' }}><PixelIcon name="chevron_right_2" size="sm" /></span>
-            </button>
           </>
         )}
       </div>
@@ -241,49 +201,6 @@ export function EffectsTab({
           </div>
         )}
 
-        {/* Effect request entry */}
-        <button
-          type="button"
-          onClick={() => { playSound('buttonClick'); onRequestEffect?.(); }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-            marginTop: '16px',
-            padding: '12px 14px',
-            background: 'var(--pd-color-background-elevated)',
-            border: '2px solid var(--pd-color-border-default)',
-            borderRadius: 0,
-            cursor: 'pointer',
-            textAlign: 'left',
-            gap: '10px',
-            boxSizing: 'border-box',
-          }}
-        >
-          <div style={{ minWidth: 0 }}>
-            <div style={{
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-sm)',
-              letterSpacing: '0.5px',
-              color: 'var(--pd-color-text-primary)',
-            }}>
-              {lang === 'ja' ? 'エフェクトをリクエスト' : 'Request an Effect'}
-            </div>
-            <div style={{
-              fontSize: 'var(--pd-font-size-sm)',
-              fontFamily: 'var(--pd-font-brand)',
-              letterSpacing: '1px',
-              color: 'var(--pd-color-accent-default)',
-              marginTop: '2px',
-            }}>
-              PIXDONE+
-            </div>
-          </div>
-          <span style={{ flexShrink: 0, color: 'var(--pd-color-text-secondary)', display: 'inline-flex' }}>
-            <PixelIcon name="chevron_right_2" size="sm" />
-          </span>
-        </button>
       </div>
     </div>
   );

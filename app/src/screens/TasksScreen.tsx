@@ -537,12 +537,10 @@ export function TasksScreen({
                 { icon: '📋', label: '無制限のタスクリスト' },
                 { icon: '🎨', label: '全プリセットテーマ + 進化' },
                 { icon: '✨', label: 'Rare・Epicエフェクト' },
-                { icon: '💌', label: 'エフェクトリクエスト（月1回）' },
               ] : [
                 { icon: '📋', label: 'Unlimited task lists' },
                 { icon: '🎨', label: 'All preset themes + progression system' },
                 { icon: '✨', label: 'Rare & Epic effects' },
-                { icon: '💌', label: 'Monthly effect request' },
               ]}
               buttonLabel={lang === 'ja' ? 'PixDone+を試す' : 'Try PixDone+'}
               onSignUp={() => onDismissTutorial('pricing')}
