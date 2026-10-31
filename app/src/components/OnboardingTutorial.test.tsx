@@ -161,7 +161,7 @@ describe('OnboardingTutorial', () => {
     smashAll();
 
     expect(screen.getByText(/Ready to go further/i)).toBeInTheDocument();
-    expect(screen.getByText(/Try PixDone\+/i)).toBeInTheDocument();
+    expect(screen.getByText(/Start 7-day free trial/i)).toBeInTheDocument();
     expect(screen.getByText(/^Later$/i)).toBeInTheDocument();
     expect(onReachCta).toHaveBeenCalledTimes(1);
   });
@@ -171,17 +171,17 @@ describe('OnboardingTutorial', () => {
     advanceToSmashStep();
     smashAll();
     expect(screen.getByText(/Unlock all themes/i)).toBeInTheDocument();
-    expect(screen.getByText(/Grow your theme/i)).toBeInTheDocument();
+    expect(screen.getByText(/Your theme evolves/i)).toBeInTheDocument();
     expect(screen.getByText(/Rare & Epic effects/i)).toBeInTheDocument();
     expect(screen.getByText(/Unlimited task lists/i)).toBeInTheDocument();
   });
 
-  it('Try PixDone+ calls onUpgrade with the default (yearly) billing cycle', () => {
+  it('the trial CTA calls onUpgrade with the default (yearly) billing cycle', () => {
     const onUpgrade = vi.fn().mockResolvedValue(undefined);
     renderTutorial({ onUpgrade });
     advanceToSmashStep();
     smashAll();
-    fireEvent.click(screen.getByText(/Try PixDone\+/i));
+    fireEvent.click(screen.getByText(/Start 7-day free trial/i));
     expect(onUpgrade).toHaveBeenCalledTimes(1);
     expect(onUpgrade).toHaveBeenCalledWith('yearly');
   });
@@ -194,7 +194,7 @@ describe('OnboardingTutorial', () => {
 
     const monthly = screen.getByRole('radio', { name: /monthly/i });
     fireEvent.click(monthly);
-    fireEvent.click(screen.getByText(/Try PixDone\+/i));
+    fireEvent.click(screen.getByText(/Start 7-day free trial/i));
     expect(onUpgrade).toHaveBeenCalledWith('monthly');
   });
 
@@ -211,13 +211,15 @@ describe('OnboardingTutorial', () => {
     expect(overlay?.getAttribute('data-tour')).toBe('true');
   });
 
-  it('premium users skip the upgrade CTA and see a single Next button', () => {
+  it('premium users see a disabled "already PixDone+" CTA instead of the trial CTA', () => {
     renderTutorial({ isPremium: true });
     advanceToSmashStep();
     smashAll();
-    expect(screen.queryByText(/Try PixDone\+/i)).toBeNull();
-    expect(screen.queryByText(/^Later$/i)).toBeNull();
-    expect(screen.getByText(/^Next$/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Start 7-day free trial/i)).toBeNull();
+    const cta = screen.getByText(/already PixDone\+/i).closest('button');
+    expect(cta).toBeDisabled();
+    // Later stays available so premium users can continue the tour.
+    expect(screen.getByText(/^Later$/i)).toBeInTheDocument();
   });
 
   it('fires onEnterFirstTask when Step 5 starts (tour mode)', () => {
@@ -250,8 +252,8 @@ describe('OnboardingTutorial', () => {
     const thirdRow = screen.getByText('That Email').closest('.task-item-row') as HTMLElement;
     fireEvent.click(thirdRow.querySelector('button[role="checkbox"]')!);
     flushTypewriter();
-    // 3rd smash dialogue is shown; user must tap to advance (no auto-advance now).
-    expect(within(getDialogue()).getByText(/Complete monthly challenges/i)).toBeInTheDocument();
+    // Last smash dialogue is shown; user must tap to advance (no auto-advance now).
+    expect(within(getDialogue()).getByText(/grow your collection/i)).toBeInTheDocument();
   });
 
   it('hides smashed tasks from the list', () => {

@@ -22,7 +22,7 @@ describe('getCompletionToastMessage', () => {
 
   it('returns effect-specific message for bomb (epic)', () => {
     expect(getCompletionToastMessage('bomb', 'en')).toBe('Bombed the task.');
-    expect(getCompletionToastMessage('bomb', 'ja')).toBe('タスクを爆破した。');
+    expect(getCompletionToastMessage('bomb', 'ja')).toBe('タスクをドカンと消しました。');
   });
 
   it('returns effect-specific message for shatter (rare)', () => {
