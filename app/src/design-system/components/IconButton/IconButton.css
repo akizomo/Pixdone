@@ -171,3 +171,20 @@
   color: var(--pd-color-feedback-danger);
   opacity: 0.85;
 }
+
+/* Touch: keep the visual size, extend the hit area to the minimum tap target. */
+@media (hover: none) and (pointer: coarse) {
+  .pxd-icon-button--sm {
+    position: relative;
+  }
+
+  .pxd-icon-button--sm::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, var(--pd-tap-target-min));
+    height: max(100%, var(--pd-tap-target-min));
+    transform: translate(-50%, -50%);
+  }
+}

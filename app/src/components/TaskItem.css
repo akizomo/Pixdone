@@ -226,3 +226,20 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Touch: keep the visual size, extend the hit area to the minimum tap target. */
+@media (hover: none) and (pointer: coarse) {
+  .task-item__action-btn {
+    position: relative;
+  }
+
+  .task-item__action-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, var(--pd-tap-target-min));
+    height: max(100%, var(--pd-tap-target-min));
+    transform: translate(-50%, -50%);
+  }
+}

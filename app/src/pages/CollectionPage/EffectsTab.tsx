@@ -157,7 +157,7 @@ export function EffectsTab({
                   PIXDONE+
                 </div>
               </div>
-              <span style={{ fontSize: 'var(--pd-font-size-2xs)', flexShrink: 0, color: 'var(--pd-color-text-secondary)' }}>→</span>
+              <span style={{ flexShrink: 0, color: 'var(--pd-color-text-secondary)', display: 'inline-flex' }}><PixelIcon name="chevron_right_2" size="sm" /></span>
             </button>
           </>
         )}
@@ -280,8 +280,8 @@ export function EffectsTab({
               PIXDONE+
             </div>
           </div>
-          <span style={{ fontSize: 'var(--pd-font-size-sm)', flexShrink: 0, color: 'var(--pd-color-text-secondary)' }}>
-            →
+          <span style={{ flexShrink: 0, color: 'var(--pd-color-text-secondary)', display: 'inline-flex' }}>
+            <PixelIcon name="chevron_right_2" size="sm" />
           </span>
         </button>
       </div>

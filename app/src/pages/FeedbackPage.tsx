@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, TextArea } from '../design-system';
+import { Button, PixelIcon, TextArea } from '../design-system';
 import { playSound } from '../services/sound';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { PH_REVIEW_URL } from '../services/phReviewBanner';
@@ -27,7 +27,8 @@ export function FeedbackPage() {
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
         <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={() => navigate('/')}>
-          ← {isJa ? 'もどる' : 'BACK'}
+          <PixelIcon name="arrow_back" size="sm" />
+          {isJa ? 'もどる' : 'BACK'}
         </Button>
         <span
           style={{

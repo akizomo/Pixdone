@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { Button } from '../design-system';
+import { Button, PixelIcon } from '../design-system';
 import { playSound } from '../services/sound';
 import {
   EFFECTS_REGISTRY,
@@ -54,7 +54,7 @@ export function NativeWelcomePage({ lang, onOpenLogin, onOpenSignup }: NativeWel
         <div className="nw-demo">
           <DemoTaskItem ref={taskRef} lang={lang} onSmash={handleSmash} />
           <div className="nw-hint" aria-hidden="true">
-            <span className="nw-hint__arrow">↑</span>
+            <span className="nw-hint__arrow"><PixelIcon name="arrow_upward" size="md" /></span>
             <span>{isJa ? 'タップしてスマッシュ！' : 'Smash me!'}</span>
           </div>
         </div>

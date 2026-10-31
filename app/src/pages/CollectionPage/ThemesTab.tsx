@@ -1,3 +1,4 @@
+import { PixelIcon } from '../../design-system';
 import { themeList } from '../../design-system/themes/themeRegistry';
 import type { ThemeKey } from '../../design-system/themes/themeRegistry';
 import { playSound } from '../../services/sound';
@@ -67,7 +68,7 @@ export function ThemesTab({
                   lineHeight: 1.2,
                 }}>
                   {theme.name}
-                  {isActive && <span style={{ fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-accent-default)' }}>▶</span>}
+                  {isActive && <span style={{ fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-accent-default)', display: 'inline-flex' }}><PixelIcon name="play" size="sm" /></span>}
                   {isLocked && <span style={{ fontSize: 'var(--pd-font-size-3xs)' }}>🔒</span>}
                 </div>
               </div>
@@ -126,7 +127,7 @@ export function ThemesTab({
                 lineHeight: 1.2,
               }}>
                 {theme.name}
-                {isActive && <span style={{ fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-accent-default)' }}>▶ ACTIVE</span>}
+                {isActive && <span style={{ fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-accent-default)' }}>ACTIVE</span>}
                 {isLocked && <span style={{ fontSize: 'var(--pd-font-size-2xs)' }}>🔒</span>}
               </div>
             </div>

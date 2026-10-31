@@ -33,3 +33,19 @@ a {
   color: var(--pd-color-accent-default);
 }
 
+/* Utility: add to a small control to extend its touch hit area to the minimum tap target without changing its look. */
+@media (hover: none) and (pointer: coarse) {
+  .pd-tap-area {
+    position: relative;
+  }
+
+  .pd-tap-area::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, var(--pd-tap-target-min));
+    height: max(100%, var(--pd-tap-target-min));
+    transform: translate(-50%, -50%);
+  }
+}

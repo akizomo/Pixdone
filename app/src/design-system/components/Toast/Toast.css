@@ -81,3 +81,20 @@
 .pxd-toast__close:hover {
   color: var(--pd-color-text-primary);
 }
+
+/* Touch: keep the visual size, extend the hit area to the minimum tap target. */
+@media (hover: none) and (pointer: coarse) {
+  .pxd-toast__close, .pxd-toast__action {
+    position: relative;
+  }
+
+  .pxd-toast__close, .pxd-toast__action::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, var(--pd-tap-target-min));
+    height: max(100%, var(--pd-tap-target-min));
+    transform: translate(-50%, -50%);
+  }
+}

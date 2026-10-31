@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
-import { Button } from '../design-system';
+import { Button, PixelIcon } from '../design-system';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
 import { getStoreManagementUrl } from '../lib/storeBilling';
@@ -105,7 +105,8 @@ export function AccountPage() {
       {/* Sub-page nav */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
         <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={() => navigate('/')}>
-          ← {isJa ? 'もどる' : 'BACK'}
+          <PixelIcon name="arrow_back" size="sm" />
+          {isJa ? 'もどる' : 'BACK'}
         </Button>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
@@ -207,8 +208,8 @@ export function AccountPage() {
                   {isStoreSubscription
                     ? (billingCycle === 'monthly' ? (isJa ? '月払い' : 'Monthly') : (isJa ? '年払い' : 'Yearly'))
                     : billingCycle === 'monthly'
-                      ? (isJa ? '月払い · ¥600/月' : 'Monthly · ¥600/mo')
-                      : (isJa ? '年払い · ¥6,000/年' : 'Yearly · ¥6,000/yr')}
+                      ? (isJa ? '月払い · ¥300/月' : 'Monthly · ¥300/mo')
+                      : (isJa ? '年払い · ¥3,000/年' : 'Yearly · ¥3,000/yr')}
                 </p>
               )}
               {cancelledUntil ? (

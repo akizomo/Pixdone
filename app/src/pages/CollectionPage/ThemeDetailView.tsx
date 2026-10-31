@@ -153,7 +153,7 @@ export function ThemeDetailView({
           }}
         >
           {isActive
-            ? (lang === 'ja' ? '▶ 使用中' : '▶ ACTIVE')
+            ? (lang === 'ja' ? '使用中' : 'ACTIVE')
             : isLocked
               ? (lang === 'ja' ? 'PixDone+ で解除' : 'UNLOCK WITH PIXDONE+')
               : (lang === 'ja' ? 'このテーマを使う' : 'SET ACTIVE')}

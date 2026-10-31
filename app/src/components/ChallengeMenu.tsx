@@ -327,7 +327,7 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
 
       {/* Preview button */}
       <Button variant="ghost" size="sm" onClick={() => onPreview(effect.key)}>
-        {lang === 'ja' ? 'エフェクトをプレビュー →' : 'Preview effect →'}
+        {lang === 'ja' ? 'エフェクトをプレビュー' : 'Preview effect'}
       </Button>
     </div>
   );

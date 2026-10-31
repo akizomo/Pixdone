@@ -186,7 +186,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
                   </span>
                 )}
                 {isActive && !isLocked && (
-                  <span style={{ color: 'var(--pd-color-accent-default)', fontSize: 'var(--pd-font-size-2xs)' }}>▶</span>
+                  <span style={{ color: 'var(--pd-color-accent-default)', display: 'inline-flex' }}><PixelIcon name="play" size="sm" /></span>
                 )}
               </button>
             );

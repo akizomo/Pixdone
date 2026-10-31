@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { Button } from '../design-system';
+import { Button, PixelIcon } from '../design-system';
 import { playSound } from '../services/sound';
 import { startBgm, stopBgm, isBgmOn } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
@@ -435,7 +435,7 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
                   onSmash={handleSmash}
                 />
                 <div className="lp-smash-hint" aria-hidden="true">
-                  <span className="lp-smash-hint__arrow">↑</span>
+                  <span className="lp-smash-hint__arrow"><PixelIcon name="arrow_upward" size="lg" /></span>
                   <span className="lp-smash-hint__label">
                     {isJa ? 'タップしてスマッシュ！' : 'Smash me!'}
                   </span>
@@ -465,7 +465,7 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
               </p>
               <div className="lp-cta-row">
                 <Button variant="primary" size="lg" onClick={handleSignup}>
-                  {isJa ? '無料で始める →' : 'Start for free →'}
+                  {isJa ? '無料で始める' : 'Start for free'}
                 </Button>
               </div>
             </div>
@@ -564,14 +564,14 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
             <article className="lp-pricing-card lp-pricing-card--plus">
               <h3 className="lp-pricing-card__tier">PIXDONE+</h3>
               <p className="lp-pricing-card__price">
-                ¥600<small>{isJa ? '/月' : '/MO'}</small>
+                ¥300<small>{isJa ? '/月' : '/MO'}</small>
               </p>
               <ul className="lp-pricing-card__list">
                 <li>{isJa ? '無制限のタスクリスト' : 'Unlimited task lists'}</li>
                 <li>{isJa ? '全プリセットテーマ + 進化' : 'All preset themes + progression'}</li>
                 <li>{isJa ? 'Rare + Epic エフェクト' : 'Rare + Epic effects'}</li>
                 <li>{isJa ? 'エフェクトリクエスト (月1回)' : 'Monthly effect request'}</li>
-                <li>{isJa ? '年払いなら ¥6,000 (2ヶ月分おトク)' : '¥6,000 / year (2 months free)'}</li>
+                <li>{isJa ? '年払いなら ¥3,000 (2ヶ月分おトク)' : '¥3,000 / year (2 months free)'}</li>
               </ul>
               <Button variant="primary" size="lg" onClick={handleSignup}>
                 {isJa ? 'PixDone+ を始める' : 'Get PixDone+'}
@@ -604,7 +604,7 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
               </p>
             )}
             <Button variant="primary" size="lg" onClick={handleSignup}>
-              {isJa ? '無料で始める →' : 'Start for free →'}
+              {isJa ? '無料で始める' : 'Start for free'}
             </Button>
           </div>
         </div>

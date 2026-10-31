@@ -164,3 +164,10 @@
   display: flex;
   flex-direction: column;
 }
+
+@media (hover: none) and (pointer: coarse) {
+  .pxd-sheet-close {
+    width: var(--pd-tap-target-min);
+    height: var(--pd-tap-target-min);
+  }
+}

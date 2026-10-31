@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
-import { Button } from '../design-system';
+import { Button, PixelIcon } from '../design-system';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
 import { Capacitor } from '@capacitor/core';
@@ -169,7 +169,8 @@ export function PricingPage() {
       {/* Sub-page nav */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
         <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={() => navigate('/')}>
-          ← {isJa ? 'もどる' : 'BACK'}
+          <PixelIcon name="arrow_back" size="sm" />
+          {isJa ? 'もどる' : 'BACK'}
         </Button>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
@@ -335,6 +336,7 @@ export function PricingPage() {
                     <button
                       key={c}
                       type="button"
+                      className="pd-tap-area"
                       onClick={() => { playSound('buttonClick'); setCycle(c); }}
                       style={{
                         padding: '4px 10px',
@@ -367,18 +369,18 @@ export function PricingPage() {
               >
                 {isNativeApp
                   ? (storePrice.main ?? '—')
-                  : (cycle === 'monthly' ? '¥600' : '¥500')}<span style={{ fontSize: 'var(--pd-font-size-sm)', color: 'var(--pd-color-text-secondary)' }}>{isJa ? '/月' : '/mo'}</span>
+                  : (cycle === 'monthly' ? '¥300' : '¥250')}<span style={{ fontSize: 'var(--pd-font-size-sm)', color: 'var(--pd-color-text-secondary)' }}>{isJa ? '/月' : '/mo'}</span>
               </p>
               {cycle === 'yearly' && (
                 <p style={{ fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-tertiary)', margin: '0 0 4px' }}>
                   {isNativeApp
                     ? (storePrice.yearly ? (isJa ? `年払い ${storePrice.yearly}` : `${storePrice.yearly} billed yearly`) : '')
-                    : (isJa ? '年払い ¥6,000' : '¥6,000 billed yearly')}
+                    : (isJa ? '年払い ¥3,000' : '¥3,000 billed yearly')}
                 </p>
               )}
               <p style={{ fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-text-tertiary)', margin: '0 0 16px' }}>
                 {isJa
-                  ? '7日間無料 → その後自動で課金開始。いつでもキャンセル可能。'
+                  ? '7日間無料。その後自動で課金開始。いつでもキャンセル可能。'
                   : '7-day free trial, then auto-renews. Cancel anytime.'}
               </p>
               <ul style={{ margin: '0 0 20px', padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>

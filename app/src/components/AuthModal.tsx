@@ -286,9 +286,11 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
               color: 'var(--pd-color-text-secondary)',
               fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
               textAlign: 'left', padding: 0,
+              display: 'inline-flex', alignItems: 'center', gap: '4px',
             }}
           >
-            {lang === 'ja' ? '← ログインに戻る' : '← Back to login'}
+            <PixelIcon name="arrow_back" size="sm" />
+            {lang === 'ja' ? 'ログインに戻る' : 'Back to login'}
           </button>
         )}
 

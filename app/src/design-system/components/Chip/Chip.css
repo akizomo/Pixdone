@@ -136,3 +136,20 @@
 .pxd-chip__remove:hover {
   opacity: 1;
 }
+
+/* Touch: keep the visual size, extend the hit area to the minimum tap target. */
+@media (hover: none) and (pointer: coarse) {
+  .pxd-chip {
+    position: relative;
+  }
+
+  .pxd-chip::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: max(100%, var(--pd-tap-target-min));
+    transform: translate(-50%, -50%);
+  }
+}

@@ -96,7 +96,7 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
             flexShrink: 0,
           }}
         >
-          ▶ ACTIVE
+          ACTIVE
         </span>
       )}
       {isLocked && (
@@ -112,7 +112,7 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
             flexShrink: 0,
           }}
         >
-          TAP →
+          TAP
         </span>
       )}
     </button>

@@ -179,3 +179,9 @@
     transform: translateY(0);
   }
 }
+
+@media (hover: none) and (pointer: coarse) {
+  .pxd-popover-menu__item {
+    min-height: var(--pd-tap-target-min);
+  }
+}

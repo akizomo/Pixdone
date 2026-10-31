@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
-import { Button } from '../design-system';
+import { Button, PixelIcon } from '../design-system';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
 
@@ -49,7 +49,8 @@ export function EffectRequestPage() {
       {/* Sub-page nav */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0 8px' }}>
         <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={goBack}>
-          ← {isJa ? 'もどる' : 'BACK'}
+          <PixelIcon name="arrow_back" size="sm" />
+          {isJa ? 'もどる' : 'BACK'}
         </Button>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',

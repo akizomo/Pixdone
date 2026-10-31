@@ -100,3 +100,25 @@
     color: var(--pd-color-text-primary);
   }
 }
+
+/* Touch: tabs reach the minimum tap target; the add button keeps its look and
+   extends only its hit area (it sits outside the scroll container, so it is not clipped). */
+@media (hover: none) and (pointer: coarse) {
+  .pd-list-tabs__tab {
+    min-height: var(--pd-tap-target-min);
+  }
+
+  .pd-list-tabs__add {
+    position: relative;
+  }
+
+  .pd-list-tabs__add::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--pd-tap-target-min);
+    height: var(--pd-tap-target-min);
+    transform: translate(-50%, -50%);
+  }
+}

@@ -13,6 +13,7 @@
 import { useEffect, useState } from 'react';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { playSound } from '../services/sound';
+import { PixelIcon } from '../design-system';
 import './ExtensionPrivacyPage.css';
 
 const LAST_UPDATED = '2026-05-07';
@@ -39,7 +40,7 @@ const COPY: Record<Lang, Copy> = {
     eyebrow: 'PixDone Quick',
     title: 'Privacy Policy',
     updated: `Last updated: ${LAST_UPDATED}`,
-    back: '← BACK',
+    back: 'BACK',
     intro: (
       <>
         PixDone Quick (“the extension”) is a Chrome extension published by
@@ -219,7 +220,7 @@ const COPY: Record<Lang, Copy> = {
     eyebrow: 'PixDone Quick',
     title: 'プライバシーポリシー',
     updated: `最終更新日: ${LAST_UPDATED}`,
-    back: '← もどる',
+    back: 'もどる',
     intro: (
       <>
         PixDone Quick（以下「本拡張」）は PixDone が提供する Chrome 拡張機能
@@ -434,6 +435,7 @@ export function ExtensionPrivacyPage() {
             href="/"
             onClick={() => playSound('taskCancel')}
           >
+            <PixelIcon name="arrow_back" size="sm" />
             {copy.back}
           </a>
           <div className="epp__lang" role="group" aria-label="Language">
