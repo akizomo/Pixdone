@@ -78,20 +78,6 @@
   padding-top: 72px; /* reserve space for fixed header */
 }
 
-/* Override DS primary button for LP scope — app default maps to
-   --pd-color-accent-default (#A78BFA light lavender) which fails AA
-   against white text. Use the deeper filled accent (#6D52F0, AA 5.10). */
-.lp-root .pxd-button--primary {
-  background-color: var(--pd-color-accent-filled);
-  border-color: var(--pd-color-accent-filled);
-  color: #ffffff;
-}
-
-.lp-root .pxd-button--primary:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--pd-color-accent-filled) 86%, #000);
-  border-color: color-mix(in srgb, var(--pd-color-accent-filled) 86%, #000);
-}
-
 .lp-header__brand {
   display: flex;
   flex-direction: column;

@@ -17,6 +17,7 @@ export const tokens = {
       hover: '#B794F6',   // purple-200
       subtle: 'rgba(167, 139, 250, 0.15)',
       filled: '#6D52F0',  // purple-550 — AA 5.10 for white text
+      'filled-hover': '#5B43D6', // purple-700 — AA 6.52 for white text (darker than filled)
       text: '#ffffff',
     },
     shadow: { default: 'rgba(0, 0, 0, 0.3)' },
@@ -54,6 +55,7 @@ export const tokens = {
       hover: '#4C37C0',   // purple-750
       subtle: 'rgba(91, 67, 214, 0.10)',
       filled: '#5B43D6',  // purple-700 — AA 6.52 for white text
+      'filled-hover': '#4C37C0', // purple-750 — AA 8.0 for white text (darker than filled)
       text: '#ffffff',
     },
     shadow: { default: 'rgba(0, 0, 0, 0.1)' },

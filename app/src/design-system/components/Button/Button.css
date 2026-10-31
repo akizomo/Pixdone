@@ -64,17 +64,19 @@
 
 /* ---- Variants ---- */
 
+/* accent-filled (not accent-default): default is tuned as a foreground on the page
+   background, while filled guarantees AA contrast with accent-text on the button itself. */
 .pxd-button--primary {
-  background-color: var(--pd-color-accent-default);
+  background-color: var(--pd-color-accent-filled);
   color: var(--pd-color-accent-text);
-  border-color: var(--pd-color-accent-default);
+  border-color: var(--pd-color-accent-filled);
   box-shadow: 2px 2px 0px var(--pd-color-shadow-default);
 }
 
 @media (hover: hover) {
   .pxd-button--primary:hover:not(:disabled) {
-    background-color: var(--pd-color-accent-hover);
-    border-color: var(--pd-color-accent-hover);
+    background-color: var(--pd-color-accent-filled-hover);
+    border-color: var(--pd-color-accent-filled-hover);
     transform: translate(-1px, -1px);
     box-shadow: 3px 3px 0px var(--pd-color-shadow-default);
   }

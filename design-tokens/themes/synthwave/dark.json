@@ -774,6 +774,16 @@
             }
           }
         },
+        "filledHover": {
+          "$value": "{sw.neonCyan.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-filled-hover",
+              "set": "themeSynthwaveDark"
+            }
+          }
+        },
         "text": {
           "$value": "{sw.navy.950}",
           "$type": "color",

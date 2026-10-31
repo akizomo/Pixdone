@@ -748,6 +748,16 @@
             }
           }
         },
+        "filledHover": {
+          "$value": "{fb.glow.500}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-filled-hover",
+              "set": "themeForestbitDark"
+            }
+          }
+        },
         "text": {
           "$value": "{fb.night.950}",
           "$type": "color",

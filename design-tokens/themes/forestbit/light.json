@@ -777,6 +777,16 @@
             }
           }
         },
+        "filledHover": {
+          "$value": "{fb.leaf.900}",
+          "$type": "color",
+          "$extensions": {
+            "pixdone": {
+              "cssVar": "--pd-color-accent-filled-hover",
+              "set": "themeForestbitLight"
+            }
+          }
+        },
         "text": {
           "$value": "#ffffff",
           "$type": "color",

@@ -78,9 +78,9 @@
 }
 
 .epp__lang-btn--active {
-  background: var(--pd-color-accent-default);
+  background: var(--pd-color-accent-filled);
   color: var(--pd-color-accent-text);
-  border-color: var(--pd-color-accent-default);
+  border-color: var(--pd-color-accent-filled);
 }
 
 /* Title block */
@@ -189,7 +189,7 @@
   align-items: center;
   gap: var(--pd-space-1);
   padding: 8px 14px;
-  background: var(--pd-color-accent-default);
+  background: var(--pd-color-accent-filled);
   color: var(--pd-color-accent-text);
   font-family: var(--pd-font-brand);
   font-size: var(--pd-font-size-sm);

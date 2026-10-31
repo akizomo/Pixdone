@@ -262,9 +262,9 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--pd-color-accent-default);
+  background: var(--pd-color-accent-filled);
   color: var(--pd-color-accent-text);
-  border: var(--pd-border-base) solid var(--pd-color-accent-default);
+  border: var(--pd-border-base) solid var(--pd-color-accent-filled);
   box-shadow: var(--pd-shadow-pixel-sm);
   align-items: center;
   justify-content: center;
