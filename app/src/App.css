@@ -249,7 +249,7 @@
   height: 56px;
   border-radius: 50%;
   background: white;
-  color: var(--pd-color-brand-smash, #9c27b0);
+  color: var(--pd-color-brand-smash);
   border: none;
   align-items: center;
   justify-content: center;

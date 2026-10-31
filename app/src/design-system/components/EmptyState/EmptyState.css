@@ -4,7 +4,7 @@
   width: 100%;
   padding: var(--pd-space-8, 32px) var(--pd-space-5, 20px);
   text-align: center;
-  color: var(--pd-color-text-secondary, #4c5160);
+  color: var(--pd-color-text-secondary);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -56,10 +56,10 @@
 .pxd-empty-bubble {
   position: relative;
   background-color: var(--pd-color-surface-primary);
-  border: 3px solid var(--pd-color-text-primary, #191d24);
+  border: 3px solid var(--pd-color-text-primary);
   border-radius: 0;
   padding: 10px 14px;
-  box-shadow: 3px 3px 0 var(--pd-color-text-primary, #191d24);
+  box-shadow: 3px 3px 0 var(--pd-color-text-primary);
   animation: pxd-empty-float 3s ease-in-out infinite;
 }
 
@@ -70,7 +70,7 @@
   left: 20px;
   width: 20px;
   height: 16px;
-  background-color: var(--pd-color-text-primary, #191d24);
+  background-color: var(--pd-color-text-primary);
   clip-path: polygon(
     0 0, 16px 0, 16px 2px, 14px 2px, 14px 4px, 12px 4px,
     12px 6px, 10px 6px, 10px 8px, 8px 8px, 8px 10px,

@@ -91,19 +91,19 @@
 
 /* Semantic variants (kept minimal) */
 .pxd-chip--success {
-  background-color: rgba(52, 168, 83, 0.15);
+  background-color: color-mix(in srgb, var(--pd-color-feedback-success) 15%, transparent);
   color: var(--pd-color-semantic-success);
   border-color: var(--pd-color-semantic-success);
 }
 
 .pxd-chip--warning {
-  background-color: rgba(251, 188, 4, 0.15);
+  background-color: color-mix(in srgb, var(--pd-color-feedback-warning) 15%, transparent);
   color: var(--pd-color-semantic-warning);
   border-color: var(--pd-color-semantic-warning);
 }
 
 .pxd-chip--danger {
-  background-color: rgba(234, 67, 53, 0.15);
+  background-color: color-mix(in srgb, var(--pd-color-feedback-danger) 15%, transparent);
   color: var(--pd-color-semantic-danger);
   border-color: var(--pd-color-semantic-danger);
 }

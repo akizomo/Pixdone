@@ -403,22 +403,6 @@
   justify-content: center;
 }
 
-.lp-rarity-badges { display: flex; gap: 8px; }
-
-.lp-rarity-badge {
-  font-family: var(--pd-font-brand);
-  font-size: var(--pd-font-size-sm);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border: 1px solid var(--pd-color-border-outline);
-  color: var(--pd-color-text-secondary);
-  background: var(--pd-color-surface-secondary);
-}
-
-.lp-rarity-badge--rare  { color: #d4a8ff; border-color: #8b5cf6; }
-.lp-rarity-badge--epic  { color: #ffd66b; border-color: #f59e0b; }
-
 /* ── Smash & Reward card — pre-captured effect screenshot burst ──── */
 
 .lp-smash-burst {

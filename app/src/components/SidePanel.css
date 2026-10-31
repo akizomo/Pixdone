@@ -102,7 +102,7 @@
     position: fixed;
     inset: 0;
     z-index: 249;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--pd-color-surface-overlay);
     opacity: 1;
     transition: opacity 240ms ease;
   }

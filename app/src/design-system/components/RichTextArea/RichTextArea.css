@@ -52,7 +52,7 @@
 
 .pxd-rich-text-area__input:focus {
   border-color: var(--pd-color-border-focus);
-  box-shadow: 0 0 0 3px rgba(76, 141, 255, 0.25);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pd-color-border-focus) 25%, transparent);
 }
 
 .pxd-rich-text-area__input[aria-disabled="true"] {
@@ -68,7 +68,7 @@
 
 .pxd-rich-text-area__input.pxd-rich-text-area__input--error:focus {
   border-color: var(--pd-color-feedback-danger);
-  box-shadow: 0 0 0 3px rgba(232, 93, 93, 0.2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pd-color-feedback-danger) 20%, transparent);
 }
 
 .pxd-rich-text-area__input a {

@@ -15,7 +15,7 @@
 .auth-modal__box-1 {
   flex: 1;
   height: 1px;
-  background: var(--pd-color-border-default, #e5e7eb);
+  background: var(--pd-color-border-default);
 }
 
 .auth-modal__text-1 {
@@ -67,7 +67,7 @@
 }
 
 .auth-modal__text-7 {
-  color: var(--pd-color-semantic-danger, #ef4444);
+  color: var(--pd-color-semantic-danger);
   font-family: var(--pd-font-body);
   font-size: var(--pd-font-size-xs);
   margin: 0;

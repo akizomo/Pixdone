@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--pd-color-surface-overlay);
   opacity: 0;
   /* opening: fade in */
   transition: opacity 0.25s ease;

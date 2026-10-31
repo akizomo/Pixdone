@@ -16,9 +16,9 @@
   align-items: center;
   gap: var(--pd-space-3);
   padding: var(--pd-space-4) var(--pd-space-5);
-  background: var(--pd-color-surface-primary, #1f1f2e);
+  background: var(--pd-color-surface-primary);
   border: var(--pd-border-base) solid var(--pd-color-border-outline);
-  color: var(--pd-color-text-primary, #e8eaed);
+  color: var(--pd-color-text-primary);
   font-family: var(--pd-font-body, sans-serif);
   font-size: var(--pd-font-size-md);
 }
@@ -26,7 +26,7 @@
 .effect-capture__box-1 {
   width: 24px;
   height: 24px;
-  border: var(--pd-border-base) solid var(--pd-color-accent-default, #A78BFA);
+  border: var(--pd-border-base) solid var(--pd-color-accent-default);
   background: transparent;
   flex-shrink: 0;
 }

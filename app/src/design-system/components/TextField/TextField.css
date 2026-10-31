@@ -59,7 +59,7 @@
 .pxd-text-field__input:focus {
   outline: none;
   border-color: var(--pd-color-border-focus);
-  box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.25);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pd-color-border-focus) 25%, transparent);
 }
 
 .pxd-text-field__input:disabled {
@@ -75,7 +75,7 @@
 
 .pxd-text-field__input.pxd-text-field__input--error:focus {
   border-color: var(--pd-color-feedback-danger);
-  box-shadow: 0 0 0 3px rgba(232, 93, 93, 0.2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pd-color-feedback-danger) 20%, transparent);
 }
 
 .pxd-text-field__helper {

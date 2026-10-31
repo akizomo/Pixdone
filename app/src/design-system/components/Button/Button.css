@@ -209,8 +209,8 @@
 
 @media (hover: hover) {
   .pxd-button--signup:hover:not(:disabled) {
-    background-color: var(--pd-color-semantic-successHover, #2e7d32);
-    border-color: var(--pd-color-semantic-successHover, #2e7d32);
+    background-color: var(--pd-color-semantic-successHover);
+    border-color: var(--pd-color-semantic-successHover);
     transform: translate(-1px, -1px);
     box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.2);
   }

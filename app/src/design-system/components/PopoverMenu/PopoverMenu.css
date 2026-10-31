@@ -124,13 +124,13 @@
 
 /* Danger variant */
 .pxd-popover-menu__item--danger {
-  color: var(--pd-color-semantic-danger, #ef4444);
+  color: var(--pd-color-semantic-danger);
 }
 
 @media (hover: hover) {
   .pxd-popover-menu__item--danger:hover:not(:disabled) {
     background: var(--pd-color-background-hover);
-    color: var(--pd-color-semantic-danger, #ef4444);
+    color: var(--pd-color-semantic-danger);
   }
 }
 

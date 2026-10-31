@@ -25,7 +25,7 @@
    above the overlay at 3000) and the agent + speech bubble are blocked.
    Scrolling is disabled at the app level via `document.body.style.overflow`. */
 .pd-onboarding[data-tour="true"] {
-  background: rgba(13, 13, 26, 0.55);
+  background: var(--pd-color-surface-overlay);
   pointer-events: auto;
   touch-action: none;
   cursor: not-allowed;
@@ -601,7 +601,7 @@
   width: 22px;
   height: 22px;
   color: var(--pd-cyan-300);
-  background: rgba(67, 203, 234, 0.14);
+  background: color-mix(in srgb, var(--pd-color-reward-glow-cyan) 50%, transparent);
   border: var(--pd-border-thin) solid var(--pd-cyan-500);
   box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.12);
   image-rendering: pixelated;
@@ -760,8 +760,8 @@
 
 .pd-onboarding__cycle-option[data-selected="true"] {
   border-color: var(--pd-cyan-500);
-  background: rgba(67, 203, 234, 0.14);
-  box-shadow: var(--pd-shadow-pixel-md), 0 0 0 2px rgba(67, 203, 234, 0.3);
+  background: color-mix(in srgb, var(--pd-color-reward-glow-cyan) 50%, transparent);
+  box-shadow: var(--pd-shadow-pixel-md), 0 0 0 2px var(--pd-color-reward-glow-cyan);
 }
 
 .pd-onboarding__cycle-label {

@@ -29,7 +29,7 @@
   width: 32px;
   height: 32px;
   border: 1px solid var(--pd-color-border-default);
-  background-color: color-mix(in srgb, var(--pd-effect-particle-2, #4ecdc4) 18%, transparent);
+  background-color: color-mix(in srgb, var(--pd-effect-particle-2) 18%, transparent);
 }
 
 .pd-agent-icon__badge {

@@ -9,8 +9,8 @@
   position: relative;
   width: 200px;
   height: 24px;
-  background: var(--pd-color-background-secondary, var(--bg-secondary, #28292d));
-  border: 2px solid var(--pd-color-border-default, var(--border-color, #3c4043));
+  background: var(--pd-color-background-secondary, var(--bg-secondary));
+  border: 2px solid var(--pd-color-border-default, var(--border-color));
   border-radius: 0;
   overflow: hidden;
   box-shadow: 2px 2px 0 var(--pd-color-shadow-default, rgba(0, 0, 0, 0.3));
@@ -21,7 +21,7 @@
   top: 2px;
   width: 16px;
   height: 18px;
-  background: var(--pd-color-accent-default, var(--accent-color, #1a73e8));
+  background: var(--pd-color-accent-default, var(--accent-color));
   border-radius: 0;
   transition: none;
 }
