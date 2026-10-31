@@ -97,7 +97,7 @@ export function ThemePreviewPanel({
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '1rem',
+              fontSize: 'var(--pd-font-size-md)',
               letterSpacing: '1px',
               color: 'var(--pd-color-text-primary)',
             }}>
@@ -105,7 +105,7 @@ export function ThemePreviewPanel({
             </span>
             {theme.isPremium && (
               <span style={{
-                fontSize: '0.625rem',
+                fontSize: 'var(--pd-font-size-sm)',
                 fontFamily: 'var(--pd-font-brand)',
                 letterSpacing: '1px',
                 padding: '2px 8px',
@@ -122,7 +122,7 @@ export function ThemePreviewPanel({
           <p style={{
             margin: 0,
             fontFamily: 'var(--pd-font-body)',
-            fontSize: '0.8125rem',
+            fontSize: 'var(--pd-font-size-xs)',
             color: 'var(--pd-color-text-secondary)',
             lineHeight: 1.5,
           }}>
@@ -137,7 +137,7 @@ export function ThemePreviewPanel({
           style={{
             padding: '10px 12px',
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.8125rem',
+            fontSize: 'var(--pd-font-size-sm)',
             letterSpacing: '2px',
             cursor: isActive ? 'default' : 'pointer',
             background: isActive

@@ -1295,13 +1295,13 @@ function AppContent() {
       >
         <div style={{ padding: '4px 0 8px' }}>
           <p style={{
-            fontFamily: 'var(--pd-font-brand)', fontSize: '0.875rem',
+            fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
             color: 'var(--pd-color-accent-default)', letterSpacing: '1px', margin: '0 0 12px',
           }}>
             PIXDONE+
           </p>
           <p style={{
-            fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem',
+            fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-sm)',
             color: 'var(--pd-color-text-secondary)', margin: '0 0 12px', lineHeight: 1.6,
           }}>
             {lang === 'ja'
@@ -1315,7 +1315,7 @@ function AppContent() {
               { ja: '✦ レアエフェクトが発動する（Rainbow Smash / Freeze）', en: '✦ Rare effects (Rainbow Smash / Freeze)' },
             ].map((f) => (
               <p key={f.en} style={{
-                fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+                fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
                 color: 'var(--pd-color-text-primary)', margin: 0,
               }}>
                 {lang === 'ja' ? f.ja : f.en}
@@ -1506,10 +1506,10 @@ function AppContent() {
         >
           <span style={{ color: 'var(--pd-color-semantic-success)', fontSize: '1.25rem', lineHeight: 1, flexShrink: 0 }}>✓</span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.75rem', letterSpacing: '1px', color: 'var(--pd-color-semantic-success)' }}>
+            <div style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', color: 'var(--pd-color-semantic-success)' }}>
               {lang === 'ja' ? 'PIXDONE+ へようこそ！' : 'WELCOME TO PIXDONE+'}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)', marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <div style={{ fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-secondary)', marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
               {lang === 'ja' ? (
                 <>
                   <span>✦ リストが無制限に作れます</span>
@@ -1531,7 +1531,7 @@ function AppContent() {
             soundKey="taskCancel"
             aria-label={lang === 'ja' ? '閉じる' : 'Dismiss'}
             onClick={() => setPurchaseBanner(null)}
-            icon={<span style={{ fontSize: '1rem', lineHeight: 1 }}>✕</span>}
+            icon={<span style={{ fontSize: 'var(--pd-font-size-md)', lineHeight: 1 }}>✕</span>}
           />
         </div>
       )}
@@ -1562,7 +1562,7 @@ class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Erro
       return (
         <div style={{ padding: 24, fontFamily: 'monospace', color: 'red', background: '#111', minHeight: '100vh' }}>
           <h2>App crashed</h2>
-          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12 }}>{String(this.state.error)}</pre>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 'var(--pd-font-size-2xs)' }}>{String(this.state.error)}</pre>
         </div>
       );
     }

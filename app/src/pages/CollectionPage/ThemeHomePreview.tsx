@@ -94,7 +94,7 @@ export function ThemeHomePreview({ lang, onTriggerEffect }: ThemeHomePreviewProp
       {/* Match Tasks tab spacing: no outer frame, just content */}
       <div style={{ padding: '4px 4px 0' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 className="pd-app-title" style={{ fontSize: '24px', textShadow: '1px 1px 0px var(--pd-color-shadow-default)' }}>
+          <h1 className="pd-app-title" style={{ fontSize: 'var(--pd-font-size-2xl)', textShadow: '1px 1px 0px var(--pd-color-shadow-default)' }}>
             PixDone
           </h1>
           {/* Keep empty space similar to real header icons */}
@@ -119,7 +119,7 @@ export function ThemeHomePreview({ lang, onTriggerEffect }: ThemeHomePreviewProp
                 borderBottom: '2px solid var(--pd-color-accent-default)',
                 background: 'none',
                 fontFamily: 'var(--pd-font-body)',
-                fontSize: '0.8125rem',
+                fontSize: 'var(--pd-font-size-xs)',
                 color: 'var(--pd-color-text-primary)',
                 fontWeight: 600,
                 lineHeight: 1.2,
@@ -138,7 +138,7 @@ export function ThemeHomePreview({ lang, onTriggerEffect }: ThemeHomePreviewProp
                 borderBottom: '2px solid transparent',
                 background: 'none',
                 fontFamily: 'var(--pd-font-body)',
-                fontSize: '0.8125rem',
+                fontSize: 'var(--pd-font-size-xs)',
                 color: 'var(--pd-color-text-secondary)',
                 fontWeight: 400,
                 lineHeight: 1.2,
@@ -154,7 +154,7 @@ export function ThemeHomePreview({ lang, onTriggerEffect }: ThemeHomePreviewProp
           <div
             style={{
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '1.125rem',
+              fontSize: 'var(--pd-font-size-lg)',
               fontWeight: 700,
               color: 'var(--pd-color-text-primary)',
               margin: 0,

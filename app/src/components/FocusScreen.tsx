@@ -187,7 +187,7 @@ function AdjustButton({ onClick, direction }: { onClick: () => void; direction: 
     <IconButton
       variant="ghost" size="sm"
       aria-label={labelJa + ' / ' + labelEn}
-      icon={<span style={{ fontSize: '0.75rem', lineHeight: 1 }}>{symbol}</span>}
+      icon={<span style={{ fontSize: 'var(--pd-font-size-2xs)', lineHeight: 1 }}>{symbol}</span>}
       onClick={onClick}
     />
   );

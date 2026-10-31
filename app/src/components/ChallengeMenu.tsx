@@ -248,14 +248,14 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
-          fontSize: '1rem',
+          fontSize: 'var(--pd-font-size-md)',
           color: 'var(--pd-color-text-primary)',
         }}>
           {effect.name}
         </span>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
-          fontSize: '0.65rem',
+          fontSize: 'var(--pd-font-size-sm)',
           letterSpacing: '1px',
           padding: '2px 6px',
           border: '1px solid var(--pd-color-border-default)',
@@ -267,7 +267,7 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
           <span style={{
             marginLeft: 'auto',
             fontFamily: 'var(--pd-font-body)',
-            fontSize: '0.75rem',
+            fontSize: 'var(--pd-font-size-2xs)',
             color: isUrgent ? 'var(--pd-color-feedback-error)' : 'var(--pd-color-text-secondary)',
           }}>
             ~{deadlineText}
@@ -278,7 +278,7 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
       {/* Description */}
       <p style={{
         fontFamily: 'var(--pd-font-body)',
-        fontSize: '0.85rem',
+        fontSize: 'var(--pd-font-size-sm)',
         color: 'var(--pd-color-text-secondary)',
         margin: 0,
       }}>
@@ -289,7 +289,7 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
       {isCompleted ? (
         <div style={{
           fontFamily: 'var(--pd-font-brand)',
-          fontSize: '0.9rem',
+          fontSize: 'var(--pd-font-size-sm)',
           color: 'var(--pd-color-accent-default)',
           textAlign: 'center',
           padding: '8px 0',
@@ -302,7 +302,7 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
             display: 'flex',
             justifyContent: 'space-between',
             fontFamily: 'var(--pd-font-body)',
-            fontSize: '0.8rem',
+            fontSize: 'var(--pd-font-size-xs)',
             color: 'var(--pd-color-text-secondary)',
             marginBottom: 4,
           }}>

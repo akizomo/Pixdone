@@ -48,7 +48,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
         <p
           style={{
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.75rem',
+            fontSize: 'var(--pd-font-size-sm)',
             color: 'var(--pd-color-text-secondary)',
             letterSpacing: '1px',
             margin: 0,
@@ -59,7 +59,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
         <p
           style={{
             fontFamily: 'var(--pd-font-body)',
-            fontSize: '0.75rem',
+            fontSize: 'var(--pd-font-size-2xs)',
             color: 'var(--pd-color-text-secondary)',
             margin: 0,
             lineHeight: 1.4,
@@ -91,7 +91,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
                   borderRadius: 0,
                   cursor: 'pointer',
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.7rem',
+                  fontSize: 'var(--pd-font-size-sm)',
                   color: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
                   letterSpacing: '1px',
                   transition: 'background 0.15s, border-color 0.15s, color 0.15s',
@@ -110,7 +110,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
         <p
           style={{
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.75rem',
+            fontSize: 'var(--pd-font-size-sm)',
             color: 'var(--pd-color-text-secondary)',
             letterSpacing: '1px',
             margin: 0,
@@ -161,7 +161,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
                     style={{
                       display: 'block',
                       fontFamily: 'var(--pd-font-brand)',
-                      fontSize: '0.875rem',
+                      fontSize: 'var(--pd-font-size-sm)',
                       color: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
                       letterSpacing: '1px',
                       lineHeight: 1.2,
@@ -173,7 +173,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
                 {isLocked && (
                   <span
                     style={{
-                      fontSize: '0.75rem',
+                      fontSize: 'var(--pd-font-size-sm)',
                       color: 'var(--pd-color-text-secondary)',
                       background: 'var(--pd-color-background-default)',
                       border: '1px solid var(--pd-color-border-default)',
@@ -186,7 +186,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
                   </span>
                 )}
                 {isActive && !isLocked && (
-                  <span style={{ color: 'var(--pd-color-accent-default)', fontSize: '0.75rem' }}>▶</span>
+                  <span style={{ color: 'var(--pd-color-accent-default)', fontSize: 'var(--pd-font-size-2xs)' }}>▶</span>
                 )}
               </button>
             );

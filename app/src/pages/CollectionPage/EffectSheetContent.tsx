@@ -104,7 +104,7 @@ export function EffectSheetContent({
               border: '2px solid var(--pd-color-border-default)',
               background: 'var(--pd-color-background-elevated)',
               color: 'var(--pd-color-text-primary)',
-              cursor: 'pointer', fontFamily: 'var(--pd-font-brand)', fontSize: '0.875rem',
+              cursor: 'pointer', fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
               opacity: canPrevNext ? 1 : 0.5,
             }}
             aria-label={lang === 'ja' ? '前のエフェクト' : 'Previous effect'}
@@ -114,7 +114,7 @@ export function EffectSheetContent({
 
           <div style={{
             flex: 1, minWidth: 0, textAlign: 'center',
-            fontFamily: 'var(--pd-font-brand)', fontSize: '0.6875rem',
+            fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
             letterSpacing: '1px', color: 'var(--pd-color-text-secondary)',
           }}>
             {indexLabel}
@@ -129,7 +129,7 @@ export function EffectSheetContent({
               border: '2px solid var(--pd-color-border-default)',
               background: 'var(--pd-color-background-elevated)',
               color: 'var(--pd-color-text-primary)',
-              cursor: 'pointer', fontFamily: 'var(--pd-font-brand)', fontSize: '0.875rem',
+              cursor: 'pointer', fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
               opacity: canPrevNext ? 1 : 0.5,
             }}
             aria-label={lang === 'ja' ? '次のエフェクト' : 'Next effect'}
@@ -154,7 +154,7 @@ export function EffectSheetContent({
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
         }}>
           <div style={{
-            fontFamily: 'var(--pd-font-brand)', fontSize: '1.125rem',
+            fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-lg)',
             letterSpacing: '1px', color: 'var(--pd-color-text-primary)',
             lineHeight: 1.2, minWidth: 0,
           }}>
@@ -163,7 +163,7 @@ export function EffectSheetContent({
           {/* Toggle: shown when not a pending challenge */}
           {(!isChallenge || challengeOwned) && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-              <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.6875rem', letterSpacing: '1px', color: 'var(--pd-color-text-secondary)' }}>
+              <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', color: 'var(--pd-color-text-secondary)' }}>
                 {lang === 'ja' ? 'アクティブ' : 'ACTIVE'}
               </span>
               <Toggle
@@ -184,20 +184,20 @@ export function EffectSheetContent({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
             <span style={{
-              fontSize: '0.625rem', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
+              fontSize: 'var(--pd-font-size-sm)', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
               color: effect ? badgeColor(effect.rarity, isChallenge) : 'var(--pd-color-text-secondary)',
               flexShrink: 0,
             }}>
               {isChallenge ? 'CHALLENGE' : (effect?.rarity ?? '')}
             </span>
             {isLocked && (
-              <span style={{ fontSize: '0.75rem', flexShrink: 0 }} aria-label={lang === 'ja' ? 'ロック中' : 'Locked'}>
+              <span style={{ fontSize: 'var(--pd-font-size-2xs)', flexShrink: 0 }} aria-label={lang === 'ja' ? 'ロック中' : 'Locked'}>
                 🔒
               </span>
             )}
           </div>
           {disableToggleOff && (
-            <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.6875rem', color: 'var(--pd-color-text-secondary)', textAlign: 'right' }}>
+            <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-text-secondary)', textAlign: 'right' }}>
               {lang === 'ja' ? '※最低1つ必要' : 'min. 1 required'}
             </span>
           )}
@@ -208,14 +208,14 @@ export function EffectSheetContent({
           {isChallenge && withinDeadline && !challengeOwned && challengeThreshold > 0 && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', gap: '8px' }}>
-                <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.75rem', color: 'var(--pd-color-text-primary)' }}>
+                <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-primary)' }}>
                   {lang === 'ja'
                     ? `タスクを${challengeThreshold}回完了で解放`
                     : `Complete ${challengeThreshold} tasks to unlock`}
                 </span>
                 <span style={{
                   fontFamily: 'var(--pd-font-body)',
-                  fontSize: '0.75rem',
+                  fontSize: 'var(--pd-font-size-2xs)',
                   color: 'var(--pd-color-text-secondary)',
                   flexShrink: 0,
                   alignSelf: 'center',
@@ -246,7 +246,7 @@ export function EffectSheetContent({
 
           {/* Description */}
           <p style={{
-            margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+            margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
             color: 'var(--pd-color-text-secondary)', lineHeight: 1.5,
             display: '-webkit-box',
             WebkitBoxOrient: 'vertical' as unknown as 'vertical',
@@ -265,7 +265,7 @@ export function EffectSheetContent({
               gap: '10px', minHeight: '20px',
               visibility: isLocked && effect?.access === 'premium' ? 'visible' : 'hidden',
             }}>
-              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)', lineHeight: 1.4 }}>
+              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-secondary)', lineHeight: 1.4 }}>
                 {lang === 'ja' ? 'PixDone+ が必要' : 'Requires PixDone+'}
               </span>
             </div>
@@ -275,7 +275,7 @@ export function EffectSheetContent({
               onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}
               style={{
                 width: '100%', padding: '10px 12px',
-                fontFamily: 'var(--pd-font-brand)', fontSize: '0.75rem', letterSpacing: '1px',
+                fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px',
                 cursor: isLocked && effect?.access === 'premium' ? 'pointer' : 'default',
                 background: 'var(--pd-color-background-elevated)',
                 color: 'var(--pd-color-text-primary)',

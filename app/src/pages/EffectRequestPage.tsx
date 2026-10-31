@@ -53,7 +53,7 @@ export function EffectRequestPage() {
         </Button>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
-          fontSize: '0.875rem',
+          fontSize: 'var(--pd-font-size-sm)',
           color: 'var(--pd-color-text-primary)',
           letterSpacing: '2px',
         }}>
@@ -82,17 +82,17 @@ export function EffectRequestPage() {
             gap: '16px',
             alignItems: 'center',
           }}>
-            <span style={{ fontSize: '1.5rem' }}>🔒</span>
+            <span style={{ fontSize: 'var(--pd-font-size-2xl)' }}>🔒</span>
             <p style={{
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.875rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px',
               margin: 0,
               color: 'var(--pd-color-text-primary)',
             }}>
               {isJa ? 'PixDone+ 限定機能です' : 'PIXDONE+ EXCLUSIVE'}
             </p>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', margin: 0 }}>
+            <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: 0 }}>
               {isJa
                 ? 'エフェクトリクエストは PixDone+ 会員限定です。月1回、欲しいエフェクトをリクエストできます。'
                 : 'Effect requests are available to PixDone+ members. Submit one request per month.'}
@@ -114,14 +114,14 @@ export function EffectRequestPage() {
           }}>
             <p style={{
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.875rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px',
               margin: 0,
               color: 'var(--pd-color-accent-default)',
             }}>
               {isJa ? '✓ リクエストを送信しました' : '✓ REQUEST SUBMITTED'}
             </p>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', margin: 0 }}>
+            <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: 0 }}>
               {isJa
                 ? 'ありがとうございます！次回のアップデートで検討します。'
                 : 'Thank you! We will consider your request in an upcoming update.'}
@@ -136,13 +136,13 @@ export function EffectRequestPage() {
             <div>
               <p style={{
                 fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.875rem',
+                fontSize: 'var(--pd-font-size-sm)',
                 letterSpacing: '1px',
                 margin: '0 0 8px',
               }}>
                 {isJa ? 'リクエスト内容' : 'DESCRIBE YOUR EFFECT'}
               </p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', margin: '0 0 16px' }}>
+              <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: '0 0 16px' }}>
                 {isJa
                   ? 'どんなエフェクトが欲しいか自由に書いてください。参考にするエフェクト名や、テーマ、動き・色のイメージも書くと嬉しいです。'
                   : 'Describe the effect you\'d like to see. Feel free to mention a reference effect, theme, movement, or color ideas.'}
@@ -163,7 +163,7 @@ export function EffectRequestPage() {
                     borderRadius: 0,
                     color: 'var(--pd-color-text-primary)',
                     fontFamily: 'var(--pd-font-body)',
-                    fontSize: '0.875rem',
+                    fontSize: 'var(--pd-font-size-sm)',
                     lineHeight: 1.6,
                     resize: 'vertical',
                     outline: 'none',
@@ -177,7 +177,7 @@ export function EffectRequestPage() {
                   bottom: '8px',
                   right: '10px',
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.5625rem',
+                  fontSize: 'var(--pd-font-size-sm)',
                   letterSpacing: '1px',
                   color: description.length >= MAX_CHARS
                     ? 'var(--pd-color-error, #f44336)'
@@ -189,7 +189,7 @@ export function EffectRequestPage() {
             </div>
 
             {error && (
-              <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--pd-color-error, #f44336)' }}>
+              <p style={{ margin: 0, fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-error, #f44336)' }}>
                 {error}
               </p>
             )}
@@ -198,7 +198,7 @@ export function EffectRequestPage() {
               {isJa ? 'リクエストを送信' : 'SUBMIT REQUEST'}
             </Button>
 
-            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)', textAlign: 'center' }}>
+            <p style={{ margin: 0, fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-secondary)', textAlign: 'center' }}>
               {isJa ? '月1回まで送信できます' : '1 request per month'}
             </p>
           </>

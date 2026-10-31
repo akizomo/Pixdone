@@ -205,7 +205,7 @@ export function CollectionPage({
               flex: 1,
               padding: '12px',
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.75rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px',
               cursor: 'pointer',
               background: 'none',
@@ -258,7 +258,7 @@ export function CollectionPage({
                 style={{
                   padding: '3px 8px',
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.5625rem',
+                  fontSize: 'var(--pd-font-size-sm)',
                   letterSpacing: '1px',
                   whiteSpace: 'nowrap',
                   cursor: 'pointer',
@@ -347,7 +347,7 @@ export function CollectionPage({
                 justifyContent: 'center',
                 color: 'var(--pd-color-text-secondary)',
                 fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.75rem',
+                fontSize: 'var(--pd-font-size-sm)',
                 letterSpacing: '1px',
               }}>
                 {activeTab === 'effects'

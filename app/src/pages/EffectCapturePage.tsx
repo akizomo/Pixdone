@@ -98,7 +98,7 @@ export function EffectCapturePage() {
           border: '2px solid var(--pd-color-border-outline, #3c3c50)',
           color: 'var(--pd-color-text-primary, #e8eaed)',
           fontFamily: 'var(--pd-font-body, sans-serif)',
-          fontSize: '1rem',
+          fontSize: 'var(--pd-font-size-md)',
         }}
       >
         <button
@@ -125,7 +125,7 @@ export function EffectCapturePage() {
           right: 16,
           textAlign: 'center',
           fontFamily: 'monospace',
-          fontSize: 12,
+          fontSize: 'var(--pd-font-size-2xs)',
           color: '#888',
         }}
       >

@@ -298,7 +298,7 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
             {endedBy === 'clear' && (
               <div style={{
                 fontFamily: 'var(--pd-font-brand)',
-                fontSize: '1.25rem',
+                fontSize: 'var(--pd-font-size-xl)',
                 color: 'var(--pd-color-accent-default)',
                 letterSpacing: '0.12em',
                 textShadow: '2px 2px 0 rgba(0,0,0,0.45)',

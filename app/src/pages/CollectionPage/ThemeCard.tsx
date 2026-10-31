@@ -57,7 +57,7 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
         <div
           style={{
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.9375rem',
+            fontSize: 'var(--pd-font-size-md)',
             letterSpacing: '1px',
             color: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
             marginBottom: '6px',
@@ -89,7 +89,7 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
       {isActive && (
         <span
           style={{
-            fontSize: '0.625rem',
+            fontSize: 'var(--pd-font-size-sm)',
             fontFamily: 'var(--pd-font-brand)',
             letterSpacing: '1px',
             color: 'var(--pd-color-accent-default)',
@@ -100,12 +100,12 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
         </span>
       )}
       {isLocked && (
-        <span style={{ fontSize: '0.875rem', flexShrink: 0 }}>🔒</span>
+        <span style={{ fontSize: 'var(--pd-font-size-sm)', flexShrink: 0 }}>🔒</span>
       )}
       {!isActive && !isLocked && (
         <span
           style={{
-            fontSize: '0.625rem',
+            fontSize: 'var(--pd-font-size-sm)',
             color: 'var(--pd-color-text-secondary)',
             fontFamily: 'var(--pd-font-brand)',
             letterSpacing: '1px',

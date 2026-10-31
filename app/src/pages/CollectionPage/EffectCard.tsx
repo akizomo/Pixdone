@@ -40,7 +40,7 @@ export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffect
       {/* Rarity badge — level badges are obsolete now that each level is a separate card. */}
       <span
         style={{
-          fontSize: '0.625rem',
+          fontSize: 'var(--pd-font-size-sm)',
           fontFamily: 'var(--pd-font-brand)',
           letterSpacing: '1px',
           color: badgeColor(effect.rarity, isChallenge),
@@ -53,7 +53,7 @@ export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffect
       <span
         style={{
           fontFamily: 'var(--pd-font-brand)',
-          fontSize: '0.8125rem',
+          fontSize: 'var(--pd-font-size-sm)',
           letterSpacing: '0.5px',
           color: 'var(--pd-color-text-primary)',
           lineHeight: 1.2,
@@ -69,7 +69,7 @@ export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffect
             position: 'absolute',
             top: '6px',
             right: '8px',
-            fontSize: '0.875rem',
+            fontSize: 'var(--pd-font-size-sm)',
             fontFamily: 'var(--pd-font-brand)',
             color: 'var(--pd-color-text-primary)',
           }}
@@ -83,7 +83,7 @@ export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffect
             position: 'absolute',
             top: '6px',
             right: '8px',
-            fontSize: '0.75rem',
+            fontSize: 'var(--pd-font-size-2xs)',
           }}
         >
           🔒
@@ -93,7 +93,7 @@ export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffect
       {isChallenge && withinDeadline && !ownedChallengeEffects.includes(effect.key) && (
         <span
           style={{
-            fontSize: '0.5625rem',
+            fontSize: 'var(--pd-font-size-sm)',
             fontFamily: 'var(--pd-font-brand)',
             letterSpacing: '1px',
             color: '#ffd54f',

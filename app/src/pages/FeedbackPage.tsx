@@ -32,7 +32,7 @@ export function FeedbackPage() {
         <span
           style={{
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.875rem',
+            fontSize: 'var(--pd-font-size-sm)',
             color: 'var(--pd-color-text-primary)',
             letterSpacing: '2px',
           }}
@@ -53,7 +53,7 @@ export function FeedbackPage() {
           gap: '20px',
         }}
       >
-        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--pd-color-text-secondary)', lineHeight: 1.6 }}>
+        <p style={{ margin: 0, fontSize: 'var(--pd-font-size-sm)', color: 'var(--pd-color-text-secondary)', lineHeight: 1.6 }}>
           {isJa
             ? '感想・バグ報告・機能リクエストをお気軽にどうぞ。すべて開発者が読みます。'
             : 'Share impressions, bugs, or feature requests. Every message is read by the developer.'}
@@ -90,7 +90,7 @@ export function FeedbackPage() {
           <p
             style={{
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.625rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px',
               color: 'var(--pd-color-text-muted)',
               margin: 0,
@@ -98,7 +98,7 @@ export function FeedbackPage() {
           >
             {isJa ? 'Product Hunt' : 'PRODUCT HUNT'}
           </p>
-          <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', lineHeight: 1.6 }}>
+          <p style={{ margin: 0, fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', lineHeight: 1.6 }}>
             {isJa
               ? 'Product Hunt でレビューを書いてくれると、開発を続ける大きな力になります！'
               : 'A review on Product Hunt would mean the world and help us keep building!'}

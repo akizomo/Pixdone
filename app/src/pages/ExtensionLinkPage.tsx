@@ -42,7 +42,7 @@ function pixelButtonStyle(variant: 'primary' | 'secondary'): CSSProperties {
   return {
     padding: '8px 16px',
     fontFamily: 'inherit',
-    fontSize: 13,
+    fontSize: 'var(--pd-font-size-xs)',
     fontWeight: 600,
     background: isPrimary ? '#7b61ff' : '#fff',
     color: isPrimary ? '#fff' : '#191d24',
@@ -182,8 +182,8 @@ export function ExtensionLinkPage() {
           textAlign: 'center',
         }}
       >
-        <h1 style={{ fontSize: 18, marginBottom: 8 }}>Sign in to PixDone</h1>
-        <p style={{ fontSize: 13, color: '#666c7a', marginBottom: 20 }}>
+        <h1 style={{ fontSize: 'var(--pd-font-size-lg)', marginBottom: 8 }}>Sign in to PixDone</h1>
+        <p style={{ fontSize: 'var(--pd-font-size-xs)', color: '#666c7a', marginBottom: 20 }}>
           Sign in to connect the PixDone Quick Chrome extension to your account.
         </p>
         <button
@@ -222,16 +222,16 @@ export function ExtensionLinkPage() {
         textAlign: 'center',
       }}
     >
-      <h1 style={{ fontSize: 18, marginBottom: 8 }}>Connecting PixDone Quick…</h1>
-      <p style={{ fontSize: 13, color: '#666c7a', marginBottom: 16 }}>
+      <h1 style={{ fontSize: 'var(--pd-font-size-lg)', marginBottom: 8 }}>Connecting PixDone Quick…</h1>
+      <p style={{ fontSize: 'var(--pd-font-size-xs)', color: '#666c7a', marginBottom: 16 }}>
         Signed in as <strong>{user.email ?? user.uid}</strong>
       </p>
       {status === 'sending' && (
-        <p style={{ fontSize: 13, color: '#666c7a' }}>Sending credentials to the extension…</p>
+        <p style={{ fontSize: 'var(--pd-font-size-xs)', color: '#666c7a' }}>Sending credentials to the extension…</p>
       )}
       {status === 'done' && (
         <>
-          <p style={{ fontSize: 14, color: '#166534', marginBottom: 12 }}>
+          <p style={{ fontSize: 'var(--pd-font-size-sm)', color: '#166534', marginBottom: 12 }}>
             ✓ Connected. You can close this tab.
           </p>
           <button
@@ -245,7 +245,7 @@ export function ExtensionLinkPage() {
       )}
       {status === 'error' && (
         <>
-          <p style={{ fontSize: 13, color: '#c53030', marginBottom: 12 }}>
+          <p style={{ fontSize: 'var(--pd-font-size-xs)', color: '#c53030', marginBottom: 12 }}>
             {error ?? 'Something went wrong.'}
           </p>
           <button

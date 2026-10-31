@@ -150,7 +150,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
                 display: 'flex',
                 justifyContent: 'space-between',
                 fontFamily: 'var(--pd-font-body)',
-                fontSize: '0.6875rem',
+                fontSize: 'var(--pd-font-size-3xs)',
                 color: 'var(--pd-color-text-secondary)',
               }}>
                 <span>{lang === 'ja' ? 'ボリューム' : 'Volume'}</span>

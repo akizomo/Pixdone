@@ -54,7 +54,7 @@ export function EffectsTab({
             textAlign: 'center',
             color: 'var(--pd-color-text-secondary)',
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.75rem',
+            fontSize: 'var(--pd-font-size-sm)',
             letterSpacing: '1px',
             padding: '32px 16px',
           }}>
@@ -86,7 +86,7 @@ export function EffectsTab({
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
                       fontFamily: 'var(--pd-font-brand)',
-                      fontSize: '0.75rem',
+                      fontSize: 'var(--pd-font-size-sm)',
                       letterSpacing: '0.5px',
                       color: isSelected ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
                       display: 'flex',
@@ -95,7 +95,7 @@ export function EffectsTab({
                       {effect.name}
                     </div>
                     <div style={{
-                      fontSize: '0.5625rem',
+                      fontSize: 'var(--pd-font-size-sm)',
                       fontFamily: 'var(--pd-font-brand)',
                       letterSpacing: '1px',
                       color: badgeColor(effect.rarity, effect.access === 'challenge'),
@@ -115,7 +115,7 @@ export function EffectsTab({
                     {activeEffects.includes(effect.key) && !locked && (
                       <PixelIcon name="check" size="0.875rem" style={{ color: 'var(--pd-color-text-primary)' }} />
                     )}
-                    {locked && <span style={{ fontSize: '0.75rem' }}>🔒</span>}
+                    {locked && <span style={{ fontSize: 'var(--pd-font-size-2xs)' }}>🔒</span>}
                   </div>
                 </button>
               );
@@ -141,14 +141,14 @@ export function EffectsTab({
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.75rem',
+                  fontSize: 'var(--pd-font-size-sm)',
                   letterSpacing: '0.5px',
                   color: 'var(--pd-color-text-secondary)',
                 }}>
                   {lang === 'ja' ? 'エフェクトをリクエスト' : 'Request an Effect'}
                 </div>
                 <div style={{
-                  fontSize: '0.5625rem',
+                  fontSize: 'var(--pd-font-size-sm)',
                   fontFamily: 'var(--pd-font-brand)',
                   letterSpacing: '1px',
                   color: 'var(--pd-color-accent-default)',
@@ -157,7 +157,7 @@ export function EffectsTab({
                   PIXDONE+
                 </div>
               </div>
-              <span style={{ fontSize: '0.75rem', flexShrink: 0, color: 'var(--pd-color-text-secondary)' }}>→</span>
+              <span style={{ fontSize: 'var(--pd-font-size-2xs)', flexShrink: 0, color: 'var(--pd-color-text-secondary)' }}>→</span>
             </button>
           </>
         )}
@@ -189,7 +189,7 @@ export function EffectsTab({
             style={{
               padding: '4px 10px',
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.625rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px',
               whiteSpace: 'nowrap',
               cursor: 'pointer',
@@ -216,7 +216,7 @@ export function EffectsTab({
             textAlign: 'center',
             color: 'var(--pd-color-text-secondary)',
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.875rem',
+            fontSize: 'var(--pd-font-size-sm)',
             letterSpacing: '1px',
             marginTop: '40px',
           }}>
@@ -264,14 +264,14 @@ export function EffectsTab({
           <div style={{ minWidth: 0 }}>
             <div style={{
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.75rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '0.5px',
               color: 'var(--pd-color-text-primary)',
             }}>
               {lang === 'ja' ? 'エフェクトをリクエスト' : 'Request an Effect'}
             </div>
             <div style={{
-              fontSize: '0.5625rem',
+              fontSize: 'var(--pd-font-size-sm)',
               fontFamily: 'var(--pd-font-brand)',
               letterSpacing: '1px',
               color: 'var(--pd-color-accent-default)',
@@ -280,7 +280,7 @@ export function EffectsTab({
               PIXDONE+
             </div>
           </div>
-          <span style={{ fontSize: '0.875rem', flexShrink: 0, color: 'var(--pd-color-text-secondary)' }}>
+          <span style={{ fontSize: 'var(--pd-font-size-sm)', flexShrink: 0, color: 'var(--pd-color-text-secondary)' }}>
             →
           </span>
         </button>

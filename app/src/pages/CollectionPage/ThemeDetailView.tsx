@@ -83,7 +83,7 @@ export function ThemeDetailView({
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--pd-color-text-primary)' }}>
           <PixelIcon name="arrow_back" size="24px" />
         </button>
-        <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.875rem', letterSpacing: '1px', color: 'var(--pd-color-text-primary)' }}>
+        <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', color: 'var(--pd-color-text-primary)' }}>
           {theme.icon} {theme.name.toUpperCase()}
         </span>
       </div>
@@ -114,11 +114,11 @@ export function ThemeDetailView({
         flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '1rem', letterSpacing: '1px', color: 'var(--pd-color-text-primary)' }}>
+          <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-md)', letterSpacing: '1px', color: 'var(--pd-color-text-primary)' }}>
             {theme.icon} {theme.name}
           </span>
           {theme.isPremium && (
-            <span style={{ fontSize: '0.625rem', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px', padding: '2px 8px', border: '1px solid var(--pd-color-border-default)', color: 'var(--pd-color-text-secondary)' }}>
+            <span style={{ fontSize: 'var(--pd-font-size-sm)', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px', padding: '2px 8px', border: '1px solid var(--pd-color-border-default)', color: 'var(--pd-color-text-secondary)' }}>
               PixDone+
             </span>
           )}
@@ -128,7 +128,7 @@ export function ThemeDetailView({
           <p style={{
             margin: 0,
             fontFamily: 'var(--pd-font-body)',
-            fontSize: '0.875rem',
+            fontSize: 'var(--pd-font-size-sm)',
             color: 'var(--pd-color-text-secondary)',
             lineHeight: 1.5,
           }}>
@@ -143,7 +143,7 @@ export function ThemeDetailView({
           style={{
             padding: '12px',
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.875rem',
+            fontSize: 'var(--pd-font-size-sm)',
             letterSpacing: '2px',
             cursor: isActive ? 'default' : 'pointer',
             background: isActive ? 'var(--pd-color-accent-subtle)' : isLocked ? 'var(--pd-color-background-elevated)' : 'var(--pd-color-accent-default)',

@@ -68,7 +68,7 @@ export function UpsellModal({ open, onClose, reason, lang = 'en' }: UpsellModalP
         <p
           style={{
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.875rem',
+            fontSize: 'var(--pd-font-size-sm)',
             color: 'var(--pd-color-text-primary)',
             letterSpacing: '1px',
             margin: '0 0 12px',
@@ -79,7 +79,7 @@ export function UpsellModal({ open, onClose, reason, lang = 'en' }: UpsellModalP
         <p
           style={{
             fontFamily: 'var(--pd-font-body)',
-            fontSize: '0.875rem',
+            fontSize: 'var(--pd-font-size-sm)',
             color: 'var(--pd-color-text-secondary)',
             margin: 0,
             whiteSpace: 'pre-line',

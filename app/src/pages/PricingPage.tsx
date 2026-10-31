@@ -173,7 +173,7 @@ export function PricingPage() {
         </Button>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
-          fontSize: '0.875rem',
+          fontSize: 'var(--pd-font-size-sm)',
           color: 'var(--pd-color-text-primary)',
           letterSpacing: '2px',
         }}>
@@ -189,7 +189,7 @@ export function PricingPage() {
             background: 'var(--pd-color-feedback-success)',
             color: 'var(--pd-color-text-inverse)',
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.75rem',
+            fontSize: 'var(--pd-font-size-sm)',
             letterSpacing: '1px',
             padding: '10px 24px',
             textAlign: 'center',
@@ -217,14 +217,14 @@ export function PricingPage() {
           <h1
             style={{
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '1.25rem',
+              fontSize: 'var(--pd-font-size-xl)',
               letterSpacing: '2px',
               margin: '0 0 8px',
             }}
           >
             {isJa ? 'もっと楽しく、もっと自分らしく。' : 'LEVEL UP YOUR PRODUCTIVITY'}
           </h1>
-          <p style={{ color: 'var(--pd-color-text-secondary)', margin: 0, fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--pd-color-text-secondary)', margin: 0, fontSize: 'var(--pd-font-size-sm)' }}>
             {isJa
               ? 'PixDone+ でリスト上限・全テーマ・Rare / Epic エフェクトを解放'
               : 'Unlock unlimited lists, all themes, and Rare & Epic effects'}
@@ -238,7 +238,7 @@ export function PricingPage() {
               color: 'var(--pd-color-text-info)',
               border: '2px solid var(--pd-color-border-info)',
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.75rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px',
             }}
           >
@@ -260,7 +260,7 @@ export function PricingPage() {
               <p
                 style={{
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.75rem',
+                  fontSize: 'var(--pd-font-size-sm)',
                   letterSpacing: '1px',
                   margin: '0 0 4px',
                   color: 'var(--pd-color-text-tertiary)',
@@ -271,7 +271,7 @@ export function PricingPage() {
               <p
                 style={{
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '1.25rem',
+                  fontSize: 'var(--pd-font-size-xl)',
                   margin: '0 0 16px',
                   letterSpacing: '1px',
                 }}
@@ -280,7 +280,7 @@ export function PricingPage() {
               </p>
               <ul style={{ margin: 0, padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {FREE_FEATURES.map((f) => (
-                  <li key={f.en} style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}>
+                  <li key={f.en} style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)' }}>
                     {isJa ? f.ja : f.en}
                   </li>
                 ))}
@@ -295,12 +295,12 @@ export function PricingPage() {
                 background: 'var(--pd-color-surface-primary)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '4px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <p
                     style={{
                       fontFamily: 'var(--pd-font-brand)',
-                      fontSize: '0.75rem',
+                      fontSize: 'var(--pd-font-size-sm)',
                       letterSpacing: '1px',
                       margin: 0,
                       color: 'var(--pd-color-text-accent)',
@@ -312,8 +312,9 @@ export function PricingPage() {
                     <span
                       style={{
                         fontFamily: 'var(--pd-font-brand)',
-                        fontSize: '0.575rem',
+                        fontSize: 'var(--pd-font-size-sm)',
                         letterSpacing: '1px',
+                        whiteSpace: 'nowrap',
                         background: 'var(--pd-color-surface-info)',
                         color: 'var(--pd-color-text-info)',
                         border: '1px solid var(--pd-color-border-info)',
@@ -341,9 +342,10 @@ export function PricingPage() {
                         border: 'none',
                         cursor: 'pointer',
                         fontFamily: 'var(--pd-font-brand)',
-                        fontSize: '0.6rem',
+                        fontSize: 'var(--pd-font-size-sm)',
                         color: cycle === c ? 'var(--pd-color-text-inverse)' : 'var(--pd-color-text-secondary)',
                         letterSpacing: '1px',
+                        whiteSpace: 'nowrap',
                         transition: 'background 0.15s',
                       }}
                     >
@@ -357,7 +359,7 @@ export function PricingPage() {
               <p
                 style={{
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '1.5rem',
+                  fontSize: 'var(--pd-font-size-2xl)',
                   margin: '8px 0 4px',
                   letterSpacing: '1px',
                   color: 'var(--pd-color-text-primary)',
@@ -365,23 +367,23 @@ export function PricingPage() {
               >
                 {isNativeApp
                   ? (storePrice.main ?? '—')
-                  : (cycle === 'monthly' ? '¥600' : '¥500')}<span style={{ fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)' }}>{isJa ? '/月' : '/mo'}</span>
+                  : (cycle === 'monthly' ? '¥600' : '¥500')}<span style={{ fontSize: 'var(--pd-font-size-sm)', color: 'var(--pd-color-text-secondary)' }}>{isJa ? '/月' : '/mo'}</span>
               </p>
               {cycle === 'yearly' && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--pd-color-text-tertiary)', margin: '0 0 4px' }}>
+                <p style={{ fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-tertiary)', margin: '0 0 4px' }}>
                   {isNativeApp
                     ? (storePrice.yearly ? (isJa ? `年払い ${storePrice.yearly}` : `${storePrice.yearly} billed yearly`) : '')
                     : (isJa ? '年払い ¥6,000' : '¥6,000 billed yearly')}
                 </p>
               )}
-              <p style={{ fontSize: '0.6875rem', color: 'var(--pd-color-text-tertiary)', margin: '0 0 16px' }}>
+              <p style={{ fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-text-tertiary)', margin: '0 0 16px' }}>
                 {isJa
                   ? '7日間無料 → その後自動で課金開始。いつでもキャンセル可能。'
                   : '7-day free trial, then auto-renews. Cancel anytime.'}
               </p>
               <ul style={{ margin: '0 0 20px', padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {PLUS_FEATURES.map((f) => (
-                  <li key={f.en} style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-primary)' }}>
+                  <li key={f.en} style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-primary)' }}>
                     {isJa ? f.ja : f.en}
                   </li>
                 ))}
@@ -432,7 +434,7 @@ export function PricingPage() {
                 style={{
                   display: 'inline-block',
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.75rem',
+                  fontSize: 'var(--pd-font-size-sm)',
                   letterSpacing: '1px',
                   margin: '0 0 8px',
                   padding: '4px 10px',
@@ -447,7 +449,7 @@ export function PricingPage() {
               <p
                 style={{
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.875rem',
+                  fontSize: 'var(--pd-font-size-sm)',
                   letterSpacing: '1px',
                   margin: '0 0 8px',
                   color: 'var(--pd-color-text-success)',
@@ -457,13 +459,13 @@ export function PricingPage() {
               </p>
             )}
             {isTrialing && trialEnd && (
-              <p style={{ color: 'var(--pd-color-text-secondary)', margin: '0 0 8px', fontSize: '0.8125rem' }}>
+              <p style={{ color: 'var(--pd-color-text-secondary)', margin: '0 0 8px', fontSize: 'var(--pd-font-size-xs)' }}>
                 {isJa
                   ? `トライアル終了: ${new Date(trialEnd).toLocaleDateString('ja-JP')}`
                   : `Trial ends: ${new Date(trialEnd).toLocaleDateString('en-US')}`}
               </p>
             )}
-            <p style={{ color: 'var(--pd-color-text-secondary)', margin: '0 0 16px', fontSize: '0.875rem' }}>
+            <p style={{ color: 'var(--pd-color-text-secondary)', margin: '0 0 16px', fontSize: 'var(--pd-font-size-sm)' }}>
               {isJa ? 'すべての機能をご利用いただけます。' : 'You have access to all premium features.'}
             </p>
             <Button variant="secondary" size="sm" onClick={() => navigate('/account')}>

@@ -76,11 +76,11 @@ export function EffectDetailView({
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--pd-color-text-primary)', flexShrink: 0 }}>
           <PixelIcon name="arrow_back" size="24px" />
         </button>
-        <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.875rem', letterSpacing: '1px', color: 'var(--pd-color-text-primary)', flex: 1, minWidth: 0 }}>
+        <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', color: 'var(--pd-color-text-primary)', flex: 1, minWidth: 0 }}>
           {effect.name.toUpperCase()}
         </span>
         <span style={{
-          fontSize: '0.625rem', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
+          fontSize: 'var(--pd-font-size-sm)', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
           color: badgeColor(effect.rarity, isChallenge),
           flexShrink: 0,
         }}>
@@ -89,7 +89,7 @@ export function EffectDetailView({
         {/* Toggle (shown only once challenge is earned, or for non-challenge effects) */}
         {(!isChallenge || challengeOwned) && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-            <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.625rem', letterSpacing: '1px', color: 'var(--pd-color-text-secondary)' }}>
+            <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', color: 'var(--pd-color-text-secondary)' }}>
               {lang === 'ja' ? 'アクティブ' : 'ACTIVE'}
             </span>
             <Toggle
@@ -127,7 +127,7 @@ export function EffectDetailView({
         flexShrink: 0,
       }}>
         {disableToggleOff && (
-          <p style={{ margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}>
+          <p style={{ margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)' }}>
             {lang === 'ja'
               ? '各レアリティで最低1つのエフェクトをアクティブにする必要があります。'
               : 'At least one effect per rarity must remain active.'}
@@ -138,14 +138,14 @@ export function EffectDetailView({
         {isChallenge && withinDeadline && !challengeOwned && challengeThreshold > 0 && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-primary)' }}>
+              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-primary)' }}>
                 {lang === 'ja'
                   ? `タスクを${challengeThreshold}回完了で解放`
                   : `Complete ${challengeThreshold} tasks to unlock`}
               </span>
               <span style={{
                 fontFamily: 'var(--pd-font-body)',
-                fontSize: '0.8125rem',
+                fontSize: 'var(--pd-font-size-xs)',
                 color: 'var(--pd-color-text-secondary)',
                 alignSelf: 'center',
                 lineHeight: 1.2,
@@ -163,7 +163,7 @@ export function EffectDetailView({
               }} />
             </div>
             {effect.challengeDeadline && (
-              <p style={{ margin: '6px 0 0', fontFamily: 'var(--pd-font-body)', fontSize: '0.75rem', color: 'var(--pd-color-text-secondary)' }}>
+              <p style={{ margin: '6px 0 0', fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-secondary)' }}>
                 {lang === 'ja'
                   ? `期限: ${effect.challengeDeadline.toLocaleDateString('ja-JP')}`
                   : `Deadline: ${effect.challengeDeadline.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`}
@@ -172,7 +172,7 @@ export function EffectDetailView({
           </div>
         )}
 
-        <p style={{ margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem', color: 'var(--pd-color-text-secondary)', lineHeight: 1.5 }}>
+        <p style={{ margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-sm)', color: 'var(--pd-color-text-secondary)', lineHeight: 1.5 }}>
           {effect.description[lang]}
         </p>
         {isLocked && effect.access === 'premium' && (
@@ -182,7 +182,7 @@ export function EffectDetailView({
             style={{
               padding: '12px',
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.875rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px',
               cursor: 'pointer',
               background: 'var(--pd-color-background-elevated)',

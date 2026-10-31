@@ -109,7 +109,7 @@ export function AccountPage() {
         </Button>
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
-          fontSize: '0.875rem',
+          fontSize: 'var(--pd-font-size-sm)',
           color: 'var(--pd-color-text-primary)',
           letterSpacing: '2px',
         }}>
@@ -135,7 +135,7 @@ export function AccountPage() {
             <p
               style={{
                 fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.625rem',
+                fontSize: 'var(--pd-font-size-sm)',
                 letterSpacing: '1px',
                 color: 'var(--pd-color-text-muted)',
                 margin: 0,
@@ -143,7 +143,7 @@ export function AccountPage() {
             >
               {isJa ? 'ログイン中' : 'SIGNED IN AS'}
             </p>
-            <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--pd-color-text-primary)' }}>
+            <p style={{ margin: 0, fontSize: 'var(--pd-font-size-sm)', color: 'var(--pd-color-text-primary)' }}>
               {user.email ?? user.displayName ?? user.uid}
             </p>
           </section>
@@ -157,7 +157,7 @@ export function AccountPage() {
           <p
             style={{
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.625rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px',
               color: 'var(--pd-color-text-muted)',
               margin: 0,
@@ -178,10 +178,10 @@ export function AccountPage() {
               }}
             >
               <div>
-                <p style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.75rem', letterSpacing: '1px', margin: '0 0 4px' }}>
+                <p style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', margin: '0 0 4px' }}>
                   FREE
                 </p>
-                <p style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', margin: 0 }}>
+                <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: 0 }}>
                   {isJa ? 'リスト 3 件まで・スタンダード機能' : 'Up to 3 lists · Standard features'}
                 </p>
               </div>
@@ -199,11 +199,11 @@ export function AccountPage() {
                 background: 'var(--pd-color-accent-subtle)',
               }}
             >
-              <p style={{ fontFamily: 'var(--pd-font-brand)', fontSize: '0.75rem', letterSpacing: '1px', margin: '0 0 4px', color: 'var(--pd-color-accent-default)' }}>
+              <p style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', margin: '0 0 4px', color: 'var(--pd-color-accent-default)' }}>
                 PIXDONE+
               </p>
               {billingCycle && (
-                <p style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', margin: '0 0 4px' }}>
+                <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: '0 0 4px' }}>
                   {isStoreSubscription
                     ? (billingCycle === 'monthly' ? (isJa ? '月払い' : 'Monthly') : (isJa ? '年払い' : 'Yearly'))
                     : billingCycle === 'monthly'
@@ -212,13 +212,13 @@ export function AccountPage() {
                 </p>
               )}
               {cancelledUntil ? (
-                <p style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', margin: '0 0 16px' }}>
+                <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: '0 0 16px' }}>
                   {isJa
                     ? `${formatDate(cancelledUntil, lang)} まで有効`
                     : `Active until ${formatDate(cancelledUntil, lang)}`}
                 </p>
               ) : currentPeriodEnd ? (
-                <p style={{ fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)', margin: '0 0 16px' }}>
+                <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: '0 0 16px' }}>
                   {isJa
                     ? `次回更新: ${formatDate(currentPeriodEnd, lang)}`
                     : `Renews ${formatDate(currentPeriodEnd, lang)}`}

@@ -49,7 +49,7 @@ export function ThemesTab({
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '1rem',
+                fontSize: 'var(--pd-font-size-md)',
                 lineHeight: 1,
                 flexShrink: 0,
               }}>
@@ -58,7 +58,7 @@ export function ThemesTab({
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
                   fontFamily: 'var(--pd-font-brand)',
-                  fontSize: '0.75rem',
+                  fontSize: 'var(--pd-font-size-sm)',
                   letterSpacing: '0.5px',
                   color: isSelected ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
                   display: 'flex',
@@ -67,8 +67,8 @@ export function ThemesTab({
                   lineHeight: 1.2,
                 }}>
                   {theme.name}
-                  {isActive && <span style={{ fontSize: '0.5rem', color: 'var(--pd-color-accent-default)' }}>▶</span>}
-                  {isLocked && <span style={{ fontSize: '0.625rem' }}>🔒</span>}
+                  {isActive && <span style={{ fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-accent-default)' }}>▶</span>}
+                  {isLocked && <span style={{ fontSize: 'var(--pd-font-size-3xs)' }}>🔒</span>}
                 </div>
               </div>
             </button>
@@ -117,7 +117,7 @@ export function ThemesTab({
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{
                 fontFamily: 'var(--pd-font-brand)',
-                fontSize: '0.875rem',
+                fontSize: 'var(--pd-font-size-sm)',
                 letterSpacing: '0.5px',
                 color: isActive ? 'var(--pd-color-accent-default)' : 'var(--pd-color-text-primary)',
                 display: 'flex',
@@ -126,8 +126,8 @@ export function ThemesTab({
                 lineHeight: 1.2,
               }}>
                 {theme.name}
-                {isActive && <span style={{ fontSize: '0.5625rem', color: 'var(--pd-color-accent-default)' }}>▶ ACTIVE</span>}
-                {isLocked && <span style={{ fontSize: '0.75rem' }}>🔒</span>}
+                {isActive && <span style={{ fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-accent-default)' }}>▶ ACTIVE</span>}
+                {isLocked && <span style={{ fontSize: 'var(--pd-font-size-2xs)' }}>🔒</span>}
               </div>
             </div>
           </button>

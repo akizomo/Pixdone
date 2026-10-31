@@ -152,7 +152,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
                   border: '1px solid var(--pd-color-text-primary)',
                   borderRadius: 'var(--pd-radius-md, 8px)',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem',
+                  fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-sm)',
                   color: 'var(--pd-color-text-inverse)',
                   opacity: loading ? 0.6 : 1,
                 }}
@@ -174,7 +174,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
                 border: '1px solid var(--pd-color-text-primary)',
                 borderRadius: 'var(--pd-radius-md, 8px)',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                fontFamily: 'var(--pd-font-body)', fontSize: '0.875rem',
+                fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-sm)',
                 color: 'var(--pd-color-text-primary)',
                 opacity: loading ? 0.6 : 1,
               }}
@@ -190,7 +190,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ flex: 1, height: '1px', background: 'var(--pd-color-border-default, #e5e7eb)' }} />
-              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.75rem', color: 'var(--pd-color-text-muted)' }}>
+              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-muted)' }}>
                 {lang === 'ja' ? 'またはメールで' : 'or with email'}
               </span>
               <div style={{ flex: 1, height: '1px', background: 'var(--pd-color-border-default, #e5e7eb)' }} />
@@ -202,7 +202,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
         <div className="pxd-text-field" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <label
             htmlFor="auth-email-input"
-            style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}
+            style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)' }}
           >
             {lang === 'ja' ? 'メールアドレス' : 'Email'}
           </label>
@@ -226,7 +226,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
           <div className="pxd-text-field" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <label
               htmlFor="auth-password-input"
-              style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}
+              style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)' }}
             >
               {lang === 'ja' ? 'パスワード' : 'Password'}
             </label>
@@ -268,7 +268,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               color: 'var(--pd-color-accent-default)',
-              fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+              fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
               textAlign: 'left', padding: 0,
             }}
           >
@@ -284,7 +284,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               color: 'var(--pd-color-text-secondary)',
-              fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+              fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
               textAlign: 'left', padding: 0,
             }}
           >
@@ -294,7 +294,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
 
         {/* Footer: switch between signup / login (vanilla parity: auth-footer) */}
         {mode !== 'reset' && (
-          <div style={{ marginTop: '4px', fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-secondary)' }}>
+          <div style={{ marginTop: '4px', fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)' }}>
             {mode === 'signup' ? (
               <>
                 <span>{lang === 'ja' ? 'すでにアカウントをお持ちですか？ ' : 'Already have an account? '}</span>
@@ -304,7 +304,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer',
                     color: 'var(--pd-color-accent-default)', padding: 0,
-                    fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+                    fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
                   }}
                 >
                   {lang === 'ja' ? 'ログイン' : 'Log in'}
@@ -319,7 +319,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer',
                     color: 'var(--pd-color-accent-default)', padding: 0,
-                    fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+                    fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
                   }}
                 >
                   {lang === 'ja' ? 'サインアップ' : 'Sign up'}
@@ -331,14 +331,14 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
 
         {/* Error */}
         {error && (
-          <p style={{ color: 'var(--pd-color-semantic-danger, #ef4444)', fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', margin: 0 }}>
+          <p style={{ color: 'var(--pd-color-semantic-danger, #ef4444)', fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', margin: 0 }}>
             {error}
           </p>
         )}
 
         {/* Success */}
         {successMsg && (
-          <p style={{ color: 'var(--pd-color-accent-default)', fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', margin: 0 }}>
+          <p style={{ color: 'var(--pd-color-accent-default)', fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', margin: 0 }}>
             {successMsg}
           </p>
         )}

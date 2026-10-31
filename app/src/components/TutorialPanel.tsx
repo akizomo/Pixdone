@@ -48,7 +48,7 @@ export function TutorialPanel({ headline, subtext, buttonLabel, onSignUp, pricin
               border: 'none',
               cursor: 'pointer',
               fontFamily: 'var(--pd-font-body)',
-              fontSize: '0.8125rem',
+              fontSize: 'var(--pd-font-size-xs)',
               color: 'var(--pd-color-text-secondary)',
               textDecoration: 'underline',
               padding: '4px 0',

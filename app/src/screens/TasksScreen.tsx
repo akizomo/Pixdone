@@ -474,7 +474,7 @@ export function TasksScreen({
               border: '2px solid var(--pd-color-border-default)',
               borderRadius: 0,
               color: 'var(--pd-color-text-secondary)',
-              fontSize: '0.875rem',
+              fontSize: 'var(--pd-font-size-sm)',
               cursor: 'pointer',
               padding: '12px 16px',
               textAlign: 'left',
@@ -559,7 +559,7 @@ export function TasksScreen({
                     width: '100%', background: 'none', border: 'none',
                     cursor: 'pointer', padding: '8px 4px',
                     color: 'var(--pd-color-text-secondary)',
-                    fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+                    fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
                     textAlign: 'left',
                   }}
                 >
@@ -616,7 +616,7 @@ export function TasksScreen({
                   width: '100%', background: 'none', border: 'none',
                   cursor: 'pointer', padding: '8px 4px',
                   color: 'var(--pd-color-text-secondary)',
-                  fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', textAlign: 'left',
+                  fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', textAlign: 'left',
                 }}
               >
                 <PixelIcon name="chevron_right_2" size="0.625rem" style={{ transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
@@ -714,7 +714,7 @@ export function TasksScreen({
                     width: '100%', background: 'none', border: 'none',
                     cursor: 'pointer', padding: '8px 4px',
                     color: 'var(--pd-color-text-secondary)',
-                    fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+                    fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
                     textAlign: 'left',
                   }}
                 >

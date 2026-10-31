@@ -43,7 +43,7 @@ export function ColorSwatch({
           borderRadius: 6,
           boxSizing: 'border-box',
           color: textColor,
-          fontSize: 11,
+          fontSize: 'var(--pd-font-size-3xs)',
           fontWeight: 600,
           display: 'flex',
           alignItems: 'center',
@@ -55,10 +55,10 @@ export function ColorSwatch({
         {children}
       </div>
       <div style={{ textAlign: 'center', maxWidth: px + 24 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--pd-color-text-primary, #191D24)' }}>
+        <div style={{ fontSize: 'var(--pd-font-size-2xs)', fontWeight: 600, color: 'var(--pd-color-text-primary, #191D24)' }}>
           {name}
         </div>
-        <div style={{ fontSize: 11, color: 'var(--pd-color-text-secondary, #4C5160)', fontFamily: 'monospace' }}>
+        <div style={{ fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-text-secondary, #4C5160)', fontFamily: 'monospace' }}>
           {value}
         </div>
       </div>

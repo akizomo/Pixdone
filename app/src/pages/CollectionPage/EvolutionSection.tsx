@@ -38,8 +38,8 @@ export function EvolutionSection({
   // Only show for owned effects
   if (!effectProgress?.owned) return null;
 
-  const fontSize = compact ? '0.75rem' : '0.8125rem';
-  const smallFontSize = compact ? '0.6875rem' : '0.75rem';
+  const fontSize = compact ? 'var(--pd-font-size-2xs)' : 'var(--pd-font-size-xs)';
+  const smallFontSize = compact ? 'var(--pd-font-size-3xs)' : 'var(--pd-font-size-2xs)';
   const remaining = Math.max(0, status.threshold - status.progress);
 
   return (
@@ -58,7 +58,7 @@ export function EvolutionSection({
         {!status.isMaxLevel && (
           <span style={{
             fontFamily: 'var(--pd-font-brand)',
-            fontSize: '0.5625rem',
+            fontSize: 'var(--pd-font-size-sm)',
             letterSpacing: '1px',
             color: 'var(--pd-color-text-secondary)',
           }}>
@@ -112,7 +112,7 @@ export function EvolutionSection({
       {/* Premium CTA when progress met but not premium */}
       {status.blockedReason === 'need_premium' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
-          <span style={{ fontSize: '0.75rem' }}>🔒</span>
+          <span style={{ fontSize: 'var(--pd-font-size-2xs)' }}>🔒</span>
           <button
             type="button"
             onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}

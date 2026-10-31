@@ -64,7 +64,7 @@ export function EffectPreviewPanel({
         justifyContent: 'center',
         color: 'var(--pd-color-text-secondary)',
         fontFamily: 'var(--pd-font-brand)',
-        fontSize: '0.75rem',
+        fontSize: 'var(--pd-font-size-sm)',
         letterSpacing: '1px',
       }}>
         {lang === 'ja' ? 'エフェクトを選択' : 'SELECT AN EFFECT'}
@@ -86,7 +86,7 @@ export function EffectPreviewPanel({
         {disableToggleOff && (
           <span style={{
             fontFamily: 'var(--pd-font-body)',
-            fontSize: '0.6875rem',
+            fontSize: 'var(--pd-font-size-3xs)',
             color: 'var(--pd-color-text-secondary)',
           }}>
             {lang === 'ja' ? '※最低1つ必要' : 'min. 1 required'}
@@ -96,7 +96,7 @@ export function EffectPreviewPanel({
           <>
             <span style={{
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.6875rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px',
               color: 'var(--pd-color-text-secondary)',
             }}>
@@ -141,14 +141,14 @@ export function EffectPreviewPanel({
         {isChallenge && withinDeadline && !challengeOwned && challengeThreshold > 0 && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', gap: '8px' }}>
-              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem', color: 'var(--pd-color-text-primary)' }}>
+              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-primary)' }}>
                 {lang === 'ja'
                   ? `タスクを${challengeThreshold}回完了で解放`
                   : `Complete ${challengeThreshold} tasks to unlock`}
               </span>
               <span style={{
                 fontFamily: 'var(--pd-font-body)',
-                fontSize: '0.8125rem',
+                fontSize: 'var(--pd-font-size-xs)',
                 color: 'var(--pd-color-text-secondary)',
                 flexShrink: 0,
                 alignSelf: 'center',
@@ -177,7 +177,7 @@ export function EffectPreviewPanel({
         <p style={{
           margin: 0,
           fontFamily: 'var(--pd-font-body)',
-          fontSize: '0.8125rem',
+          fontSize: 'var(--pd-font-size-xs)',
           color: 'var(--pd-color-text-secondary)',
           lineHeight: 1.5,
         }}>
@@ -190,7 +190,7 @@ export function EffectPreviewPanel({
             style={{
               padding: '10px 12px',
               fontFamily: 'var(--pd-font-brand)',
-              fontSize: '0.75rem',
+              fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px',
               cursor: 'pointer',
               background: 'var(--pd-color-background-elevated)',

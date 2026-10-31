@@ -74,7 +74,7 @@ export function ThemeSheetContent({
     color: 'var(--pd-color-text-primary)',
     cursor: 'pointer',
     fontFamily: 'var(--pd-font-brand)',
-    fontSize: '0.875rem',
+    fontSize: 'var(--pd-font-size-sm)',
     opacity: canPrevNext ? 1 : 0.5,
   };
 
@@ -113,7 +113,7 @@ export function ThemeSheetContent({
 
           <div style={{
             flex: 1, textAlign: 'center',
-            fontFamily: 'var(--pd-font-brand)', fontSize: '0.6875rem',
+            fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
             letterSpacing: '1px', color: 'var(--pd-color-text-secondary)',
           }}>
             {indexLabel}
@@ -135,14 +135,14 @@ export function ThemeSheetContent({
         {/* Name + badge */}
         <div style={{ padding: '8px 12px 4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
-            fontFamily: 'var(--pd-font-brand)', fontSize: '1.125rem',
+            fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-lg)',
             letterSpacing: '1px', color: 'var(--pd-color-text-primary)', lineHeight: 1.2,
           }}>
             {theme.icon} {theme.name.toUpperCase()}
           </span>
           {theme.isPremium && (
             <span style={{
-              fontSize: '0.5625rem', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
+              fontSize: 'var(--pd-font-size-sm)', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
               padding: '2px 6px', border: '1px solid var(--pd-color-border-default)',
               color: 'var(--pd-color-text-secondary)', flexShrink: 0,
             }}>
@@ -154,7 +154,7 @@ export function ThemeSheetContent({
         <div style={{ padding: '4px 12px 12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {/* Description — always reserves 2 lines */}
           <p style={{
-            margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: '0.8125rem',
+            margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
             color: 'var(--pd-color-text-secondary)', lineHeight: 1.5,
             display: '-webkit-box', WebkitBoxOrient: 'vertical' as unknown as 'vertical',
             WebkitLineClamp: 2, overflow: 'hidden', minHeight: '2.45rem',
@@ -169,7 +169,7 @@ export function ThemeSheetContent({
             disabled={isActive && !isLocked}
             style={{
               width: '100%', padding: '10px 12px',
-              fontFamily: 'var(--pd-font-brand)', fontSize: '0.8125rem',
+              fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
               letterSpacing: '1px', borderRadius: 0,
               cursor: isActive ? 'default' : 'pointer',
               background: isActive
