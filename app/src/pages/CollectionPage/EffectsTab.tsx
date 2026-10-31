@@ -7,6 +7,7 @@ import { EffectCard } from './EffectCard';
 import { playSound } from '../../services/sound';
 import { badgeColor } from './rarityColors';
 import type { EffectProgressEntry } from '../../hooks/useEffectProgress';
+import './EffectsTab.css';
 
 type FilterKey = 'ALL' | EffectRarity | 'OWNED' | 'CHALLENGE';
 
@@ -47,16 +48,9 @@ export function EffectsTab({
   // Desktop: flat list only (no filter pills — parent renders those)
   if (isDesktop) {
     return (
-      <div style={{ overflowY: 'auto', flex: 1, scrollbarWidth: 'none' }}>
+      <div className="effects-tab__box-1">
         {filtered.length === 0 ? (
-          <p style={{
-            textAlign: 'center',
-            color: 'var(--pd-color-text-secondary)',
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-sm)',
-            letterSpacing: '1px',
-            padding: '32px 16px',
-          }}>
+          <p className="effects-tab__text-1">
             {lang === 'ja' ? 'もうすぐ登場！' : 'COMING SOON'}
           </p>
         ) : (
@@ -82,7 +76,7 @@ export function EffectsTab({
                     transition: 'background 0.1s',
                   }}
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="effects-tab__box-2">
                     <div style={{
                       fontFamily: 'var(--pd-font-brand)',
                       fontSize: 'var(--pd-font-size-sm)',
@@ -103,18 +97,11 @@ export function EffectsTab({
                       {effect.access === 'challenge' ? 'CHALLENGE' : effect.rarity}
                     </div>
                   </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    gap: '8px',
-                    flexShrink: 0,
-                    marginLeft: '12px',
-                  }}>
+                  <div className="effects-tab__row-1">
                     {activeEffects.includes(effect.key) && !locked && (
                       <PixelIcon name="check" size="0.875rem" style={{ color: 'var(--pd-color-text-primary)' }} />
                     )}
-                    {locked && <span style={{ fontSize: 'var(--pd-font-size-2xs)' }}>🔒</span>}
+                    {locked && <span className="effects-tab__text-2">🔒</span>}
                   </div>
                 </button>
               );
@@ -129,14 +116,7 @@ export function EffectsTab({
   return (
     <div>
       {/* Filter bar */}
-      <div style={{
-        display: 'flex',
-        gap: '6px',
-        padding: '12px 16px',
-        overflowX: 'auto',
-        borderBottom: '2px solid var(--pd-color-border-default)',
-        scrollbarWidth: 'none',
-      }}>
+      <div className="effects-tab__filter-bar">
         {FILTERS.map(f => (
           <button
             key={f}
@@ -170,24 +150,13 @@ export function EffectsTab({
       </div>
 
       {/* Grid */}
-      <div style={{ padding: '16px' }}>
+      <div className="effects-tab__grid">
         {filtered.length === 0 ? (
-          <p style={{
-            textAlign: 'center',
-            color: 'var(--pd-color-text-secondary)',
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-sm)',
-            letterSpacing: '1px',
-            marginTop: '40px',
-          }}>
+          <p className="effects-tab__text-3">
             {lang === 'ja' ? 'もうすぐ登場！' : 'COMING SOON'}
           </p>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '8px',
-          }}>
+          <div className="effects-tab__box-3">
             {filtered.map(effect => (
               <EffectCard
                 key={effect.key}

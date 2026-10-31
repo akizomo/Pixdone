@@ -48,7 +48,7 @@ function formatTime(seconds: number): string {
 
 function TimeDigits({ value }: { value: string }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+    <span className="focus__row-1">
       {value.split('').map((ch, i) => (
         <span
           key={`${i}-${ch}`}
@@ -187,7 +187,7 @@ function AdjustButton({ onClick, direction }: { onClick: () => void; direction: 
     <IconButton
       variant="ghost" size="sm"
       aria-label={labelJa + ' / ' + labelEn}
-      icon={<span style={{ fontSize: 'var(--pd-font-size-2xs)', lineHeight: 1 }}>{symbol}</span>}
+      icon={<span className="focus__text-1">{symbol}</span>}
       onClick={onClick}
     />
   );

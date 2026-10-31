@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import '../styles/pacman-progress.css';
 import type { FocusTimerState } from '../hooks/useFocusTimer';
+import './PacmanProgress.css';
 
 interface PacmanProgressProps {
   remaining: number;
@@ -97,7 +98,7 @@ function FlagSprite({
       height={totalHeight}
       viewBox={`0 0 ${FLAG_AREA} ${totalHeight}`}
       shapeRendering="crispEdges"
-      style={{ display: 'block' }}
+      className="pacman-progress__box-1"
       aria-hidden="true"
     >
       {/* Pole */}

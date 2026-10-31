@@ -5,6 +5,7 @@ import { SubPageHeader } from '../components/SubPageHeader';
 import { playSound } from '../services/sound';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { PH_REVIEW_URL } from '../services/phReviewBanner';
+import './FeedbackPage.css';
 
 const FEEDBACK_EMAIL = 'contact@akizony.com';
 
@@ -25,22 +26,13 @@ export function FeedbackPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+    <div className="feedback__col-1">
       <SubPageHeader title={isJa ? 'フィードバック' : 'FEEDBACK'} isJa={isJa} onBack={() => navigate('/')} />
 
       <div
-        style={{
-          flex: 1,
-          maxWidth: '480px',
-          width: '100%',
-          margin: '0 auto',
-          padding: '24px 0',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px',
-        }}
+        className="feedback__col-2"
       >
-        <p style={{ margin: 0, fontSize: 'var(--pd-font-size-sm)', color: 'var(--pd-color-text-secondary)', lineHeight: 1.6 }}>
+        <p className="feedback__text-1">
           {isJa
             ? '感想・バグ報告・機能リクエストをお気軽にどうぞ。すべて開発者が読みます。'
             : 'Share impressions, bugs, or feature requests. Every message is read by the developer.'}
@@ -63,29 +55,17 @@ export function FeedbackPage() {
           {isJa ? '送信する' : 'SEND'}
         </Button>
 
-        <div style={{ borderTop: '1px solid var(--pd-color-border-default)', marginTop: '8px' }} />
+        <div className="feedback__box-1" />
 
         <section
-          style={{
-            padding: '16px',
-            border: '2px solid var(--pd-color-border-default)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
-          }}
+          className="feedback__col-3"
         >
           <p
-            style={{
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-sm)',
-              letterSpacing: '1px',
-              color: 'var(--pd-color-text-muted)',
-              margin: 0,
-            }}
+            className="feedback__text-2"
           >
             {isJa ? 'Product Hunt' : 'PRODUCT HUNT'}
           </p>
-          <p style={{ margin: 0, fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', lineHeight: 1.6 }}>
+          <p className="feedback__text-3">
             {isJa
               ? 'Product Hunt でレビューを書いてくれると、開発を続ける大きな力になります！'
               : 'A review on Product Hunt would mean the world and help us keep building!'}

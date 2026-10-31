@@ -2,6 +2,7 @@ import type { EffectDef } from '../../data/effectsRegistry';
 import { PixelIcon } from '../../design-system';
 import { isEffectLocked } from '../../data/effectsRegistry';
 import { badgeColor } from './rarityColors';
+import './EffectCard.css';
 
 interface EffectCardProps {
   effect: EffectDef;
@@ -51,13 +52,7 @@ export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffect
 
       {/* Effect name */}
       <span
-        style={{
-          fontFamily: 'var(--pd-font-brand)',
-          fontSize: 'var(--pd-font-size-sm)',
-          letterSpacing: '0.5px',
-          color: 'var(--pd-color-text-primary)',
-          lineHeight: 1.2,
-        }}
+        className="effect-card__effect-name"
       >
         {effect.name}
       </span>
@@ -65,26 +60,14 @@ export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffect
       {/* Status indicator */}
       {isEquipped && !isLocked && (
         <span
-          style={{
-            position: 'absolute',
-            top: '6px',
-            right: '8px',
-            fontSize: 'var(--pd-font-size-sm)',
-            fontFamily: 'var(--pd-font-brand)',
-            color: 'var(--pd-color-text-primary)',
-          }}
+          className="effect-card__text-1"
         >
           <PixelIcon name="check" />
         </span>
       )}
       {isLocked && (
         <span
-          style={{
-            position: 'absolute',
-            top: '6px',
-            right: '8px',
-            fontSize: 'var(--pd-font-size-2xs)',
-          }}
+          className="effect-card__text-2"
         >
           🔒
         </span>
@@ -92,13 +75,7 @@ export function EffectCard({ effect, isEquipped, isPremium, ownedChallengeEffect
       {/* Challenge badge (active period, not yet earned) */}
       {isChallenge && withinDeadline && !ownedChallengeEffects.includes(effect.key) && (
         <span
-          style={{
-            fontSize: 'var(--pd-font-size-sm)',
-            fontFamily: 'var(--pd-font-brand)',
-            letterSpacing: '1px',
-            color: '#ffd54f',
-            marginTop: '2px',
-          }}
+          className="effect-card__text-3"
         >
           CHALLENGE
         </span>

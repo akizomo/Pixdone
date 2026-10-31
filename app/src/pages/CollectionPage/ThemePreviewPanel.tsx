@@ -6,6 +6,7 @@ import type { ThemeKey } from '../../design-system/themes/themeRegistry';
 import { getRandomThemeLimitedEffectKey } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
 import { playSound } from '../../services/sound';
+import './ThemePreviewPanel.css';
 
 function ensureFontLink(url: string): void {
   const id = `pd-font-${btoa(url).slice(0, 16)}`;
@@ -62,7 +63,7 @@ export function ThemePreviewPanel({
     ?? 'var(--pd-color-background-default)';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="theme-preview-panel__col-1">
       {/* Demo area — theme vars applied as inline styles */}
       <div
         style={{
@@ -83,35 +84,15 @@ export function ThemePreviewPanel({
       </div>
 
       {/* Info + CTA */}
-      <div style={{
-        padding: '20px 24px',
-        borderTop: '1px solid var(--pd-color-border-default)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-        flexShrink: 0,
-        background: 'var(--pd-color-background-default)',
-      }}>
+      <div className="theme-preview-panel__info-cta">
         {/* Desktop: hide only the title row (theme name) */}
         {!isDesktop && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-md)',
-              letterSpacing: '1px',
-              color: 'var(--pd-color-text-primary)',
-            }}>
+          <div className="theme-preview-panel__row-1">
+            <span className="theme-preview-panel__text-1">
               {theme.icon} {theme.name}
             </span>
             {theme.isPremium && (
-              <span style={{
-                fontSize: 'var(--pd-font-size-sm)',
-                fontFamily: 'var(--pd-font-brand)',
-                letterSpacing: '1px',
-                padding: '2px 8px',
-                border: '1px solid var(--pd-color-border-default)',
-                color: 'var(--pd-color-text-secondary)',
-              }}>
+              <span className="theme-preview-panel__text-2">
                 PixDone+
               </span>
             )}
@@ -119,13 +100,7 @@ export function ThemePreviewPanel({
         )}
 
         {theme.description && (
-          <p style={{
-            margin: 0,
-            fontFamily: 'var(--pd-font-body)',
-            fontSize: 'var(--pd-font-size-xs)',
-            color: 'var(--pd-color-text-secondary)',
-            lineHeight: 1.5,
-          }}>
+          <p className="theme-preview-panel__text-3">
             {theme.description[lang]}
           </p>
         )}

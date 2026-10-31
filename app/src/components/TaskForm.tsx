@@ -802,7 +802,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
       {(onDelete || (task && availableLists && availableLists.length > 1)) && (
         <div className="pd-task-form__toolbar">
           {task && availableLists && availableLists.length > 1 ? (
-            <div style={{ position: 'relative' }}>
+            <div className="task-form__pos-1">
               <button
                 type="button"
                 role="combobox"
@@ -865,7 +865,7 @@ export const TaskForm = forwardRef<TaskFormHandle, TaskFormProps>(function TaskF
         <Chip font="body" selected={dueDate === tomorrow} onClick={() => toggleDate(tomorrow)}>
           {t('tomorrow', lang)}
         </Chip>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <label className="task-form__row-1">
           <Chip
             font="body"
             selected={!!(dueDate && dueDate !== today && dueDate !== tomorrow)}

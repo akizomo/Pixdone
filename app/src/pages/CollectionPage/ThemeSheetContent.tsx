@@ -6,6 +6,7 @@ import type { ThemeKey } from '../../design-system/themes/themeRegistry';
 import { getRandomThemeLimitedEffectKey } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
 import { playSound } from '../../services/sound';
+import './ThemeSheetContent.css';
 
 function ensureFontLink(url: string): void {
   const id = `pd-font-${btoa(url).slice(0, 16)}`;
@@ -79,9 +80,9 @@ export function ThemeSheetContent({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+    <div className="theme-sheet-content__col-1">
       {/* Preview — theme vars scoped here */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <div className="theme-sheet-content__preview-theme-vars-scoped-he">
         <div
           style={{
             ...(previewVars as React.CSSProperties),
@@ -99,23 +100,13 @@ export function ThemeSheetContent({
         </div>
 
         {/* Prev / Next + index */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '10px',
-          padding: '10px 12px',
-        }}>
+        <div className="theme-sheet-content__prev-next-index">
           <button type="button" onClick={onPrev} disabled={!canPrevNext}
             aria-label={lang === 'ja' ? '前のテーマ' : 'Previous theme'}
             style={navBtnStyle}
           >{'<'}</button>
 
-          <div style={{
-            flex: 1, textAlign: 'center',
-            fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
-            letterSpacing: '1px', color: 'var(--pd-color-text-secondary)',
-          }}>
+          <div className="theme-sheet-content__text-1">
             {indexLabel}
           </div>
 
@@ -127,31 +118,20 @@ export function ThemeSheetContent({
       </div>
 
       {/* Bottom dock */}
-      <div style={{
-        flexShrink: 0,
-        background: 'var(--pd-color-background-default)',
-        borderTop: '2px solid var(--pd-color-border-default)',
-      }}>
+      <div className="theme-sheet-content__bottom-dock">
         {/* Name + badge */}
-        <div style={{ padding: '8px 12px 4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{
-            fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-lg)',
-            letterSpacing: '1px', color: 'var(--pd-color-text-primary)', lineHeight: 1.2,
-          }}>
+        <div className="theme-sheet-content__name-badge">
+          <span className="theme-sheet-content__text-2">
             {theme.icon} {theme.name.toUpperCase()}
           </span>
           {theme.isPremium && (
-            <span style={{
-              fontSize: 'var(--pd-font-size-sm)', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
-              padding: '2px 6px', border: '1px solid var(--pd-color-border-default)',
-              color: 'var(--pd-color-text-secondary)', flexShrink: 0,
-            }}>
+            <span className="theme-sheet-content__text-3">
               PixDone+
             </span>
           )}
         </div>
 
-        <div style={{ padding: '4px 12px 12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div className="theme-sheet-content__col-2">
           {/* Description — always reserves 2 lines */}
           <p style={{
             margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',

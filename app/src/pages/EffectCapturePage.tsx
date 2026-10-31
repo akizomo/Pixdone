@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { EFFECTS_REGISTRY } from '../data/effectsRegistry';
 import { runVanillaCompletionEffect } from '../services/taskAnimations';
 import type { EffectDef } from '../data/effectsRegistry';
+import './EffectCapturePage.css';
 
 /**
  * Dev-only capture page used by scripts/capture-effect-shots.mjs.
@@ -72,62 +73,27 @@ export function EffectCapturePage() {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'transparent',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      className="effect-capture__row-1"
     >
       {/* Fixed-size task target at viewport center. The engine clones this
           and positions the clone at its current rect. Give it room around
           so outward particles have space before the screenshot clip. */}
       <div
         ref={targetRef}
-        className="task-item"
-        style={{
-          width: 360,
-          minHeight: 64,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '16px 20px',
-          background: 'var(--pd-color-surface-primary, #1f1f2e)',
-          border: '2px solid var(--pd-color-border-outline, #3c3c50)',
-          color: 'var(--pd-color-text-primary, #e8eaed)',
-          fontFamily: 'var(--pd-font-body, sans-serif)',
-          fontSize: 'var(--pd-font-size-md)',
-        }}
+        className="task-item effect-capture__text-1"
       >
         <button
           type="button"
           role="checkbox"
           aria-checked="false"
-          style={{
-            width: 24,
-            height: 24,
-            border: '2px solid var(--pd-color-accent-default, #A78BFA)',
-            background: 'transparent',
-            flexShrink: 0,
-          }}
+          className="effect-capture__box-1"
         />
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="effect-capture__box-2">
           <span>Finish the report</span>
         </div>
       </div>
       <div
-        style={{
-          position: 'fixed',
-          bottom: 16,
-          left: 16,
-          right: 16,
-          textAlign: 'center',
-          fontFamily: 'monospace',
-          fontSize: 'var(--pd-font-size-2xs)',
-          color: '#888',
-        }}
+        className="effect-capture__text-2"
       >
         Effect capture — drive via window.__lpCapture from Playwright
       </div>

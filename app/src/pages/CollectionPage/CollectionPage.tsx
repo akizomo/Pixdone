@@ -182,11 +182,7 @@ export function CollectionPage({
   }, []);
 
   const tabBar = (
-    <div style={{
-      display: 'flex',
-      borderBottom: '1px solid var(--pd-color-border-default)',
-      flexShrink: 0,
-    }}>
+    <div className="collection__row-1">
       {(['effects', 'themes'] as const).map(tab => {
         const label = tab === 'effects'
           ? (lang === 'ja' ? 'エフェクト' : 'EFFECTS')
@@ -226,28 +222,13 @@ export function CollectionPage({
   // Tabs and filter chips are fixed (flexShrink:0); only the left list scrolls.
   if (isDesktop) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: 'calc(100dvh - 160px)',
-        minHeight: '400px',
-        overflow: 'hidden',
-      }}>
+      <div className="collection__col-1">
         {/* Tab bar — fixed, never scrolls */}
         {tabBar}
 
         {/* Filter chips — fixed, effects tab only */}
         {activeTab === 'effects' && (
-          <div style={{
-            display: 'flex',
-            gap: '4px',
-            padding: '8px 10px',
-            overflowX: 'auto',
-            borderBottom: '1px solid var(--pd-color-border-default)',
-            scrollbarWidth: 'none',
-            flexShrink: 0,
-            background: 'var(--pd-color-background-elevated)',
-          }}>
+          <div className="collection__row-2">
             {FILTERS.map(f => (
               <button
                 key={f}
@@ -277,16 +258,9 @@ export function CollectionPage({
         )}
 
         {/* Split: left list (scrollable) + right preview (viewport-constrained) */}
-        <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <div className="collection__split-left-list-scrollable-r">
           {/* Left panel — only this scrolls */}
-          <div style={{
-            width: '180px',
-            flexShrink: 0,
-            borderRight: '1px solid var(--pd-color-border-default)',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            scrollbarWidth: 'none',
-          }}>
+          <div className="collection__left-panel-only-this-scrolls">
             {activeTab === 'effects' ? (
               <EffectsTab
                 isPremium={isPremium}
@@ -312,7 +286,7 @@ export function CollectionPage({
           </div>
 
           {/* Right panel — viewport-constrained, no scroll */}
-          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div className="collection__right-panel-viewport-constra">
             {activeTab === 'effects' && selectedEffect ? (
               <EffectPreviewPanel
                 key={selectedEffect}
@@ -337,16 +311,7 @@ export function CollectionPage({
                 isDesktop
               />
             ) : (
-              <div style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--pd-color-text-secondary)',
-                fontFamily: 'var(--pd-font-brand)',
-                fontSize: 'var(--pd-font-size-sm)',
-                letterSpacing: '1px',
-              }}>
+              <div className="collection__text-1">
                 {activeTab === 'effects'
                   ? (lang === 'ja' ? 'エフェクトを選択' : 'SELECT AN EFFECT')
                   : (lang === 'ja' ? 'テーマを選択' : 'SELECT A THEME')}
@@ -360,7 +325,7 @@ export function CollectionPage({
 
   // ── Mobile: tab + full-screen overlays ────────────────────────────────────
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className="collection__col-2">
       {tabBar}
 
       <div>
@@ -403,7 +368,7 @@ export function CollectionPage({
         className="pxd-sheet--effect-gallery"
       >
         <div
-          style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+          className="collection__col-3"
           onTouchStart={(e) => {
             const t = e.touches[0];
             if (!t) return;
@@ -416,7 +381,7 @@ export function CollectionPage({
           }}
         >
           {selectedEffect && (
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div className="collection__box-1">
               <EffectSheetContent
                 key={selectedEffect}
                 effectKey={selectedEffect}
@@ -444,7 +409,7 @@ export function CollectionPage({
         className="pxd-sheet--effect-gallery"
       >
         <div
-          style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+          className="collection__col-3"
           onTouchStart={(e) => {
             const t = e.touches[0];
             if (!t) return;
@@ -457,7 +422,7 @@ export function CollectionPage({
           }}
         >
           {selectedTheme && (
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div className="collection__box-1">
               <ThemeSheetContent
                 key={selectedTheme}
                 themeKey={selectedTheme}

@@ -494,9 +494,8 @@ export function OnboardingTutorial({
                 {introPanel === 1 && (
                   <>
                     <div
-                      className="pd-onboarding__agent-runner"
+                      className="pd-onboarding__agent-runner onboarding-tutorial__box-1"
                       data-color="arcade"
-                      style={{ animationDelay: '80ms' }}
                     >
                       <div className="pd-onboarding__agent-body">
                         <AgentIcon themeKey="arcade" size={64} />
@@ -510,9 +509,8 @@ export function OnboardingTutorial({
                       </div>
                     </div>
                     <div
-                      className="pd-onboarding__agent-runner"
+                      className="pd-onboarding__agent-runner onboarding-tutorial__box-2"
                       data-color="synthwave"
-                      style={{ animationDelay: '220ms' }}
                     >
                       <div className="pd-onboarding__agent-body">
                         <AgentIcon themeKey="arcade" size={72} />
@@ -526,9 +524,8 @@ export function OnboardingTutorial({
                       </div>
                     </div>
                     <div
-                      className="pd-onboarding__agent-runner"
+                      className="pd-onboarding__agent-runner onboarding-tutorial__box-3"
                       data-color="forestbit"
-                      style={{ animationDelay: '360ms' }}
                     >
                       <div className="pd-onboarding__agent-body">
                         <img

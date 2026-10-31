@@ -448,7 +448,7 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
                 {isJa ? (
                   <>
                     「終わった」を<br />
-                    <span style={{ whiteSpace: 'nowrap' }}>
+                    <span className="landing__box-1">
                       <span className="lp-accent">一番気持ちいい</span>瞬間に。
                     </span>
                   </>

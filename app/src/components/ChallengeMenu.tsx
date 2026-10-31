@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { IconButton, ModalDialog, Button, PixelIcon } from '../design-system/components';
 import { BottomSheet } from '../design-system/components/BottomSheet/BottomSheet';
 import type { ActiveChallenge } from '../hooks/useActiveChallenge';
+import './ChallengeMenu.css';
 
 const urgentPulseStyle = `
 @keyframes challenge-pulse {
@@ -117,7 +118,7 @@ export function ChallengeMenu({
 
   // ── Shared content ────────────────────────────────────────────────────
   const content = (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="challenge-menu__col-1">
       {challenges.map((ch, idx) => (
         <ChallengeCard
           key={ch.effect.key}
@@ -140,7 +141,7 @@ export function ChallengeMenu({
       <div
         data-challenge-menu="true"
         data-urgent={anyUrgent ? 'true' : undefined}
-        style={{ position: 'relative', display: 'inline-flex' }}
+        className="challenge-menu__row-1"
       >
         <IconButton
           variant="ghost"
@@ -154,15 +155,7 @@ export function ChallengeMenu({
         {unseenCompleted.length > 0 && (
           <span
             data-testid="challenge-badge"
-            style={{
-              position: 'absolute',
-              top: 2,
-              right: 2,
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: 'var(--pd-color-feedback-error)',
-            }}
+            className="challenge-menu__pos-1"
           />
         )}
       </div>
@@ -175,7 +168,7 @@ export function ChallengeMenu({
             onClose={() => setOpen(false)}
             title={label}
           >
-            <div style={{ padding: '0 8px 8px' }}>
+            <div className="challenge-menu__box-1">
               {content}
             </div>
           </ModalDialog>
@@ -187,7 +180,7 @@ export function ChallengeMenu({
             onClose={() => setOpen(false)}
             title={label}
           >
-            <div style={{ padding: '0 16px 24px' }}>
+            <div className="challenge-menu__box-2">
               {content}
             </div>
           </BottomSheet>
@@ -235,32 +228,21 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
       }}
     >
       {gifSrc && (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div className="challenge-menu__row-2">
           <img
             src={gifSrc}
             alt={effect.name}
-            style={{ width: 160, height: 'auto', imageRendering: 'pixelated' }}
+            className="challenge-menu__box-3"
           />
         </div>
       )}
 
       {/* Name + Rarity + Deadline */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{
-          fontFamily: 'var(--pd-font-brand)',
-          fontSize: 'var(--pd-font-size-md)',
-          color: 'var(--pd-color-text-primary)',
-        }}>
+      <div className="challenge-menu__name-rarity-deadline">
+        <span className="challenge-menu__text-1">
           {effect.name}
         </span>
-        <span style={{
-          fontFamily: 'var(--pd-font-brand)',
-          fontSize: 'var(--pd-font-size-sm)',
-          letterSpacing: '1px',
-          padding: '2px 6px',
-          border: '1px solid var(--pd-color-border-default)',
-          color: 'var(--pd-color-text-secondary)',
-        }}>
+        <span className="challenge-menu__text-2">
           {effect.rarity}
         </span>
         {!isCompleted && deadlineText && (
@@ -276,45 +258,22 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
       </div>
 
       {/* Description */}
-      <p style={{
-        fontFamily: 'var(--pd-font-body)',
-        fontSize: 'var(--pd-font-size-sm)',
-        color: 'var(--pd-color-text-secondary)',
-        margin: 0,
-      }}>
+      <p className="challenge-menu__description">
         {effect.description[lang]}
       </p>
 
       {/* Progress bar or completion */}
       {isCompleted ? (
-        <div style={{
-          fontFamily: 'var(--pd-font-brand)',
-          fontSize: 'var(--pd-font-size-sm)',
-          color: 'var(--pd-color-accent-default)',
-          textAlign: 'center',
-          padding: '8px 0',
-        }}>
+        <div className="challenge-menu__text-3">
           {lang === 'ja' ? '獲得済み！コレクションをチェック。' : 'Earned! Check your collection.'}
         </div>
       ) : (
         <div>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontFamily: 'var(--pd-font-body)',
-            fontSize: 'var(--pd-font-size-xs)',
-            color: 'var(--pd-color-text-secondary)',
-            marginBottom: 4,
-          }}>
+          <div className="challenge-menu__text-4">
             <span>{missionText}</span>
             <span>{progress} / {threshold}</span>
           </div>
-          <div style={{
-            height: 8,
-            background: 'var(--pd-color-background-elevated)',
-            border: '1px solid var(--pd-color-border-default)',
-            overflow: 'hidden',
-          }}>
+          <div className="challenge-menu__box-4">
             <div style={{
               height: '100%',
               width: `${pct}%`,
@@ -353,13 +312,7 @@ function ChallengeProgressRing({ pct, isCompleted }: ChallengeProgressRingProps)
       width={size}
       height={size}
       aria-hidden="true"
-      style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%) rotate(-90deg)',
-        pointerEvents: 'none',
-      }}
+      className="challenge-menu__pos-2"
     >
       <circle
         cx={size / 2}
@@ -380,7 +333,7 @@ function ChallengeProgressRing({ pct, isCompleted }: ChallengeProgressRingProps)
         strokeLinecap="round"
         strokeDasharray={circumference}
         strokeDashoffset={isCompleted ? 0 : offset}
-        style={{ transition: 'stroke-dashoffset 0.4s ease' }}
+        className="challenge-menu__box-5"
       />
     </svg>
   );

@@ -94,7 +94,7 @@ export const DemoTaskItem = forwardRef<HTMLDivElement, DemoTaskItemProps>(
     );
 
     return (
-      <div ref={wrapperRef} style={{ width: '100%', maxWidth: '320px' }}>
+      <div ref={wrapperRef} className="demo-task-item__box-1">
         <TaskItem
           task={demoTask}
           isSmash

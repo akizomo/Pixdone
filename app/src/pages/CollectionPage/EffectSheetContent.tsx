@@ -9,6 +9,7 @@ import { badgeColor } from './rarityColors';
 import { EvolutionSection } from './EvolutionSection';
 import { resolveAnimationKey } from '../../data/effectEvolution';
 import type { EffectProgressEntry } from '../../hooks/useEffectProgress';
+import './EffectSheetContent.css';
 
 interface EffectSheetContentProps {
   effectKey: string;
@@ -69,17 +70,10 @@ export function EffectSheetContent({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+    <div className="effect-sheet-content__col-1">
       {/* Preview (maximize vertical space) */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '14px 16px',
-          minHeight: 0,
-        }}>
+      <div className="effect-sheet-content__preview-maximize-vertical-sp">
+        <div className="effect-sheet-content__row-1">
           <DemoTaskItem
             ref={demoRef}
             lang={lang}
@@ -88,13 +82,7 @@ export function EffectSheetContent({
         </div>
 
         {/* Preview bottom: arrows + index */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '10px',
-          padding: '10px 12px',
-        }}>
+        <div className="effect-sheet-content__preview-bottom-arrows-index">
           <button
             type="button"
             onClick={onPrev}
@@ -112,11 +100,7 @@ export function EffectSheetContent({
             {'<'}
           </button>
 
-          <div style={{
-            flex: 1, minWidth: 0, textAlign: 'center',
-            fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
-            letterSpacing: '1px', color: 'var(--pd-color-text-secondary)',
-          }}>
+          <div className="effect-sheet-content__text-1">
             {indexLabel}
           </div>
 
@@ -140,30 +124,16 @@ export function EffectSheetContent({
       </div>
 
       {/* Bottom dock */}
-      <div style={{
-        flexShrink: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'var(--pd-color-background-default)',
-        borderTop: '2px solid var(--pd-color-border-default)',
-      }}>
+      <div className="effect-sheet-content__bottom-dock">
         {/* Title + toggle */}
-        <div style={{
-          padding: '8px 12px 2px',
-          background: 'var(--pd-color-background-default)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
-        }}>
-          <div style={{
-            fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-lg)',
-            letterSpacing: '1px', color: 'var(--pd-color-text-primary)',
-            lineHeight: 1.2, minWidth: 0,
-          }}>
+        <div className="effect-sheet-content__title-toggle">
+          <div className="effect-sheet-content__text-2">
             {(effect?.name ?? '').toUpperCase()}
           </div>
           {/* Toggle: shown when not a pending challenge */}
           {(!isChallenge || challengeOwned) && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-              <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', color: 'var(--pd-color-text-secondary)' }}>
+            <div className="effect-sheet-content__row-2">
+              <span className="effect-sheet-content__text-3">
                 {lang === 'ja' ? 'アクティブ' : 'ACTIVE'}
               </span>
               <Toggle
@@ -177,12 +147,8 @@ export function EffectSheetContent({
         </div>
 
         {/* Rarity / challenge badge + lock icon */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          gap: '10px', padding: '0 12px 6px',
-          background: 'var(--pd-color-background-default)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+        <div className="effect-sheet-content__rarity-challenge-badge-lock-">
+          <div className="effect-sheet-content__row-3">
             <span style={{
               fontSize: 'var(--pd-font-size-sm)', fontFamily: 'var(--pd-font-brand)', letterSpacing: '1px',
               color: effect ? badgeColor(effect.rarity, isChallenge) : 'var(--pd-color-text-secondary)',
@@ -191,41 +157,33 @@ export function EffectSheetContent({
               {isChallenge ? 'CHALLENGE' : (effect?.rarity ?? '')}
             </span>
             {isLocked && (
-              <span style={{ fontSize: 'var(--pd-font-size-2xs)', flexShrink: 0 }} aria-label={lang === 'ja' ? 'ロック中' : 'Locked'}>
+              <span className="effect-sheet-content__text-4" aria-label={lang === 'ja' ? 'ロック中' : 'Locked'}>
                 🔒
               </span>
             )}
           </div>
           {disableToggleOff && (
-            <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-text-secondary)', textAlign: 'right' }}>
+            <span className="effect-sheet-content__text-5">
               {lang === 'ja' ? '※最低1つ必要' : 'min. 1 required'}
             </span>
           )}
         </div>
 
-        <div style={{ padding: '8px 12px 12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div className="effect-sheet-content__col-2">
           {/* Challenge progress bar */}
           {isChallenge && withinDeadline && !challengeOwned && challengeThreshold > 0 && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', gap: '8px' }}>
-                <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-primary)' }}>
+              <div className="effect-sheet-content__row-4">
+                <span className="effect-sheet-content__text-6">
                   {lang === 'ja'
                     ? `タスクを${challengeThreshold}回完了で解放`
                     : `Complete ${challengeThreshold} tasks to unlock`}
                 </span>
-                <span style={{
-                  fontFamily: 'var(--pd-font-body)',
-                  fontSize: 'var(--pd-font-size-2xs)',
-                  color: 'var(--pd-color-text-secondary)',
-                  flexShrink: 0,
-                  alignSelf: 'center',
-                  lineHeight: 1.2,
-                  fontVariantNumeric: 'tabular-nums',
-                }}>
+                <span className="effect-sheet-content__text-7">
                   {challengeProgress} / {challengeThreshold}
                 </span>
               </div>
-              <div style={{ height: '4px', background: 'var(--pd-color-border-default)', position: 'relative' }}>
+              <div className="effect-sheet-content__pos-1">
                 <div style={{
                   position: 'absolute', left: 0, top: 0, bottom: 0,
                   width: `${Math.min(100, challengeThreshold > 0 ? (challengeProgress / challengeThreshold) * 100 : 0)}%`,
@@ -256,16 +214,13 @@ export function EffectSheetContent({
           </p>
 
           {/* Lock CTA area */}
-          <div style={{
-            display: 'flex', flexDirection: 'column', gap: '8px',
-            minHeight: '96px', justifyContent: 'flex-start',
-          }}>
+          <div className="effect-sheet-content__lock-cta-area">
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               gap: '10px', minHeight: '20px',
               visibility: isLocked && effect?.access === 'premium' ? 'visible' : 'hidden',
             }}>
-              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-secondary)', lineHeight: 1.4 }}>
+              <span className="effect-sheet-content__text-8">
                 {lang === 'ja' ? 'PixDone+ が必要' : 'Requires PixDone+'}
               </span>
             </div>

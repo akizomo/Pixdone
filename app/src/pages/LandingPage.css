@@ -892,3 +892,7 @@
 }
 
 .lp-footer__links a:hover { color: var(--pd-color-accent-default); }
+
+.landing__box-1 {
+  white-space: nowrap;
+}

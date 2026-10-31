@@ -49,3 +49,7 @@
   line-height: 1;
   border-radius: 0;
 }
+
+.pd-agent-icon__img {
+  image-rendering: pixelated;
+}

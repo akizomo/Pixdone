@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Button } from '../design-system';
 import { playSound } from '../services/sound';
+import './PixelBreaker.css';
 
 export interface PixelBreakerProps {
   lang: 'en' | 'ja';
@@ -272,8 +273,8 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
 
   return (
     <div>
-      <div style={{ marginBottom: '8px', minHeight: '1em' }} />
-      <div ref={wrapRef} style={{ position: 'relative', width: '100%' }}>
+      <div className="pixel-breaker__box-1" />
+      <div ref={wrapRef} className="pixel-breaker__pos-1">
         <canvas
           ref={canvasRef}
           style={{
@@ -296,15 +297,7 @@ export function PixelBreaker({ lang }: PixelBreakerProps) {
         {phase === 'ended' && (
           <div style={overlayStyle}>
             {endedBy === 'clear' && (
-              <div style={{
-                fontFamily: 'var(--pd-font-brand)',
-                fontSize: 'var(--pd-font-size-xl)',
-                color: 'var(--pd-color-accent-default)',
-                letterSpacing: '0.12em',
-                textShadow: '2px 2px 0 rgba(0,0,0,0.45)',
-                marginBottom: '10px',
-                textAlign: 'center',
-              }}>
+              <div className="pixel-breaker__text-1">
                 {lang === 'ja' ? 'ナイス！' : 'NICE!'}
               </div>
             )}

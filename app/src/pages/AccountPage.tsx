@@ -102,74 +102,38 @@ export function AccountPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+    <div className="account-page">
       <SubPageHeader title={isJa ? 'アカウント' : 'ACCOUNT'} isJa={isJa} onBack={() => navigate('/')} />
 
-      <div
-        style={{
-          flex: 1,
-          maxWidth: '480px',
-          width: '100%',
-          margin: '0 auto',
-          padding: '24px 0',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px',
-        }}
-      >
+      <div className="account-body">
         {/* Profile */}
         {user && (
-          <section style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <p
-              style={{
-                fontFamily: 'var(--pd-font-brand)',
-                fontSize: 'var(--pd-font-size-sm)',
-                letterSpacing: '1px',
-                color: 'var(--pd-color-text-muted)',
-                margin: 0,
-              }}
-            >
+          <section className="account-section account-section--tight">
+            <p className="account-label">
               {isJa ? 'ログイン中' : 'SIGNED IN AS'}
             </p>
-            <p style={{ margin: 0, fontSize: 'var(--pd-font-size-sm)', color: 'var(--pd-color-text-primary)' }}>
+            <p className="account-value">
               {user.email ?? user.displayName ?? user.uid}
             </p>
           </section>
         )}
 
         {/* Divider */}
-        <div style={{ borderTop: '1px solid var(--pd-color-border-default)' }} />
+        <div className="account-divider" />
 
         {/* Subscription */}
-        <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <p
-            style={{
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-sm)',
-              letterSpacing: '1px',
-              color: 'var(--pd-color-text-muted)',
-              margin: 0,
-            }}
-          >
+        <section className="account-section">
+          <p className="account-label">
             {isJa ? 'サブスクリプション' : 'SUBSCRIPTION'}
           </p>
 
           {!isPlusUser && (
-            <div
-              style={{
-                border: '2px solid var(--pd-color-border-default)',
-                padding: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '16px',
-              }}
-            >
+            <div className="account-plan account-plan--free">
               <div>
-                <p style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', margin: '0 0 4px' }}>
+                <p className="account-plan__name">
                   FREE
                 </p>
-                <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: 0 }}>
+                <p className="account-plan__desc">
                   {isJa ? 'リスト 3 件まで・スタンダード機能' : 'Up to 3 lists · Standard features'}
                 </p>
               </div>
@@ -180,18 +144,12 @@ export function AccountPage() {
           )}
 
           {isPlusUser && (
-            <div
-              style={{
-                border: '2px solid var(--pd-color-accent-default)',
-                padding: '16px',
-                background: 'var(--pd-color-accent-subtle)',
-              }}
-            >
-              <p style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', margin: '0 0 4px', color: 'var(--pd-color-accent-default)' }}>
+            <div className="account-plan account-plan--plus">
+              <p className="account-plan__name account-plan__name--plus">
                 PIXDONE+
               </p>
               {billingCycle && (
-                <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: '0 0 4px' }}>
+                <p className="account-plan__meta">
                   {isStoreSubscription
                     ? (billingCycle === 'monthly' ? (isJa ? '月払い' : 'Monthly') : (isJa ? '年払い' : 'Yearly'))
                     : billingCycle === 'monthly'
@@ -200,19 +158,19 @@ export function AccountPage() {
                 </p>
               )}
               {cancelledUntil ? (
-                <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: '0 0 16px' }}>
+                <p className="account-plan__meta account-plan__meta--end">
                   {isJa
                     ? `${formatDate(cancelledUntil, lang)} まで有効`
                     : `Active until ${formatDate(cancelledUntil, lang)}`}
                 </p>
               ) : currentPeriodEnd ? (
-                <p style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)', margin: '0 0 16px' }}>
+                <p className="account-plan__meta account-plan__meta--end">
                   {isJa
                     ? `次回更新: ${formatDate(currentPeriodEnd, lang)}`
                     : `Renews ${formatDate(currentPeriodEnd, lang)}`}
                 </p>
               ) : (
-                <div style={{ marginBottom: '16px' }} />
+                <div className="account-plan__spacer" />
               )}
 
               {isStoreSubscription ? (
@@ -231,7 +189,7 @@ export function AccountPage() {
         </section>
 
         {/* Divider */}
-        <div style={{ borderTop: '1px solid var(--pd-color-border-default)' }} />
+        <div className="account-divider" />
 
         {/* Sign out */}
         {user && (

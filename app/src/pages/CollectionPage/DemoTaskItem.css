@@ -21,3 +21,8 @@
 .demo-task-item__title-input:focus {
   outline: var(--pd-border-thin) dashed var(--pd-color-accent-default);
 }
+
+.demo-task-item__box-1 {
+  width: 100%;
+  max-width: 320px;
+}

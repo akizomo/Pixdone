@@ -36,7 +36,7 @@ function formatTime(seconds: number): string {
 
 function TimeDigits({ value }: { value: string }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+    <span className="focus-zen-mode__row-1">
       {value.split('').map((ch, i) => (
         <span
           key={`${i}-${ch}`}

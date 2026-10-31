@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { getEvolutionStatus } from '../../data/effectEvolution';
 import type { EffectProgressEntry } from '../../hooks/useEffectProgress';
 import { playSound } from '../../services/sound';
+import './EvolutionSection.css';
 
 interface EvolutionSectionProps {
   effectKey: string;
@@ -43,9 +44,9 @@ export function EvolutionSection({
   const remaining = Math.max(0, status.threshold - status.progress);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+    <div className="evolution-section__col-1">
       {/* Level badge */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="evolution-section__level-badge">
         <span style={{
           fontFamily: 'var(--pd-font-brand)',
           fontSize: smallFontSize,
@@ -56,12 +57,7 @@ export function EvolutionSection({
           {`Lv${status.currentLevel}`}
         </span>
         {!status.isMaxLevel && (
-          <span style={{
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-sm)',
-            letterSpacing: '1px',
-            color: 'var(--pd-color-text-secondary)',
-          }}>
+          <span className="evolution-section__text-1">
             {lang === 'ja' ? '進化可能' : 'EVOLVABLE'}
           </span>
         )}
@@ -70,7 +66,7 @@ export function EvolutionSection({
       {/* Progress bar (only when not maxed) */}
       {!status.isMaxLevel && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', gap: '8px' }}>
+          <div className="evolution-section__row-1">
             <span style={{
               fontFamily: 'var(--pd-font-body)',
               fontSize,
@@ -94,11 +90,7 @@ export function EvolutionSection({
               {status.progress} / {status.threshold}
             </span>
           </div>
-          <div style={{
-            height: '4px',
-            background: 'var(--pd-color-border-default)',
-            position: 'relative',
-          }}>
+          <div className="evolution-section__pos-1">
             <div style={{
               position: 'absolute', left: 0, top: 0, bottom: 0,
               width: `${Math.min(100, status.threshold > 0 ? (status.progress / status.threshold) * 100 : 0)}%`,
@@ -111,8 +103,8 @@ export function EvolutionSection({
 
       {/* Premium CTA when progress met but not premium */}
       {status.blockedReason === 'need_premium' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
-          <span style={{ fontSize: 'var(--pd-font-size-2xs)' }}>🔒</span>
+        <div className="evolution-section__row-2">
+          <span className="evolution-section__text-2">🔒</span>
           <button
             type="button"
             onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}

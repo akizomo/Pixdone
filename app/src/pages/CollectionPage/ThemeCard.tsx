@@ -1,4 +1,5 @@
 import type { VisualTheme } from '../../design-system/themes/themeRegistry';
+import './ThemeCard.css';
 
 interface ThemeCardProps {
   theme: VisualTheme;
@@ -50,10 +51,10 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
       }}
     >
       {/* Theme icon */}
-      <span style={{ fontSize: '2rem', lineHeight: 1, flexShrink: 0 }}>{theme.icon}</span>
+      <span className="theme-card__theme-icon">{theme.icon}</span>
 
       {/* Info */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div className="theme-card__info">
         <div
           style={{
             fontFamily: 'var(--pd-font-brand)',
@@ -67,7 +68,7 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
         </div>
         {/* Color swatches */}
         {swatches.length > 0 && (
-          <div style={{ display: 'flex', gap: '4px' }}>
+          <div className="theme-card__row-1">
             {swatches.map((color, i) => (
               <span
                 key={i}
@@ -88,29 +89,17 @@ export function ThemeCard({ theme, isActive, isPremium, colorMode, onClick }: Th
       {/* Right badge */}
       {isActive && (
         <span
-          style={{
-            fontSize: 'var(--pd-font-size-sm)',
-            fontFamily: 'var(--pd-font-brand)',
-            letterSpacing: '1px',
-            color: 'var(--pd-color-accent-default)',
-            flexShrink: 0,
-          }}
+          className="theme-card__text-1"
         >
           ACTIVE
         </span>
       )}
       {isLocked && (
-        <span style={{ fontSize: 'var(--pd-font-size-sm)', flexShrink: 0 }}>🔒</span>
+        <span className="theme-card__text-2">🔒</span>
       )}
       {!isActive && !isLocked && (
         <span
-          style={{
-            fontSize: 'var(--pd-font-size-sm)',
-            color: 'var(--pd-color-text-secondary)',
-            fontFamily: 'var(--pd-font-brand)',
-            letterSpacing: '1px',
-            flexShrink: 0,
-          }}
+          className="theme-card__text-3"
         >
           TAP
         </span>

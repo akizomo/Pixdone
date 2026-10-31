@@ -3,6 +3,7 @@ import { IconButton, PopoverMenu, PixelIcon } from '../design-system';
 import { setBgmTrack, setBgmOn, setBgmVolume, getBgmVolume } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
 import { playSound } from '../services/sound';
+import './BgmControl.css';
 
 export interface BgmControlProps {
   lang: 'en' | 'ja';
@@ -55,7 +56,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
   };
 
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }}>
+    <div className="bgm-control__pos-1">
       {/* Trigger: BGM icon button */}
       {variant === 'zen' || variant === 'ghost' ? (
         <IconButton
@@ -113,7 +114,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
           align="right"
         >
           {/* Track list */}
-          <div style={{ padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <div className="bgm-control__track-list">
             {TRACKS.map(tr => {
               const isActive = selected === tr.id;
               return (
@@ -146,13 +147,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
             flexDirection: 'column',
             gap: '6px',
           }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontFamily: 'var(--pd-font-body)',
-                fontSize: 'var(--pd-font-size-3xs)',
-                color: 'var(--pd-color-text-secondary)',
-              }}>
+              <div className="bgm-control__text-1">
                 <span>{lang === 'ja' ? 'ボリューム' : 'Volume'}</span>
                 <span>{vol}%</span>
               </div>
@@ -164,11 +159,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
                 value={vol}
                 onChange={handleVol}
                 onPointerDown={() => playSound('buttonClick')}
-                style={{
-                  width: '100%',
-                  accentColor: 'var(--pd-color-accent-default)',
-                  cursor: 'pointer',
-                }}
+                className="bgm-control__box-1"
               />
           </div>
         </PopoverMenu>

@@ -23,6 +23,7 @@ import { PlanView } from '../components/PlanView';
 import type { List } from '../types/list';
 import type { Task } from '../types/task';
 import type { User } from 'firebase/auth';
+import './TasksScreen.css';
 
 export interface TasksScreenProps {
   lang: 'en' | 'ja';
@@ -459,30 +460,12 @@ export function TasksScreen({
 
       {/* Add task button (desktop only) / inline form */}
       {!isSmash && !isTutorial && (
-        <div style={{ paddingBottom: '8px' }} className="pd-add-task-section">
+        <div className="pd-add-task-section tasks__box-1">
           <button
             type="button"
-            className="pd-add-task-section__button"
+            className="pd-add-task-section__button tasks__text-1"
             data-tour={isOnboardingTour ? 'true' : 'false'}
             onClick={() => { playSound('taskAdd'); openAddTask(); onAddButtonClick?.(); }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              width: '100%',
-              background: 'var(--pd-color-background-elevated)',
-              border: '2px solid var(--pd-color-border-default)',
-              borderRadius: 0,
-              color: 'var(--pd-color-text-secondary)',
-              fontSize: 'var(--pd-font-size-sm)',
-              cursor: 'pointer',
-              padding: '12px 16px',
-              textAlign: 'left',
-              boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
-              imageRendering: 'pixelated',
-              fontFamily: 'var(--pd-font-body)',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease',
-            }}
             onMouseEnter={(e) => {
               const el = e.currentTarget;
               el.style.background = 'var(--pd-color-background-hover)';
@@ -501,7 +484,7 @@ export function TasksScreen({
             }}
           >
             <PixelIcon name="add" size="18px" />
-            <span style={{ flex: 1 }}>
+            <span className="tasks__box-2">
               {lang === 'ja' ? '\u30BF\u30B9\u30AF\u3092\u8FFD\u52A0' : 'Add a task'}
             </span>
             <KeyHint>N</KeyHint>
@@ -548,24 +531,17 @@ export function TasksScreen({
               onViewPricing={() => onDismissTutorial('later')}
             />
             {completedTasks.length > 0 && (
-              <div style={{ marginTop: '24px' }}>
+              <div className="tasks__box-3">
                 <button
                   type="button"
                   onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    width: '100%', background: 'none', border: 'none',
-                    cursor: 'pointer', padding: '8px 4px',
-                    color: 'var(--pd-color-text-secondary)',
-                    fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
-                    textAlign: 'left',
-                  }}
+                  className="tasks__text-2"
                 >
                   <PixelIcon name="chevron_right_2" size="0.625rem" style={{ transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
                   {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
                 </button>
                 {completedExpanded && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
+                  <div className="tasks__col-1">
                     {completedTasks.map((task) => (
                       <TaskItem
                         key={task.id}
@@ -603,25 +579,19 @@ export function TasksScreen({
               </div>
             </div>
             <p>{t('emptyRest', lang)}</p>
-            <p style={{ marginBottom: '24px' }}>{t('emptyRestSub', lang)}</p>
+            <p className="tasks__box-4">{t('emptyRestSub', lang)}</p>
             {/* Still show completed tasks collapsed */}
-            <div style={{ textAlign: 'left' }}>
+            <div className="tasks__still-show-completed-tasks-c">
               <button
                 type="button"
                 onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '8px',
-                  width: '100%', background: 'none', border: 'none',
-                  cursor: 'pointer', padding: '8px 4px',
-                  color: 'var(--pd-color-text-secondary)',
-                  fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', textAlign: 'left',
-                }}
+                className="tasks__text-2"
               >
                 <PixelIcon name="chevron_right_2" size="0.625rem" style={{ transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
                 {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
               </button>
               {completedExpanded && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
+                <div className="tasks__col-1">
                   {completedTasks.map((task) => (
                     <TaskItem key={task.id} task={task} lang={lang} onComplete={onUncomplete} onEdit={handleEdit} onDelete={handleDelete} onTutorialSmashLinkClick={onNavigateToSmashList} onTutorialFocusLinkClick={onNavigateToFocus} onTutorialChallengeLinkClick={onNavigateToCollection} />
                   ))}
@@ -632,9 +602,9 @@ export function TasksScreen({
         ) : (
           <div>
             {/* Active tasks */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className="tasks__active-tasks">
               {taskFormMode === 'add' && (
-                <div ref={inlineTaskFormRef} style={{ paddingTop: '16px', paddingBottom: '16px' }}>
+                <div ref={inlineTaskFormRef} className="tasks__box-5">
                   <TaskForm
                     ref={taskFormRef}
                     lang={lang}
@@ -650,20 +620,11 @@ export function TasksScreen({
                   {activeReorderDrag.active && activeReorderDrag.hoverIndex === activeIndex && (
                     <div
                       aria-hidden
-                      className="pd-active-reorder-insert-line"
-                      style={{
-                        height: '4px',
-                        background: 'var(--pd-color-accent-default)',
-                        marginBottom: '6px',
-                        boxShadow: '0 0 0 1px var(--pd-color-border-default)',
-                        flexShrink: 0,
-                        borderRadius: 0,
-                        imageRendering: 'pixelated',
-                      }}
+                      className="pd-active-reorder-insert-line tasks__box-6"
                     />
                   )}
                   {taskFormMode === task.id && editingTask ? (
-                    <div ref={inlineTaskFormRef} style={{ paddingTop: '16px', paddingBottom: '16px' }}>
+                    <div ref={inlineTaskFormRef} className="tasks__box-5">
                       <TaskForm
                         ref={taskFormRef}
                         lang={lang}
@@ -703,24 +664,17 @@ export function TasksScreen({
 
             {/* Completed tasks section */}
             {completedTasks.length > 0 && (
-              <div style={{ marginTop: '16px' }}>
+              <div className="tasks__box-7">
                 <button
                   type="button"
                   onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    width: '100%', background: 'none', border: 'none',
-                    cursor: 'pointer', padding: '8px 4px',
-                    color: 'var(--pd-color-text-secondary)',
-                    fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
-                    textAlign: 'left',
-                  }}
+                  className="tasks__text-2"
                 >
                   <PixelIcon name="chevron_right_2" size="0.625rem" style={{ transition: 'transform 0.2s', transform: completedExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }} />
                   {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
                 </button>
                 {completedExpanded && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.75 }}>
+                  <div className="tasks__col-1">
                     {completedTasks.map((task) => (
                       <TaskItem
                         key={task.id}
@@ -786,7 +740,7 @@ export function TasksScreen({
           </>
         }
       >
-        <p style={{ color: 'var(--pd-color-text-secondary)', fontFamily: 'var(--pd-font-body)' }}>
+        <p className="tasks__text-3">
           {t('deleteTaskConfirm', lang)}
         </p>
       </ModalDialog>

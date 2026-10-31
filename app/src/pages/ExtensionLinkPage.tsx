@@ -13,6 +13,7 @@ import { AuthModal } from '../components/AuthModal';
 import { useAuth } from '../contexts/AuthContext';
 import { auth as firebaseAuth } from '../lib/firebase';
 import { apiUrl } from '../lib/apiUrl';
+import './ExtensionLinkPage.css';
 
 interface AuthPayload {
   idToken: string;
@@ -165,7 +166,7 @@ export function ExtensionLinkPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: 40, textAlign: 'center', fontFamily: 'system-ui, sans-serif' }}>
+      <div className="extension-link__text-1">
         Loading…
       </div>
     );
@@ -174,30 +175,16 @@ export function ExtensionLinkPage() {
   if (!user) {
     return (
       <div
-        style={{
-          maxWidth: 420,
-          margin: '80px auto',
-          padding: 24,
-          fontFamily: 'system-ui, sans-serif',
-          textAlign: 'center',
-        }}
+        className="extension-link__text-2"
       >
-        <h1 style={{ fontSize: 'var(--pd-font-size-lg)', marginBottom: 8 }}>Sign in to PixDone</h1>
-        <p style={{ fontSize: 'var(--pd-font-size-xs)', color: '#666c7a', marginBottom: 20 }}>
+        <h1 className="extension-link__text-3">Sign in to PixDone</h1>
+        <p className="extension-link__text-4">
           Sign in to connect the PixDone Quick Chrome extension to your account.
         </p>
         <button
           type="button"
           onClick={() => setAuthModalOpen(true)}
-          style={{
-            padding: '10px 16px',
-            background: '#7b61ff',
-            color: '#fff',
-            border: '2px solid #191d24',
-            boxShadow: '2px 2px 0 rgba(25,29,36,0.9)',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
+          className="extension-link__text-5"
         >
           Sign in
         </button>
@@ -214,24 +201,18 @@ export function ExtensionLinkPage() {
 
   return (
     <div
-      style={{
-        maxWidth: 420,
-        margin: '80px auto',
-        padding: 24,
-        fontFamily: 'system-ui, sans-serif',
-        textAlign: 'center',
-      }}
+      className="extension-link__text-2"
     >
-      <h1 style={{ fontSize: 'var(--pd-font-size-lg)', marginBottom: 8 }}>Connecting PixDone Quick…</h1>
-      <p style={{ fontSize: 'var(--pd-font-size-xs)', color: '#666c7a', marginBottom: 16 }}>
+      <h1 className="extension-link__text-3">Connecting PixDone Quick…</h1>
+      <p className="extension-link__text-6">
         Signed in as <strong>{user.email ?? user.uid}</strong>
       </p>
       {status === 'sending' && (
-        <p style={{ fontSize: 'var(--pd-font-size-xs)', color: '#666c7a' }}>Sending credentials to the extension…</p>
+        <p className="extension-link__text-7">Sending credentials to the extension…</p>
       )}
       {status === 'done' && (
         <>
-          <p style={{ fontSize: 'var(--pd-font-size-sm)', color: '#166534', marginBottom: 12 }}>
+          <p className="extension-link__text-8">
             ✓ Connected. You can close this tab.
           </p>
           <button
@@ -245,7 +226,7 @@ export function ExtensionLinkPage() {
       )}
       {status === 'error' && (
         <>
-          <p style={{ fontSize: 'var(--pd-font-size-xs)', color: '#c53030', marginBottom: 12 }}>
+          <p className="extension-link__text-9">
             {error ?? 'Something went wrong.'}
           </p>
           <button

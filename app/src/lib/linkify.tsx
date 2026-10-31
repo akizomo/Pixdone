@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import './linkify.css';
 
 const URL_RE = /\b((?:https?:\/\/|www\.)[^\s<>"']+)/gi;
 const TRAIL_PUNCT_RE = /[),.?!:;"']+$/;
@@ -37,12 +38,7 @@ function renderPlainTextWithLinks(text: string, keyPrefix: string): ReactNode[] 
         href={href}
         target="_blank"
         rel="noreferrer"
-        style={{
-          color: 'var(--pd-color-accent-default)',
-          textDecoration: 'underline',
-          textUnderlineOffset: '2px',
-          wordBreak: 'break-word',
-        }}
+        className="linkify__text-1"
         onClick={(e) => e.stopPropagation()}
       >
         {label}
@@ -90,12 +86,7 @@ export function renderTextWithLinks(text: string): ReactNode[] {
         href={href}
         target="_blank"
         rel="noreferrer"
-        style={{
-          color: 'var(--pd-color-accent-default)',
-          textDecoration: 'underline',
-          textUnderlineOffset: '2px',
-          wordBreak: 'break-word',
-        }}
+        className="linkify__text-1"
         onClick={(e) => e.stopPropagation()}
       >
         {label || href}

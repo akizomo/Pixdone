@@ -5,6 +5,7 @@ import type { ThemeKey } from '../design-system';
 import type { ColorModePreference } from '../design-system/tokens';
 import { playSound } from '../services/sound';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
+import './ThemeSelector.css';
 
 interface ThemeSelectorProps {
   onClose?: () => void;
@@ -36,40 +37,23 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
 
   return (
     <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        padding: '4px 0',
-      }}
+      className="theme-selector__col-1"
     >
       {/* ── Color Mode Section ─────────────────────────── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="theme-selector__color-mode-section">
         <p
-          style={{
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-sm)',
-            color: 'var(--pd-color-text-secondary)',
-            letterSpacing: '1px',
-            margin: 0,
-          }}
+          className="theme-selector__text-1"
         >
           COLOR MODE
         </p>
         <p
-          style={{
-            fontFamily: 'var(--pd-font-body)',
-            fontSize: 'var(--pd-font-size-2xs)',
-            color: 'var(--pd-color-text-secondary)',
-            margin: 0,
-            lineHeight: 1.4,
-          }}
+          className="theme-selector__text-2"
         >
           {lang === 'ja'
             ? 'ライト/ダーク、またはデバイス設定に連動'
             : 'Light, dark, or match your device settings'}
         </p>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="theme-selector__row-1">
           {COLOR_MODES.map((mode) => {
             const isActive = colorModePreference === mode.key;
             return (
@@ -106,19 +90,13 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
       </div>
 
       {/* ── Theme List Section ─────────────────────────── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="theme-selector__color-mode-section">
         <p
-          style={{
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-sm)',
-            color: 'var(--pd-color-text-secondary)',
-            letterSpacing: '1px',
-            margin: 0,
-          }}
+          className="theme-selector__text-1"
         >
           SELECT THEME
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="theme-selector__color-mode-section">
           {themeList.map((theme) => {
             const isActive = theme.key === visualTheme;
             const isLocked = theme.isPremium ? !isPremium : false;
@@ -145,18 +123,10 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
                   transition: 'background 0.15s, border-color 0.15s',
                 }}
               >
-                <span style={{
-                  width: '32px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1.25rem',
-                  lineHeight: 1,
-                  flexShrink: 0,
-                }}>
+                <span className="theme-selector__text-3">
                   {theme.icon}
                 </span>
-                <span style={{ flex: 1 }}>
+                <span className="theme-selector__box-1">
                   <span
                     style={{
                       display: 'block',
@@ -172,21 +142,13 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
                 </span>
                 {isLocked && (
                   <span
-                    style={{
-                      fontSize: 'var(--pd-font-size-sm)',
-                      color: 'var(--pd-color-text-secondary)',
-                      background: 'var(--pd-color-background-default)',
-                      border: '1px solid var(--pd-color-border-default)',
-                      padding: '2px 6px',
-                      fontFamily: 'var(--pd-font-brand)',
-                      letterSpacing: '1px',
-                    }}
+                    className="theme-selector__text-4"
                   >
                     🔒 PRO
                   </span>
                 )}
                 {isActive && !isLocked && (
-                  <span style={{ color: 'var(--pd-color-accent-default)', display: 'inline-flex' }}><PixelIcon name="play" size="sm" /></span>
+                  <span className="theme-selector__row-2"><PixelIcon name="play" size="sm" /></span>
                 )}
               </button>
             );

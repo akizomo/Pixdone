@@ -3,6 +3,7 @@ import { ModalDialog, Button, PixelIcon } from '../design-system';
 import { useAuth } from '../contexts/AuthContext';
 import { playSound } from '../services/sound';
 import { Capacitor } from '@capacitor/core';
+import './AuthModal.css';
 
 const ERROR_MESSAGES: Record<string, { en: string; ja: string }> = {
   'auth/invalid-email': { en: 'Invalid email address.', ja: 'メールアドレスが無効です。' },
@@ -133,7 +134,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
         </>
       }
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="auth-modal__col-1">
         {/* Google Sign-In — signup and login modes only (native apps use the
             native Google SDK via loginWithGoogle). */}
         {mode !== 'reset' && (
@@ -188,12 +189,12 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
               {lang === 'ja' ? 'Googleで続ける' : 'Continue with Google'}
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ flex: 1, height: '1px', background: 'var(--pd-color-border-default, #e5e7eb)' }} />
-              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-muted)' }}>
+            <div className="auth-modal__row-1">
+              <div className="auth-modal__box-1" />
+              <span className="auth-modal__text-1">
                 {lang === 'ja' ? 'またはメールで' : 'or with email'}
               </span>
-              <div style={{ flex: 1, height: '1px', background: 'var(--pd-color-border-default, #e5e7eb)' }} />
+              <div className="auth-modal__box-1" />
             </div>
           </>
         )}
@@ -202,7 +203,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
         <div className="pxd-text-field" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <label
             htmlFor="auth-email-input"
-            style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)' }}
+            className="auth-modal__text-2"
           >
             {lang === 'ja' ? 'メールアドレス' : 'Email'}
           </label>
@@ -226,11 +227,11 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
           <div className="pxd-text-field" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <label
               htmlFor="auth-password-input"
-              style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)' }}
+              className="auth-modal__text-2"
             >
               {lang === 'ja' ? 'パスワード' : 'Password'}
             </label>
-            <div style={{ position: 'relative' }}>
+            <div className="auth-modal__pos-1">
               <input
                 id="auth-password-input"
                 type={showPassword ? 'text' : 'password'}
@@ -248,11 +249,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
               <button
                 type="button"
                 onClick={() => { playSound('buttonClick'); setShowPassword((v) => !v); }}
-                style={{
-                  position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--pd-color-text-muted)', display: 'flex', alignItems: 'center',
-                }}
+                className="auth-modal__row-2"
               >
                 <PixelIcon name={showPassword ? 'visibility_off' : 'visibility'} size="18px" />
               </button>
@@ -265,12 +262,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
           <button
             type="button"
             onClick={() => { playSound('buttonClick'); switchMode('reset'); }}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: 'var(--pd-color-accent-default)',
-              fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
-              textAlign: 'left', padding: 0,
-            }}
+            className="auth-modal__text-3"
           >
             {lang === 'ja' ? 'パスワードを忘れた方' : 'Forgot password?'}
           </button>
@@ -281,13 +273,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
           <button
             type="button"
             onClick={() => { playSound('buttonClick'); switchMode('login'); }}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: 'var(--pd-color-text-secondary)',
-              fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
-              textAlign: 'left', padding: 0,
-              display: 'inline-flex', alignItems: 'center', gap: '4px',
-            }}
+            className="auth-modal__text-4"
           >
             <PixelIcon name="arrow_back" size="sm" />
             {lang === 'ja' ? 'ログインに戻る' : 'Back to login'}
@@ -296,18 +282,14 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
 
         {/* Footer: switch between signup / login (vanilla parity: auth-footer) */}
         {mode !== 'reset' && (
-          <div style={{ marginTop: '4px', fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)' }}>
+          <div className="auth-modal__text-5">
             {mode === 'signup' ? (
               <>
                 <span>{lang === 'ja' ? 'すでにアカウントをお持ちですか？ ' : 'Already have an account? '}</span>
                 <button
                   type="button"
                   onClick={() => { playSound('taskEdit'); switchMode('login'); }}
-                  style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    color: 'var(--pd-color-accent-default)', padding: 0,
-                    fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
-                  }}
+                  className="auth-modal__text-6"
                 >
                   {lang === 'ja' ? 'ログイン' : 'Log in'}
                 </button>
@@ -318,11 +300,7 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
                 <button
                   type="button"
                   onClick={() => { playSound('taskEdit'); switchMode('signup'); }}
-                  style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    color: 'var(--pd-color-accent-default)', padding: 0,
-                    fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
-                  }}
+                  className="auth-modal__text-6"
                 >
                   {lang === 'ja' ? 'サインアップ' : 'Sign up'}
                 </button>
@@ -333,14 +311,14 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
 
         {/* Error */}
         {error && (
-          <p style={{ color: 'var(--pd-color-semantic-danger, #ef4444)', fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', margin: 0 }}>
+          <p className="auth-modal__text-7">
             {error}
           </p>
         )}
 
         {/* Success */}
         {successMsg && (
-          <p style={{ color: 'var(--pd-color-accent-default)', fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', margin: 0 }}>
+          <p className="auth-modal__text-8">
             {successMsg}
           </p>
         )}

@@ -118,3 +118,8 @@
     transition: opacity 150ms ease;
   }
 }
+
+.focus-zen-mode__row-1 {
+  display: inline-flex;
+  align-items: center;
+}

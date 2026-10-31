@@ -950,3 +950,15 @@
     transform: rotate(-2deg);
   }
 }
+
+.onboarding-tutorial__box-1 {
+  animation-delay: 80ms;
+}
+
+.onboarding-tutorial__box-2 {
+  animation-delay: 220ms;
+}
+
+.onboarding-tutorial__box-3 {
+  animation-delay: 360ms;
+}

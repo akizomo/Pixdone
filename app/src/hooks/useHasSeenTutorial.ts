@@ -44,18 +44,38 @@ export function useHasSeenTutorial() {
       return;
     }
     const ref = doc(db, 'users', user.uid, 'settings', 'general');
+    const readLocalSeen = () => {
+      try { return localStorage.getItem(LS_KEY) === 'true'; } catch { return false; }
+    };
     const unsub = onSnapshot(
       ref,
       (snap) => {
-        const seen = snap.exists() && snap.data().hasSeenTutorial === true;
-        setHasSeenTutorial(seen);
-        try { localStorage.setItem(LS_KEY, String(seen)); } catch { /* ignore */ }
-      },
-      () => {
-        // Offline — trust localStorage cache; if no cache, assume false
-        if (hasSeenTutorial === null) {
-          setHasSeenTutorial(false);
+        const serverSeen = snap.exists() && snap.data().hasSeenTutorial === true;
+        if (serverSeen) {
+          setHasSeenTutorial(true);
+          try { localStorage.setItem(LS_KEY, 'true'); } catch { /* ignore */ }
+          return;
         }
+        // "Seen" is one-way. If this device already recorded it, a missing /
+        // false server flag means the earlier write never landed — keep the
+        // local value and backfill instead of replaying the tutorial.
+        if (readLocalSeen()) {
+          setHasSeenTutorial(true);
+          if (!snap.metadata.fromCache) {
+            setDoc(ref, { hasSeenTutorial: true }, { merge: true }).catch((e) => {
+              console.warn('[useHasSeenTutorial] failed to backfill flag:', e);
+            });
+          }
+          return;
+        }
+        // A cache-only miss is not authoritative; wait for the server.
+        if (snap.metadata.fromCache && !snap.exists()) return;
+        setHasSeenTutorial(false);
+      },
+      (e) => {
+        console.warn('[useHasSeenTutorial] failed to read flag:', e);
+        // Offline / denied — fall back to the localStorage cache
+        setHasSeenTutorial(readLocalSeen());
       },
     );
     return unsub;

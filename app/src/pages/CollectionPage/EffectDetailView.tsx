@@ -7,6 +7,7 @@ import { playSound } from '../../services/sound';
 import { Toggle } from '../../design-system';
 import { DetailViewHeader } from '../../components/SubPageHeader';
 import { badgeColor } from './rarityColors';
+import './EffectDetailView.css';
 
 interface EffectDetailViewProps {
   effectKey: string;
@@ -56,14 +57,7 @@ export function EffectDetailView({
   if (!effect) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 300,
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--pd-color-background-default)',
-    }}>
+    <div className="effect-detail__col-1">
       {/* Header */}
       <DetailViewHeader title={effect.name.toUpperCase()} isJa={lang === 'ja'} onBack={onClose}>
         <span style={{
@@ -75,8 +69,8 @@ export function EffectDetailView({
         </span>
         {/* Toggle (shown only once challenge is earned, or for non-challenge effects) */}
         {(!isChallenge || challengeOwned) && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-            <span style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', color: 'var(--pd-color-text-secondary)' }}>
+          <div className="effect-detail__row-1">
+            <span className="effect-detail__text-1">
               {lang === 'ja' ? 'アクティブ' : 'ACTIVE'}
             </span>
             <Toggle
@@ -90,13 +84,7 @@ export function EffectDetailView({
       </DetailViewHeader>
 
       {/* Demo area */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px 16px',
-      }}>
+      <div className="effect-detail__demo-area">
         <DemoTaskItem
           ref={demoRef}
           lang={lang}
@@ -105,16 +93,9 @@ export function EffectDetailView({
       </div>
 
       {/* Info */}
-      <div style={{
-        padding: '16px',
-        borderTop: '1px solid var(--pd-color-border-default)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        flexShrink: 0,
-      }}>
+      <div className="effect-detail__info">
         {disableToggleOff && (
-          <p style={{ margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)' }}>
+          <p className="effect-detail__text-2">
             {lang === 'ja'
               ? '各レアリティで最低1つのエフェクトをアクティブにする必要があります。'
               : 'At least one effect per rarity must remain active.'}
@@ -124,24 +105,17 @@ export function EffectDetailView({
         {/* Challenge progress bar (active period, not yet earned) */}
         {isChallenge && withinDeadline && !challengeOwned && challengeThreshold > 0 && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-primary)' }}>
+            <div className="effect-detail__row-2">
+              <span className="effect-detail__text-3">
                 {lang === 'ja'
                   ? `タスクを${challengeThreshold}回完了で解放`
                   : `Complete ${challengeThreshold} tasks to unlock`}
               </span>
-              <span style={{
-                fontFamily: 'var(--pd-font-body)',
-                fontSize: 'var(--pd-font-size-xs)',
-                color: 'var(--pd-color-text-secondary)',
-                alignSelf: 'center',
-                lineHeight: 1.2,
-                fontVariantNumeric: 'tabular-nums',
-              }}>
+              <span className="effect-detail__text-4">
                 {challengeProgress} / {challengeThreshold}
               </span>
             </div>
-            <div style={{ height: '6px', background: 'var(--pd-color-border-default)', position: 'relative' }}>
+            <div className="effect-detail__pos-1">
               <div style={{
                 position: 'absolute', left: 0, top: 0, bottom: 0,
                 width: `${Math.min(100, challengeThreshold > 0 ? (challengeProgress / challengeThreshold) * 100 : 0)}%`,
@@ -150,7 +124,7 @@ export function EffectDetailView({
               }} />
             </div>
             {effect.challengeDeadline && (
-              <p style={{ margin: '6px 0 0', fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-secondary)' }}>
+              <p className="effect-detail__text-5">
                 {lang === 'ja'
                   ? `期限: ${effect.challengeDeadline.toLocaleDateString('ja-JP')}`
                   : `Deadline: ${effect.challengeDeadline.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}`}
@@ -159,23 +133,14 @@ export function EffectDetailView({
           </div>
         )}
 
-        <p style={{ margin: 0, fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-sm)', color: 'var(--pd-color-text-secondary)', lineHeight: 1.5 }}>
+        <p className="effect-detail__text-6">
           {effect.description[lang]}
         </p>
         {isLocked && effect.access === 'premium' && (
           <button
             type="button"
             onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}
-            style={{
-              padding: '12px',
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-sm)',
-              letterSpacing: '1px',
-              cursor: 'pointer',
-              background: 'var(--pd-color-background-elevated)',
-              color: 'var(--pd-color-text-primary)',
-              border: '1px solid var(--pd-color-border-default)',
-            }}
+            className="effect-detail__text-7"
           >
             {lang === 'ja' ? 'PixDone+ にアップグレード' : 'UPGRADE TO PIXDONE+'}
           </button>

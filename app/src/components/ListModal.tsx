@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ModalDialog, Button, TextField } from '../design-system';
 import { t } from '../lib/i18n';
+import './ListModal.css';
 
 export type ListModalMode = 'add' | 'rename' | 'delete';
 
@@ -68,7 +69,7 @@ export function ListModal({ open, mode, initialName = '', lang, onConfirm, onClo
       }
     >
       {mode === 'delete' ? (
-        <p style={{ fontFamily: 'var(--pd-font-body)', color: 'var(--pd-color-text-secondary)', margin: 0 }}>
+        <p className="list-modal__text-1">
           {t('deleteConfirm', lang)}
         </p>
       ) : (

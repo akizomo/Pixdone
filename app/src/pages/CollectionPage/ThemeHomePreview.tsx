@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { TaskItem } from '../../components/TaskItem';
 import type { Task } from '../../types/task';
+import './ThemeHomePreview.css';
 
 type ThemeHomePreviewProps = {
   lang: 'en' | 'ja';
@@ -90,22 +91,21 @@ export function ThemeHomePreview({ lang, onTriggerEffect }: ThemeHomePreviewProp
   }, [onTriggerEffect, lang]);
 
   return (
-    <div style={{ width: '100%', maxWidth: '560px' }}>
+    <div className="theme-home-preview__box-1">
       {/* Match Tasks tab spacing: no outer frame, just content */}
-      <div style={{ padding: '4px 4px 0' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 className="pd-app-title" style={{ fontSize: 'var(--pd-font-size-2xl)', textShadow: '1px 1px 0px var(--pd-color-shadow-default)' }}>
+      <div className="theme-home-preview__match-tasks-tab-spacing-no-o">
+        <div className="theme-home-preview__row-1">
+          <h1 className="pd-app-title theme-home-preview__text-1">
             PixDone
           </h1>
           {/* Keep empty space similar to real header icons */}
-          <div style={{ width: 56 }} aria-hidden />
+          <div className="theme-home-preview__keep-empty-space-similar-to-" aria-hidden />
         </div>
 
-        <div style={{ marginTop: '10px' }}>
+        <div className="theme-home-preview__box-2">
           {/* Tabs (visual only) */}
           <div
-            className="pd-list-tabs-scroll"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto' }}
+            className="pd-list-tabs-scroll theme-home-preview__tabs-visual-only"
             role="tablist"
             aria-label={lang === 'ja' ? 'リストタブ' : 'List tabs'}
           >
@@ -113,18 +113,7 @@ export function ThemeHomePreview({ lang, onTriggerEffect }: ThemeHomePreviewProp
               type="button"
               role="tab"
               aria-selected
-              style={{
-                padding: '4px 6px',
-                border: 'none',
-                borderBottom: '2px solid var(--pd-color-accent-default)',
-                background: 'none',
-                fontFamily: 'var(--pd-font-body)',
-                fontSize: 'var(--pd-font-size-xs)',
-                color: 'var(--pd-color-text-primary)',
-                fontWeight: 600,
-                lineHeight: 1.2,
-                cursor: 'default',
-              }}
+              className="theme-home-preview__text-2"
             >
               {lang === 'ja' ? 'チュートリアル' : 'Tutorial'}
             </button>
@@ -132,43 +121,22 @@ export function ThemeHomePreview({ lang, onTriggerEffect }: ThemeHomePreviewProp
               type="button"
               role="tab"
               aria-selected={false}
-              style={{
-                padding: '4px 6px',
-                border: 'none',
-                borderBottom: '2px solid transparent',
-                background: 'none',
-                fontFamily: 'var(--pd-font-body)',
-                fontSize: 'var(--pd-font-size-xs)',
-                color: 'var(--pd-color-text-secondary)',
-                fontWeight: 400,
-                lineHeight: 1.2,
-                cursor: 'default',
-              }}
+              className="theme-home-preview__text-3"
             >
               💥
             </button>
           </div>
         </div>
 
-        <div style={{ marginTop: '10px' }}>
+        <div className="theme-home-preview__box-2">
           <div
-            style={{
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-lg)',
-              fontWeight: 700,
-              color: 'var(--pd-color-text-primary)',
-              margin: 0,
-              letterSpacing: '1px',
-              textTransform: 'uppercase',
-              textShadow: '1px 1px 0px var(--pd-color-shadow-default)',
-              padding: '8px 0',
-            }}
+            className="theme-home-preview__text-4"
           >
             {lang === 'ja' ? 'マイタスク' : 'My Tasks'}
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="theme-home-preview__col-1">
           {demoTasks.map((t) => (
             <DemoRow
               key={t.id}

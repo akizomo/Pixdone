@@ -886,9 +886,8 @@ function AppContent() {
                   <PixelIcon name="menu" size="20px" />
                 </button>
                 <h1
-                  className="pd-app-title"
+                  className="pd-app-title app__box-1"
                   onClick={goHome}
-                  style={{ cursor: 'pointer', margin: 0 }}
                   role="button"
                   tabIndex={0}
                   onKeyDown={e => { if (e.key === 'Enter') goHome(); }}
@@ -955,13 +954,13 @@ function AppContent() {
 
             {user ? (
               /* Logged-in: Agent avatar + dropdown */
-              <div style={{ position: 'relative' }}>
+              <div className="app__pos-1">
                 <button
                   type="button"
                   aria-label={user.email ?? 'Account'}
                   title={user.email ?? 'Account'}
                   onClick={() => { playSound('buttonClick'); setUserMenuOpen((v) => !v); }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex' }}
+                  className="app__row-1"
                 >
                   <AgentIcon themeKey={visualTheme} isPremium={isPremium} faceOnly className="pd-agent-icon--header" />
                 </button>
@@ -972,7 +971,7 @@ function AppContent() {
                       {
                         id: 'lang', label: lang === 'ja' ? '言語' : 'Language', icon: 'language', group: 'settings',
                         trailing: (
-                          <div style={{ display: 'flex', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
+                          <div className="app__row-2" onClick={(e) => e.stopPropagation()}>
                             <Chip variant="ghost" size="sm" selected={lang === 'en'} onClick={() => changeLang('en')}>En</Chip>
                             <Chip variant="ghost" size="sm" selected={lang === 'ja'} onClick={() => changeLang('ja')}>Ja</Chip>
                           </div>
@@ -1279,7 +1278,7 @@ function AppContent() {
         closeOnOverlayClick
         aria-label="PixDone+"
         actions={
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
+          <div className="app__row-3">
             <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={() => setPlusIntroOpen(false)}>
               {lang === 'ja' ? 'あとで' : 'LATER'}
             </Button>
@@ -1289,31 +1288,22 @@ function AppContent() {
           </div>
         }
       >
-        <div style={{ padding: '4px 0 8px' }}>
-          <p style={{
-            fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)',
-            color: 'var(--pd-color-accent-default)', letterSpacing: '1px', margin: '0 0 12px',
-          }}>
+        <div className="app__box-2">
+          <p className="app__text-1">
             PIXDONE+
           </p>
-          <p style={{
-            fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-sm)',
-            color: 'var(--pd-color-text-secondary)', margin: '0 0 12px', lineHeight: 1.6,
-          }}>
+          <p className="app__text-2">
             {lang === 'ja'
               ? 'アップグレードするとできること：'
               : 'Unlock more with PixDone+:'}
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div className="app__col-1">
             {[
               { ja: '✦ リストが無制限に作れる', en: '✦ Unlimited task lists' },
               { ja: '✦ Synthwave テーマが使える', en: '✦ Synthwave theme' },
               { ja: '✦ レアエフェクトが発動する（Rainbow Smash / Freeze）', en: '✦ Rare effects (Rainbow Smash / Freeze)' },
             ].map((f) => (
-              <p key={f.en} style={{
-                fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)',
-                color: 'var(--pd-color-text-primary)', margin: 0,
-              }}>
+              <p key={f.en} className="app__text-3">
                 {lang === 'ja' ? f.ja : f.en}
               </p>
             ))}
@@ -1335,7 +1325,7 @@ function AppContent() {
           return (
             <button
               type="button"
-              className="pd-mobile-fab pd-mobile-fab--smash"
+              className="pd-mobile-fab pd-mobile-fab--smash app__text-4"
               onClick={() => {
                 const first = currentList?.tasks.find((t) => !t.completed);
                 if (!first) return;
@@ -1343,19 +1333,6 @@ function AppContent() {
                 handleSmash(first.id);
               }}
               aria-label={lang === 'ja' ? 'スマッシュ' : 'Smash'}
-              style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '50%',
-                background: 'white',
-                color: 'var(--pd-color-brand-smash, #9c27b0)',
-                border: 'none',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.75rem',
-                lineHeight: 1,
-                cursor: 'pointer',
-              }}
             >
               <span aria-hidden="true">💥</span>
             </button>
@@ -1365,7 +1342,7 @@ function AppContent() {
         return (
           <button
             type="button"
-            className="pd-mobile-fab"
+            className="pd-mobile-fab app__text-5"
             data-tour={onboardingTourActive ? 'true' : 'false'}
             onClick={() => {
               // Focus the warmup input FIRST so iOS opens the keyboard within
@@ -1385,19 +1362,6 @@ function AppContent() {
               handleTourAddButtonClick();
             }}
             aria-label={lang === 'ja' ? 'タスクを追加' : 'Add task'}
-            style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '50%',
-              background: 'var(--pd-color-accent-default)',
-              color: 'var(--pd-color-accent-text)',
-              border: '2px solid var(--pd-color-accent-default)',
-              boxShadow: '2px 2px 0px var(--pd-color-shadow-default)',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '1.5rem',
-              cursor: 'pointer',
-            }}
           >
             <PixelIcon name="add" size="28px" />
           </button>
@@ -1416,18 +1380,7 @@ function AppContent() {
         autoComplete="off"
         autoCorrect="off"
         spellCheck={false}
-        style={{
-          position: 'fixed',
-          left: 0,
-          bottom: 0,
-          width: 1,
-          height: 1,
-          opacity: 0,
-          border: 'none',
-          background: 'transparent',
-          pointerEvents: 'none',
-          zIndex: -1,
-        }}
+        className="app__pos-2"
       />
 
       {/* App-level add-task bottom sheet for Today/Plan FAB taps. Seeds the
@@ -1482,30 +1435,14 @@ function AppContent() {
         <div
           role="status"
           aria-live="polite"
-          style={{
-            position: 'fixed',
-            bottom: '96px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '12px 16px',
-            background: 'var(--pd-color-background-elevated)',
-            border: '2px solid var(--pd-color-semantic-success)',
-            boxShadow: '3px 3px 0 var(--pd-color-shadow-default)',
-            maxWidth: 'min(400px, calc(100vw - 32px))',
-            width: 'max-content',
-            fontFamily: 'var(--pd-font-body)',
-          }}
+          className="app__text-6"
         >
-          <span style={{ color: 'var(--pd-color-semantic-success)', fontSize: '1.25rem', lineHeight: 1, flexShrink: 0 }}>✓</span>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: 'var(--pd-font-brand)', fontSize: 'var(--pd-font-size-sm)', letterSpacing: '1px', color: 'var(--pd-color-semantic-success)' }}>
+          <span className="app__text-7">✓</span>
+          <div className="app__box-3">
+            <div className="app__text-8">
               {lang === 'ja' ? 'PIXDONE+ へようこそ！' : 'WELCOME TO PIXDONE+'}
             </div>
-            <div style={{ fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-secondary)', marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <div className="app__text-9">
               {lang === 'ja' ? (
                 <>
                   <span>✦ リストが無制限に作れます</span>
@@ -1527,7 +1464,7 @@ function AppContent() {
             soundKey="taskCancel"
             aria-label={lang === 'ja' ? '閉じる' : 'Dismiss'}
             onClick={() => setPurchaseBanner(null)}
-            icon={<span style={{ fontSize: 'var(--pd-font-size-md)', lineHeight: 1 }}>✕</span>}
+            icon={<span className="app__text-10">✕</span>}
           />
         </div>
       )}
@@ -1556,9 +1493,9 @@ class RootErrorBoundary extends Component<{ children: ReactNode }, { error: Erro
   render() {
     if (this.state.error) {
       return (
-        <div style={{ padding: 24, fontFamily: 'monospace', color: 'red', background: '#111', minHeight: '100vh' }}>
+        <div className="app__text-11">
           <h2>App crashed</h2>
-          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 'var(--pd-font-size-2xs)' }}>{String(this.state.error)}</pre>
+          <pre className="app__text-12">{String(this.state.error)}</pre>
         </div>
       );
     }

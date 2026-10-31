@@ -1,5 +1,6 @@
 import { Button } from '../design-system';
 import { playSound } from '../services/sound';
+import './TutorialPanel.css';
 
 export interface TutorialFeature {
   icon: string;
@@ -35,7 +36,7 @@ export function TutorialPanel({ headline, subtext, buttonLabel, onSignUp, pricin
       ) : (
         <p className="tutorial-complete-cta-sub">{subtext}</p>
       )}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div className="tutorial-panel__row-1">
         <Button variant="primary" onClick={() => { playSound('buttonClick'); onSignUp(); }}>
           {buttonLabel}
         </Button>
@@ -43,16 +44,7 @@ export function TutorialPanel({ headline, subtext, buttonLabel, onSignUp, pricin
           <button
             type="button"
             onClick={() => { playSound('buttonClick'); onViewPricing(); }}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'var(--pd-font-body)',
-              fontSize: 'var(--pd-font-size-xs)',
-              color: 'var(--pd-color-text-secondary)',
-              textDecoration: 'underline',
-              padding: '4px 0',
-            }}
+            className="tutorial-panel__text-1"
           >
             {pricingLabel}
           </button>

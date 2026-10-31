@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { ModalDialog, Button } from '../design-system';
+import './UpsellModal.css';
 
 export type UpsellReason = 'list-limit' | 'preset-theme' | 'sound-effect';
 
@@ -54,7 +55,7 @@ export function UpsellModal({ open, onClose, reason, lang = 'en' }: UpsellModalP
       closeOnOverlayClick
       aria-label={title}
       actions={
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
+        <div className="upsell-modal__row-1">
           <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={handleClose}>
             {isJa ? 'キャンセル' : 'CANCEL'}
           </Button>
@@ -64,27 +65,14 @@ export function UpsellModal({ open, onClose, reason, lang = 'en' }: UpsellModalP
         </div>
       }
     >
-      <div style={{ padding: '4px 0 8px' }}>
+      <div className="upsell-modal__box-1">
         <p
-          style={{
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-sm)',
-            color: 'var(--pd-color-text-primary)',
-            letterSpacing: '1px',
-            margin: '0 0 12px',
-          }}
+          className="upsell-modal__text-1"
         >
           {title}
         </p>
         <p
-          style={{
-            fontFamily: 'var(--pd-font-body)',
-            fontSize: 'var(--pd-font-size-sm)',
-            color: 'var(--pd-color-text-secondary)',
-            margin: 0,
-            whiteSpace: 'pre-line',
-            lineHeight: 1.6,
-          }}
+          className="upsell-modal__text-2"
         >
           {body}
         </p>

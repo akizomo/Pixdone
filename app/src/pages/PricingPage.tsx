@@ -165,22 +165,14 @@ export function PricingPage() {
   const storeUnavailable = isNativeApp && (!storeReady || (storePackages !== null && !(cycle === 'monthly' ? storePackages.monthly : storePackages.yearly)));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+    <div className="pricing__col-1">
       <SubPageHeader title="PIXDONE+" isJa={isJa} onBack={() => navigate('/')} />
 
       {/* Success banner */}
       {successBanner && (
         <div
           role="status"
-          style={{
-            background: 'var(--pd-color-feedback-success)',
-            color: 'var(--pd-color-text-inverse)',
-            fontFamily: 'var(--pd-font-brand)',
-            fontSize: 'var(--pd-font-size-sm)',
-            letterSpacing: '1px',
-            padding: '10px 24px',
-            textAlign: 'center',
-          }}
+          className="pricing__text-1"
         >
           {isJa ? '🎉 PixDone+ へようこそ！' : '🎉 Welcome to PixDone+!'}
         </div>
@@ -188,46 +180,22 @@ export function PricingPage() {
 
       {/* Content */}
       <div
-        style={{
-          flex: 1,
-          maxWidth: '640px',
-          width: '100%',
-          margin: '0 auto',
-          padding: '24px 0',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '32px',
-        }}
+        className="pricing__content"
       >
         {/* Headline */}
-        <div style={{ textAlign: 'center' }}>
+        <div className="pricing__headline">
           <h1
-            style={{
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-xl)',
-              letterSpacing: '2px',
-              margin: '0 0 8px',
-            }}
+            className="pricing__text-2"
           >
             {isJa ? 'もっと楽しく、もっと自分らしく。' : 'LEVEL UP YOUR PRODUCTIVITY'}
           </h1>
-          <p style={{ color: 'var(--pd-color-text-secondary)', margin: 0, fontSize: 'var(--pd-font-size-sm)' }}>
+          <p className="pricing__text-3">
             {isJa
               ? 'PixDone+ でリスト上限・全テーマ・Rare / Epic エフェクトを解放'
               : 'Unlock unlimited lists, all themes, and Rare & Epic effects'}
           </p>
           <span
-            style={{
-              display: 'inline-block',
-              marginTop: '12px',
-              padding: '4px 12px',
-              background: 'var(--pd-color-surface-info)',
-              color: 'var(--pd-color-text-info)',
-              border: '2px solid var(--pd-color-border-info)',
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-sm)',
-              letterSpacing: '1px',
-            }}
+            className="pricing__text-4"
           >
             {isJa ? '7日間の無料トライアル付き' : '7-DAY FREE TRIAL'}
           </span>
@@ -235,39 +203,24 @@ export function PricingPage() {
 
         {/* Pricing cards */}
         {!isPlusUser && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="pricing__col-2">
             {/* Free card */}
             <div
-              style={{
-                border: '2px solid var(--pd-color-border-outline)',
-                padding: '20px',
-                background: 'var(--pd-color-surface-primary)',
-              }}
+              className="pricing__free-card"
             >
               <p
-                style={{
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'var(--pd-font-size-sm)',
-                  letterSpacing: '1px',
-                  margin: '0 0 4px',
-                  color: 'var(--pd-color-text-tertiary)',
-                }}
+                className="pricing__text-5"
               >
                 FREE
               </p>
               <p
-                style={{
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'var(--pd-font-size-xl)',
-                  margin: '0 0 16px',
-                  letterSpacing: '1px',
-                }}
+                className="pricing__text-6"
               >
                 ¥0
               </p>
-              <ul style={{ margin: 0, padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <ul className="pricing__col-3">
                 {FREE_FEATURES.map((f) => (
-                  <li key={f.en} style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-secondary)' }}>
+                  <li key={f.en} className="pricing__text-7">
                     {isJa ? f.ja : f.en}
                   </li>
                 ))}
@@ -276,47 +229,25 @@ export function PricingPage() {
 
             {/* Plus card */}
             <div
-              style={{
-                border: '2px solid var(--pd-color-action-primary)',
-                padding: '20px',
-                background: 'var(--pd-color-surface-primary)',
-              }}
+              className="pricing__plus-card"
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '4px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="pricing__row-1">
+                <div className="pricing__row-2">
                   <p
-                    style={{
-                      fontFamily: 'var(--pd-font-brand)',
-                      fontSize: 'var(--pd-font-size-sm)',
-                      letterSpacing: '1px',
-                      margin: 0,
-                      color: 'var(--pd-color-text-accent)',
-                    }}
+                    className="pricing__text-8"
                   >
                     PIXDONE+
                   </p>
                   {cycle === 'yearly' && (
                     <span
-                      style={{
-                        fontFamily: 'var(--pd-font-brand)',
-                        fontSize: 'var(--pd-font-size-sm)',
-                        letterSpacing: '1px',
-                        whiteSpace: 'nowrap',
-                        background: 'var(--pd-color-surface-info)',
-                        color: 'var(--pd-color-text-info)',
-                        border: '1px solid var(--pd-color-border-info)',
-                        padding: '2px 6px',
-                      }}
+                      className="pricing__text-9"
                     >
                       {isJa ? '2ヶ月分お得' : '2 MO. FREE'}
                     </span>
                   )}
                 </div>
                 <div
-                  style={{
-                    display: 'inline-flex',
-                    border: '1px solid var(--pd-color-border-interactive)',
-                  }}
+                  className="pricing__row-3"
                 >
                   {(['monthly', 'yearly'] as const).map((c) => (
                     <button
@@ -345,33 +276,27 @@ export function PricingPage() {
                 </div>
               </div>
               <p
-                style={{
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'var(--pd-font-size-2xl)',
-                  margin: '8px 0 4px',
-                  letterSpacing: '1px',
-                  color: 'var(--pd-color-text-primary)',
-                }}
+                className="pricing__text-10"
               >
                 {isNativeApp
                   ? (storePrice.main ?? '—')
-                  : (cycle === 'monthly' ? '¥300' : '¥250')}<span style={{ fontSize: 'var(--pd-font-size-sm)', color: 'var(--pd-color-text-secondary)' }}>{isJa ? '/月' : '/mo'}</span>
+                  : (cycle === 'monthly' ? '¥300' : '¥250')}<span className="pricing__text-11">{isJa ? '/月' : '/mo'}</span>
               </p>
               {cycle === 'yearly' && (
-                <p style={{ fontSize: 'var(--pd-font-size-2xs)', color: 'var(--pd-color-text-tertiary)', margin: '0 0 4px' }}>
+                <p className="pricing__text-12">
                   {isNativeApp
                     ? (storePrice.yearly ? (isJa ? `年払い ${storePrice.yearly}` : `${storePrice.yearly} billed yearly`) : '')
                     : (isJa ? '年払い ¥3,000' : '¥3,000 billed yearly')}
                 </p>
               )}
-              <p style={{ fontSize: 'var(--pd-font-size-3xs)', color: 'var(--pd-color-text-tertiary)', margin: '0 0 16px' }}>
+              <p className="pricing__text-13">
                 {isJa
                   ? '7日間無料。その後自動で課金開始。いつでもキャンセル可能。'
                   : '7-day free trial, then auto-renews. Cancel anytime.'}
               </p>
-              <ul style={{ margin: '0 0 20px', padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <ul className="pricing__col-4">
                 {PLUS_FEATURES.map((f) => (
-                  <li key={f.en} style={{ fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-primary)' }}>
+                  <li key={f.en} className="pricing__text-14">
                     {isJa ? f.ja : f.en}
                   </li>
                 ))}
@@ -410,50 +335,29 @@ export function PricingPage() {
         {/* Already subscribed */}
         {isPlusUser && (
           <div
-            style={{
-              border: '2px solid var(--pd-color-action-primary)',
-              padding: '24px',
-              textAlign: 'center',
-              background: 'var(--pd-color-surface-primary)',
-            }}
+            className="pricing__box-1"
           >
             {isTrialing ? (
               <span
-                style={{
-                  display: 'inline-block',
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'var(--pd-font-size-sm)',
-                  letterSpacing: '1px',
-                  margin: '0 0 8px',
-                  padding: '4px 10px',
-                  background: 'var(--pd-color-surface-info)',
-                  color: 'var(--pd-color-text-info)',
-                  border: '1px solid var(--pd-color-border-info)',
-                }}
+                className="pricing__text-15"
               >
                 {isJa ? '無料トライアル中' : 'FREE TRIAL ACTIVE'}
               </span>
             ) : (
               <p
-                style={{
-                  fontFamily: 'var(--pd-font-brand)',
-                  fontSize: 'var(--pd-font-size-sm)',
-                  letterSpacing: '1px',
-                  margin: '0 0 8px',
-                  color: 'var(--pd-color-text-success)',
-                }}
+                className="pricing__text-16"
               >
                 {isJa ? '✓ PixDone+ 加入済み' : '✓ YOU ARE ON PIXDONE+'}
               </p>
             )}
             {isTrialing && trialEnd && (
-              <p style={{ color: 'var(--pd-color-text-secondary)', margin: '0 0 8px', fontSize: 'var(--pd-font-size-xs)' }}>
+              <p className="pricing__text-17">
                 {isJa
                   ? `トライアル終了: ${new Date(trialEnd).toLocaleDateString('ja-JP')}`
                   : `Trial ends: ${new Date(trialEnd).toLocaleDateString('en-US')}`}
               </p>
             )}
-            <p style={{ color: 'var(--pd-color-text-secondary)', margin: '0 0 16px', fontSize: 'var(--pd-font-size-sm)' }}>
+            <p className="pricing__text-18">
               {isJa ? 'すべての機能をご利用いただけます。' : 'You have access to all premium features.'}
             </p>
             <Button variant="secondary" size="sm" onClick={() => navigate('/account')}>

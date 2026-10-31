@@ -247,7 +247,7 @@ export const TaskItem = memo(function TaskItem({
       {!isSmash && (onDelete || (onMoveToList && availableLists && availableLists.length > 0)) && (
         <div className="task-item-row-actions">
           {onMoveToList && availableLists && availableLists.length > 0 && (
-            <div style={{ position: 'relative' }}>
+            <div className="task-item__pos-1">
               <button
                 type="button"
                 className={`task-item__action-btn task-item__action-btn--move${showMoveMenu ? ' task-item__action-btn--active' : ''}`}

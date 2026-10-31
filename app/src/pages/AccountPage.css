@@ -1,3 +1,100 @@
+/* Account page layout */
+.account-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.account-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--pd-space-6);
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--pd-space-6) 0;
+}
+
+.account-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-3);
+}
+
+.account-section--tight {
+  gap: var(--pd-space-2);
+}
+
+.account-label {
+  margin: 0;
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+  color: var(--pd-color-text-muted);
+}
+
+.account-value {
+  margin: 0;
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-primary);
+}
+
+.account-divider {
+  border-top: var(--pd-border-thin) solid var(--pd-color-border-default);
+}
+
+/* Subscription card */
+.account-plan {
+  padding: var(--pd-space-4);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+}
+
+.account-plan--free {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pd-space-4);
+}
+
+.account-plan--plus {
+  border-color: var(--pd-color-accent-default);
+  background: var(--pd-color-accent-subtle);
+}
+
+.account-plan__name {
+  margin: 0 0 var(--pd-space-1);
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-sm);
+  letter-spacing: 1px;
+}
+
+.account-plan__name--plus {
+  color: var(--pd-color-accent-default);
+}
+
+.account-plan__desc,
+.account-plan__meta {
+  font-size: var(--pd-font-size-xs);
+  color: var(--pd-color-text-secondary);
+}
+
+.account-plan__desc {
+  margin: 0;
+}
+
+.account-plan__meta {
+  margin: 0 0 var(--pd-space-1);
+}
+
+.account-plan__meta--end {
+  margin-bottom: var(--pd-space-4);
+}
+
+.account-plan__spacer {
+  margin-bottom: var(--pd-space-4);
+}
+
 /* Delete-account block (store requirement: in-app account deletion). */
 .account-danger {
   display: flex;

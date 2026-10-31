@@ -7,6 +7,7 @@ import { Toggle } from '../../design-system';
 import { EvolutionSection } from './EvolutionSection';
 import { resolveAnimationKey } from '../../data/effectEvolution';
 import type { EffectProgressEntry } from '../../hooks/useEffectProgress';
+import './EffectPreviewPanel.css';
 
 interface EffectPreviewPanelProps {
   effectKey: string;
@@ -57,49 +58,24 @@ export function EffectPreviewPanel({
 
   if (!effect) {
     return (
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'var(--pd-color-text-secondary)',
-        fontFamily: 'var(--pd-font-brand)',
-        fontSize: 'var(--pd-font-size-sm)',
-        letterSpacing: '1px',
-      }}>
+      <div className="effect-preview-panel__text-1">
         {lang === 'ja' ? 'エフェクトを選択' : 'SELECT AN EFFECT'}
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="effect-preview-panel__col-1">
       {/* Top bar: Active toggle */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        padding: '10px 16px',
-        gap: '8px',
-        flexShrink: 0,
-      }}>
+      <div className="effect-preview-panel__top-bar-active-toggle">
         {disableToggleOff && (
-          <span style={{
-            fontFamily: 'var(--pd-font-body)',
-            fontSize: 'var(--pd-font-size-3xs)',
-            color: 'var(--pd-color-text-secondary)',
-          }}>
+          <span className="effect-preview-panel__text-2">
             {lang === 'ja' ? '※最低1つ必要' : 'min. 1 required'}
           </span>
         )}
         {(!isChallenge || challengeOwned) && (
           <>
-            <span style={{
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-sm)',
-              letterSpacing: '1px',
-              color: 'var(--pd-color-text-secondary)',
-            }}>
+            <span className="effect-preview-panel__text-3">
               {lang === 'ja' ? 'アクティブ' : 'ACTIVE'}
             </span>
             <Toggle
@@ -113,14 +89,7 @@ export function EffectPreviewPanel({
       </div>
 
       {/* Demo area */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '16px 24px',
-      }}>
+      <div className="effect-preview-panel__demo-area">
         <DemoTaskItem
           ref={demoRef}
           lang={lang}
@@ -129,36 +98,20 @@ export function EffectPreviewPanel({
       </div>
 
       {/* Bottom: challenge progress + description + optional CTA */}
-      <div style={{
-        padding: '16px',
-        borderTop: '1px solid var(--pd-color-border-default)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        flexShrink: 0,
-        background: 'var(--pd-color-background-default)',
-      }}>
+      <div className="effect-preview-panel__bottom-challenge-progress-de">
         {isChallenge && withinDeadline && !challengeOwned && challengeThreshold > 0 && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', gap: '8px' }}>
-              <span style={{ fontFamily: 'var(--pd-font-body)', fontSize: 'var(--pd-font-size-xs)', color: 'var(--pd-color-text-primary)' }}>
+            <div className="effect-preview-panel__row-1">
+              <span className="effect-preview-panel__text-4">
                 {lang === 'ja'
                   ? `タスクを${challengeThreshold}回完了で解放`
                   : `Complete ${challengeThreshold} tasks to unlock`}
               </span>
-              <span style={{
-                fontFamily: 'var(--pd-font-body)',
-                fontSize: 'var(--pd-font-size-xs)',
-                color: 'var(--pd-color-text-secondary)',
-                flexShrink: 0,
-                alignSelf: 'center',
-                lineHeight: 1.2,
-                fontVariantNumeric: 'tabular-nums',
-              }}>
+              <span className="effect-preview-panel__text-5">
                 {challengeProgress} / {challengeThreshold}
               </span>
             </div>
-            <div style={{ height: '4px', background: 'var(--pd-color-border-default)', position: 'relative' }}>
+            <div className="effect-preview-panel__pos-1">
               <div style={{
                 position: 'absolute', left: 0, top: 0, bottom: 0,
                 width: `${Math.min(100, challengeThreshold > 0 ? (challengeProgress / challengeThreshold) * 100 : 0)}%`,
@@ -174,29 +127,14 @@ export function EffectPreviewPanel({
           effectProgress={effectProgressMap[effectKey]}
           lang={lang}
         />
-        <p style={{
-          margin: 0,
-          fontFamily: 'var(--pd-font-body)',
-          fontSize: 'var(--pd-font-size-xs)',
-          color: 'var(--pd-color-text-secondary)',
-          lineHeight: 1.5,
-        }}>
+        <p className="effect-preview-panel__text-6">
           {effect.description[lang]}
         </p>
         {isLocked && effect.access === 'premium' && (
           <button
             type="button"
             onClick={() => navigate('/pricing')}
-            style={{
-              padding: '10px 12px',
-              fontFamily: 'var(--pd-font-brand)',
-              fontSize: 'var(--pd-font-size-sm)',
-              letterSpacing: '1px',
-              cursor: 'pointer',
-              background: 'var(--pd-color-background-elevated)',
-              color: 'var(--pd-color-text-primary)',
-              border: '1px solid var(--pd-color-border-default)',
-            }}
+            className="effect-preview-panel__text-7"
           >
             {lang === 'ja' ? 'PixDone+ にアップグレード' : 'UPGRADE TO PIXDONE+'}
           </button>

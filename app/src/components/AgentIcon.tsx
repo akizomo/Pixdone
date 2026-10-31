@@ -45,8 +45,7 @@ export function AgentIcon({
       <img
         src={src}
         alt="Agent"
-        style={{ imageRendering: 'pixelated' }}
-        className={imgClass}
+        className={`${imgClass} pd-agent-icon__img`}
       />
       {isPremium && (
         <span className="pd-agent-icon__badge">+</span>

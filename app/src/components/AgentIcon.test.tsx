@@ -7,7 +7,8 @@ describe('AgentIcon', () => {
     const { container } = render(<AgentIcon themeKey="arcade" />);
     const img = container.querySelector('img');
     expect(img).not.toBeNull();
-    expect(img!.style.imageRendering).toBe('pixelated');
+    // image-rendering: pixelated lives in AgentIcon.css (.pd-agent-icon__img); jsdom does not load CSS.
+    expect(img!.classList.contains('pd-agent-icon__img')).toBe(true);
   });
 
   it('uses arcade sprite path for arcade theme', () => {

@@ -208,3 +208,13 @@
   color: var(--pd-color-text-primary);
   border-bottom-color: var(--pd-color-accent-default);
 }
+
+.focus__row-1 {
+  display: inline-flex;
+  align-items: center;
+}
+
+.focus__text-1 {
+  font-size: var(--pd-font-size-2xs);
+  line-height: 1;
+}
