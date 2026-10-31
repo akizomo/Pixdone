@@ -871,7 +871,7 @@ function AppContent() {
   return (
     <>
       {/* Global header — full width, outside pd-app-body */}
-      {(!focusZenOpen || isDesktop) && (
+      {(isDesktop || (!focusZenOpen && !isSubPage)) && (
       <header className="pd-header">
         <div className="pd-header__inner">
           <div className="pd-header__left">
