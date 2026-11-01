@@ -72,7 +72,11 @@ import flagSvg from 'pixelarticons/svg/flag.svg?raw';
 import chevronRight2Svg from 'pixelarticons/svg/chevron-right-2.svg?raw';
 import menuSvg from 'pixelarticons/svg/menu.svg?raw';
 import playSvg from 'pixelarticons/svg/play.svg?raw';
-import forwardSvg from 'pixelarticons/svg/forward.svg?raw';
+// pixelarticons/forward.svg is a curved "share" arrow, not ⏭ — inline an outlined play
+// triangle (same shape as play.svg) with an end bar, matching the 24×24 / 2px-block grid.
+const skipNextSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">' +
+  '<path d="M5 3h2v18H5zM7 5h2v2H7zM9 7h2v2H9zM11 9h2v2h-2zM13 11h2v2h-2zM11 13h2v2h-2zM9 15h2v2H9zM7 17h2v2H7z"/>' +
+  '<path d="M17 3h2v18h-2z"/></svg>';
 // pixelarticons has no pause icon — two vertical bars
 const pauseSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 
@@ -125,7 +129,7 @@ const ICON_MAP: Record<string, string> = {
   menu: menuSvg,
   play: playSvg,
   pause: pauseSvg,
-  skip_next: forwardSvg,
+  skip_next: skipNextSvg,
   // shrink: mirrors scale.svg (fullscreen) — same diagonal staircases, but L-brackets moved from outer to inner corners
   shrink: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">' +
     // Top-right diagonal staircase (same 4 pixels as fullscreen)

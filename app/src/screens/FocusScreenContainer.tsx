@@ -12,7 +12,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useListsData } from '../features/ListsContext';
 import { FocusScreen } from '../components';
 import { FocusZenMode } from '../components/FocusZenMode';
-import { MiniPlayer, Button } from '../design-system';
+import { MiniPlayer, IconButton, PixelIcon } from '../design-system';
 import { t } from '../lib/i18n';
 import { startBackgroundTimer, stopBackgroundTimer } from '../services/backgroundTimer';
 import { useFocusTimer } from '../hooks/useFocusTimer';
@@ -236,19 +236,19 @@ export function FocusScreenContainer({
         navHidden={bottomNavHidden}
         actions={
           <>
-            <Button
+            <IconButton
               variant="secondary"
               size="sm"
+              aria-label={isRunning ? (lang === 'ja' ? '一時停止' : 'Pause') : (lang === 'ja' ? '再開' : 'Resume')}
+              icon={<PixelIcon name={isRunning ? 'pause' : 'play'} />}
               onClick={() => {
                 if (isRunning) { focusTimer.pause(); stopBgm(); } else { focusTimer.resume(); }
               }}
-            >
-              {isRunning ? (lang === 'ja' ? '一時停止' : 'Pause') : (lang === 'ja' ? '再開' : 'Resume')}
-            </Button>
+            />
             {isBreakMode ? (
-              <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={handleSkipBreak}>{t('skipBreak', lang)}</Button>
+              <IconButton variant="ghost" size="sm" soundKey="taskCancel" aria-label={t('skipBreak', lang)} icon={<PixelIcon name="skip_next" />} onClick={handleSkipBreak} />
             ) : (
-              <Button variant="ghost" size="sm" soundKey="taskComplete" onClick={handleCompleteFocus}>{lang === 'ja' ? '完了' : 'Complete'}</Button>
+              <IconButton variant="ghost" size="sm" soundKey="taskComplete" aria-label={lang === 'ja' ? '完了' : 'Complete'} icon={<PixelIcon name="check" />} onClick={handleCompleteFocus} />
             )}
           </>
         }

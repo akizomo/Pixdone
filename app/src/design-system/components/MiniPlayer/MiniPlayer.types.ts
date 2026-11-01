@@ -10,7 +10,7 @@ export interface MiniPlayerProps extends Omit<HTMLAttributes<HTMLDivElement>, 't
   openLabel: string;
   /** Called when the title/time area is tapped (typically: go to the full screen). */
   onOpen: () => void;
-  /** Control buttons on the right (use DS `Button` size="sm"). */
+  /** Control buttons on the right (use DS `IconButton` size="sm" with an `aria-label`). */
   actions?: ReactNode;
   /** True while the bottom nav is slid away (hide-on-scroll): the player drops to the screen edge. */
   navHidden?: boolean;
