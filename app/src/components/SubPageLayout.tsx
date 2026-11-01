@@ -8,6 +8,8 @@ interface SubPageLayoutProps {
   onBack: () => void;
   /** Trailing actions in the bar. */
   actions?: ReactNode;
+  /** Class for the root (e.g. to present it as a full-screen overlay). */
+  className?: string;
   /** Class for the scrolling body (the page's own column layout). */
   bodyClassName?: string;
   /** Override platform detection (Storybook / tests). */
@@ -21,11 +23,11 @@ interface SubPageLayoutProps {
  * iOS navigation bar on iOS, Material 3 top app bar elsewhere.
  */
 export function SubPageLayout({
-  title, isJa, onBack, actions, bodyClassName = '', platform, children,
+  title, isJa, onBack, actions, className = '', bodyClassName = '', platform, children,
 }: SubPageLayoutProps) {
   const [scrolled, setScrolled] = useState(false);
   return (
-    <div className="pd-subpage">
+    <div className={['pd-subpage', className].filter(Boolean).join(' ')}>
       <TopAppBar
         title={title}
         onBack={onBack}

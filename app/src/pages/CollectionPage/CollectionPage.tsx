@@ -10,7 +10,7 @@ import type { EffectRarity } from '../../data/effectsRegistry';
 import { EFFECTS_REGISTRY } from '../../data/effectsRegistry';
 import { themeList } from '../../design-system/themes/themeRegistry';
 import { playSound } from '../../services/sound';
-import { BottomSheet } from '../../design-system';
+import { SubPageLayout } from '../../components/SubPageLayout';
 import './CollectionPage.css';
 
 type FilterKey = 'ALL' | EffectRarity | 'OWNED' | 'CHALLENGE';
@@ -361,26 +361,28 @@ export function CollectionPage({
         )}
       </div>
 
-      <BottomSheet
-        open={!!selectedEffect && activeTab === 'effects'}
-        onClose={() => setSelectedEffect(null)}
-        title={lang === 'ja' ? 'エフェクトギャラリー' : 'Effects Gallery'}
-        className="pxd-sheet--effect-gallery"
-      >
-        <div
-          className="collection__col-3"
-          onTouchStart={(e) => {
-            const t = e.touches[0];
-            if (!t) return;
-            onSwipeStart(t.clientX, t.clientY, 'effect');
-          }}
-          onTouchEnd={(e) => {
-            const t = e.changedTouches[0];
-            if (!t) return;
-            onSwipeEnd(t.clientX, t.clientY);
-          }}
+      {/* Galleries are sub pages: the bar names the page; the item's name / toggle stay in the bottom dock. */}
+      {selectedEffect && activeTab === 'effects' && (
+        <SubPageLayout
+          className="collection__gallery"
+          bodyClassName="collection__gallery-body"
+          title={lang === 'ja' ? 'エフェクトギャラリー' : 'EFFECTS GALLERY'}
+          isJa={lang === 'ja'}
+          onBack={() => setSelectedEffect(null)}
         >
-          {selectedEffect && (
+          <div
+            className="collection__col-3"
+            onTouchStart={(e) => {
+              const t = e.touches[0];
+              if (!t) return;
+              onSwipeStart(t.clientX, t.clientY, 'effect');
+            }}
+            onTouchEnd={(e) => {
+              const t = e.changedTouches[0];
+              if (!t) return;
+              onSwipeEnd(t.clientX, t.clientY);
+            }}
+          >
             <div className="collection__box-1">
               <EffectSheetContent
                 key={selectedEffect}
@@ -398,30 +400,31 @@ export function CollectionPage({
                 canPrevNext={mobileEffects.length > 1 && selectedEffectIndex >= 0}
               />
             </div>
-          )}
-        </div>
-      </BottomSheet>
+          </div>
+        </SubPageLayout>
+      )}
 
-      <BottomSheet
-        open={!!selectedTheme && activeTab === 'themes'}
-        onClose={() => setSelectedTheme(null)}
-        title={lang === 'ja' ? 'テーマギャラリー' : 'Themes Gallery'}
-        className="pxd-sheet--effect-gallery"
-      >
-        <div
-          className="collection__col-3"
-          onTouchStart={(e) => {
-            const t = e.touches[0];
-            if (!t) return;
-            onSwipeStart(t.clientX, t.clientY, 'theme');
-          }}
-          onTouchEnd={(e) => {
-            const t = e.changedTouches[0];
-            if (!t) return;
-            onSwipeEnd(t.clientX, t.clientY);
-          }}
+      {selectedTheme && activeTab === 'themes' && (
+        <SubPageLayout
+          className="collection__gallery"
+          bodyClassName="collection__gallery-body"
+          title={lang === 'ja' ? 'テーマギャラリー' : 'THEMES GALLERY'}
+          isJa={lang === 'ja'}
+          onBack={() => setSelectedTheme(null)}
         >
-          {selectedTheme && (
+          <div
+            className="collection__col-3"
+            onTouchStart={(e) => {
+              const t = e.touches[0];
+              if (!t) return;
+              onSwipeStart(t.clientX, t.clientY, 'theme');
+            }}
+            onTouchEnd={(e) => {
+              const t = e.changedTouches[0];
+              if (!t) return;
+              onSwipeEnd(t.clientX, t.clientY);
+            }}
+          >
             <div className="collection__box-1">
               <ThemeSheetContent
                 key={selectedTheme}
@@ -438,9 +441,9 @@ export function CollectionPage({
                 canPrevNext={themeList.length > 1 && selectedThemeIndex >= 0}
               />
             </div>
-          )}
-        </div>
-      </BottomSheet>
+          </div>
+        </SubPageLayout>
+      )}
     </div>
   );
 }

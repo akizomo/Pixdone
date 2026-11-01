@@ -152,19 +152,6 @@
   overflow: visible;
 }
 
-/* Collection: Effect Gallery needs full-height preview without extra bottom inset spacing.
-   We mark the sheet content with data-effect-gallery="true" and remove sheet/body paddings. */
-.pxd-sheet.pxd-sheet--effect-gallery {
-  padding-bottom: 0;
-}
-.pxd-sheet.pxd-sheet--effect-gallery .pxd-sheet-body {
-  padding: 0;
-  padding-bottom: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
 @media (hover: none) and (pointer: coarse) {
   .pxd-sheet-close {
     width: var(--pd-tap-target-min);

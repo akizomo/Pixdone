@@ -86,3 +86,28 @@
   flex: 1;
   min-height: 0;
 }
+
+/* Mobile gallery = full-screen sub page above the tab chrome (BottomNav 200, FAB 300). */
+.collection__gallery {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: var(--pd-color-background-default);
+  animation: collection-gallery-in var(--pd-motion-slow) var(--pd-easing-decelerate);
+}
+
+.collection__gallery-body {
+  padding-inline: 0;
+  overflow: hidden;
+}
+
+@keyframes collection-gallery-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--pd-space-6));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
