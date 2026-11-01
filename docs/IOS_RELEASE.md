@@ -42,7 +42,38 @@ cd app && npm run build:native
 4. メニュー **Product → Archive**（数分かかります）
 5. 終わると Organizer が開く → **Distribute App → App Store Connect → Upload** → 画面の案内に従う（署名は自動）
 
+> **初回の前に、iPhone を Mac に USB でつないで Xcode に認識させる**（「このコンピュータを信頼」→ Xcode の Window → Devices and Simulators に出ればOK）。自動署名のアーカイブは開発用プロファイルで行うため、チームに端末が1台も登録されていないと「Your team has no devices」で失敗します。
+>
 > 初回は、Xcode が配布用の証明書とプロビジョニングプロファイルを自動で作ります。Apple Developer の App ID（`com.pixdone.app`）に、Sign in with Apple と In-App Purchase が有効になっていることも、あわせて確認されます。
+
+## 2'. ターミナルだけでアーカイブ → アップロード（端末の登録なしで可）
+
+Xcode の画面を使わずに出す方法です。登録端末が0台でも通ります（アーカイブは署名なしで作り、配布用の署名は export のときに付けるため）。`app/` で `npm run build:native` を済ませてから実行します。ビルド番号は先に上げておくこと。
+
+```bash
+cd app/ios/App
+ARCHIVE=/tmp/PixDone.xcarchive
+# 1. 署名なしでアーカイブ（-allowProvisioningUpdates で署名すると、開発用プロファイルを作ろうとして「Your team has no devices」で落ちる）
+xcodebuild archive -project App.xcodeproj -scheme App -configuration Release \
+  -destination 'generic/platform=iOS' -archivePath $ARCHIVE CODE_SIGNING_ALLOWED=NO
+
+# 2. 開発用証明書で仮署名して、エンタイトルメント（Sign in with Apple）を埋め込む
+#    （署名なしのままだと、export 後のアプリから Sign in with Apple が抜ける。ad-hoc 署名 "-" は iOS 27 SDK では不可）
+APP=$ARCHIVE/Products/Applications/App.app
+ID=$(security find-identity -v -p codesigning | grep "Apple Development" | head -1 | awk '{print $2}')
+cp App/App.entitlements /tmp/app.entitlements
+/usr/libexec/PlistBuddy -c "Add :application-identifier string JW8K44JXT4.com.pixdone.app" \
+  -c "Add :com.apple.developer.team-identifier string JW8K44JXT4" /tmp/app.entitlements
+for f in $APP/Frameworks/*.framework; do codesign -f -s $ID --timestamp=none "$f"; done
+codesign -f -s $ID --timestamp=none --entitlements /tmp/app.entitlements $APP
+
+# 3. 配布用の署名で書き出してアップロード（Xcode にログイン済みの Apple ID を使う。API キー不要）
+#    IPA だけ作って確認したいときは ../ExportOptions-export.plist を使う
+xcodebuild -exportArchive -archivePath $ARCHIVE -exportPath /tmp/PixDone-upload \
+  -exportOptionsPlist ../ExportOptions-upload.plist -allowProvisioningUpdates
+```
+
+書き出した IPA の確認（任意）: `codesign -dvv` で `Apple Distribution`、`codesign -d --entitlements -` で `com.apple.developer.applesignin` と `get-task-allow = false` が出ればOK。
 
 ## 3. TestFlight で実機テスト
 
