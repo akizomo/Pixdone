@@ -177,7 +177,7 @@
     <!-- Japanese -->
     <div id="content-ja">
       <h1>特定商取引法に基づく表示</h1>
-      <p class="updated">最終更新: <span class="updated-year"></span></p>
+      <p class="updated">最終更新: 2026年10月29日</p>
       <table>
         <tr><th>販売業者</th><td>Akihiro Uezono</td></tr>
         <tr><th>代表者名</th><td>Akihiro Uezono</td></tr>
@@ -189,15 +189,15 @@
         <tr><th>販売価格以外の費用</th><td>インターネット通信料はお客様のご負担となります。</td></tr>
         <tr>
           <th>お支払い方法</th>
-          <td>クレジットカード（Stripe によるセキュア決済）<br>対応ブランド: Visa / Mastercard / American Express など</td>
+          <td>クレジットカード（Stripe によるセキュア決済）<br>対応ブランド: Visa / Mastercard / American Express など<br>iOS・Androidアプリ内でのご購入は、App Store・Google Play に登録された支払い方法となります。</td>
         </tr>
         <tr><th>お支払い時期</th><td>購入手続き完了時（クレジットカード即時決済）</td></tr>
         <tr><th>サービス提供時期</th><td>決済完了後、即時ご利用いただけます。</td></tr>
         <tr>
           <th>返品・キャンセルについて</th>
-          <td>ご購入日または更新日から7日以内であれば、返金をお受けしております。返金をご希望の場合は pixdone@akizony.com までご連絡ください。7日を過ぎた場合はデジタルサブスクリプションサービスの性質上、返金はお受けできかねます。サービスに技術的な問題が発生した場合はご連絡いただければ、解決に向けて最善を尽くします。</td>
+          <td>ご購入日または更新日から7日以内であれば、返金をお受けしております。返金をご希望の場合は pixdone@akizony.com までご連絡ください。7日を過ぎた場合はデジタルサブスクリプションサービスの性質上、返金はお受けできかねます。App Store・Google Play でご購入の場合は、各ストアの規定に従い、Apple・Google にお申し込みください。サービスに技術的な問題が発生した場合はご連絡いただければ、解決に向けて最善を尽くします。</td>
         </tr>
-        <tr><th>動作環境</th><td>最新バージョンの主要ブラウザ（Chrome、Safari、Firefox、Edge）</td></tr>
+        <tr><th>動作環境</th><td>最新バージョンの主要ブラウザ（Chrome、Safari、Firefox、Edge）、およびiOS・Androidアプリ（App Store・Google Play から入手）</td></tr>
       </table>
       <div class="note">
         <strong>お問い合わせ</strong><br>
@@ -208,7 +208,7 @@
     <!-- English -->
     <div id="content-en">
       <h1>Commerce Disclosure</h1>
-      <p class="updated">Last updated: <span class="updated-year"></span></p>
+      <p class="updated">Last updated: October 29, 2026</p>
       <table>
         <tr><th>Seller</th><td>Akihiro Uezono</td></tr>
         <tr><th>Representative</th><td>Akihiro Uezono</td></tr>
@@ -220,15 +220,15 @@
         <tr><th>Additional costs</th><td>Internet connection fees are the customer's responsibility.</td></tr>
         <tr>
           <th>Payment method</th>
-          <td>Credit card (processed securely via Stripe)<br>Accepted: Visa / Mastercard / American Express, etc.</td>
+          <td>Credit card (processed securely via Stripe)<br>Accepted: Visa / Mastercard / American Express, etc.<br>In-app purchases in the iOS and Android apps use the payment method registered with the App Store / Google Play.</td>
         </tr>
         <tr><th>Payment timing</th><td>Charged immediately upon purchase completion.</td></tr>
         <tr><th>Service delivery</th><td>Available immediately after payment is confirmed.</td></tr>
         <tr>
           <th>Refunds &amp; cancellations</th>
-          <td>Refunds are available within 7 days of the initial purchase or renewal date. To request a refund, please contact us at pixdone@akizony.com. After 7 days, refunds are not available as this is a digital subscription service. If you experience a technical issue with the service, please contact us and we will do our best to resolve it.</td>
+          <td>Refunds are available within 7 days of the initial purchase or renewal date. To request a refund, please contact us at pixdone@akizony.com. After 7 days, refunds are not available as this is a digital subscription service. For purchases made through the App Store or Google Play, please request refunds from Apple or Google according to each store's policy. If you experience a technical issue with the service, please contact us and we will do our best to resolve it.</td>
         </tr>
-        <tr><th>Supported browsers</th><td>Latest versions of major browsers (Chrome, Safari, Firefox, Edge)</td></tr>
+        <tr><th>Supported browsers</th><td>Latest versions of major browsers (Chrome, Safari, Firefox, Edge), and the iOS and Android apps (from the App Store / Google Play)</td></tr>
       </table>
       <div class="note">
         <strong>Contact</strong><br>
@@ -263,9 +263,6 @@
     }
 
     // 現在の年を埋める
-    document.querySelectorAll('.updated-year').forEach(el => {
-      el.textContent = new Date().getFullYear();
-    });
 
     // アプリと同じ localStorage キーで言語を取得
     const saved = (() => { try { return localStorage.getItem('pixdone-lang'); } catch(e) { return null; } })();
