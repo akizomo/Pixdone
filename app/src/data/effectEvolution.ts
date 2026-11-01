@@ -47,29 +47,6 @@ export function resolveAnimationKey(effectKey: string, equippedLevel: number): s
   return `${effectKey}Lv${equippedLevel}`;
 }
 
-// ── Evolution eligibility ────────────────────────────────────────────────────
-
-/**
- * Check if a user's effect can evolve right now.
- * Requires: evolving effect + not at max level + progress >= threshold + premium.
- */
-export function canEvolve(params: {
-  effectKey: string;
-  equippedLevel: number;
-  evolutionProgress: number;
-  isPremium: boolean;
-}): boolean {
-  const { effectKey, equippedLevel, evolutionProgress, isPremium } = params;
-
-  const def = EFFECTS_REGISTRY.find(e => e.key === effectKey);
-  if (!def || def.evolutionStages < 2) return false;
-  if (equippedLevel >= def.evolutionStages) return false;
-  if (!def.evolutionThreshold || evolutionProgress < def.evolutionThreshold) return false;
-  if (!isPremium) return false;
-
-  return true;
-}
-
 // ── Evolution status for UI ──────────────────────────────────────────────────
 
 export type EvolutionBlockedReason = 'none' | 'need_progress' | 'need_premium' | 'ready' | 'maxed';

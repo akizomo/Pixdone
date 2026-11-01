@@ -81,10 +81,6 @@ interface ScreenViewParams {
   screen_name: 'tasks' | 'focus' | 'collection';
 }
 
-interface TutorialTaskCompleteParams {
-  tutorial_step: 'tutorial-1' | 'tutorial-2' | 'tutorial-3';
-}
-
 // ────────────────────────────────────────
 // Internal helper
 // ────────────────────────────────────────
@@ -155,11 +151,6 @@ export function trackLogin(params: LoginParams) {
 /** 画面遷移 */
 export function trackScreenView(params: ScreenViewParams) {
   track('screen_view', params);
-}
-
-/** チュートリアルタスク完了 */
-export function trackTutorialTaskComplete(params: TutorialTaskCompleteParams) {
-  track('tutorial_task_complete', params);
 }
 
 /**

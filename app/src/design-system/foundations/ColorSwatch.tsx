@@ -65,36 +65,3 @@ export function ColorSwatch({
     </div>
   );
 }
-
-export function ColorSwatchRow({
-  items,
-  size = 'm',
-  darkBg = false,
-}: {
-  items: Array<{ name: string; value: string; showText?: boolean }>;
-  size?: 's' | 'm' | 'l';
-  darkBg?: boolean;
-}) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 24,
-        padding: darkBg ? 16 : 0,
-        background: darkBg ? '#202124' : undefined,
-        borderRadius: 8,
-      }}
-    >
-      {items.map((item) => (
-        <ColorSwatch
-          key={item.name}
-          name={item.name}
-          value={item.value}
-          showTextOnBg={item.showText}
-          size={size}
-        />
-      ))}
-    </div>
-  );
-}

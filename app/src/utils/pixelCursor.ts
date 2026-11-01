@@ -327,14 +327,6 @@ function drawCursor(kind: CursorKind, colors: Colors): string {
   return drawGrid(parseGrid(GRIDS[kind], w, h), colors, w, h);
 }
 
-// Backwards-compatible named exports.
-export function drawDefaultCursor(colors: Colors): string {
-  return drawCursor('default', colors);
-}
-export function drawPointerCursor(colors: Colors): string {
-  return drawCursor('pointer', colors);
-}
-
 function readColors(): Colors {
   const cs = getComputedStyle(document.documentElement);
   const fill = cs.getPropertyValue(FILL_VAR).trim() || FILL_FALLBACK;

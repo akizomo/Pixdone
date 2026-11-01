@@ -134,8 +134,3 @@ export function useListsActions(): ListsActionsValue {
   if (!ctx) throw new Error('useListsActions must be used within ListsProvider');
   return ctx;
 }
-
-/** Use when you need both data and actions (convenience, same as useLists before) */
-export function useListsContext() {
-  return { ...useListsData(), ...useListsActions() };
-}
