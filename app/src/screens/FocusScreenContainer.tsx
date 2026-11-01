@@ -139,7 +139,6 @@ export function FocusScreenContainer({
 
   const handleSkipBreak = useCallback(() => {
     if (!(focusMode === 'shortBreak' || focusMode === 'longBreak')) return;
-    playSound('taskCancel');
     stopBgm();
     setFocusMode('pomodoro');
     setFocusMinutes(25);
@@ -147,8 +146,7 @@ export function FocusScreenContainer({
     setBgmMenuOpen(false);
   }, [focusMode, focusTimer]);
 
-  const handleCompleteFocus = useCallback(() => {
-    playSound('taskComplete');
+  const handleSkipFocus = useCallback(() => {
     setFocusMode('shortBreak');
     setFocusMinutes(5);
     focusTimer.reset(5 * 60);
@@ -221,7 +219,7 @@ export function FocusScreenContainer({
       onPause={() => { playSound('buttonClick'); focusTimer.pause(); stopBgm(); }}
       onResume={() => { playSound('buttonClick'); focusTimer.resume(); }}
       onSkipBreak={handleSkipBreak}
-      onCompleteFocus={handleCompleteFocus}
+      onSkipFocus={handleSkipFocus}
       onTutorialSmashLinkClick={onNavigateToSmashList}
       onTutorialFocusLinkClick={onNavigateToFocus}
     />
@@ -248,7 +246,7 @@ export function FocusScreenContainer({
             {isBreakMode ? (
               <IconButton variant="ghost" size="sm" soundKey="taskCancel" aria-label={t('skipBreak', lang)} icon={<PixelIcon name="skip_next" />} onClick={handleSkipBreak} />
             ) : (
-              <IconButton variant="ghost" size="sm" soundKey="taskComplete" aria-label={lang === 'ja' ? '完了' : 'Complete'} icon={<PixelIcon name="check" />} onClick={handleCompleteFocus} />
+              <IconButton variant="ghost" size="sm" soundKey="taskCancel" aria-label={lang === 'ja' ? 'スキップ' : 'Skip'} icon={<PixelIcon name="skip_next" />} onClick={handleSkipFocus} />
             )}
           </>
         }
@@ -273,7 +271,7 @@ export function FocusScreenContainer({
         onPause={() => { playSound('buttonClick'); focusTimer.pause(); stopBgm(); }}
         onResume={() => { playSound('buttonClick'); focusTimer.resume(); }}
         onSkipBreak={handleSkipBreak}
-        onCompleteFocus={handleCompleteFocus}
+        onSkipFocus={handleSkipFocus}
       />
     )}
     </>

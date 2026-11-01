@@ -11,6 +11,8 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   loading?: boolean;
   fullWidth?: boolean;
   children?: ReactNode;
+  /** Icon shown before the label (e.g. `<PixelIcon name="pause" />`). Sized to the button size; hidden while `loading`. */
+  leadingIcon?: ReactNode;
   type?: 'button' | 'submit' | 'reset';
   soundKey?: SoundKey;
 }

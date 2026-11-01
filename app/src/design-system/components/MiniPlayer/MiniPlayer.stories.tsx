@@ -35,12 +35,12 @@ function formatTime(seconds: number) {
 }
 
 /** The same controls the app puts in `actions` (FocusScreenContainer). */
-function TimerActions({ mode, running, onToggle, onComplete, onSkip }: {
+function TimerActions({ mode, running, onToggle, onSkipFocus, onSkipBreak }: {
   mode: Mode;
   running: boolean;
   onToggle?: () => void;
-  onComplete?: () => void;
-  onSkip?: () => void;
+  onSkipFocus?: () => void;
+  onSkipBreak?: () => void;
 }) {
   return (
     <>
@@ -52,9 +52,9 @@ function TimerActions({ mode, running, onToggle, onComplete, onSkip }: {
         onClick={onToggle}
       />
       {mode === 'break' ? (
-        <IconButton variant="ghost" size="sm" soundKey="taskCancel" aria-label="Skip break" icon={<PixelIcon name="skip_next" />} onClick={onSkip} />
+        <IconButton variant="ghost" size="sm" soundKey="taskCancel" aria-label="Skip break" icon={<PixelIcon name="skip_next" />} onClick={onSkipBreak} />
       ) : (
-        <IconButton variant="ghost" size="sm" soundKey="taskComplete" aria-label="Complete" icon={<PixelIcon name="check" />} onClick={onComplete} />
+        <IconButton variant="ghost" size="sm" soundKey="taskCancel" aria-label="Skip" icon={<PixelIcon name="skip_next" />} onClick={onSkipFocus} />
       )}
     </>
   );
@@ -106,8 +106,8 @@ function TimerSimulator({ initialMode, initialSeconds, initialRunning }: Simulat
           mode={mode}
           running={running}
           onToggle={() => setRunning((r) => !r)}
-          onComplete={() => switchTo('break')}
-          onSkip={() => switchTo('focus')}
+          onSkipFocus={() => switchTo('break')}
+          onSkipBreak={() => switchTo('focus')}
         />
       }
     />
@@ -115,8 +115,8 @@ function TimerSimulator({ initialMode, initialSeconds, initialRunning }: Simulat
 }
 
 /**
- * Try it: the time counts down; pause ⇄ resume swaps the icon; ✓ ends focus and starts a break;
- * ⏭ skips the break back to focus. Change `initialSeconds` in Controls to watch the auto switch.
+ * Try it: the time counts down; pause ⇄ resume swaps the icon; ⏭ skips to the next phase
+ * (focus → break, break → focus). Change `initialSeconds` in Controls to watch the auto switch.
  */
 export const Interactive: StoryObj<SimulatorArgs> = {
   args: { initialMode: 'focus', initialSeconds: 10, initialRunning: true },
@@ -127,7 +127,7 @@ export const Interactive: StoryObj<SimulatorArgs> = {
   render: (args) => <TimerSimulator {...args} />,
 };
 
-/** Plays pause → resume → complete → skip in the Interactions panel. */
+/** Plays pause → resume → skip focus → skip break in the Interactions panel. */
 export const StateTransitions: StoryObj<SimulatorArgs> = {
   args: { initialMode: 'focus', initialSeconds: FOCUS_SECONDS, initialRunning: true },
   render: (args) => <TimerSimulator {...args} />,
@@ -141,8 +141,8 @@ export const StateTransitions: StoryObj<SimulatorArgs> = {
       await userEvent.click(canvas.getByRole('button', { name: 'Resume' }));
       await expect(canvas.getByRole('button', { name: 'Pause' })).toBeInTheDocument();
     });
-    await step('Complete focus → break starts', async () => {
-      await userEvent.click(canvas.getByRole('button', { name: 'Complete' }));
+    await step('Skip focus → break starts', async () => {
+      await userEvent.click(canvas.getByRole('button', { name: 'Skip' }));
       await expect(canvas.getByText('Break')).toBeInTheDocument();
       await expect(canvas.getByText('05:00')).toBeInTheDocument();
     });

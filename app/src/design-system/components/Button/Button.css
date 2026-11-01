@@ -30,6 +30,13 @@
   opacity: 0.5;
 }
 
+/* Leading icon (leadingIcon prop) — decorative, the label carries the meaning */
+.pxd-button__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 /* ---- Sizes ---- */
 
 .pxd-button--sm {

@@ -32,7 +32,7 @@ export interface FocusScreenProps {
   onPause: () => void;
   onResume: () => void;
   onSkipBreak: () => void;
-  onCompleteFocus: () => void;
+  onSkipFocus: () => void;
   canAdjustMinutes?: boolean;
   onTutorialSmashLinkClick?: () => void;
   onTutorialFocusLinkClick?: () => void;
@@ -65,7 +65,7 @@ export function FocusScreen({
   lang, mode, minutes, timerState, remaining,
   bgmOn, bgmTrack, onBgmChange, onBgmMenuOpenChange, onOpenZenMode,
   onSwitchMode, onAdjustMinutes, onStart, onPause, onResume, onSkipBreak,
-  onCompleteFocus, canAdjustMinutes = true,
+  onSkipFocus, canAdjustMinutes = true,
 }: FocusScreenProps) {
   useWakeLock(timerState === 'running');
   const SMALL_STEPS = [1, 3, 5] as const;
@@ -145,16 +145,16 @@ export function FocusScreen({
 
           <div className="pd-focus__cta">
             {timerState === 'idle' ? (
-              <Button onClick={onStart} className="pd-focus__cta-btn">Start</Button>
+              <Button onClick={onStart} className="pd-focus__cta-btn" leadingIcon={<PixelIcon name="play" />}>{lang === 'ja' ? '開始' : 'Start'}</Button>
             ) : (
               <div className="pd-focus__cta-row">
-                <Button variant="secondary" onClick={isRunning ? onPause : onResume}>
+                <Button variant="secondary" onClick={isRunning ? onPause : onResume} leadingIcon={<PixelIcon name={isRunning ? 'pause' : 'play'} />}>
                   {isRunning ? (lang === 'ja' ? '一時停止' : 'Pause') : (lang === 'ja' ? '再開' : 'Resume')}
                 </Button>
                 {isBreakMode ? (
-                  <Button variant="secondary" soundKey="taskCancel" onClick={onSkipBreak}>{t('skipBreak', lang)}</Button>
+                  <Button variant="secondary" soundKey="taskCancel" onClick={onSkipBreak} leadingIcon={<PixelIcon name="skip_next" />}>{t('skipBreak', lang)}</Button>
                 ) : (
-                  <Button soundKey="taskComplete" onClick={onCompleteFocus}>{lang === 'ja' ? '完了' : 'Complete'}</Button>
+                  <Button variant="secondary" soundKey="taskCancel" onClick={onSkipFocus} leadingIcon={<PixelIcon name="skip_next" />}>{lang === 'ja' ? 'スキップ' : 'Skip'}</Button>
                 )}
               </div>
             )}

@@ -1246,7 +1246,7 @@ function AppContent() {
           onPause={() => { playSound('buttonClick'); desktopTimer.pause(); stopBgm(); }}
           onResume={() => { playSound('buttonClick'); desktopTimer.resume(); }}
           onSkipBreak={() => {}}
-          onCompleteFocus={() => { desktopTimer.reset(25 * 60); setFocusZenOpen(false); stopBgm(); }}
+          onSkipFocus={() => { desktopTimer.reset(25 * 60); setFocusZenOpen(false); stopBgm(); }}
         />
       )}
 

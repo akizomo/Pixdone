@@ -25,7 +25,7 @@ export interface FocusZenModeProps {
   onPause: () => void;
   onResume: () => void;
   onSkipBreak: () => void;
-  onCompleteFocus: () => void;
+  onSkipFocus: () => void;
 }
 
 function formatTime(seconds: number): string {
@@ -64,7 +64,7 @@ export function FocusZenMode({
   onPause,
   onResume,
   onSkipBreak,
-  onCompleteFocus,
+  onSkipFocus,
 }: FocusZenModeProps) {
   const [visible, setVisible] = useState(true);
   const [entered, setEntered] = useState(false);
@@ -177,7 +177,7 @@ export function FocusZenMode({
 
           <div className="pd-zen-actions">
             {timerState === 'idle' ? (
-              <Button onClick={onStart} className="pd-zen-actions__btn">
+              <Button onClick={onStart} className="pd-zen-actions__btn" leadingIcon={<PixelIcon name="play" />}>
                 {lang === 'ja' ? '開始' : 'Start'}
               </Button>
             ) : (
@@ -186,18 +186,19 @@ export function FocusZenMode({
                   variant="secondary"
                   onClick={isRunning ? onPause : onResume}
                   className="pd-zen-actions__btn"
+                  leadingIcon={<PixelIcon name={isRunning ? 'pause' : 'play'} />}
                 >
                   {isRunning
                     ? (lang === 'ja' ? '一時停止' : 'Pause')
                     : (lang === 'ja' ? '再開' : 'Resume')}
                 </Button>
                 {isBreakMode ? (
-                  <Button variant="secondary" soundKey="taskCancel" onClick={onSkipBreak} className="pd-zen-actions__btn">
+                  <Button variant="secondary" soundKey="taskCancel" onClick={onSkipBreak} className="pd-zen-actions__btn" leadingIcon={<PixelIcon name="skip_next" />}>
                     {lang === 'ja' ? '休憩をスキップ' : 'Skip break'}
                   </Button>
                 ) : (
-                  <Button soundKey="taskComplete" onClick={onCompleteFocus} className="pd-zen-actions__btn">
-                    {lang === 'ja' ? '完了' : 'Complete'}
+                  <Button variant="secondary" soundKey="taskCancel" onClick={onSkipFocus} className="pd-zen-actions__btn" leadingIcon={<PixelIcon name="skip_next" />}>
+                    {lang === 'ja' ? 'スキップ' : 'Skip'}
                   </Button>
                 )}
               </>

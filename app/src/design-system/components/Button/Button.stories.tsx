@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from './Button';
+import { PixelIcon } from '../PixelIcon/PixelIcon';
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
@@ -9,7 +10,7 @@ const meta: Meta<typeof Button> = {
     docs: {
       description: {
         component:
-          '**When to use:** Primary actions (Save, Submit), secondary actions (Cancel, Back), or low-emphasis actions (Skip). Use **primary** for the single main CTA; **secondary** for alternatives; **ghost** for tertiary; **danger** for destructive actions; **reward** for success/completion. **Accessibility:** Min 44px height for md/lg; focus-visible shows a 2px ring; disabled remains legible. **Visual:** Pixel shadow on primary/danger/reward; ghost is flat; press scale 0.96 for tactile feedback. **Sound (vanilla parity):** Click → `buttonClick`.',
+          '**When to use:** Primary actions (Save, Submit), secondary actions (Cancel, Back), or low-emphasis actions (Skip). Use **primary** for the single main CTA; **secondary** for alternatives; **ghost** for tertiary; **danger** for destructive actions; **reward** for success/completion. **Icon:** `leadingIcon` puts a `PixelIcon` before the label (sized to the button) — use it when the same action appears icon-only elsewhere (e.g. the MiniPlayer), so the label teaches the icon. **Accessibility:** Min 44px height for md/lg; focus-visible shows a 2px ring; disabled remains legible. **Visual:** Pixel shadow on primary/danger/reward; ghost is flat; press scale 0.96 for tactile feedback. **Sound (vanilla parity):** Click → `buttonClick`.',
       },
     },
   },
@@ -35,6 +36,20 @@ export const SizeLg: Story = { args: { size: 'lg', children: 'Large' } };
 
 export const Disabled: Story = { args: { variant: 'primary', disabled: true, children: 'Disabled' } };
 export const Loading: Story = { args: { variant: 'primary', loading: true, children: 'Saving…' } };
+export const WithLeadingIcon: Story = {
+  args: { variant: 'secondary', leadingIcon: <PixelIcon name="pause" />, children: 'Pause' },
+};
+
+export const LeadingIconSizes: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--pd-space-3)' }}>
+      <Button size="sm" variant="secondary" leadingIcon={<PixelIcon name="pause" />}>Pause</Button>
+      <Button size="md" variant="secondary" leadingIcon={<PixelIcon name="skip_next" />}>Skip break</Button>
+      <Button size="lg" leadingIcon={<PixelIcon name="check" />}>Complete</Button>
+    </div>
+  ),
+};
+
 export const FullWidth: Story = { args: { variant: 'primary', fullWidth: true, children: 'Full width' } };
 
 export const AllVariants: Story = {

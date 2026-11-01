@@ -1,4 +1,5 @@
 import { playSound } from '../../../services/sound';
+import { PixelIconSizeContext } from '../PixelIcon/PixelIcon';
 import type { ButtonProps } from './Button.types';
 import './Button.css';
 
@@ -22,6 +23,7 @@ export function Button({
   loading = false,
   fullWidth = false,
   children,
+  leadingIcon,
   type = 'button',
   className = '',
   soundKey = 'buttonClick',
@@ -47,7 +49,16 @@ export function Button({
       onClick={(e) => { if (soundKey) playSound(soundKey); onClick?.(e); }}
       {...rest}
     >
-      {loading ? '…' : children}
+      {loading ? '…' : (
+        <>
+          {leadingIcon ? (
+            <PixelIconSizeContext.Provider value={size === 'sm' ? 'sm' : 'md'}>
+              <span className="pxd-button__icon" aria-hidden>{leadingIcon}</span>
+            </PixelIconSizeContext.Provider>
+          ) : null}
+          {children}
+        </>
+      )}
     </button>
   );
 }
