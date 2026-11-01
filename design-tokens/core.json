@@ -901,6 +901,36 @@
           "set": "core"
         }
       }
+    },
+    "tapTargetMaterial": {
+      "$value": "48px",
+      "$type": "sizing",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-tap-target-material",
+          "set": "core"
+        }
+      }
+    },
+    "appBarHeightIos": {
+      "$value": "44px",
+      "$type": "sizing",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-layout-app-bar-height-ios",
+          "set": "core"
+        }
+      }
+    },
+    "appBarHeightMaterial": {
+      "$value": "64px",
+      "$type": "sizing",
+      "$extensions": {
+        "pixdone": {
+          "cssVar": "--pd-layout-app-bar-height-material",
+          "set": "core"
+        }
+      }
     }
   },
   "spacing": {

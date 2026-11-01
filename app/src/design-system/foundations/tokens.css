@@ -152,6 +152,9 @@
   --pd-color-reward-glow-pink: rgba(244, 92, 203, 0.28);
   --pd-color-reward-glow-cyan: rgba(67, 203, 234, 0.28);
   --pd-tap-target-min: 44px;
+  --pd-tap-target-material: 48px;
+  --pd-layout-app-bar-height-ios: 44px;
+  --pd-layout-app-bar-height-material: 64px;
   --pd-space-0: 0;
   --pd-space-1: 4px;
   --pd-space-2: 8px;

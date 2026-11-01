@@ -1,0 +1,156 @@
+/*
+ * TopAppBar — platform-aware header for sub pages / detail screens.
+ *
+ * iOS (Apple HIG navigation bar)
+ *   44pt bar, title centered, chevron + label back button tinted with the accent,
+ *   hairline separator only while content scrolls under the bar.
+ * Material (M3 small top app bar)
+ *   64dp bar, 48dp leading nav icon, title start-aligned, no divider at rest,
+ *   container switches to the elevated surface while content scrolls under the bar.
+ *
+ * Both extend under the top safe area (status bar / notch).
+ */
+
+.pd-top-app-bar {
+  --pd-top-app-bar-height: var(--pd-layout-app-bar-height-material);
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: var(--pd-top-app-bar-height);
+  padding-top: env(safe-area-inset-top, 0px);
+  /* Cancels the scroll container's horizontal padding so the bar runs edge to edge. */
+  margin-inline: calc(-1 * var(--pd-top-app-bar-bleed, 0px));
+  padding-inline: var(--pd-space-1);
+  background: var(--pd-color-background-default);
+  border-bottom: var(--pd-border-thin) solid transparent;
+  transition:
+    background-color var(--pd-motion-fast) var(--pd-easing-standard),
+    border-color var(--pd-motion-fast) var(--pd-easing-standard);
+}
+
+.pd-top-app-bar--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 200; /* zIndex.sticky */
+}
+
+.pd-top-app-bar__leading,
+.pd-top-app-bar__trailing {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.pd-top-app-bar__trailing {
+  justify-content: flex-end;
+  gap: var(--pd-space-2);
+}
+
+.pd-top-app-bar__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: var(--pd-font-brand);
+  font-weight: var(--pd-font-weight-regular);
+  letter-spacing: 1px;
+  line-height: var(--pd-line-height-tight);
+  color: var(--pd-color-text-primary);
+}
+
+/* ---------------------------------------------------------------- Material */
+
+.pd-top-app-bar--material .pd-top-app-bar__title {
+  font-size: var(--pd-font-size-lg);
+  padding-inline: var(--pd-space-4);
+}
+
+/* With a nav icon M3 places the title 16dp after the 48dp target (the icon's own inset covers it). */
+.pd-top-app-bar--material .pd-top-app-bar__leading:not(:empty) + .pd-top-app-bar__title {
+  padding-inline-start: var(--pd-space-1);
+}
+
+.pd-top-app-bar--material .pd-top-app-bar__trailing:not(:empty) {
+  padding-inline-end: var(--pd-space-1);
+}
+
+.pd-top-app-bar__nav.pxd-icon-button {
+  width: var(--pd-tap-target-material);
+  height: var(--pd-tap-target-material);
+  min-width: var(--pd-tap-target-material);
+  min-height: var(--pd-tap-target-material);
+  border-color: transparent;
+}
+
+.pd-top-app-bar--material.pd-top-app-bar--scrolled {
+  background: var(--pd-color-background-elevated);
+  border-bottom-color: var(--pd-color-border-default);
+}
+
+/* --------------------------------------------------------------------- iOS */
+
+.pd-top-app-bar--ios {
+  --pd-top-app-bar-height: var(--pd-layout-app-bar-height-ios);
+  display: grid;
+  /* Equal side columns keep the title optically centered regardless of button widths. */
+  grid-template-columns: minmax(max-content, 1fr) minmax(0, max-content) minmax(max-content, 1fr);
+  column-gap: var(--pd-space-2);
+  padding-inline: var(--pd-space-2);
+}
+
+.pd-top-app-bar--ios .pd-top-app-bar__title {
+  font-size: var(--pd-font-size-md);
+  text-align: center;
+}
+
+.pd-top-app-bar--ios.pd-top-app-bar--scrolled {
+  border-bottom-color: var(--pd-color-border-default);
+}
+
+.pd-top-app-bar__ios-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pd-space-1);
+  min-width: var(--pd-tap-target-min);
+  min-height: var(--pd-tap-target-min);
+  margin-inline-start: calc(-1 * var(--pd-space-1));
+  padding: 0 var(--pd-space-1);
+  border: none;
+  background: transparent;
+  color: var(--pd-color-text-accent);
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-md);
+  letter-spacing: 1px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity var(--pd-motion-fast) var(--pd-easing-press);
+}
+
+.pd-top-app-bar__ios-back:active {
+  opacity: var(--pd-opacity-disabled);
+}
+
+.pd-top-app-bar__ios-back:focus {
+  outline: none;
+}
+
+.pd-top-app-bar__ios-back:focus-visible {
+  outline: 2px solid var(--pd-color-focus-ring);
+  outline-offset: -2px;
+}
+
+.pd-top-app-bar__ios-back-label {
+  /* Never truncated — the title gives way first. */
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-top-app-bar,
+  .pd-top-app-bar__ios-back {
+    transition: none;
+  }
+}

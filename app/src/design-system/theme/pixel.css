@@ -56,6 +56,13 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--pd-space-4) var(--pd-layout-container-padding, 20px);
+  /* TopAppBar inside main bleeds over this horizontal padding. */
+  --pd-top-app-bar-bleed: var(--pd-layout-container-padding, 20px);
+}
+
+/* Sub pages start with a sticky TopAppBar flush to the top edge. */
+.pd-app-body > main.pd-main--subpage {
+  padding-top: 0;
 }
 
 /* Mobile: constrain content width */
@@ -71,6 +78,11 @@
   .pd-app-body > main {
     padding: var(--pd-space-5, 24px) var(--pd-space-6, 32px);
     padding-bottom: 80px; /* space for floating Focus widget */
+    --pd-top-app-bar-bleed: var(--pd-space-6, 32px);
+  }
+
+  .pd-app-body > main.pd-main--subpage {
+    padding-top: 0;
   }
 
   .pd-mobile-only {

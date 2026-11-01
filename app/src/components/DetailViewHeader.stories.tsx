@@ -12,15 +12,16 @@ const meta: Meta<typeof DetailViewHeader> = {
     docs: {
       description: {
         component:
-          'Icon-only back button + title bar for full-screen detail overlays (effect / theme detail). Right-aligned content is passed as `children`. The back button is a DS `IconButton` (44px tap target) and plays `taskCancel`.',
+          'Header for full-screen detail overlays (effect / theme detail), built on the DS `TopAppBar` (not sticky, separator always on). Trailing content is passed as `children`. iOS shows a chevron-only back button with a centered title; Material shows a 48dp arrow icon with a start-aligned title. Plays `taskCancel`.',
       },
     },
   },
   argTypes: {
     title: { control: 'text' },
     isJa: { control: 'boolean' },
+    platform: { control: 'inline-radio', options: ['auto', 'ios', 'material'] },
   },
-  args: { title: 'BOMB', isJa: false, onBack: fn() },
+  args: { title: 'BOMB', isJa: false, onBack: fn(), platform: 'material' },
   decorators: [
     (Story) => (
       <div style={{ maxWidth: 375 }}>
@@ -73,6 +74,15 @@ export const WithRarityAndToggle: Story = {
 
 export const LongTitleWithTrailing: Story = {
   args: { title: 'VERY LONG EFFECT NAME THAT MUST TRUNCATE GRACEFULLY' },
+  render: (args) => (
+    <DetailViewHeader {...args}>
+      <RarityAndToggle />
+    </DetailViewHeader>
+  ),
+};
+
+export const IOSWithRarityAndToggle: Story = {
+  args: { platform: 'ios' },
   render: (args) => (
     <DetailViewHeader {...args}>
       <RarityAndToggle />

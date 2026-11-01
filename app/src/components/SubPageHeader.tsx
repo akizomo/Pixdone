@@ -1,23 +1,32 @@
 import type { ReactNode } from 'react';
-import { Button, IconButton, PixelIcon } from '../design-system';
+import { TopAppBar, type TopAppBarPlatform } from '../design-system';
 import './SubPageHeader.css';
 
 interface SubPageHeaderProps {
   title: ReactNode;
   isJa: boolean;
   onBack: () => void;
+  /** Trailing actions. */
+  actions?: ReactNode;
+  /** Override platform detection (Storybook / tests). */
+  platform?: TopAppBarPlatform;
 }
 
-/** Back button + page title row shared by full-page sub screens (account, pricing, feedback). */
-export function SubPageHeader({ title, isJa, onBack }: SubPageHeaderProps) {
+/**
+ * Header for full-page sub screens (account, pricing, feedback).
+ * Sticky TopAppBar — iOS navigation bar on iOS, Material 3 top app bar elsewhere.
+ */
+export function SubPageHeader({ title, isJa, onBack, actions, platform }: SubPageHeaderProps) {
   return (
-    <div className="pd-subpage-header">
-      <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={onBack}>
-        <PixelIcon name="arrow_back" size="sm" />
-        {isJa ? 'もどる' : 'BACK'}
-      </Button>
-      <span className="pd-subpage-header__title">{title}</span>
-    </div>
+    <TopAppBar
+      className="pd-subpage-header"
+      title={title}
+      onBack={onBack}
+      backLabel={isJa ? '戻る' : 'Back'}
+      backAriaLabel={isJa ? '戻る' : 'Back'}
+      actions={actions}
+      platform={platform}
+    />
   );
 }
 
@@ -27,22 +36,24 @@ interface DetailViewHeaderProps {
   onBack: () => void;
   /** Right-aligned content (rarity, toggles, ...). */
   children?: ReactNode;
+  /** Override platform detection (Storybook / tests). */
+  platform?: TopAppBarPlatform;
 }
 
-/** Icon-only back button + title bar for full-screen detail overlays; `children` sit on the right. */
-export function DetailViewHeader({ title, isJa, onBack, children }: DetailViewHeaderProps) {
+/**
+ * Header for full-screen detail overlays (effect / theme detail); `children` sit on the trailing side.
+ * The overlay is the screen, so the bar is not sticky and always shows its separator.
+ */
+export function DetailViewHeader({ title, isJa, onBack, children, platform }: DetailViewHeaderProps) {
   return (
-    <div className="pd-detail-header">
-      <IconButton
-        variant="ghost"
-        size="md"
-        soundKey="taskCancel"
-        aria-label={isJa ? '戻る' : 'Back'}
-        icon={<PixelIcon name="arrow_back" size="md" />}
-        onClick={onBack}
-      />
-      <span className="pd-detail-header__title">{title}</span>
-      {children}
-    </div>
+    <TopAppBar
+      className="pd-detail-header"
+      title={title}
+      onBack={onBack}
+      backAriaLabel={isJa ? '戻る' : 'Back'}
+      actions={children}
+      platform={platform}
+      sticky={false}
+    />
   );
 }

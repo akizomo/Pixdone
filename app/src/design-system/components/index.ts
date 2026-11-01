@@ -37,3 +37,5 @@ export { PixelIcon } from './PixelIcon/PixelIcon';
 export type { PixelIconProps } from './PixelIcon/PixelIcon';
 export { KeyHint } from './KeyHint/KeyHint';
 export type { KeyHintProps } from './KeyHint/KeyHint';
+export { TopAppBar } from './TopAppBar/TopAppBar';
+export type { TopAppBarProps, TopAppBarPlatform } from './TopAppBar/TopAppBar.types';

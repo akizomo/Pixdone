@@ -69,6 +69,7 @@ import visibilityOffSvg from 'pixelarticons/svg/eye-off.svg?raw';
 import volumeOffSvg from 'pixelarticons/svg/volume.svg?raw';
 import volumeUpSvg from 'pixelarticons/svg/volume-3.svg?raw';
 import flagSvg from 'pixelarticons/svg/flag.svg?raw';
+import chevronLeftSvg from 'pixelarticons/svg/chevron-left.svg?raw';
 import chevronRight2Svg from 'pixelarticons/svg/chevron-right-2.svg?raw';
 import menuSvg from 'pixelarticons/svg/menu.svg?raw';
 import playSvg from 'pixelarticons/svg/play.svg?raw';
@@ -121,6 +122,7 @@ const ICON_MAP: Record<string, string> = {
   volume_off: volumeOffSvg,
   volume_up: volumeUpSvg,
   flag: flagSvg,
+  chevron_left: chevronLeftSvg,
   chevron_right_2: chevronRight2Svg,
   menu: menuSvg,
   play: playSvg,

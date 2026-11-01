@@ -45,9 +45,11 @@ Key points to keep in mind:
 UI は `app/src/design-system/` のコンポーネントとトークンを使って構築する。
 
 ### コンポーネント優先
-- 新しい画面・機能を作るときは、**まず既存の DS コンポーネント**（Button, IconButton, Chip, Checkbox, Badge, TextField, Toggle, BottomSheet, ModalDialog, PopoverMenu, Toast など）で実現できないか検討する。
+- 新しい画面・機能を作るときは、**まず既存の DS コンポーネント**（Button, IconButton, Chip, Checkbox, Badge, TextField, Toggle, BottomSheet, ModalDialog, PopoverMenu, Toast, TopAppBar など）で実現できないか検討する。
 - DS に足りないコンポーネントやバリエーションがある場合は、**実装前にユーザーに確認**する（「Badge に `info` variant を追加してよいか？」など）。
 - 画面固有の一回限りの UI は、DS コンポーネントを組み合わせて作る。共通パターンになりそうなら DS に昇格させる。
+
+- **下層ページ・詳細画面のヘッダーは `TopAppBar`**（アプリ側ラッパー: `SubPageHeader` / `DetailViewHeader`）を使う。iOS では Apple HIG のナビゲーションバー（44pt・中央タイトル・シェブロン+「戻る」）、それ以外では Material 3 Small Top App Bar（64dp・48dp の戻るアイコン・左寄せタイトル）に自動で切り替わる。独自の戻るボタン行を作らない。
 
 ### トークンベース
 - 生の色コード (`#fff`, `rgba(...)`) やマジックナンバー (`12px`, `0.15s`) を直書きしない。

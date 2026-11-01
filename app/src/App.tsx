@@ -1088,7 +1088,7 @@ function AppContent() {
           planCount={planTotalCount}
         />
       )}
-      <main>
+      <main className={isSubPage ? 'pd-main--subpage' : undefined}>
         {!isDesktop && focusVisited && (
           <FocusScreenContainer
             lang={lang}
