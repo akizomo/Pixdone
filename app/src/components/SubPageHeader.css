@@ -1,6 +1,0 @@
-/* SubPageHeader / DetailViewHeader — layout lives in the DS TopAppBar. */
-
-/* Detail overlays don't scroll under the bar, so keep the separator visible. */
-.pd-detail-header.pd-top-app-bar {
-  border-bottom-color: var(--pd-color-border-default);
-}

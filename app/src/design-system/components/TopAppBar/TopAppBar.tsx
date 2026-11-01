@@ -43,12 +43,14 @@ export function TopAppBar({
   actions,
   platform = 'auto',
   sticky = true,
+  scrolled: scrolledProp,
   className = '',
   ...rest
 }: TopAppBarProps) {
   const ref = useRef<HTMLElement>(null);
   const resolved = resolveTopAppBarPlatform(platform);
-  const scrolled = useScrolledUnder(ref, sticky);
+  const autoScrolled = useScrolledUnder(ref, sticky && scrolledProp === undefined);
+  const scrolled = scrolledProp ?? autoScrolled;
 
   const classes = [
     'pd-top-app-bar',

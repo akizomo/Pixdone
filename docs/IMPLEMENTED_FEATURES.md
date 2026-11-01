@@ -70,7 +70,7 @@ API: `GET/POST/PUT/DELETE /api/lists`, `GET /api/lists/:id/tasks`
 | エフェクト進捗 API | ✅ | `GET /api/effect-progress`, `POST /api/effect-progress/task-complete` |
 | エフェクト進捗フック | ✅ | `hooks/useEffectProgress.ts` |
 | コレクション画面 (Effects / Themes タブ) | ✅ | `pages/CollectionPage/` |
-| エフェクト詳細 / プレビュー | ✅ | `EffectDetailView.tsx`, `EffectPreviewPanel.tsx` |
+| エフェクト詳細 / プレビュー | ✅ | `EffectSheetContent.tsx`, `EffectPreviewPanel.tsx` |
 
 ## 6. テーマ
 

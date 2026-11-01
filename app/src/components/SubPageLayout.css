@@ -1,0 +1,25 @@
+/*
+ * SubPageLayout — fixed TopAppBar + scrolling body.
+ * Lives inside `main.pd-main--subpage`, which drops its own padding and scrolling
+ * so the bar stays pinned while only the body scrolls.
+ */
+
+.pd-subpage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  /* The bar is already edge to edge here; don't bleed over main's (removed) padding. */
+  --pd-top-app-bar-bleed: 0px;
+}
+
+.pd-subpage__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding-inline: var(--pd-main-gutter);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

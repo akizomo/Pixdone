@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, TextArea } from '../design-system';
-import { SubPageHeader } from '../components/SubPageHeader';
+import { SubPageLayout } from '../components/SubPageLayout';
 import { playSound } from '../services/sound';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { PH_REVIEW_URL } from '../services/phReviewBanner';
@@ -26,8 +26,7 @@ export function FeedbackPage() {
   };
 
   return (
-    <div className="feedback__col-1">
-      <SubPageHeader title={isJa ? 'フィードバック' : 'FEEDBACK'} isJa={isJa} onBack={() => navigate('/')} />
+    <SubPageLayout title={isJa ? 'フィードバック' : 'FEEDBACK'} isJa={isJa} onBack={() => navigate('/')} bodyClassName="feedback__col-1">
 
       <div
         className="feedback__col-2"
@@ -80,6 +79,6 @@ export function FeedbackPage() {
           </Button>
         </section>
       </div>
-    </div>
+    </SubPageLayout>
   );
 }

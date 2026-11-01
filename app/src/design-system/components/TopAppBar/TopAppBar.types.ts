@@ -30,4 +30,9 @@ export interface TopAppBarProps extends Omit<HTMLAttributes<HTMLElement>, 'title
    * (iOS: hairline separator, Material: elevated surface) once content scrolls under it.
    */
   sticky?: boolean;
+  /**
+   * Controlled scrolled-under state, for bars that sit outside their scroll container
+   * (e.g. a fixed header above a scrolling body). Overrides the sticky auto-detection.
+   */
+  scrolled?: boolean;
 }

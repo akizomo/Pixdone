@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
 import { Button } from '../design-system';
-import { SubPageHeader } from '../components/SubPageHeader';
+import { SubPageLayout } from '../components/SubPageLayout';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
 import { getStoreManagementUrl } from '../lib/storeBilling';
@@ -102,8 +102,7 @@ export function AccountPage() {
   };
 
   return (
-    <div className="account-page">
-      <SubPageHeader title={isJa ? 'アカウント' : 'ACCOUNT'} isJa={isJa} onBack={() => navigate('/')} />
+    <SubPageLayout title={isJa ? 'アカウント' : 'ACCOUNT'} isJa={isJa} onBack={() => navigate('/')} bodyClassName="account-page">
 
       <div className="account-body">
         {/* Profile */}
@@ -212,6 +211,6 @@ export function AccountPage() {
           </section>
         )}
       </div>
-    </div>
+    </SubPageLayout>
   );
 }

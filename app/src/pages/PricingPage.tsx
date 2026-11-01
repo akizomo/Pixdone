@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
 import { Button } from '../design-system';
-import { SubPageHeader } from '../components/SubPageHeader';
+import { SubPageLayout } from '../components/SubPageLayout';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
 import { Capacitor } from '@capacitor/core';
@@ -165,8 +165,7 @@ export function PricingPage() {
   const storeUnavailable = isNativeApp && (!storeReady || (storePackages !== null && !(cycle === 'monthly' ? storePackages.monthly : storePackages.yearly)));
 
   return (
-    <div className="pricing__col-1">
-      <SubPageHeader title="PIXDONE+" isJa={isJa} onBack={() => navigate('/')} />
+    <SubPageLayout title="PIXDONE+" isJa={isJa} onBack={() => navigate('/')} bodyClassName="pricing__col-1">
 
       {/* Success banner */}
       {successBanner && (
@@ -366,6 +365,6 @@ export function PricingPage() {
           </div>
         )}
       </div>
-    </div>
+    </SubPageLayout>
   );
 }
