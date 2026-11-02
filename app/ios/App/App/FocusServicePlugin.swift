@@ -7,10 +7,15 @@ import UserNotifications
 ///
 /// iOS only keeps the app running in the background while audio is actually playing, so:
 ///  - `keepAlive` (BGM is playing): switch the audio session to `.playback` (+ mix with other
-///    audio) so the WebView's Web Audio BGM, the JS timer and the end sound keep going.
+///    audio) so the native BGM keeps the app running in the background.
 ///    Otherwise the session is left alone and the ringer/silent switch is respected.
 ///  - A local notification is scheduled for the end time, so the user is told even if iOS
-///    suspended the app (BGM off). It is silent when `keepAlive` (the app plays its own chime).
+///    suspended the app (BGM off) or the WebView is frozen in the background (BGM on).
+///
+/// BGM is played natively (`playBgm` / `stopBgm`) from the pre-rendered loops in
+/// `public/bgm/` (scripts/render-bgm.mjs): WebKit suspends Web Audio as soon as the app
+/// leaves the foreground, whatever the audio session says. While a timer is running with
+/// `keepAlive`, the BGM also stops by itself at `endAt`, since the frozen WebView can't.
 @objc(FocusServicePlugin)
 public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "FocusServicePlugin"
@@ -20,39 +25,164 @@ public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "stop", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "checkPermissions", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "requestPermissions", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "playBgm", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stopBgm", returnType: CAPPluginReturnPromise),
     ]
 
     private let endNotificationId = "pixdone.focus.end"
 
+    // BGM state — touched on the main queue only.
+    private let engine = AVAudioEngine()
+    private let player = AVAudioPlayerNode()
+    private var bgmBuffer: AVAudioPCMBuffer?
+    private var bgmTrack: String?
+    private var bgmVolume: Float = 0
+    /// True between playBgm and stopBgm, also while an interruption has paused the audio.
+    private var bgmWanted = false
+    private var bgmAutoStop: DispatchWorkItem?
+    private var observersInstalled = false
+
     @objc func start(_ call: CAPPluginCall) {
         let keepAlive = call.getBool("keepAlive") ?? false
         let endAtMs = call.getDouble("endAt") ?? 0
-        let session = AVAudioSession.sharedInstance()
 
         if keepAlive {
             do {
-                try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
-                try session.setActive(true)
+                try activatePlaybackSession()
             } catch {
                 CAPLog.print("[FocusService] audio session error: \(error)")
             }
-        } else {
-            resetAudioSession()
         }
 
         scheduleEndNotification(
             endAtMs: endAtMs,
             title: call.getString("endTitle") ?? "PixDone",
-            body: call.getString("endText") ?? "",
-            silent: keepAlive
+            body: call.getString("endText") ?? ""
         )
-        call.resolve()
+        DispatchQueue.main.async {
+            if !keepAlive { self.resetAudioSession() }
+            self.scheduleBgmAutoStop(endAtMs: keepAlive ? endAtMs : 0)
+            call.resolve()
+        }
     }
 
     @objc func stop(_ call: CAPPluginCall) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [endNotificationId])
-        resetAudioSession()
-        call.resolve()
+        DispatchQueue.main.async {
+            // The timer stopped (paused / ended / left the focus flow): no BGM without a timer.
+            self.stopBgmPlayback()
+            self.resetAudioSession()
+            call.resolve()
+        }
+    }
+
+    // MARK: - BGM
+
+    @objc func playBgm(_ call: CAPPluginCall) {
+        guard let track = call.getString("track") else {
+            call.reject("track is required")
+            return
+        }
+        let volume = Float(call.getDouble("volume") ?? 0.06)
+        DispatchQueue.main.async {
+            do {
+                try self.startBgm(track: track, volume: volume)
+                call.resolve()
+            } catch {
+                CAPLog.print("[FocusService] BGM error: \(error)")
+                call.reject("BGM failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    @objc func stopBgm(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            self.stopBgmPlayback()
+            call.resolve()
+        }
+    }
+
+    private func startBgm(track: String, volume: Float) throws {
+        installObserversIfNeeded()
+        if track != bgmTrack || bgmBuffer == nil {
+            stopBgmPlayback()
+            guard let url = Bundle.main.url(forResource: track, withExtension: "caf", subdirectory: "public/bgm") else {
+                throw NSError(domain: "FocusService", code: 1, userInfo: [NSLocalizedDescriptionKey: "no BGM file for \(track)"])
+            }
+            let file = try AVAudioFile(forReading: url)
+            guard let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length)) else {
+                throw NSError(domain: "FocusService", code: 2, userInfo: [NSLocalizedDescriptionKey: "cannot allocate BGM buffer"])
+            }
+            try file.read(into: buffer)
+            bgmBuffer = buffer
+            bgmTrack = track
+        }
+        bgmVolume = volume
+        bgmWanted = true
+        try activatePlaybackSession()
+        try startEngine()
+    }
+
+    /// (Re)starts the engine and loops the decoded buffer — a PCM buffer loop is sample-exact.
+    private func startEngine() throws {
+        guard let buffer = bgmBuffer else { return }
+        player.volume = bgmVolume
+        if engine.isRunning && player.isPlaying { return }
+        player.stop()
+        engine.stop()
+        if !engine.attachedNodes.contains(player) { engine.attach(player) }
+        engine.connect(player, to: engine.mainMixerNode, format: buffer.format)
+        engine.prepare()
+        try engine.start()
+        player.scheduleBuffer(buffer, at: nil, options: .loops)
+        player.play()
+    }
+
+    private func stopBgmPlayback() {
+        bgmWanted = false
+        bgmAutoStop?.cancel()
+        bgmAutoStop = nil
+        player.stop()
+        engine.stop()
+    }
+
+    /// The WebView is frozen in the background, so it can't stop the BGM when the timer hits 0.
+    private func scheduleBgmAutoStop(endAtMs: Double) {
+        bgmAutoStop?.cancel()
+        bgmAutoStop = nil
+        let interval = endAtMs / 1000 - Date().timeIntervalSince1970
+        guard interval > 0 else { return }
+        let work = DispatchWorkItem { [weak self] in self?.stopBgmPlayback() }
+        bgmAutoStop = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + interval, execute: work)
+    }
+
+    private func installObserversIfNeeded() {
+        guard !observersInstalled else { return }
+        observersInstalled = true
+        let center = NotificationCenter.default
+        // A call / Siri / another app's audio interrupts the session; resume when it ends.
+        center.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: .main) { [weak self] note in
+            guard let self = self,
+                  let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  AVAudioSession.InterruptionType(rawValue: raw) == .ended,
+                  self.bgmWanted else { return }
+            try? self.activatePlaybackSession()
+            self.player.stop()
+            try? self.startEngine()
+        }
+        // Route changes (headphones, Bluetooth) stop the engine.
+        center.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak self] _ in
+            guard let self = self, self.bgmWanted else { return }
+            self.player.stop()
+            try? self.startEngine()
+        }
+    }
+
+    private func activatePlaybackSession() throws {
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+        try session.setActive(true)
     }
 
     @objc override public func checkPermissions(_ call: CAPPluginCall) {
@@ -77,7 +207,7 @@ public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    private func scheduleEndNotification(endAtMs: Double, title: String, body: String, silent: Bool) {
+    private func scheduleEndNotification(endAtMs: Double, title: String, body: String) {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [endNotificationId])
         let interval = endAtMs / 1000 - Date().timeIntervalSince1970
@@ -86,13 +216,16 @@ public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
-        content.sound = silent ? nil : .default
+        // Always audible: in the background the WebView can't play the end chime.
+        // (In the foreground iOS doesn't present it, and the app plays its own chime.)
+        content.sound = .default
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false)
         center.add(UNNotificationRequest(identifier: endNotificationId, content: content, trigger: trigger))
     }
 
     /// Back to the app default (respects the silent switch, ends the playback session).
     private func resetAudioSession() {
+        guard !bgmWanted else { return }
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.soloAmbient)
         try? session.setActive(false, options: .notifyOthersOnDeactivation)

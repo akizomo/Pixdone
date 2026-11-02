@@ -1,4 +1,5 @@
-import { Capacitor, registerPlugin } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
+import { FocusService } from './focusService';
 
 /**
  * Keeps the focus timer (and its Web Audio BGM) alive while the app is in the background.
@@ -8,20 +9,11 @@ import { Capacitor, registerPlugin } from '@capacitor/core';
  * countdown notification.
  *
  * iOS only keeps the app running in the background while audio plays, so there the plugin
- * activates a playback audio session while BGM plays (`keepAlive`) and schedules a local
- * notification for the end time (for when BGM is off and iOS suspends the app).
+ * activates a playback audio session while BGM plays (`keepAlive`; the BGM itself is native
+ * there, see bgm.ts) and schedules a local notification for the end time.
  *
  * No-op on the web.
  */
-interface FocusServicePlugin {
-  start(options: BackgroundTimerOptions): Promise<void>;
-  stop(): Promise<void>;
-  checkPermissions(): Promise<{ notifications: string }>;
-  requestPermissions(): Promise<{ notifications: string }>;
-}
-
-const FocusService = registerPlugin<FocusServicePlugin>('FocusService');
-
 const isSupported = () => Capacitor.getPlatform() === 'android' || Capacitor.getPlatform() === 'ios';
 
 let askedForNotificationPermission = false;
@@ -39,7 +31,7 @@ export interface BackgroundTimerOptions {
   text: string;
   /** Unix ms when the timer reaches 0; the notification counts down to it. */
   endAt: number;
-  /** iOS: BGM is playing, so keep the app alive with a playback audio session. */
+  /** iOS: BGM is playing, so keep the app alive with a playback audio session (and stop the BGM at `endAt`). */
   keepAlive?: boolean;
   /** iOS: text of the local notification delivered at `endAt`. */
   endTitle?: string;

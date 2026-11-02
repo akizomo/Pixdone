@@ -8,7 +8,15 @@
  *
  * Default preference: ON (Retro). Playback still follows focus timer rules in App.
  * Volume 0.06 — tuned so SFX stays readable by default.
+ *
+ * Native app: volume is fixed at the default (the device volume controls it). On iOS the
+ * tracks play natively from pre-rendered loops, because WebKit suspends Web Audio in the
+ * background (see renderBgmLoop / FocusService.playBgm).
  */
+
+import { Capacitor } from '@capacitor/core';
+import { FocusService } from './focusService';
+import { NATIVE_BGM_GAIN } from './bgmNativeTracks';
 
 export type BgmTrack =
   | 'retro'
@@ -32,7 +40,10 @@ let _track: BgmTrack = 'retro';
 
 /* ── AudioContext ─────────────────────────────────────── */
 
+const playsNatively = () => Capacitor.getPlatform() === 'ios';
+
 function getSavedVolume(): number {
+  if (Capacitor.isNativePlatform()) return BGM_VOLUME;
   try { return parseFloat(localStorage.getItem(BGM_VOL_KEY) ?? '') || BGM_VOLUME; } catch { return BGM_VOLUME; }
 }
 
@@ -71,11 +82,28 @@ function killNodes() {
 
 /* ── Helpers ─────────────────────────────────────────── */
 
+/** Audio time (s) up to which an offline render schedules everything up front; null = live. */
+let renderHorizon: number | null = null;
+
+/**
+ * Run `fn(at)` for audio time `at`. Live: a timer fires shortly before `at` (only if `track`
+ * is still playing). Offline render: runs right away while `at` is before the horizon.
+ */
+function scheduleAt(ctx: BaseAudioContext, at: number, track: BgmTrack, fn: (at: number) => void) {
+  if (renderHorizon !== null) {
+    if (at < renderHorizon) fn(at);
+    return;
+  }
+  extraTimers.push(setTimeout(() => {
+    if (_playing && _track === track) fn(at);
+  }, Math.max(0, (at - ctx.currentTime - 0.2) * 1000)));
+}
+
 type OscType = OscillatorType;
 
 /** Schedule a single note. Returns the nodes created. */
 function note(
-  ctx: AudioContext, out: AudioNode,
+  ctx: BaseAudioContext, out: AudioNode,
   hz: number, startAt: number, durSec: number,
   vol: number, type: OscType = 'square',
 ) {
@@ -94,9 +122,9 @@ function note(
   activeNodes.push(osc);
 }
 
-/** Schedule a repeating sequence. Calls itself via setTimeout. */
+/** Schedule a repeating sequence. Re-schedules itself via scheduleAt. */
 function loopSeq(
-  ctx: AudioContext, out: AudioNode,
+  ctx: BaseAudioContext, out: AudioNode,
   seq: Array<{ hz: number; beats: number; vol?: number; type?: OscType }>,
   bpm: number,
   startAt: number,
@@ -108,10 +136,7 @@ function loopSeq(
     note(ctx, out, s.hz, t, s.beats * beat * 0.9, s.vol ?? 0.8, s.type ?? 'square');
     t += s.beats * beat;
   }
-  const msLeft  = (t - ctx.currentTime - 0.2) * 1000;
-  extraTimers.push(setTimeout(() => {
-    if (_playing && _track === checkTrack) loopSeq(ctx, out, seq, bpm, t, checkTrack);
-  }, Math.max(0, msLeft)));
+  scheduleAt(ctx, t, checkTrack, (at) => loopSeq(ctx, out, seq, bpm, at, checkTrack));
 }
 
 /* ── Track 1: Retro (chiptune) ───────────────────────── */
@@ -147,7 +172,7 @@ const RETRO_BASS = [
   { hz:131, beats:2, type:'triangle' as OscType }, // C2
 ];
 
-function startRetro(ctx: AudioContext, out: AudioNode) {
+function startRetro(ctx: BaseAudioContext, out: AudioNode) {
   const t0 = ctx.currentTime + 0.05;
   loopSeq(ctx, out, RETRO_MELODY.map(s => ({ ...s, vol:0.9 })), R_BPM, t0, 'retro');
 
@@ -159,18 +184,14 @@ function startRetro(ctx: AudioContext, out: AudioNode) {
   loopBass(ctx, bassGain, t0);
 }
 
-function loopBass(ctx: AudioContext, out: AudioNode, startAt: number) {
+function loopBass(ctx: BaseAudioContext, out: AudioNode, startAt: number) {
   const beat = 60 / R_BPM;
   let t = startAt;
   for (const s of RETRO_BASS) {
     note(ctx, out, s.hz, t, s.beats * beat * 0.85, 0.8, s.type ?? 'triangle');
     t += s.beats * beat;
   }
-  const msLeft = (t - ctx.currentTime - 0.2) * 1000;
-  // use a second timer key — store in activeNodes via closure check
-  extraTimers.push(setTimeout(() => {
-    if (_playing && _track === 'retro') loopBass(ctx, out, t);
-  }, Math.max(0, msLeft)));
+  scheduleAt(ctx, t, 'retro', (at) => loopBass(ctx, out, at));
 }
 
 /* ── Track 2: Synthwave ──────────────────────────────── */
@@ -198,7 +219,7 @@ const SW_BASS_NOTES = [
   { hz:98,  beats:4 }, // G2
 ];
 
-function startSynthwave(ctx: AudioContext, out: AudioNode) {
+function startSynthwave(ctx: BaseAudioContext, out: AudioNode) {
   const t0 = ctx.currentTime + 0.05;
 
   // Arp lead (sawtooth)
@@ -213,16 +234,14 @@ function startSynthwave(ctx: AudioContext, out: AudioNode) {
   loopSwBass(ctx, bfilt, t0);
 }
 
-function loopSwBass(ctx: AudioContext, out: AudioNode, startAt: number) {
+function loopSwBass(ctx: BaseAudioContext, out: AudioNode, startAt: number) {
   const beat = 60 / SW_BPM;
   let t = startAt;
   for (const s of SW_BASS_NOTES) {
     note(ctx, out, s.hz, t, s.beats * beat * 0.8, 0.9, 'sawtooth');
     t += s.beats * beat;
   }
-  extraTimers.push(setTimeout(() => {
-    if (_playing && _track === 'synthwave') loopSwBass(ctx, out, t);
-  }, Math.max(0, (t - ctx.currentTime - 0.2) * 1000)));
+  scheduleAt(ctx, t, 'synthwave', (at) => loopSwBass(ctx, out, at));
 }
 
 /* ── Track 3: Chill (RPG town) ───────────────────────── */
@@ -267,7 +286,7 @@ const CHILL_BASS = [
   { hz:98,  beats:4, type:'triangle' as OscType }, // G2
 ];
 
-function startChill(ctx: AudioContext, out: AudioNode) {
+function startChill(ctx: BaseAudioContext, out: AudioNode) {
   const t0 = ctx.currentTime + 0.05;
   loopSeq(ctx, out, CHILL_MELODY.map(s => ({ ...s, vol: 0.85 })), CHILL_BPM, t0, 'chill');
 
@@ -278,20 +297,18 @@ function startChill(ctx: AudioContext, out: AudioNode) {
   loopChillBass(ctx, bassGain, t0);
 }
 
-function loopChillBass(ctx: AudioContext, out: AudioNode, startAt: number) {
+function loopChillBass(ctx: BaseAudioContext, out: AudioNode, startAt: number) {
   const beat = 60 / CHILL_BPM;
   let t = startAt;
   for (const s of CHILL_BASS) {
     note(ctx, out, s.hz, t, s.beats * beat * 0.75, 0.8, s.type);
     t += s.beats * beat;
   }
-  extraTimers.push(setTimeout(() => {
-    if (_playing && _track === 'chill') loopChillBass(ctx, out, t);
-  }, Math.max(0, (t - ctx.currentTime - 0.2) * 1000)));
+  scheduleAt(ctx, t, 'chill', (at) => loopChillBass(ctx, out, at));
 }
 
 /* ── Track 4: Rain (ambient) ─────────────────────────── */
-function startRain(ctx: AudioContext, out: AudioNode) {
+function startRain(ctx: BaseAudioContext, out: AudioNode) {
   // Pink-ish noise rain bed with gentle movement + occasional droplets
   const noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 2), ctx.sampleRate);
   const data = noiseBuf.getChannelData(0);
@@ -334,9 +351,7 @@ function startRain(ctx: AudioContext, out: AudioNode) {
   bp.frequency.linearRampToValueAtTime(2200, t0 + 6.0);
   bp.frequency.linearRampToValueAtTime(1700, t0 + 12.0);
 
-  const scheduleDroplet = () => {
-    if (!_playing || _track !== 'rain') return;
-    const now = ctx.currentTime;
+  const scheduleDroplet = (now: number) => {
     const osc = ctx.createOscillator();
     const og = ctx.createGain();
     osc.type = 'triangle';
@@ -350,13 +365,13 @@ function startRain(ctx: AudioContext, out: AudioNode) {
     osc.start(now);
     osc.stop(now + 0.08);
     activeNodes.push(osc, og);
-    extraTimers.push(setTimeout(scheduleDroplet, 450 + Math.random() * 900));
+    scheduleAt(ctx, now + 0.45 + Math.random() * 0.9, 'rain', scheduleDroplet);
   };
-  extraTimers.push(setTimeout(scheduleDroplet, 600));
+  scheduleAt(ctx, t0 + 0.6, 'rain', scheduleDroplet);
 }
 
 /* ── Track 5: Fireplace (ambient) ────────────────────── */
-function startFireplace(ctx: AudioContext, out: AudioNode) {
+function startFireplace(ctx: BaseAudioContext, out: AudioNode) {
   // Low warm hum + random crackles (noise bursts)
   const hum = ctx.createOscillator();
   hum.type = 'triangle';
@@ -368,8 +383,7 @@ function startFireplace(ctx: AudioContext, out: AudioNode) {
   hum.start();
   activeNodes.push(hum, humGain);
 
-  const crackleNoise = () => {
-    if (!_playing || _track !== 'fireplace') return;
+  const crackleNoise = (now: number) => {
     const dur = 0.03 + Math.random() * 0.06;
     const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
     const d = buf.getChannelData(0);
@@ -387,17 +401,17 @@ function startFireplace(ctx: AudioContext, out: AudioNode) {
     s.connect(hp);
     hp.connect(g);
     g.connect(out);
-    s.start();
-    s.stop(ctx.currentTime + dur + 0.01);
+    s.start(now);
+    s.stop(now + dur + 0.01);
     activeNodes.push(s, hp, g);
 
-    extraTimers.push(setTimeout(crackleNoise, 80 + Math.random() * 220));
+    scheduleAt(ctx, now + 0.08 + Math.random() * 0.22, 'fireplace', crackleNoise);
   };
-  extraTimers.push(setTimeout(crackleNoise, 120));
+  scheduleAt(ctx, ctx.currentTime + 0.12, 'fireplace', crackleNoise);
 }
 
 /* ── Track 6: Night City (ambient) ───────────────────── */
-function startNightCity(ctx: AudioContext, out: AudioNode) {
+function startNightCity(ctx: BaseAudioContext, out: AudioNode) {
   // Neon hum (slow detuned saw) + subtle sign noise + distant car sweeps
   const humA = ctx.createOscillator();
   const humB = ctx.createOscillator();
@@ -432,9 +446,7 @@ function startNightCity(ctx: AudioContext, out: AudioNode) {
   sign.start();
   activeNodes.push(sign, bp, sg);
 
-  const scheduleCar = () => {
-    if (!_playing || _track !== 'nightCity') return;
-    const now = ctx.currentTime;
+  const scheduleCar = (now: number) => {
     const osc = ctx.createOscillator();
     osc.type = 'sine';
     const g = ctx.createGain();
@@ -448,14 +460,100 @@ function startNightCity(ctx: AudioContext, out: AudioNode) {
     osc.start(now);
     osc.stop(now + 1.25);
     activeNodes.push(osc, g);
-    extraTimers.push(setTimeout(scheduleCar, 1800 + Math.random() * 3200));
+    scheduleAt(ctx, now + 1.8 + Math.random() * 3.2, 'nightCity', scheduleCar);
   };
-  extraTimers.push(setTimeout(scheduleCar, 2200));
+  scheduleAt(ctx, ctx.currentTime + 2.2, 'nightCity', scheduleCar);
+}
+
+/* ── Offline render (iOS native playback) ────────────── */
+// iOS suspends Web Audio when the app goes to the background, so the native app plays
+// pre-rendered loops of these same tracks instead (scripts/render-bgm.mjs → public/bgm/).
+
+const AMBIENT_LOOP_SEC = 60;
+const AMBIENT_XFADE_SEC = 3;
+const RENDER_TAIL_SEC = 1;
+
+/** Musical tracks repeat exactly every N seconds; ambient ones are random and get a crossfaded seam. */
+const LOOP_SEC: Record<BgmTrack, number | null> = {
+  retro: 16 * 60 / R_BPM,
+  synthwave: 16 * 60 / SW_BPM,
+  chill: 32 * 60 / CHILL_BPM,
+  rain: null,
+  fireplace: null,
+  nightCity: null,
+};
+
+function scheduleTrack(track: BgmTrack, ctx: BaseAudioContext, out: AudioNode) {
+  if (track === 'retro')          startRetro(ctx, out);
+  else if (track === 'synthwave') startSynthwave(ctx, out);
+  else if (track === 'chill')     startChill(ctx, out);
+  else if (track === 'rain')      startRain(ctx, out);
+  else if (track === 'fireplace') startFireplace(ctx, out);
+  else if (track === 'nightCity') startNightCity(ctx, out);
+}
+
+function trackMixGain(track: BgmTrack) {
+  return track === 'retro' || track === 'synthwave' || track === 'chill' ? 0.7 : 1.0;
+}
+
+/**
+ * Renders one seamless loop of `track` (mono, track mix gain applied, master volume NOT applied).
+ * Musical tracks: exactly one period, with the note tails that spill past the end wrapped to the
+ * start. Ambient tracks: AMBIENT_LOOP_SEC with the end crossfaded into the start.
+ */
+export async function renderBgmLoop(track: BgmTrack, sampleRate = 44100): Promise<Float32Array> {
+  const loopSec = LOOP_SEC[track];
+  const startSec = loopSec === null ? 0 : 0.05; // musical tracks start at currentTime + 0.05
+  const bodySec = loopSec ?? AMBIENT_LOOP_SEC;
+  const extraSec = loopSec === null ? AMBIENT_XFADE_SEC : RENDER_TAIL_SEC;
+  const ctx = new OfflineAudioContext(1, Math.ceil((startSec + bodySec + extraSec) * sampleRate), sampleRate);
+  const gain = ctx.createGain();
+  gain.gain.value = trackMixGain(track);
+  gain.connect(ctx.destination);
+
+  const saved = { activeNodes, extraTimers };
+  activeNodes = [];
+  extraTimers = [];
+  // Musical: schedule exactly one period. Ambient: keep random events going through the crossfade.
+  // (−1 ms: the summed note times can land a hair before the next period starts)
+  renderHorizon = loopSec === null ? startSec + bodySec + extraSec : startSec + bodySec - 0.001;
+  try {
+    scheduleTrack(track, ctx, gain);
+  } finally {
+    renderHorizon = null;
+    ({ activeNodes, extraTimers } = saved);
+  }
+
+  const rendered = (await ctx.startRendering()).getChannelData(0);
+  const off = Math.round(startSec * sampleRate);
+  const len = Math.round(bodySec * sampleRate);
+  const extra = rendered.length - off - len;
+  const loop = rendered.slice(off, off + len);
+  if (loopSec !== null) {
+    for (let i = 0; i < extra; i++) loop[i] += rendered[off + len + i];
+  } else {
+    const fade = Math.min(extra, Math.round(AMBIENT_XFADE_SEC * sampleRate));
+    for (let i = 0; i < fade; i++) {
+      const x = (i / fade) * (Math.PI / 2);
+      loop[i] = loop[i] * Math.sin(x) + rendered[off + len + i] * Math.cos(x);
+    }
+  }
+  return loop;
 }
 
 /* ── Public API ──────────────────────────────────────── */
 
 export function startBgm(track?: BgmTrack): void {
+  if (playsNatively()) {
+    const requested = track ?? _track;
+    if (_playing && requested === _track) return;
+    _track = requested;
+    _playing = true;
+    const file = _track === 'fireplace' ? 'retro' : _track; // fireplace is not rendered
+    FocusService.playBgm({ track: file, volume: BGM_VOLUME * (NATIVE_BGM_GAIN[file] ?? 1) })
+      .catch((e) => { _playing = false; console.warn('[bgm] native start failed:', e); });
+    return;
+  }
   try {
     const ctx = getCtx();
     if (!ctx || !masterGain) return;
@@ -468,25 +566,22 @@ export function startBgm(track?: BgmTrack): void {
 
     // Per-track mix gain (keeps SFX readable without changing user volume slider).
     const trackGain = ctx.createGain();
-    trackGain.gain.value =
-      _track === 'retro' || _track === 'synthwave' || _track === 'chill'
-        ? 0.7
-        : 1.0;
+    trackGain.gain.value = trackMixGain(_track);
     trackGain.connect(masterGain);
     activeNodes.push(trackGain);
 
-    if (_track === 'retro')          startRetro(ctx, trackGain);
-    else if (_track === 'synthwave') startSynthwave(ctx, trackGain);
-    else if (_track === 'chill')     startChill(ctx, trackGain);
-    else if (_track === 'rain')      startRain(ctx, trackGain);
-    else if (_track === 'fireplace') startFireplace(ctx, trackGain);
-    else if (_track === 'nightCity') startNightCity(ctx, trackGain);
+    scheduleTrack(_track, ctx, trackGain);
   } catch (e) {
     console.warn('[bgm] start failed:', e);
   }
 }
 
 export function stopBgm(): void {
+  if (playsNatively()) {
+    if (_playing) FocusService.stopBgm().catch((e) => console.warn('[bgm] native stop failed:', e));
+    _playing = false;
+    return;
+  }
   _playing = false;
   killNodes();
 }

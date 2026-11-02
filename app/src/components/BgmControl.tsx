@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { IconButton, PopoverMenu, PixelIcon } from '../design-system';
 import { setBgmTrack, setBgmOn, setBgmVolume, getBgmVolume } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
@@ -91,7 +92,8 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
         </button>
       )}
 
-      {/* Track picker + volume — DS PopoverMenu (items, outside-click, Escape) */}
+      {/* Track picker + volume — DS PopoverMenu (items, outside-click, Escape).
+          No volume slider in the native app: the device volume controls the BGM. */}
       {open && (
         <PopoverMenu
           items={TRACKS.map((tr) => ({
@@ -103,7 +105,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
           onSelect={(id) => handleTrackSelect(id as TrackOption)}
           onClose={handleClose}
           align="right"
-          footer={
+          footer={Capacitor.isNativePlatform() ? undefined : (
             <div className={`bgm-control__volume${variant === 'zen' ? ' bgm-control__volume--zen' : ''}`}>
               <div className="bgm-control__text-1">
                 <span>{lang === 'ja' ? 'ボリューム' : 'Volume'}</span>
@@ -120,7 +122,7 @@ export function BgmControl({ lang, bgmOn, track, onChange, onMenuOpenChange, var
                 className="bgm-control__box-1"
               />
             </div>
-          }
+          )}
         />
       )}
     </div>
