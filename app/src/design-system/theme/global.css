@@ -49,3 +49,24 @@ a {
     transform: translate(-50%, -50%);
   }
 }
+
+/* Native app (Capacitor): drop browser-only touch behaviour so taps feel like an app.
+   html[data-native] is set by services/nativeShell.ts. */
+html[data-native] {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* No rubber-band bounce of the whole page; inner scroll areas still scroll. */
+  overscroll-behavior: none;
+}
+
+html[data-native] body {
+  overscroll-behavior: none;
+}
+
+html[data-native] :is(input, textarea, [contenteditable="true"]) {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}

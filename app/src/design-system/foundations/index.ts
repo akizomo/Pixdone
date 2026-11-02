@@ -14,4 +14,6 @@ export { typography } from './typography.tokens';
 export { zIndex } from './zIndex.tokens';
 export { sound, soundKeys, soundByRole } from './sound.tokens';
 export type { SoundKey } from './sound.tokens';
+export { haptic, smashHaptic } from './haptic.tokens';
+export type { HapticPattern } from './haptic.tokens';
 export { ColorSwatch } from './ColorSwatch';

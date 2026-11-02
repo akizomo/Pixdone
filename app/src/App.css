@@ -3,6 +3,9 @@
   height: 100dvh;
   margin: 0;
   padding: 0;
+  /* Edge-to-edge in the native app (viewport-fit=cover): keep content below the
+     status bar / Dynamic Island while the theme background fills behind it. */
+  padding-top: env(safe-area-inset-top);
   display: flex;
   flex-direction: column;
   overflow: hidden;

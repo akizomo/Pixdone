@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/react'
 import './index.css'
 import App from './App.tsx'
 import { initPixelCursor } from './utils/pixelCursor'
+import { initNativeShell } from './services/nativeShell'
 
 // Initialize vanilla task completion effects (animations.js loaded via index.html)
 declare global {
@@ -19,6 +20,7 @@ declare global {
 }
 if (typeof window !== 'undefined') {
   initPixelCursor();
+  initNativeShell();
   const init = () => {
     if (window.TaskAnimationEffects && !window.taskAnimationEffects) {
       window.taskAnimationEffects = new window.TaskAnimationEffects();

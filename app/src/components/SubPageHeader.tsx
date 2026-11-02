@@ -12,7 +12,7 @@ interface SubPageHeaderProps {
 export function SubPageHeader({ title, isJa, onBack }: SubPageHeaderProps) {
   return (
     <div className="pd-subpage-header">
-      <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={onBack}>
+      <Button variant="ghost" size="sm" soundKey="taskCancel" onClick={onBack} data-pd-back>
         <PixelIcon name="arrow_back" size="sm" />
         {isJa ? 'もどる' : 'BACK'}
       </Button>
@@ -40,6 +40,7 @@ export function DetailViewHeader({ title, isJa, onBack, children }: DetailViewHe
         aria-label={isJa ? '戻る' : 'Back'}
         icon={<PixelIcon name="arrow_back" size="md" />}
         onClick={onBack}
+        data-pd-back
       />
       <span className="pd-detail-header__title">{title}</span>
       {children}

@@ -5,6 +5,7 @@
  * window.__pixdonePlaySound and local muted state.
  */
 import type { SoundKey } from '../design-system';
+import { playHaptic } from './haptics';
 
 let muted = false;
 
@@ -39,6 +40,7 @@ function useVanillaSound(): boolean {
 
 export function playSound(key: SoundKey): void {
   if (typeof window === 'undefined') return;
+  playHaptic(key);
 
   const w = window as unknown as {
     taskAnimationEffects?: { comicEffects?: { playSound: (k: string) => void; getSoundEnabled: () => boolean } };

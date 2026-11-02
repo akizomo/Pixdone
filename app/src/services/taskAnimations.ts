@@ -5,6 +5,8 @@
  */
 
 import checkSvg from 'pixelarticons/svg/check.svg?raw';
+import { smashHaptic } from '../design-system/foundations/haptic.tokens';
+import { playHapticPattern } from './haptics';
 
 /** Adds the same pixel-art check icon TaskItem renders (PixelIcon "check", size sm). */
 function appendCheckMark(checkbox: HTMLElement): void {
@@ -174,6 +176,7 @@ export function runVanillaCompletionEffect(
   }
 
   window.taskAnimationEffects.animateTaskCompletion(effectCloneBase, effectRect);
+  playHapticPattern(smashHaptic);
 
   // Effects with longer timelines need more cleanup time
   const LONG_EFFECTS = new Set(['fighterLv2', 'fighterLv3', 'fighterLv4', 'fighterLv5']);

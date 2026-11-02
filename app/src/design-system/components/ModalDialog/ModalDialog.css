@@ -8,6 +8,8 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
+  /* Native edge-to-edge: keep the panel clear of the status bar / Dynamic Island. */
+  padding-top: calc(24px + env(safe-area-inset-top));
   background-color: var(--pd-color-surface-overlay);
   opacity: 0;
   /* opening: fade in */
@@ -32,6 +34,8 @@
   width: 90%;
   max-width: 400px;
   max-height: 90vh;
+  /* Stay inside the overlay's padded box when the keyboard shrinks the viewport. */
+  max-height: min(90vh, 100%);
   overflow-y: auto;
   padding: 24px;
   background-color: var(--pd-color-background-default);
