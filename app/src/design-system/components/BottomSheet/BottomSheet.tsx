@@ -8,6 +8,20 @@ import './BottomSheet.css';
 /** Minimum downward swipe distance (px) to trigger close */
 const SWIPE_CLOSE_THRESHOLD = 80;
 
+/** Body drag: travel before deciding between "pull the sheet down" and "scroll / something else" */
+const BODY_DRAG_LOCK_PX = 8;
+
+/** Touches on these never start a body drag (text editing, sliders, opted-out areas). */
+const NO_BODY_DRAG = 'input, textarea, select, [contenteditable="true"], [data-pd-no-sheet-drag]';
+
+/** True when `el` or an ancestor up to `stop` is scrolled away from its top. */
+function isScrolledBelowTop(el: HTMLElement | null, stop: HTMLElement): boolean {
+  for (let n = el; n && n !== stop.parentElement; n = n.parentElement) {
+    if (n.scrollTop > 0) return true;
+  }
+  return false;
+}
+
 /** Close slide-down duration (ms) — must match inline transition below */
 const CLOSE_DURATION_MS = 280;
 
@@ -30,6 +44,8 @@ export function BottomSheet({
   const [dragY, setDragY] = useState(0);
   const dragStartRef = useRef<{ y: number; time: number } | null>(null);
   const isDraggingRef = useRef(false);
+  /** Body drag: undecided until the finger moves BODY_DRAG_LOCK_PX; 'off' lets the touch scroll. */
+  const bodyDragRef = useRef<{ x: number; y: number; mode: 'pending' | 'drag' | 'off' } | null>(null);
 
   // ── Open transition ──
   useEffect(() => {
@@ -158,7 +174,7 @@ export function BottomSheet({
     return () => { cancelAnimationFrame(id1); cancelAnimationFrame(id2); };
   }, [open]);
 
-  // ── Swipe-to-dismiss handlers (header / drag-handle area) ──
+  // ── Swipe-to-dismiss handlers (header / drag-handle area; the body reuses them below) ──
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     dragStartRef.current = { y: e.touches[0].clientY, time: Date.now() };
     isDraggingRef.current = false;
@@ -191,6 +207,35 @@ export function BottomSheet({
     dragStartRef.current = null;
     isDraggingRef.current = false;
   }, [dragY, onClose]);
+
+  // ── Pull-down from the body when it is scrolled to the top ──
+  const onBodyTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    const t = e.target as HTMLElement;
+    const skip = t.closest(NO_BODY_DRAG) || isScrolledBelowTop(t, e.currentTarget);
+    bodyDragRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, mode: skip ? 'off' : 'pending' };
+  }, []);
+
+  const onBodyTouchMove = useCallback((e: React.TouchEvent) => {
+    const s = bodyDragRef.current;
+    if (!s || s.mode === 'off') return;
+    const dx = e.touches[0].clientX - s.x;
+    const dy = e.touches[0].clientY - s.y;
+    if (s.mode === 'pending') {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < BODY_DRAG_LOCK_PX) return;
+      if (dy <= 0 || Math.abs(dx) > dy) { s.mode = 'off'; return; }
+      s.mode = 'drag';
+      // Start measuring from here so the sheet doesn't jump by the lock distance.
+      dragStartRef.current = { y: e.touches[0].clientY, time: Date.now() };
+      isDraggingRef.current = false;
+    }
+    onTouchMove(e);
+  }, [onTouchMove]);
+
+  const onBodyTouchEnd = useCallback(() => {
+    const s = bodyDragRef.current;
+    bodyDragRef.current = null;
+    if (s?.mode === 'drag') onTouchEnd();
+  }, [onTouchEnd]);
 
   if (!visible) return null;
 
@@ -267,7 +312,13 @@ export function BottomSheet({
             className="pxd-sheet-close"
           />
         </div>
-        <div className={['pxd-sheet-body', bodyClassName].filter(Boolean).join(' ')}>
+        <div
+          className={['pxd-sheet-body', bodyClassName].filter(Boolean).join(' ')}
+          onTouchStart={onBodyTouchStart}
+          onTouchMove={onBodyTouchMove}
+          onTouchEnd={onBodyTouchEnd}
+          onTouchCancel={onBodyTouchEnd}
+        >
           {children}
         </div>
       </div>

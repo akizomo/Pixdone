@@ -57,7 +57,7 @@ export function EffectDetailView({
   if (!effect) return null;
 
   return (
-    <div className="effect-detail__col-1">
+    <div className="effect-detail__col-1" data-pd-screen>
       {/* Header */}
       <DetailViewHeader title={effect.name.toUpperCase()} isJa={lang === 'ja'} onBack={onClose}>
         <span className="effect-detail__text-8" style={{ color: badgeColor(effect.rarity, isChallenge) }}>

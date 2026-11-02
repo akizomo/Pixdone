@@ -70,3 +70,13 @@ html[data-native] :is(input, textarea, [contenteditable="true"]) {
   user-select: text;
   -webkit-touch-callout: default;
 }
+
+/* iOS edge swipe-back (services/edgeSwipeBack.ts): the dragged screen casts a shadow on what's behind. */
+.pd-edge-swipe {
+  will-change: transform;
+  box-shadow: var(--pd-shadow-soft-md);
+}
+
+.pd-edge-swipe--settling {
+  transition: transform var(--pd-motion-slow) var(--pd-easing-decelerate);
+}

@@ -26,7 +26,7 @@ export function FeedbackPage() {
   };
 
   return (
-    <div className="feedback__col-1">
+    <div className="feedback__col-1" data-pd-screen>
       <SubPageHeader title={isJa ? 'フィードバック' : 'FEEDBACK'} isJa={isJa} onBack={() => navigate('/')} />
 
       <div

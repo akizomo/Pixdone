@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ModalDialog, Button, IconButton, PixelIcon, TextField } from '../design-system';
+import { ModalDialog, BottomSheet, Button, IconButton, PixelIcon, TextField } from '../design-system';
 import { useAuth } from '../contexts/AuthContext';
 import { playSound } from '../services/sound';
 import { Capacitor } from '@capacitor/core';
@@ -118,22 +118,18 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
       ? (lang === 'ja' ? 'ログイン' : 'Log in')
       : (lang === 'ja' ? 'サインアップ' : 'Sign up');
 
-  return (
-    <ModalDialog
-      open={open}
-      onClose={onClose}
-      title={title}
-      actions={
-        <>
-          <Button variant="secondary" soundKey="taskCancel" onClick={onClose} disabled={loading}>
-            {lang === 'ja' ? 'キャンセル' : 'Cancel'}
-          </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? '...' : primaryLabel}
-          </Button>
-        </>
-      }
-    >
+  const actions = (
+    <>
+      <Button variant="secondary" soundKey="taskCancel" onClick={onClose} disabled={loading}>
+        {lang === 'ja' ? 'キャンセル' : 'Cancel'}
+      </Button>
+      <Button variant="primary" onClick={handleSubmit} disabled={loading}>
+        {loading ? '...' : primaryLabel}
+      </Button>
+    </>
+  );
+
+  const body = (
       <div className="auth-modal__col-1">
         {/* Google Sign-In — signup and login modes only (native apps use the
             native Google SDK via loginWithGoogle). */}
@@ -288,6 +284,21 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
           </p>
         )}
       </div>
+  );
+
+  // Native app: full-screen sheet (app-style sign-in screen). Web: centred dialog.
+  if (Capacitor.isNativePlatform()) {
+    return (
+      <BottomSheet open={open} onClose={onClose} title={title}>
+        {body}
+        <div className="auth-modal__actions">{actions}</div>
+      </BottomSheet>
+    );
+  }
+
+  return (
+    <ModalDialog open={open} onClose={onClose} title={title} actions={actions}>
+      {body}
     </ModalDialog>
   );
 }

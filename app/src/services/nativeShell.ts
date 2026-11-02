@@ -4,10 +4,12 @@
  * - Status bar icon colour follows the current theme background
  * - Hides the iOS keyboard accessory bar (‹ › Done)
  * - Android back button: close the top overlay → press the visible back button → minimize
+ * - iOS: drag from the left edge to go back (edgeSwipeBack.ts)
  */
 import { Capacitor, SystemBars, SystemBarsStyle } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { Keyboard } from '@capacitor/keyboard';
+import { initEdgeSwipeBack } from './edgeSwipeBack';
 
 /** Relative luminance of an `rgb()` / `rgba()` computed colour, 0–1. */
 function luminance(rgb: string): number | null {
@@ -74,6 +76,7 @@ export function initNativeShell(): void {
 
   if (Capacitor.getPlatform() === 'ios') {
     Keyboard.setAccessoryBarVisible({ isVisible: false }).catch(() => {});
+    initEdgeSwipeBack();
   }
 
   if (Capacitor.getPlatform() === 'android') {

@@ -102,7 +102,7 @@ export function AccountPage() {
   };
 
   return (
-    <div className="account-page">
+    <div className="account-page" data-pd-screen>
       <SubPageHeader title={isJa ? 'アカウント' : 'ACCOUNT'} isJa={isJa} onBack={() => navigate('/')} />
 
       <div className="account-body">

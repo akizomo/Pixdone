@@ -876,7 +876,7 @@ function AppContent() {
         )}
         <AuthModal
           open={signupOpen}
-          onClose={() => { playSound('taskCancel'); setSignupOpen(false); }}
+          onClose={() => setSignupOpen(false)}
           onLoginSuccess={() => setSignupOpen(false)}
           lang={lang}
           initialMode={authInitialMode}
@@ -1282,7 +1282,7 @@ function AppContent() {
       {/* Auth modal */}
       <AuthModal
         open={signupOpen}
-        onClose={() => { playSound('taskCancel'); setSignupOpen(false); }}
+        onClose={() => setSignupOpen(false)}
         onLoginSuccess={() => setSignupOpen(false)}
         lang={lang}
         initialMode={authInitialMode}

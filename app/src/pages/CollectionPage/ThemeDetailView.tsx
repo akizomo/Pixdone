@@ -63,7 +63,7 @@ export function ThemeDetailView({
     ?? 'var(--pd-color-background-default)';
 
   return (
-    <div className="theme-detail__col-1">
+    <div className="theme-detail__col-1" data-pd-screen>
       {/* Header */}
       <DetailViewHeader
         title={<>{theme.icon} {theme.name.toUpperCase()}</>}

@@ -165,7 +165,7 @@ export function PricingPage() {
   const storeUnavailable = isNativeApp && (!storeReady || (storePackages !== null && !(cycle === 'monthly' ? storePackages.monthly : storePackages.yearly)));
 
   return (
-    <div className="pricing__col-1">
+    <div className="pricing__col-1" data-pd-screen>
       <SubPageHeader title="PIXDONE+" isJa={isJa} onBack={() => navigate('/')} />
 
       {/* Success banner */}

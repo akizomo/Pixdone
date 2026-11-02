@@ -30,6 +30,8 @@
   background-color: var(--pd-color-background-default);
   transform: translateY(100%);
   pointer-events: none;
+  /* Full-screen sheet: keep the header clear of the status bar / Dynamic Island. */
+  padding-top: env(safe-area-inset-top);
   padding-bottom: calc(env(safe-area-inset-bottom) + var(--pd-keyboard-inset, 0px));
   /* closing: natural decelerate-out (iOS-like) */
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
@@ -41,6 +43,7 @@
    `--pd-keyboard-inset` still applies via the shared `padding-bottom`. */
 .pxd-sheet.pxd-sheet--compact {
   top: auto;
+  padding-top: 0;
   max-height: min(80vh, calc(100vh - 80px));
 }
 .pxd-sheet.pxd-sheet--compact .pxd-sheet-body {
