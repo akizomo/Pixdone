@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   /* Sits directly on top of the BottomNav (56px + safe area, see BottomNav.css). */
-  bottom: calc(56px + env(safe-area-inset-bottom));
+  bottom: calc(56px + var(--pd-layout-safe-bottom));
   z-index: 250; /* above BottomNav (200), below the FAB (300) */
   display: flex;
   align-items: center;
@@ -21,7 +21,7 @@
 
 /* BottomNav slid away (hide-on-scroll): drop to the screen edge. */
 .pxd-mini-player--nav-hidden {
-  bottom: env(safe-area-inset-bottom);
+  bottom: var(--pd-layout-safe-bottom);
 }
 
 @media (prefers-reduced-motion: reduce) {

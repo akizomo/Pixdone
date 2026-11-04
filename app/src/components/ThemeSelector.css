@@ -65,10 +65,15 @@
 
 .theme-selector__text-5 {
   flex: 1;
+  min-width: 0;
   display: flex;
+  /* Icon above label: three side-by-side "icon + label" rows don't fit a phone
+     dialog in Japanese (システム wrapped mid-word). */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--pd-space-2);
+  gap: var(--pd-space-1);
+  white-space: nowrap;
   padding: var(--pd-space-2) var(--pd-space-1);
   border-radius: 0;
   cursor: pointer;

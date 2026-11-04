@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Button, IconButton, PixelIcon } from '../design-system';
+import { Button, FullScreenSurface, IconButton, PixelIcon } from '../design-system';
 import { BgmControl } from './BgmControl';
 import { PacmanProgress } from './PacmanProgress';
 import type { FocusTimerState } from '../hooks/useFocusTimer';
@@ -131,7 +131,7 @@ export function FocusZenMode({
   return (
     <>
       <div className={backdropClass} aria-hidden="true" onClick={requestClose} />
-      <div
+      <FullScreenSurface
         className={dialogClass}
         role="dialog"
         aria-modal="true"
@@ -205,7 +205,7 @@ export function FocusZenMode({
             )}
           </div>
         </div>
-      </div>
+      </FullScreenSurface>
     </>
   );
 }

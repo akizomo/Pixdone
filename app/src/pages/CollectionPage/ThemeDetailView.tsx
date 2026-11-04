@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThemeHomePreview } from './ThemeHomePreview';
+import { FullScreenSurface } from '../../design-system';
 import { themes } from '../../design-system/themes/themeRegistry';
 import type { ThemeKey } from '../../design-system/themes/themeRegistry';
 import { getRandomThemeLimitedEffectKey } from '../../data/effectsRegistry';
@@ -63,7 +64,7 @@ export function ThemeDetailView({
     ?? 'var(--pd-color-background-default)';
 
   return (
-    <div className="theme-detail__col-1" data-pd-screen>
+    <FullScreenSurface className="theme-detail__col-1" data-pd-screen>
       {/* Header */}
       <DetailViewHeader
         title={<>{theme.icon} {theme.name.toUpperCase()}</>}
@@ -111,6 +112,6 @@ export function ThemeDetailView({
               : (lang === 'ja' ? 'このテーマを使う' : 'SET ACTIVE')}
         </button>
       </div>
-    </div>
+    </FullScreenSurface>
   );
 }

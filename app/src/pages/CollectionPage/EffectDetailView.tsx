@@ -4,7 +4,7 @@ import { DemoTaskItem } from './DemoTaskItem';
 import { EFFECTS_REGISTRY, isEffectLocked, canDeactivateEffect } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
 import { playSound } from '../../services/sound';
-import { Toggle } from '../../design-system';
+import { FullScreenSurface, Toggle } from '../../design-system';
 import { DetailViewHeader } from '../../components/SubPageHeader';
 import { badgeColor } from './rarityColors';
 import './EffectDetailView.css';
@@ -57,7 +57,7 @@ export function EffectDetailView({
   if (!effect) return null;
 
   return (
-    <div className="effect-detail__col-1" data-pd-screen>
+    <FullScreenSurface className="effect-detail__col-1" data-pd-screen>
       {/* Header */}
       <DetailViewHeader title={effect.name.toUpperCase()} isJa={lang === 'ja'} onBack={onClose}>
         <span className="effect-detail__text-8" style={{ color: badgeColor(effect.rarity, isChallenge) }}>
@@ -137,6 +137,6 @@ export function EffectDetailView({
           </button>
         )}
       </div>
-    </div>
+    </FullScreenSurface>
   );
 }

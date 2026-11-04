@@ -171,6 +171,13 @@
   --pd-layout-xl: 24px;
   --pd-layout-2xl: 32px;
   --pd-layout-3xl: 40px;
+  /* Safe area (status bar / Dynamic Island / home indicator) in the edge-to-edge
+     native app; 0 in a normal browser. Use these instead of env(safe-area-inset-*)
+     so Storybook can simulate a notched phone by overriding them. */
+  --pd-layout-safe-top: env(safe-area-inset-top, 0px);
+  --pd-layout-safe-right: env(safe-area-inset-right, 0px);
+  --pd-layout-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --pd-layout-safe-left: env(safe-area-inset-left, 0px);
   --pd-radius-none: 0;
   --pd-radius-xs: 4px;
   --pd-radius-sm: 6px;

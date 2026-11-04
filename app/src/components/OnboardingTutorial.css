@@ -14,8 +14,8 @@
   color: var(--pd-color-text-primary);
   font-family: var(--pd-font-body);
   overflow-y: auto;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-top: var(--pd-layout-safe-top);
+  padding-bottom: var(--pd-layout-safe-bottom);
   animation: pd-onboarding-fade-in var(--pd-motion-slower) var(--pd-easing-decelerate);
 }
 

@@ -75,6 +75,12 @@ UI は `app/src/design-system/` のコンポーネントとトークンを使っ
 - **テーマ追加時も同じルール**: 新テーマの `.theme.ts` でオーバーライドする色は、そのテーマ固有の primitive（例: `--pd-sw-*` for synthwave）を参照する。
 - **テキスト色の WCAG AA 必須**: テキストに使うセマンティック色は、dark（bg `#202124`）/ light（bg `#ffffff`）両方で **4.5:1 以上**のコントラスト比を確保する。新色追加時は計算して検証すること。
 
+### Safe area（ネイティブアプリは edge-to-edge）
+- ネイティブアプリは `contentInset: 'never'`（edge-to-edge）なので、ステータスバー・ホームインジケーターの回避は Web 側の責任。ブラウザでは常に 0 なので**実機まで気づけない**。
+- **全画面レイヤー（`position: fixed; inset: 0` で #root の外に出るもの）は DS の `FullScreenSurface` を使う**。中の絶対配置（閉じるボタン等）は safe area の内側基準になる。
+- 余白は `--pd-layout-safe-{top,right,bottom,left}` トークンで書く。`env(safe-area-inset-*)` の直書きは禁止（`tokens.css` のみ。`safeArea.test.ts` が検出する）。
+- 見た目の確認は Storybook ツールバーの **Safe Area → iPhone** で行う。
+
 ### インラインスタイル禁止
 - `style={{}}` は原則使わない。CSS クラス（コンポーネント名.css）を使う。
 - 例外: 真に動的な値のみ（ユーザー入力に基づく色、計算された位置など）。

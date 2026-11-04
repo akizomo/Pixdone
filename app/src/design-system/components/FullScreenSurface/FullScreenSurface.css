@@ -1,0 +1,21 @@
+/* FullScreenSurface — see FullScreenSurface.tsx */
+
+.pxd-fullscreen {
+  position: fixed;
+  inset: 0;
+  background: var(--pd-color-background-default);
+}
+
+/* The safe rect itself is the positioned box (not a padded one): absolute
+   children ignore padding, so padding alone would let them slide under the
+   status bar. */
+.pxd-fullscreen__safe {
+  position: absolute;
+  top: var(--pd-layout-safe-top);
+  right: var(--pd-layout-safe-right);
+  bottom: var(--pd-layout-safe-bottom);
+  left: var(--pd-layout-safe-left);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}

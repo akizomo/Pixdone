@@ -24,13 +24,9 @@
   bottom: 0;
   top: 0;
   z-index: 2001;
-  display: flex;
-  flex-direction: column;
   background: var(--pd-color-background-default);
   transform: translateY(100%);
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
   pointer-events: none;
   image-rendering: pixelated;
 }
@@ -46,6 +42,7 @@
 
 .pd-zen-close {
   position: absolute;
+  /* Relative to FullScreenSurface's safe box, so already below the status bar. */
   top: var(--pd-space-3);
   right: var(--pd-space-3);
   z-index: 1;

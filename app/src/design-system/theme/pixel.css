@@ -158,7 +158,7 @@
   position: fixed;
   z-index: 300;
   /* Same row as SubMenu, above BottomNav */
-  bottom: calc(56px + env(safe-area-inset-bottom) + var(--pd-space-3, 12px) + var(--pd-mini-player-offset, 0px));
+  bottom: calc(56px + var(--pd-layout-safe-bottom) + var(--pd-space-3, 12px) + var(--pd-mini-player-offset, 0px));
   right: var(--pd-space-4, 16px);
   left: auto;
   /* Rapid taps (Smash) must not trigger double-tap-to-zoom. */
@@ -208,7 +208,8 @@
 
 .pd-mobile-fab--smash {
   background-color: white;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--pd-color-brand-smash) 40%, transparent);
+  /* Same hard pixel shadow as the add-task FAB (was a soft blurred glow). */
+  box-shadow: var(--pd-shadow-pixel-sm);
 }
 
 .pd-mobile-fab--smash:active {
@@ -249,7 +250,7 @@
 
   /* Reserve exactly the fixed BottomNav height (56px) + safe-area. */
   .pd-app-body > main {
-    padding-bottom: calc(56px + env(safe-area-inset-bottom) + var(--pd-mini-player-offset, 0px));
+    padding-bottom: calc(56px + var(--pd-layout-safe-bottom) + var(--pd-mini-player-offset, 0px));
   }
 }
 

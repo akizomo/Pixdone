@@ -32,6 +32,12 @@ class StoryErrorBoundary extends Component<{ children: ReactNode }, { hasError: 
   }
 }
 
+/** iPhone 12/13/14-class portrait insets (status bar 47pt, home indicator 34pt). */
+const SAFE_AREA_PRESETS = {
+  none: null,
+  iphone: { top: 47, right: 0, bottom: 34, left: 0 },
+} as const;
+
 const preview: Preview = {
   globalTypes: {
     colorMode: {
@@ -61,12 +67,34 @@ const preview: Preview = {
         dynamicTitle: true,
       },
     },
+    safeArea: {
+      description: 'Simulate native safe-area insets (status bar / home indicator)',
+      defaultValue: 'none',
+      toolbar: {
+        title: 'Safe Area',
+        icon: 'mobile',
+        items: [
+          { value: 'none', title: 'None (browser)' },
+          { value: 'iphone', title: 'iPhone (notch)' },
+        ],
+        dynamicTitle: true,
+      },
+    },
   },
 
   decorators: [
     (Story, context) => {
       const colorMode = (context.globals.colorMode ?? 'dark') as ThemeMode;
       const visualTheme = (context.globals.visualTheme ?? 'arcade') as ThemeKey;
+
+      // env(safe-area-inset-*) is always 0 in a desktop browser; overriding the
+      // tokens shows what the edge-to-edge native app will look like.
+      const inset = SAFE_AREA_PRESETS[(context.globals.safeArea ?? 'none') as keyof typeof SAFE_AREA_PRESETS];
+      const rootStyle = document.documentElement.style;
+      (['top', 'right', 'bottom', 'left'] as const).forEach((edge) => {
+        if (inset) rootStyle.setProperty(`--pd-layout-safe-${edge}`, `${inset[edge]}px`);
+        else rootStyle.removeProperty(`--pd-layout-safe-${edge}`);
+      });
 
       return (
         <StoryErrorBoundary>

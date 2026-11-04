@@ -1,0 +1,15 @@
+.fullscreen-story__close {
+  position: absolute;
+  top: var(--pd-space-3);
+  right: var(--pd-space-3);
+}
+
+.fullscreen-story__body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pd-color-text-primary);
+  font-family: var(--pd-font-body);
+  outline: var(--pd-border-thin) dashed var(--pd-color-border-default);
+}

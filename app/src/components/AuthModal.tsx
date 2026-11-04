@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ModalDialog, BottomSheet, Button, IconButton, PixelIcon, TextField } from '../design-system';
 import { useAuth } from '../contexts/AuthContext';
 import { playSound } from '../services/sound';
@@ -56,6 +56,13 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
     setMode(m);
     resetForm();
   };
+
+  // The modal stays mounted, so re-apply initialMode on every open
+  // (otherwise "I already have an account" can reopen in the last mode used).
+  useEffect(() => {
+    if (open) switchMode(initialMode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialMode]);
 
   const handleProviderSignIn = async (signIn: () => Promise<void>) => {
     setError('');
@@ -123,8 +130,11 @@ export function AuthModal({ open, onClose, onLoginSuccess, lang, initialMode = '
       <Button variant="secondary" soundKey="taskCancel" onClick={onClose} disabled={loading}>
         {lang === 'ja' ? 'キャンセル' : 'Cancel'}
       </Button>
+      {/* Keep the label while loading (disabled is the cue). Swapping it for "..."
+          shrank the button and slid Cancel sideways mid-transition; on iOS, with the
+          native Apple sheet coming up, the old Cancel was left painted beside the new one. */}
       <Button variant="primary" onClick={handleSubmit} disabled={loading}>
-        {loading ? '...' : primaryLabel}
+        {primaryLabel}
       </Button>
     </>
   );

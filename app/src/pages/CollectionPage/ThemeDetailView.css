@@ -1,13 +1,8 @@
 /* ThemeDetailView */
 
+/* FullScreenSurface handles position, background and the safe area. */
 .theme-detail__col-1 {
-  position: fixed;
-  inset: 0;
-  padding-top: env(safe-area-inset-top);
   z-index: 300;
-  display: flex;
-  flex-direction: column;
-  background: var(--pd-color-background-default);
 }
 
 .theme-detail__info-cta {

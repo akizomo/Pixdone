@@ -1081,7 +1081,7 @@ function AppContent() {
             }
             setActiveScreen('tasks');
           }}
-          onAddList={() => { playSound('buttonClick'); setListModal({ mode: 'add' }); }}
+          onAddList={() => { playSound('buttonClick'); warmupKeyboard(); setListModal({ mode: 'add' }); }}
           onClose={() => setSidePanelOpen(false)}
           lang={lang}
           todayCount={todayTasks.length}
@@ -1169,7 +1169,12 @@ function AppContent() {
             onDismissTutorial={(action: 'pricing' | 'later') => {
               if (action === 'pricing') navigate('/pricing');
             }}
-            onOpenListModal={setListModal}
+            onOpenListModal={(modal) => {
+              // Add/rename dialogs autofocus the name field after mount; open the
+              // iOS keyboard here, inside the tap, or it never appears.
+              if (modal.mode !== 'delete') warmupKeyboard();
+              setListModal(modal);
+            }}
             anyShellModalOpen={anyShellModalOpen}
             autoOpenAddTaskNonce={autoOpenAddTaskNonce}
             isOnboardingTour={onboardingTourActive}

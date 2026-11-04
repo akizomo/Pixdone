@@ -435,7 +435,7 @@ export function TasksScreen({
           lists={listTabsOrder}
           activeListId={activeListId}
           onSelect={(id) => { setListSlide(null); setActiveList(id); setTaskFormMode(null); playSound('buttonClick'); }}
-          onAddList={() => { playSound('buttonClick'); onOpenListModal({ mode: 'add' }); }}
+          onAddList={() => onOpenListModal({ mode: 'add' })}
           getTabLabel={getTabLabel}
           getTabCount={getTabCount}
           lang={lang}
@@ -566,34 +566,37 @@ export function TasksScreen({
           </div>
         ) : activeTasks.length === 0 && completedTasks.length > 0 && taskFormMode !== 'add' ? (
           /* AC 14.2: All done -- sleeping pixel character (vanilla parity: empty-state) */
-          <div className="empty-state">
-            <div className="empty-illustration">
-              <div className="pixel-character">
-                <div className="sleep-bubble">
-                  <div className="bubble-text">zzz...</div>
+          <div>
+            <div className="empty-state">
+              <div className="empty-illustration">
+                <div className="pixel-character">
+                  <div className="sleep-bubble">
+                    <div className="bubble-text">zzz...</div>
+                  </div>
                 </div>
               </div>
+              <p>{t('emptyRest', lang)}</p>
+              <p className="tasks__box-4">{t('emptyRestSub', lang)}</p>
             </div>
-            <p>{t('emptyRest', lang)}</p>
-            <p className="tasks__box-4">{t('emptyRestSub', lang)}</p>
-            {/* Still show completed tasks collapsed */}
-            <div className="tasks__still-show-completed-tasks-c">
-              <button
-                type="button"
-                onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
-                className="tasks__text-2"
-              >
-                <PixelIcon name="chevron_right_2" size="0.625rem" className={`tasks__chevron${completedExpanded ? ' tasks__chevron--open' : ''}`} />
-                {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
-              </button>
-              {completedExpanded && (
-                <div className="tasks__col-1">
-                  {completedTasks.map((task) => (
-                    <TaskItem key={task.id} task={task} lang={lang} onComplete={onUncomplete} onEdit={handleEdit} onDelete={handleDelete} onTutorialSmashLinkClick={onNavigateToSmashList} onTutorialFocusLinkClick={onNavigateToFocus} onTutorialChallengeLinkClick={onNavigateToCollection} />
-                  ))}
-                </div>
-              )}
-            </div>
+              {/* Still show completed tasks collapsed — outside .empty-state so it
+                  lines up with the normal list (empty-state has side padding). */}
+              <div className="tasks__still-show-completed-tasks-c">
+                <button
+                  type="button"
+                  onClick={() => { playSound('buttonClick'); setCompletedExpanded((v) => !v); }}
+                  className="tasks__text-2"
+                >
+                  <PixelIcon name="chevron_right_2" size="0.625rem" className={`tasks__chevron${completedExpanded ? ' tasks__chevron--open' : ''}`} />
+                  {lang === 'ja' ? `\u5B8C\u4E86\u6E08\u307F (${completedTasks.length})` : `Completed (${completedTasks.length})`}
+                </button>
+                {completedExpanded && (
+                  <div className="tasks__col-1">
+                    {completedTasks.map((task) => (
+                      <TaskItem key={task.id} task={task} lang={lang} onComplete={onUncomplete} onEdit={handleEdit} onDelete={handleDelete} onTutorialSmashLinkClick={onNavigateToSmashList} onTutorialFocusLinkClick={onNavigateToFocus} onTutorialChallengeLinkClick={onNavigateToCollection} />
+                    ))}
+                  </div>
+                )}
+              </div>
           </div>
         ) : (
           <div>

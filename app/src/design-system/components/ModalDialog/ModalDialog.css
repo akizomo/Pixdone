@@ -9,7 +9,7 @@
   justify-content: center;
   padding: 24px;
   /* Native edge-to-edge: keep the panel clear of the status bar / Dynamic Island. */
-  padding-top: calc(24px + env(safe-area-inset-top));
+  padding-top: calc(24px + var(--pd-layout-safe-top));
   background-color: var(--pd-color-surface-overlay);
   opacity: 0;
   /* opening: fade in */

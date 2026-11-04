@@ -95,5 +95,5 @@
   flex-direction: column;
   gap: var(--pd-space-2);
   padding: var(--pd-space-4) var(--pd-space-6);
-  padding-bottom: max(var(--pd-space-6), env(safe-area-inset-bottom));
+  padding-bottom: max(var(--pd-space-6), var(--pd-layout-safe-bottom));
 }

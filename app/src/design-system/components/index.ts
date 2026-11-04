@@ -14,6 +14,8 @@ export { Chip } from './Chip/Chip';
 export type { ChipProps, ChipVariant, ChipSize, ChipFont } from './Chip/Chip.types';
 export { EmptyState } from './EmptyState/EmptyState';
 export type { EmptyStateProps, EmptyStateVariant } from './EmptyState/EmptyState.types';
+export { FullScreenSurface } from './FullScreenSurface/FullScreenSurface';
+export type { FullScreenSurfaceProps } from './FullScreenSurface/FullScreenSurface.types';
 export { Checkbox } from './Checkbox/Checkbox';
 export type { CheckboxProps, CheckboxSize } from './Checkbox/Checkbox.types';
 export { Badge } from './Badge/Badge';

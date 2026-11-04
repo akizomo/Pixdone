@@ -1,6 +1,6 @@
 .pxd-toast-container {
   position: fixed;
-  bottom: 80px;
+  bottom: calc(80px + var(--pd-layout-safe-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 600;
@@ -88,7 +88,7 @@
     position: relative;
   }
 
-  .pxd-toast__close, .pxd-toast__action::after {
+  .pxd-toast__close::after, .pxd-toast__action::after {
     content: '';
     position: absolute;
     top: 50%;
