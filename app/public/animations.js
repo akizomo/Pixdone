@@ -1116,7 +1116,8 @@ class ComicEffectsManager {
         }
 
         comboText.style.position = "fixed";
-        comboText.style.top = "20px";
+        // Below the status bar in the edge-to-edge native app (token is 0px in a browser).
+        comboText.style.top = "calc(var(--pd-layout-safe-top, 0px) + 20px)";
         comboText.style.left = "50%";
         comboText.style.transform = "translateX(-50%)";
         comboText.style.fontSize =
