@@ -224,6 +224,12 @@ export function useLists() {
   const [lists, setListsState] = useState<List[]>(() => []);
   const [listLimitUpsellOpen, setListLimitUpsellOpen] = useState(false);
   const [activeId, setActiveId] = useState<string>(() => '');
+  // Latest lists for callbacks captured earlier (e.g. the toast's undo action
+  // holds the uncompleteTask from before completeTask re-rendered).
+  const listsRef = useRef(lists);
+  listsRef.current = lists;
+  // Due date a repeating task had before completeTask advanced it, so undo can restore it.
+  const dueDateBeforeCompleteRef = useRef(new Map<string, string | null>());
 
   const setLists = useCallback((updater: List[] | ((prev: List[]) => List[])) => {
     setListsState((prev) =>
@@ -716,6 +722,8 @@ export function useLists() {
       ? getNextDueDateAfter(task.repeat!, task.dueDate ? new Date(task.dueDate) : now, todayStr)
       : null;
 
+    if (task && nextDueDate) dueDateBeforeCompleteRef.current.set(taskId, task.dueDate ?? null);
+
     setLists((prev) =>
       prev.map((l) => {
         const isSmash = l.id === 'smash-list' || l.name === '💥 Smash List';
@@ -747,38 +755,50 @@ export function useLists() {
   }, [setLists, user, lists]);
 
   const uncompleteTask = useCallback((taskId: string) => {
-    const task = lists.flatMap((l) => l.tasks).find((t) => t.id === taskId);
-    const isSmashTask = task?.listId === 'smash-list';
+    // Decide everything from the latest snapshot *outside* the state updater:
+    // React may defer the updater, so flags set inside it can still be unset when
+    // we decide whether to write to Firestore — the server then keeps
+    // completed:true and the next snapshot re-completes the task.
+    const list = listsRef.current.find((l) => l.tasks.some((t) => t.id === taskId));
+    const task = list?.tasks.find((t) => t.id === taskId);
+    if (!list || !task || !task.completed) return;
+    const isSmashTask = task.listId === 'smash-list';
 
-    let nextSortForDb = 0;
-    let didUncomplete = false;
+    const activeOthers = list.tasks.filter((t) => !t.completed && t.id !== taskId);
+    const nextSort = activeOthers.reduce((m, t) => Math.max(m, t.sortOrder ?? -1), -1) + 1;
+
+    // Undoing a repeating completion puts the due date back where it was.
+    const restore = dueDateBeforeCompleteRef.current;
+    const hasRestoredDueDate = restore.has(taskId);
+    const restoredDueDate = restore.get(taskId) ?? null;
+    restore.delete(taskId);
 
     setLists((prev) =>
-      prev.map((l) => {
-        const hit = l.tasks.find((t) => t.id === taskId);
-        if (!hit || !hit.completed) return l;
-        const activeOthers = l.tasks.filter((t) => !t.completed && t.id !== taskId);
-        const maxSort = activeOthers.reduce((m, t) => Math.max(m, t.sortOrder ?? -1), -1);
-        nextSortForDb = maxSort + 1;
-        didUncomplete = true;
-        return {
-          ...l,
-          tasks: l.tasks.map((t) =>
-            t.id === taskId
-              ? { ...t, completed: false, completedAt: undefined, sortOrder: nextSortForDb }
-              : t,
-          ),
-        };
-      }),
+      prev.map((l) => ({
+        ...l,
+        tasks: l.tasks.map((t) =>
+          t.id === taskId
+            ? {
+                ...t,
+                completed: false,
+                completedAt: undefined,
+                sortOrder: nextSort,
+                ...(hasRestoredDueDate ? { dueDate: restoredDueDate } : {}),
+              }
+            : t,
+        ),
+      })),
     );
 
-    if (user && !isSmashTask && didUncomplete) {
+    if (user && !isSmashTask) {
       (async () => {
         const ref = doc(db, 'tasks', taskId);
-        await updateDoc(ref, { completed: false, sortOrder: nextSortForDb });
+        const updates: Record<string, unknown> = { completed: false, sortOrder: nextSort };
+        if (hasRestoredDueDate) updates.dueDate = restoredDueDate;
+        await updateDoc(ref, updates);
       })();
     }
-  }, [setLists, user, lists]);
+  }, [setLists, user]);
 
   /* ---- Subtask CRUD ---- */
   const addSubtask = useCallback((taskId: string, text: string) => {

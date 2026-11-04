@@ -66,13 +66,11 @@
   background: var(--pd-color-background-default);
 }
 
-/* Touch: keep the visual size, extend the hit area to the minimum tap target. */
+/* Touch: keep the visual size, extend the hit area to the minimum tap target.
+ * The pseudo-element must belong to the <button>: on the wrapper <span> it sat on
+ * top of the button and swallowed every tap, so onClick never fired. */
 @media (hover: none) and (pointer: coarse) {
-  .pxd-toggle {
-    position: relative;
-  }
-
-  .pxd-toggle::after {
+  .pxd-toggle__track::after {
     content: '';
     position: absolute;
     top: 50%;
