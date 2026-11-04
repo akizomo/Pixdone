@@ -87,7 +87,8 @@
 
 .lp-header__logo {
   display: block;
-  height: clamp(28px, 3.2vw, 40px);
+  /* Wordmark is 2:1, so it needs more height than the old symbol-only mark to keep the text legible. */
+  height: clamp(36px, 3.4vw, 44px);
   width: auto;
   image-rendering: pixelated;
 }

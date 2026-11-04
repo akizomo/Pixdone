@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Button, PixelIcon } from '../design-system';
+import { ThemeContext } from '../design-system/theme/ThemeProvider';
 import { playSound } from '../services/sound';
 import { startBgm, stopBgm, isBgmOn } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
@@ -337,6 +338,9 @@ const HERO_EFFECT_OBJECTS = [
 
 export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: LandingPageProps) {
   const isJa = lang === 'ja';
+  // Wordmark text is white on dark backgrounds and ink on light ones (the symbol stays brand purple).
+  const { theme: themeMode } = useContext(ThemeContext);
+  const logoSrc = themeMode === 'light' ? '/pixdone-logo-bland-ink.svg' : '/pixdone-logo-bland.svg';
 
   const taskRef = useRef<HTMLDivElement>(null);
 
@@ -383,7 +387,7 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
       {/* ─── LP Header (sticky, full-width) ───────────────────── */}
       <header className="lp-header">
         <div className="lp-header__brand">
-          <img src="/pixdone-symbol-bland.svg" alt="PixDone" className="lp-header__logo" />
+          <img src={logoSrc} alt="PixDone" className="lp-header__logo" />
         </div>
         <div className="lp-header__actions">
           <div className="lp-header__lang">
