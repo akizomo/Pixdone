@@ -1,10 +1,18 @@
 /* SubPageHeader / DetailViewHeader */
 
+/* Stays pinned while the page scrolls. The scroll container is `main`, whose
+ * top padding is --pd-space-4; the negative offset pins the header flush with
+ * main's top edge instead of leaving a strip where content shows through. */
 .pd-subpage-header {
+  position: sticky;
+  top: calc(var(--pd-space-4) * -1);
+  z-index: 1;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: var(--pd-space-3);
   padding: var(--pd-space-3) 0 var(--pd-space-2);
+  background: var(--pd-color-background-default);
 }
 
 .pd-subpage-header__title {

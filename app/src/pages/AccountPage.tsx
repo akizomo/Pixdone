@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useGoBack } from '../hooks/useGoBack';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
-import { Button } from '../design-system';
+import { Button, Chip, ListRow, Toggle } from '../design-system';
+import type { ThemeKey } from '../design-system';
+import { AgentIcon } from '../components/AgentIcon';
 import { SubPageHeader } from '../components/SubPageHeader';
-import { detectDefaultLang, type Lang } from '../lib/i18n';
+import type { Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
 import { getStoreManagementUrl } from '../lib/storeBilling';
 import './AccountPage.css';
@@ -21,15 +24,33 @@ function formatDate(iso: string | null, lang: Lang): string {
   }
 }
 
-export function AccountPage() {
+export interface AccountPageProps {
+  lang: Lang;
+  onChangeLang: (lang: Lang) => void;
+  soundOn: boolean;
+  /** Called by the Sound toggle (the Toggle plays its own sound). */
+  onSoundChange: (on: boolean) => void;
+  onOpenCollection: () => void;
+  /** Theme for the agent avatar. */
+  themeKey: ThemeKey;
+}
+
+const SUPPORT_URL = 'https://buymeacoffee.com/akizomo';
+
+/**
+ * Account hub: profile & plan, collection, settings, support, legal, sign out
+ * and account deletion. On mobile the header avatar opens this page; desktop
+ * keeps its avatar popover and reaches this page via "Manage".
+ */
+export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpenCollection, themeKey }: AccountPageProps) {
   const navigate = useNavigate();
+  const goBack = useGoBack();
   const { user, logout, deleteAccount } = useAuth();
   const { plan, billingCycle, currentPeriodEnd, provider } = useThemeEntitlements();
   const isStoreSubscription = provider === 'app_store' || provider === 'play_store';
   const [cancelling, setCancelling] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [cancelledUntil, setCancelledUntil] = useState<string | null>(null);
-  const lang: Lang = detectDefaultLang();
   const isJa = lang === 'ja';
   const isPlusUser = plan === 'plus';
 
@@ -58,7 +79,7 @@ export function AccountPage() {
     setDeleting(true);
     try {
       await deleteAccount();
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (e) {
       window.alert(e instanceof Error && e.message
         ? e.message
@@ -103,18 +124,21 @@ export function AccountPage() {
 
   return (
     <div className="account-page" data-pd-screen>
-      <SubPageHeader title={isJa ? 'アカウント' : 'ACCOUNT'} isJa={isJa} onBack={() => navigate('/')} />
+      <SubPageHeader title={isJa ? 'アカウント' : 'ACCOUNT'} isJa={isJa} onBack={goBack} />
 
       <div className="account-body">
         {/* Profile */}
         {user && (
-          <section className="account-section account-section--tight">
-            <p className="account-label">
-              {isJa ? 'ログイン中' : 'SIGNED IN AS'}
-            </p>
-            <p className="account-value">
-              {user.email ?? user.displayName ?? user.uid}
-            </p>
+          <section className="account-profile">
+            <AgentIcon themeKey={themeKey} isPremium={isPlusUser} size={48} faceOnly />
+            <div className="account-profile__text">
+              <p className="account-label">
+                {isJa ? 'ログイン中' : 'SIGNED IN AS'}
+              </p>
+              <p className="account-value">
+                {user.email ?? user.displayName ?? user.uid}
+              </p>
+            </div>
           </section>
         )}
 
@@ -188,12 +212,61 @@ export function AccountPage() {
           )}
         </section>
 
+        {/* Collection */}
+        <section className="account-section">
+          <p className="account-label">{isJa ? 'コレクション' : 'COLLECTION'}</p>
+          <div className="account-list">
+            <ListRow icon="auto_awesome" label={isJa ? 'エフェクト / テーマ' : 'Effects / Themes'} onClick={onOpenCollection} />
+          </div>
+        </section>
+
+        {/* Settings */}
+        <section className="account-section">
+          <p className="account-label">{isJa ? '設定' : 'SETTINGS'}</p>
+          <div className="account-list">
+            <ListRow
+              icon="language"
+              label={isJa ? '言語' : 'Language'}
+              trailing={(
+                <>
+                  <Chip variant="ghost" size="sm" selected={lang === 'en'} onClick={() => onChangeLang('en')}>En</Chip>
+                  <Chip variant="ghost" size="sm" selected={lang === 'ja'} onClick={() => onChangeLang('ja')}>Ja</Chip>
+                </>
+              )}
+            />
+            <ListRow
+              icon={soundOn ? 'volume_up' : 'volume_off'}
+              label={isJa ? 'サウンド' : 'Sound'}
+              trailing={<Toggle label={isJa ? 'サウンド' : 'Sound'} checked={soundOn} onChange={onSoundChange} />}
+            />
+          </div>
+        </section>
+
+        {/* Support */}
+        <section className="account-section">
+          <p className="account-label">{isJa ? 'サポート' : 'SUPPORT'}</p>
+          <div className="account-list">
+            <ListRow icon="chat_bubble_outline" label={isJa ? 'フィードバック' : 'Feedback'} onClick={() => navigate('/feedback')} />
+            <ListRow icon="favorite" label="Support PixDone" href={SUPPORT_URL} />
+          </div>
+        </section>
+
+        {/* Legal */}
+        <section className="account-section">
+          <p className="account-label">{isJa ? '規約' : 'LEGAL'}</p>
+          <div className="account-list">
+            <ListRow label={isJa ? 'プライバシーポリシー' : 'Privacy Policy'} href="/privacy.html" />
+            <ListRow label={isJa ? '利用規約' : 'Terms of Service'} href="/terms.html" />
+            <ListRow label={isJa ? '特定商取引法に基づく表記' : 'Commerce Disclosure'} href="/tokushoho.html" />
+          </div>
+        </section>
+
         {/* Divider */}
         <div className="account-divider" />
 
         {/* Sign out */}
         {user && (
-          <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={() => { logout(); navigate('/'); }}>
+          <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={() => { logout(); navigate('/', { replace: true }); }}>
             {isJa ? 'ログアウト' : 'SIGN OUT'}
           </Button>
         )}
@@ -211,6 +284,10 @@ export function AccountPage() {
             </Button>
           </section>
         )}
+
+        <p className="account-credit">
+          <a href="https://akizony.com" target="_blank" rel="noopener noreferrer">Made by Akihiro Uezono</a>
+        </p>
       </div>
     </div>
   );

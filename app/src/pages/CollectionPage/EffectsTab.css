@@ -33,7 +33,15 @@
   font-size: var(--pd-font-size-2xs);
 }
 
+.effects-tab__mobile {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .effects-tab__filter-bar {
+  flex-shrink: 0;
   display: flex;
   gap: var(--pd-space-2);
   padding: var(--pd-space-3) var(--pd-space-4);
@@ -43,6 +51,9 @@
 }
 
 .effects-tab__grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   padding: var(--pd-space-4);
 }
 

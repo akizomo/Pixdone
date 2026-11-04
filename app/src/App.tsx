@@ -11,7 +11,7 @@ import type { ListModalMode, MobileSubView } from './components';
 import { apiUrl } from './lib/apiUrl';
 
 /** Main screens on mobile + desktop. Sub-pages are URL-routed separately. */
-type ActiveScreen = 'tasks' | 'focus' | 'collection';
+type ActiveScreen = 'tasks' | 'focus';
 import { ListsProvider, useListsData, useListsActions } from './features/ListsContext';
 import { TasksScreen } from './screens/TasksScreen';
 import { FocusScreenContainer } from './screens/FocusScreenContainer';
@@ -47,6 +47,7 @@ import { EffectCapturePage } from './pages/EffectCapturePage';
 import { ExtensionLinkPage } from './pages/ExtensionLinkPage';
 import { ExtensionPrivacyPage } from './pages/ExtensionPrivacyPage';
 import { useUserTheme } from './hooks/useUserTheme';
+import { useGoBack } from './hooks/useGoBack';
 import { useHasSeenTutorial } from './hooks/useHasSeenTutorial';
 import { QuickExtensionBanner } from './components/QuickExtensionBanner';
 import { WorldLayer } from './components/WorldLayer';
@@ -127,8 +128,10 @@ function AppContent() {
   }, [authLoading, user?.uid]);
   const { hasSeenTutorial, markTutorialSeen } = useHasSeenTutorial();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const isSubPage = pathname === '/pricing' || pathname === '/account' || pathname === '/feedback';
+  const { pathname, search } = useLocation();
+  const pathnameRef = useRef(pathname);
+  pathnameRef.current = pathname;
+  const isCollectionScreen = pathname === '/collection';
 
   const [lang, setLang] = useState<'en' | 'ja'>(() => detectDefaultLang());
 
@@ -183,10 +186,35 @@ function AppContent() {
   /** Mobile sub-menu view: 'today' | 'plan' | 'lists' */
   const [mobileSubView, setMobileSubView] = useState<MobileSubView>('lists');
   useEffect(() => {
-    trackScreenView({ screen_name: activeScreen });
-  }, [activeScreen]);
+    trackScreenView({ screen_name: isCollectionScreen ? 'collection' : activeScreen });
+  }, [activeScreen, isCollectionScreen]);
   const hasFinePointer = useSyncExternalStore(subscribeFinePointer, getFinePointerSnapshot, () => true);
   const isDesktop = hasFinePointer;
+  /**
+   * URL-routed pages that take over the screen with a back header (no app
+   * header / BottomNav / side panel). Collection is one on mobile only; on
+   * desktop it stays a main view next to the side panel.
+   */
+  const isSubPage =
+    pathname === '/pricing' || pathname === '/account' || pathname === '/feedback' ||
+    (!isDesktop && isCollectionScreen);
+  const goBack = useGoBack();
+
+  /** Switch the main screen; leaves /collection if it is showing. */
+  const showScreen = useCallback((screen: ActiveScreen) => {
+    setActiveScreen(screen);
+    if (pathnameRef.current === '/collection') navigate('/');
+  }, [navigate]);
+
+  /** Open the Effects / Themes collection (URL-routed so back navigation works). */
+  const openCollection = useCallback((opts: { tab?: 'effects' | 'themes'; filter?: string; effect?: string } = {}) => {
+    const params = new URLSearchParams();
+    if (opts.tab) params.set('tab', opts.tab);
+    if (opts.filter) params.set('filter', opts.filter);
+    if (opts.effect) params.set('effect', opts.effect);
+    const qs = params.toString();
+    navigate(`/collection${qs ? `?${qs}` : ''}`, { replace: pathnameRef.current === '/collection' });
+  }, [navigate]);
   const scrollDir = useScrollDirection();
   const mobileChromHidden = !isDesktop && scrollDir === 'down';
 
@@ -229,11 +257,9 @@ function AppContent() {
 
   /* ---- Unauthenticated users cannot stay on Collection screen ---- */
   useEffect(() => {
-    if (user) return;
-    if (activeScreen === 'collection') {
-      setActiveScreen('tasks');
-    }
-  }, [user, activeScreen]);
+    if (authLoading || user) return;
+    if (isCollectionScreen) navigate('/', { replace: true });
+  }, [authLoading, user, isCollectionScreen, navigate]);
 
   /* ---- Midnight refresh — also reset repeating tasks ---- */
   const midnightTick = useMidnightRefresh();
@@ -258,26 +284,19 @@ function AppContent() {
     }
   }, []);
 
-  /* ---- Deep links: open Collection tab / focus specific effect ---- */
+  /* ---- Legacy deep links: /?screen=collection&tab=…&effect=… → /collection?… ---- */
   useEffect(() => {
-    // Keep URL params as-is so links remain shareable.
     if (!user) return;
     const params = new URLSearchParams(window.location.search);
-    const screen = params.get('screen');
-    if (screen !== 'collection') return;
-
+    if (params.get('screen') !== 'collection') return;
     const tab = params.get('tab');
-    const effectKey = params.get('effect') ?? params.get('effectKey') ?? params.get('fx');
-
-    setActiveScreen('collection');
-    if (tab === 'themes') setCollectionInitialTab('themes');
-    else if (tab === 'effects') setCollectionInitialTab('effects');
-
-    if (typeof effectKey === 'string' && effectKey.trim().length > 0) {
-      setCollectionInitialTab('effects');
-      setCollectionInitialEffectKey(effectKey.trim());
-    }
-  }, [user]);
+    const effectKey = (params.get('effect') ?? params.get('effectKey') ?? params.get('fx'))?.trim();
+    const next = new URLSearchParams();
+    if (effectKey) { next.set('tab', 'effects'); next.set('effect', effectKey); }
+    else if (tab === 'themes' || tab === 'effects') next.set('tab', tab);
+    const qs = next.toString();
+    navigate(`/collection${qs ? `?${qs}` : ''}`, { replace: true });
+  }, [user, navigate]);
 
   useEffect(() => {
     if (purchaseBanner !== 'plus_success') return;
@@ -374,12 +393,12 @@ function AppContent() {
       '';
     if (!inboxId) return;
     setActiveList(inboxId);
-    setActiveScreen('tasks');
+    showScreen('tasks');
     setSideView(inboxId);           // desktop side panel → My Tasks list
     setMobileSubView('lists');      // mobile sub-tab → Lists so TasksScreen renders
     setOnboardingTourActive(true);
     markTutorialSeen();
-  }, [lists, setActiveList, markTutorialSeen]);
+  }, [lists, setActiveList, markTutorialSeen, showScreen]);
 
   const handleAddTaskToDefault = useCallback((fields: Partial<Task> & { title: string }) => {
     // Today / Plan quick-add: always targets the Inbox ("My Tasks").
@@ -454,7 +473,6 @@ function AppContent() {
 
   const isFocusScreen = activeScreen === 'focus';
   if (isFocusScreen && !isDesktop && !focusVisited) setFocusVisited(true);
-  const isCollectionScreen = activeScreen === 'collection';
 
   // Side panel counts
   const todayTasks = useTodayView(lists);
@@ -539,10 +557,12 @@ function AppContent() {
     }
   }, [ownedChallengeEffects, activeEffects, setActiveEffects]);
 
-  /* ---- Collection tab initial state (for "See all" deep-link) ---- */
-  const [collectionInitialTab, setCollectionInitialTab] = useState<'effects' | 'themes'>('effects');
-  const [collectionInitialFilter, setCollectionInitialFilter] = useState<string | undefined>(undefined);
-  const [collectionInitialEffectKey, setCollectionInitialEffectKey] = useState<string | null>(null);
+  /* ---- Collection initial state comes from the /collection query string ---- */
+  const collectionParams = isCollectionScreen ? new URLSearchParams(search) : null;
+  const collectionEffectKey = collectionParams?.get('effect') || null;
+  const collectionInitialTab: 'effects' | 'themes' =
+    collectionParams?.get('tab') === 'themes' && !collectionEffectKey ? 'themes' : 'effects';
+  const collectionInitialFilter = collectionParams?.get('filter') || undefined;
 
   /* ---- Sync active effects to vanilla effect engine ---- */
   useEffect(() => {
@@ -596,16 +616,14 @@ function AppContent() {
           action: {
             label: lang === 'ja' ? '確認' : 'VIEW',
             onClick: () => {
-              setCollectionInitialTab('effects');
-              setCollectionInitialEffectKey(effectKey);
-              setActiveScreen('collection');
+              openCollection({ tab: 'effects', effect: effectKey });
             },
           },
           duration: 8000,
         });
       }
     }
-  }, [activeChallenges, optimisticIncrement, flushPending, showToast, lang]);
+  }, [activeChallenges, optimisticIncrement, flushPending, showToast, lang, openCollection]);
 
   /* ---- Dev / QA: ?effect=<key> forces that effect on every task completion ---- */
   const forcedEffectKey = useMemo(() => {
@@ -693,7 +711,7 @@ function AppContent() {
 
   const navigateToSmashList = useCallback(() => {
     playSound('buttonClick');
-    setActiveScreen('tasks');
+    showScreen('tasks');
     setActiveList('smash-list');
     // TasksScreen resets its own state (taskFormMode, mobileSheet) via useEffect on activeListId change
     window.requestAnimationFrame(() => {
@@ -701,30 +719,30 @@ function AppContent() {
         document.getElementById('pd-list-tab-smash')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
     });
-  }, [setActiveList]);
+  }, [setActiveList, showScreen]);
 
   const navigateToFocus = useCallback(() => {
     playSound('buttonClick');
-    setActiveScreen('focus');
-  }, []);
+    showScreen('focus');
+  }, [showScreen]);
 
   useGlobalShortcuts({
     enabled: isDesktop && !focusZenOpen && !isSubPage && !signupOpen && !listModal,
     onToday: () => {
       playSound('buttonClick');
       setSideView('today');
-      setActiveScreen('tasks');
+      showScreen('tasks');
     },
     onPlan: () => {
       playSound('buttonClick');
       setSideView('plan');
-      setActiveScreen('tasks');
+      showScreen('tasks');
     },
     onSmash: () => {
       playSound('buttonClick');
       setSideView('smash');
       setActiveList('smash-list');
-      setActiveScreen('tasks');
+      showScreen('tasks');
     },
     onFocusZen: () => {
       playSound('buttonClick');
@@ -733,8 +751,7 @@ function AppContent() {
     onCollection: () => {
       if (!user) return;
       playSound('buttonClick');
-      setCollectionInitialTab('effects');
-      setActiveScreen('collection');
+      openCollection();
     },
     onAddTask: () => {
       playSound('taskAdd');
@@ -789,7 +806,7 @@ function AppContent() {
 
 
   /* ---- Sound toggle (vanilla: sync ComicEffectsManager.setSoundEnabled so effect sounds match) ---- */
-  const toggleSound = () => {
+  const toggleSound = (feedback = true) => {
     const next = !soundMuted;
     const w = window as unknown as {
       taskAnimationEffects?: { comicEffects?: { setSoundEnabled: (enabled: boolean) => void } };
@@ -800,7 +817,7 @@ function AppContent() {
       try { localStorage.setItem('pixdone-sound-enabled', next ? 'false' : 'true'); } catch { /* ignore */ }
     }
     setSoundMuted(next);
-    if (!next) playSound('buttonClick');
+    if (!next && feedback) playSound('buttonClick');
   };
 
   /* ---- List modal handlers ---- */
@@ -831,7 +848,7 @@ function AppContent() {
 
   const goHome = () => {
     navigate('/');
-    setActiveScreen('tasks');
+    showScreen('tasks');
   };
 
   const openAuth = (mode: 'signup' | 'login') => {
@@ -917,9 +934,7 @@ function AppContent() {
                   challenges={activeChallenges}
                   lang={lang}
                   onPreviewEffect={(effectKey) => {
-                    setCollectionInitialTab('effects');
-                    setCollectionInitialEffectKey(effectKey);
-                    setActiveScreen('collection');
+                    openCollection({ tab: 'effects', effect: effectKey });
                   }}
                 />
               )
@@ -932,7 +947,7 @@ function AppContent() {
               <HeaderSegment
                 activeValue={activeScreen === 'tasks' || activeScreen === 'focus' ? activeScreen : null}
                 onSelect={(v) => {
-                  setActiveScreen(v);
+                  showScreen(v);
                 }}
                 lang={lang}
               />
@@ -946,9 +961,7 @@ function AppContent() {
                 challenges={activeChallenges}
                 lang={lang}
                 onPreviewEffect={(effectKey) => {
-                  setCollectionInitialTab('effects');
-                  setCollectionInitialEffectKey(effectKey);
-                  setActiveScreen('collection');
+                  openCollection({ tab: 'effects', effect: effectKey });
                 }}
               />
             )}
@@ -977,7 +990,12 @@ function AppContent() {
                   type="button"
                   aria-label={user.email ?? 'Account'}
                   title={user.email ?? 'Account'}
-                  onClick={() => { playSound('buttonClick'); setUserMenuOpen((v) => !v); }}
+                  onClick={() => {
+                    playSound('buttonClick');
+                    // Mobile: the account hub is a page. Desktop keeps the popover.
+                    if (isDesktop) setUserMenuOpen((v) => !v);
+                    else navigate('/account');
+                  }}
                   className="app__row-1"
                 >
                   <AgentIcon themeKey={visualTheme} isPremium={isPremium} faceOnly className="pd-agent-icon--header" />
@@ -1001,7 +1019,7 @@ function AppContent() {
                       { id: 'logout', label: lang === 'ja' ? 'ログアウト' : 'Log out', icon: 'logout', group: 'logout' },
                     ]}
                     onSelect={(id) => {
-                      if (id === 'collection') { setUserMenuOpen(false); setActiveScreen('collection'); return; }
+                      if (id === 'collection') { setUserMenuOpen(false); openCollection(); return; }
                       if (id === 'lang') return; // handled by trailing chips
                       if (id === 'sound') { toggleSound(); return; }
                       if (id === 'support') { playSound('buttonClick'); window.open('https://buymeacoffee.com/akizomo', '_blank', 'noopener,noreferrer'); return; }
@@ -1079,7 +1097,7 @@ function AppContent() {
             } else if (view === 'smash') {
               setActiveList('smash-list');
             }
-            setActiveScreen('tasks');
+            showScreen('tasks');
           }}
           onAddList={() => { playSound('buttonClick'); warmupKeyboard(); setListModal({ mode: 'add' }); }}
           onClose={() => setSidePanelOpen(false)}
@@ -1094,7 +1112,7 @@ function AppContent() {
             lang={lang}
             user={user}
             onComplete={handleComplete}
-            onEdit={() => setActiveScreen('tasks')}
+            onEdit={() => showScreen('tasks')}
             onNavigateToSmashList={navigateToSmashList}
             onNavigateToFocus={navigateToFocus}
             focusZenOpen={focusZenOpen}
@@ -1108,12 +1126,20 @@ function AppContent() {
         {pathname === '/pricing' ? (
           <PricingPage />
         ) : pathname === '/account' ? (
-          <AccountPage />
+          <AccountPage
+            lang={lang}
+            onChangeLang={changeLang}
+            soundOn={!soundMuted}
+            onSoundChange={(on) => { if (on === soundMuted) toggleSound(false); }}
+            onOpenCollection={() => openCollection()}
+            themeKey={visualTheme}
+          />
         ) : pathname === '/feedback' ? (
           <FeedbackPage />
         ) : isCollectionScreen ? (
           <CollectionPage
-            key={`${collectionInitialTab}-${collectionInitialFilter ?? ''}-${collectionInitialEffectKey ?? ''}`}
+            key={search}
+            onBack={isDesktop ? undefined : goBack}
             lang={lang}
             isPremium={isPremium}
             activeEffects={activeEffects}
@@ -1123,7 +1149,7 @@ function AppContent() {
             colorMode={colorMode}
             initialTab={collectionInitialTab}
             initialFilter={collectionInitialFilter as any}
-            initialEffectKey={collectionInitialEffectKey}
+            initialEffectKey={collectionEffectKey}
             ownedChallengeEffects={ownedChallengeEffects}
             challengeProgressMap={challengeProgressMap}
             effectProgressMap={effectProgressMap}
@@ -1165,7 +1191,7 @@ function AppContent() {
             onSmash={handleSmash}
             onNavigateToSmashList={navigateToSmashList}
             onNavigateToFocus={navigateToFocus}
-            onNavigateToCollection={() => { playSound('buttonClick'); setCollectionInitialTab('effects'); setCollectionInitialFilter('CHALLENGE'); setActiveScreen('collection'); }}
+            onNavigateToCollection={() => { playSound('buttonClick'); openCollection({ tab: 'effects', filter: 'CHALLENGE' }); }}
             onDismissTutorial={(action: 'pricing' | 'later') => {
               if (action === 'pricing') navigate('/pricing');
             }}
@@ -1445,7 +1471,7 @@ function AppContent() {
           activeView={activeScreen === 'tasks' ? mobileSubView : null}
           onSelect={(view) => {
             setMobileSubView(view);
-            if (activeScreen !== 'tasks') setActiveScreen('tasks');
+            if (activeScreen !== 'tasks') showScreen('tasks');
           }}
           lang={lang}
           hidden={mobileChromHidden}

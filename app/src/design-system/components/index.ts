@@ -38,4 +38,5 @@ export type { TextLinkProps, TextLinkSize } from './TextLink/TextLink.types';
 export { PixelIcon } from './PixelIcon/PixelIcon';
 export type { PixelIconProps } from './PixelIcon/PixelIcon';
 export { KeyHint } from './KeyHint/KeyHint';
-export type { KeyHintProps } from './KeyHint/KeyHint';
+export type { KeyHintProps } from './KeyHint/KeyHint';export { ListRow } from './ListRow/ListRow';
+export type { ListRowProps, ListRowVariant } from './ListRow/ListRow.types';

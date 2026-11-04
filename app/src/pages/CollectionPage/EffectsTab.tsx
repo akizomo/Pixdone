@@ -88,9 +88,9 @@ export function EffectsTab({
     );
   }
 
-  // Mobile: filter pills + 2-column card grid
+  // Mobile: filter pills (pinned) + 2-column card grid (scrolls)
   return (
-    <div>
+    <div className="effects-tab__mobile">
       {/* Filter bar */}
       <div className="effects-tab__filter-bar">
         {FILTERS.map(f => (

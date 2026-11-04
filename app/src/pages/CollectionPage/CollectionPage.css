@@ -73,6 +73,17 @@
 .collection__col-2 {
   display: flex;
   flex-direction: column;
+  /* Fill main's height so the body below scrolls instead of main. */
+  flex: 1;
+  min-height: 0;
+}
+
+.collection__mobile-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .collection__col-3 {

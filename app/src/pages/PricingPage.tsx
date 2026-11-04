@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useGoBack } from '../hooks/useGoBack';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
@@ -33,6 +34,7 @@ const PLUS_FEATURES = [
 
 export function PricingPage() {
   const navigate = useNavigate();
+  const goBack = useGoBack();
   const { user, syncServerSession } = useAuth();
   const { plan, isTrialing, trialEnd } = useThemeEntitlements();
   const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
@@ -166,7 +168,7 @@ export function PricingPage() {
 
   return (
     <div className="pricing__col-1" data-pd-screen>
-      <SubPageHeader title="PIXDONE+" isJa={isJa} onBack={() => navigate('/')} />
+      <SubPageHeader title="PIXDONE+" isJa={isJa} onBack={goBack} />
 
       {/* Success banner */}
       {successBanner && (

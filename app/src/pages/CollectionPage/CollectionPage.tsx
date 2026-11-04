@@ -11,6 +11,7 @@ import { EFFECTS_REGISTRY } from '../../data/effectsRegistry';
 import { themeList } from '../../design-system/themes/themeRegistry';
 import { playSound } from '../../services/sound';
 import { BottomSheet } from '../../design-system';
+import { SubPageHeader } from '../../components/SubPageHeader';
 import './CollectionPage.css';
 
 type FilterKey = 'ALL' | EffectRarity | 'OWNED' | 'CHALLENGE';
@@ -30,6 +31,8 @@ export interface CollectionPageProps {
   ownedChallengeEffects?: string[];
   challengeProgressMap?: Record<string, number>;
   effectProgressMap?: Record<string, import('../../hooks/useEffectProgress').EffectProgressEntry>;
+  /** When set, the page is shown as a sub-page with a back header (mobile). */
+  onBack?: () => void;
 }
 
 export function CollectionPage({
@@ -46,6 +49,7 @@ export function CollectionPage({
   ownedChallengeEffects = [],
   challengeProgressMap = {},
   effectProgressMap = {},
+  onBack,
 }: CollectionPageProps) {
   const [activeTab, setActiveTab] = useState<'effects' | 'themes'>(initialTab);
   const [selectedEffect, setSelectedEffect] = useState<string | null>(initialEffectKey);
@@ -181,6 +185,15 @@ export function CollectionPage({
     return () => mq.removeEventListener('change', handler);
   }, []);
 
+  const backHeader = onBack ? (
+    <SubPageHeader
+      title={lang === 'ja' ? 'エフェクト / テーマ' : 'EFFECTS / THEMES'}
+      isJa={lang === 'ja'}
+      onBack={onBack}
+    />
+  ) : null;
+  const screenAttr = onBack ? { 'data-pd-screen': true } : {};
+
   const tabBar = (
     <div className="collection__row-1">
       {(['effects', 'themes'] as const).map(tab => {
@@ -209,7 +222,8 @@ export function CollectionPage({
   // Tabs and filter chips are fixed (flexShrink:0); only the left list scrolls.
   if (isDesktop) {
     return (
-      <div className="collection__col-1">
+      <div className="collection__col-1" {...screenAttr}>
+        {backHeader}
         {/* Tab bar — fixed, never scrolls */}
         {tabBar}
 
@@ -297,10 +311,12 @@ export function CollectionPage({
 
   // ── Mobile: tab + full-screen overlays ────────────────────────────────────
   return (
-    <div className="collection__col-2">
+    <div className="collection__col-2" {...screenAttr}>
+      {backHeader}
       {tabBar}
 
-      <div>
+      {/* Only this area scrolls: back header, tabs and filters stay pinned. */}
+      <div className="collection__mobile-body">
         {activeTab === 'effects' ? (
           <EffectsTab
             isPremium={isPremium}

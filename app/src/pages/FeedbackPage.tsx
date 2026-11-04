@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useGoBack } from '../hooks/useGoBack';
 import { Button, TextArea } from '../design-system';
 import { SubPageHeader } from '../components/SubPageHeader';
 import { playSound } from '../services/sound';
@@ -10,7 +10,7 @@ import './FeedbackPage.css';
 const FEEDBACK_EMAIL = 'contact@akizony.com';
 
 export function FeedbackPage() {
-  const navigate = useNavigate();
+  const goBack = useGoBack();
   const [feedback, setFeedback] = useState('');
   const lang: Lang = detectDefaultLang();
   const isJa = lang === 'ja';
@@ -27,7 +27,7 @@ export function FeedbackPage() {
 
   return (
     <div className="feedback__col-1" data-pd-screen>
-      <SubPageHeader title={isJa ? 'フィードバック' : 'FEEDBACK'} isJa={isJa} onBack={() => navigate('/')} />
+      <SubPageHeader title={isJa ? 'フィードバック' : 'FEEDBACK'} isJa={isJa} onBack={goBack} />
 
       <div
         className="feedback__col-2"

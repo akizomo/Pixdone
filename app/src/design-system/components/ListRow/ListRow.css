@@ -1,0 +1,98 @@
+/* ListRow – one row of a settings / navigation list.
+ * Rows stack with a thin divider; the containing list draws the outer frame. */
+
+.pxd-list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-3);
+  width: 100%;
+  min-height: var(--pd-tap-target-min);
+  box-sizing: border-box;
+  padding: var(--pd-space-2) var(--pd-space-4);
+  margin: 0;
+  background: none;
+  border: none;
+  border-bottom: var(--pd-border-thin) solid var(--pd-color-border-default);
+  border-radius: var(--pd-radius-none);
+  color: var(--pd-color-text-primary);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  text-align: left;
+  text-decoration: none;
+}
+
+.pxd-list-row:last-child {
+  border-bottom: none;
+}
+
+.pxd-list-row--interactive {
+  cursor: pointer;
+  transition: background var(--pd-motion-fast) var(--pd-easing-standard);
+}
+
+@media (hover: hover) {
+  .pxd-list-row--interactive:hover {
+    background: var(--pd-color-background-hover);
+  }
+}
+
+.pxd-list-row--interactive:active {
+  background: var(--pd-color-background-hover);
+}
+
+.pxd-list-row--interactive:focus {
+  outline: none;
+}
+
+.pxd-list-row--interactive:focus-visible {
+  outline: var(--pd-border-base) solid var(--pd-color-border-focus);
+  outline-offset: calc(var(--pd-border-base) * -1);
+}
+
+.pxd-list-row--danger {
+  color: var(--pd-color-text-danger);
+}
+
+.pxd-list-row--disabled {
+  cursor: not-allowed;
+  opacity: var(--pd-opacity-disabled);
+}
+
+.pxd-list-row__icon {
+  flex-shrink: 0;
+  color: var(--pd-color-text-secondary);
+}
+
+.pxd-list-row--danger .pxd-list-row__icon {
+  color: inherit;
+}
+
+.pxd-list-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.pxd-list-row__label {
+  line-height: var(--pd-line-height-snug);
+}
+
+.pxd-list-row__description {
+  color: var(--pd-color-text-secondary);
+  font-size: var(--pd-font-size-xs);
+  line-height: var(--pd-line-height-normal);
+}
+
+.pxd-list-row__trailing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pd-space-1);
+  flex-shrink: 0;
+}
+
+.pxd-list-row__chevron {
+  flex-shrink: 0;
+  color: var(--pd-color-text-secondary);
+}
