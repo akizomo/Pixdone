@@ -429,6 +429,8 @@ export function TasksScreen({
 
   return (
     <>
+      {/* List tabs + list title stay pinned on mobile while the tasks scroll. */}
+      <div className="tasks__pinned">
       {/* ListTabs — mobile only, when in Lists view */}
       <div className="pd-mobile-only">
         <ListTabs
@@ -442,18 +444,21 @@ export function TasksScreen({
           canContextMenu={(list) => list.id !== 'smash-list' && list.kind !== 'inbox' && !list.id.startsWith('tutorial')}
         />
       </div>
+      {viewMode === 'lists' && (
+        <ListHeader
+          title={isTutorial ? t('tutorial', lang) : (currentList?.kind === 'inbox' ? t('myTasks', lang) : (currentList?.name ?? ''))}
+          showMenu={!isTutorial && !isSmash && currentList?.kind !== 'inbox'}
+          lang={lang}
+          sortMode={sortMode}
+          onChangeSort={!isSmash && currentList ? (mode) => setListSortMode(currentList.id, mode) : undefined}
+          onRename={currentList?.kind === 'inbox' ? undefined : () => onOpenListModal({ mode: 'rename', listId: currentList?.id })}
+          onDelete={currentList?.kind === 'inbox' ? undefined : () => onOpenListModal({ mode: 'delete', listId: currentList?.id })}
+        />
+      )}
+      </div>
 
       {viewMode === 'lists' ? (
       <>
-      <ListHeader
-        title={isTutorial ? t('tutorial', lang) : (currentList?.kind === 'inbox' ? t('myTasks', lang) : (currentList?.name ?? ''))}
-        showMenu={!isTutorial && !isSmash && currentList?.kind !== 'inbox'}
-        lang={lang}
-        sortMode={sortMode}
-        onChangeSort={!isSmash && currentList ? (mode) => setListSortMode(currentList.id, mode) : undefined}
-        onRename={currentList?.kind === 'inbox' ? undefined : () => onOpenListModal({ mode: 'rename', listId: currentList?.id })}
-        onDelete={currentList?.kind === 'inbox' ? undefined : () => onOpenListModal({ mode: 'delete', listId: currentList?.id })}
-      />
 
       {/* Add task button (desktop only) / inline form */}
       {!isSmash && !isTutorial && (

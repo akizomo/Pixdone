@@ -4,7 +4,7 @@ import { useGoBack } from '../hooks/useGoBack';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
-import { Button, Chip, ListRow, Toggle } from '../design-system';
+import { Button, Chip, ListRow, ModalDialog, Toggle, useToast } from '../design-system';
 import type { ThemeKey } from '../design-system';
 import { AgentIcon } from '../components/AgentIcon';
 import { SubPageHeader } from '../components/SubPageHeader';
@@ -51,6 +51,9 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
   const [cancelling, setCancelling] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [cancelledUntil, setCancelledUntil] = useState<string | null>(null);
+  /** Which destructive action is awaiting confirmation. */
+  const [confirming, setConfirming] = useState<'delete' | 'cancel' | null>(null);
+  const { showToast } = useToast();
   const isJa = lang === 'ja';
   const isPlusUser = plan === 'plus';
 
@@ -59,45 +62,36 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
     window.location.href = await getStoreManagementUrl();
   };
 
+  // Shown in the delete confirmation: what happens to an active subscription.
+  const deleteSubscriptionNote = isStoreSubscription
+    ? (isJa
+      ? '※ App Store / Google Play の契約は、この操作では解約されません。先にストアで解約してください。'
+      : 'Note: your App Store / Google Play subscription is NOT cancelled by this. Cancel it in the store first.')
+    : (isPlusUser
+      ? (isJa ? 'PixDone+ の契約は同時に解約されます（返金はありません）。' : 'Your PixDone+ subscription will be cancelled immediately (no refund).')
+      : null);
+
   // Permanently deletes the account and all data (store requirement: in-app account deletion).
   const handleDeleteAccount = async () => {
-    const storeNote = isStoreSubscription
-      ? (isJa
-        ? '\n\n※ App Store / Google Play の契約は、この操作では解約されません。先にストアで解約してください。'
-        : '\n\nNote: your App Store / Google Play subscription is NOT cancelled by this. Cancel it in the store first.')
-      : (isPlusUser
-        ? (isJa ? '\n\nPixDone+ の契約は同時に解約されます（返金はありません）。' : '\n\nYour PixDone+ subscription will be cancelled immediately (no refund).')
-        : '');
-    const first = window.confirm(
-      (isJa
-        ? 'アカウントを削除しますか？タスク・リスト・進捗など、すべてのデータが完全に削除され、元に戻せません。'
-        : 'Delete your account? All tasks, lists and progress will be permanently deleted. This cannot be undone.') + storeNote,
-    );
-    if (!first) return;
-    const second = window.confirm(isJa ? '本当に削除しますか？' : 'Are you absolutely sure?');
-    if (!second) return;
+    setConfirming(null);
     setDeleting(true);
     try {
       await deleteAccount();
       navigate('/', { replace: true });
     } catch (e) {
-      window.alert(e instanceof Error && e.message
-        ? e.message
-        : (isJa ? 'アカウントの削除に失敗しました。もう一度お試しください。' : 'Failed to delete account. Please try again.'));
+      showToast({
+        message: e instanceof Error && e.message
+          ? e.message
+          : (isJa ? 'アカウントの削除に失敗しました。もう一度お試しください。' : 'Failed to delete account. Please try again.'),
+      });
     } finally {
       setDeleting(false);
     }
   };
 
   const handleCancel = async () => {
-    const confirmed = window.confirm(
-      isJa
-        ? 'PixDone+ をキャンセルしますか？期間終了まではご利用いただけます。'
-        : 'Cancel PixDone+? You will keep access until the end of the current period.',
-    );
-    if (!confirmed) return;
+    setConfirming(null);
     setCancelling(true);
-    playSound('taskCancel');
     try {
       const resp = await fetch(apiUrl('/api/billing/cancel'), {
         method: 'POST',
@@ -109,14 +103,14 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
           const err = (await resp.json()) as { message?: string };
           if (err.message) msg = err.message;
         } catch { /* ignore */ }
-        window.alert(msg);
+        showToast({ message: msg });
         return;
       }
       const data = (await resp.json()) as { cancelAt?: string };
       setCancelledUntil(data.cancelAt ?? currentPeriodEnd);
       playSound('taskComplete');
     } catch {
-      window.alert(isJa ? '通信に失敗しました。' : 'Network error. Please try again.');
+      showToast({ message: isJa ? '通信に失敗しました。' : 'Network error. Please try again.' });
     } finally {
       setCancelling(false);
     }
@@ -204,7 +198,7 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
                     : (isJa ? 'Google Play でプランを管理' : 'MANAGE IN GOOGLE PLAY')}
                 </Button>
               ) : !cancelledUntil && (
-                <Button variant="secondary" size="sm" soundKey="taskDelete" loading={cancelling} onClick={handleCancel}>
+                <Button variant="secondary" size="sm" loading={cancelling} onClick={() => setConfirming('cancel')}>
                   {isJa ? 'プランをキャンセル' : 'CANCEL PLAN'}
                 </Button>
               )}
@@ -279,11 +273,58 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
                 ? 'アカウントとすべてのデータを完全に削除します。元に戻せません。'
                 : 'Permanently deletes your account and all data. This cannot be undone.'}
             </p>
-            <Button variant="dangerGhost" size="sm" soundKey="taskDelete" loading={deleting} onClick={handleDeleteAccount}>
+            <Button variant="dangerGhost" size="sm" loading={deleting} onClick={() => setConfirming('delete')}>
               {isJa ? 'アカウントを削除' : 'DELETE ACCOUNT'}
             </Button>
           </section>
         )}
+
+        <ModalDialog
+          open={confirming === 'cancel'}
+          onClose={() => setConfirming(null)}
+          title={isJa ? 'PixDone+ をキャンセル' : 'Cancel PixDone+'}
+          actions={
+            <>
+              <Button variant="secondary" soundKey="taskCancel" onClick={() => setConfirming(null)}>
+                {isJa ? '続ける' : 'KEEP'}
+              </Button>
+              <Button variant="danger" soundKey="taskDelete" onClick={handleCancel}>
+                {isJa ? 'キャンセルする' : 'CANCEL PLAN'}
+              </Button>
+            </>
+          }
+        >
+          <p className="account-dialog__text">
+            {isJa
+              ? '期間終了まではご利用いただけます。'
+              : 'You will keep access until the end of the current period.'}
+          </p>
+        </ModalDialog>
+
+        <ModalDialog
+          open={confirming === 'delete'}
+          onClose={() => setConfirming(null)}
+          title={isJa ? 'アカウントを削除' : 'Delete account'}
+          actions={
+            <>
+              <Button variant="secondary" soundKey="taskCancel" onClick={() => setConfirming(null)}>
+                {isJa ? 'キャンセル' : 'CANCEL'}
+              </Button>
+              <Button variant="danger" soundKey="taskDelete" onClick={handleDeleteAccount}>
+                {isJa ? '削除する' : 'DELETE'}
+              </Button>
+            </>
+          }
+        >
+          <p className="account-dialog__text">
+            {isJa
+              ? 'タスク・リスト・進捗など、すべてのデータが完全に削除され、元に戻せません。'
+              : 'All tasks, lists and progress will be permanently deleted. This cannot be undone.'}
+          </p>
+          {deleteSubscriptionNote && (
+            <p className="account-dialog__text account-dialog__text--note">{deleteSubscriptionNote}</p>
+          )}
+        </ModalDialog>
 
         <p className="account-credit">
           <a href="https://akizony.com" target="_blank" rel="noopener noreferrer">Made by Akihiro Uezono</a>

@@ -4,7 +4,7 @@ import { useGoBack } from '../hooks/useGoBack';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
-import { Button } from '../design-system';
+import { Button, useToast } from '../design-system';
 import { SubPageHeader } from '../components/SubPageHeader';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
@@ -35,6 +35,7 @@ const PLUS_FEATURES = [
 export function PricingPage() {
   const navigate = useNavigate();
   const goBack = useGoBack();
+  const { showToast } = useToast();
   const { user, syncServerSession } = useAuth();
   const { plan, isTrialing, trialEnd } = useThemeEntitlements();
   const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
@@ -83,12 +84,12 @@ export function PricingPage() {
       if (await waitForServerPlus()) {
         showPurchased();
       } else {
-        window.alert(isJa
+        showToast({ message: isJa
           ? '購入は完了しました。反映に少し時間がかかっています。しばらくしてからアプリを開き直してください。'
-          : 'Purchase complete. It is taking a moment to apply — please reopen the app shortly.');
+          : 'Purchase complete. It is taking a moment to apply — please reopen the app shortly.' });
       }
     } catch {
-      window.alert(isJa ? '購入に失敗しました。もう一度お試しください。' : 'Purchase failed. Please try again.');
+      showToast({ message: isJa ? '購入に失敗しました。もう一度お試しください。' : 'Purchase failed. Please try again.' });
     } finally {
       setLoading(false);
     }
@@ -101,10 +102,10 @@ export function PricingPage() {
       if (await waitForServerPlus(8000)) {
         showPurchased();
       } else {
-        window.alert(isJa ? '復元できる購入が見つかりませんでした。' : 'No purchases to restore were found.');
+        showToast({ message: isJa ? '復元できる購入が見つかりませんでした。' : 'No purchases to restore were found.' });
       }
     } catch {
-      window.alert(isJa ? '購入の復元に失敗しました。' : 'Could not restore purchases.');
+      showToast({ message: isJa ? '購入の復元に失敗しました。' : 'Could not restore purchases.' });
     } finally {
       setLoading(false);
     }
@@ -126,7 +127,7 @@ export function PricingPage() {
     try {
       const sync = await syncServerSession();
       if (!sync.ok) {
-        window.alert(sync.message || (isJa ? 'ログイン同期に失敗しました。' : 'Session sync failed.'));
+        showToast({ message: sync.message || (isJa ? 'ログイン同期に失敗しました。' : 'Session sync failed.') });
         return;
       }
       const resp = await fetch(apiUrl('/api/billing/create-checkout-session'), {
@@ -141,7 +142,7 @@ export function PricingPage() {
           const err = (await resp.json()) as { message?: string };
           if (err.message) msg = err.message;
         } catch { /* ignore */ }
-        window.alert(msg);
+        showToast({ message: msg });
         return;
       }
       const data = (await resp.json()) as { checkoutUrl?: string };
@@ -149,7 +150,7 @@ export function PricingPage() {
         window.location.href = data.checkoutUrl;
       }
     } catch {
-      window.alert(isJa ? '通信に失敗しました。' : 'Network error. Please try again.');
+      showToast({ message: isJa ? '通信に失敗しました。' : 'Network error. Please try again.' });
     } finally {
       setLoading(false);
     }

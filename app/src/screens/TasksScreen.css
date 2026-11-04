@@ -104,3 +104,23 @@
   display: flex;
   flex-direction: column;
 }
+
+/* List tabs + list title: pinned at the top of the scrolling `main` on touch
+ * devices (native-app list screen). The negative offset cancels main's top
+ * padding so the bar sits flush with main's top edge. Desktop keeps the old flow. */
+@media not all and (any-pointer: fine) {
+  .tasks__pinned {
+    position: sticky;
+    top: calc(var(--pd-space-4) * -1);
+    z-index: 1;
+    background: var(--pd-color-background-default);
+  }
+
+  /* main's top padding is --pd-space-5 from 768px (pixel.css). Nested so the
+   * `not` above does not swallow the width condition. */
+  @media (min-width: 768px) {
+    .tasks__pinned {
+      top: calc(var(--pd-space-5) * -1);
+    }
+  }
+}

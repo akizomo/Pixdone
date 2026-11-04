@@ -48,6 +48,8 @@ import { ExtensionLinkPage } from './pages/ExtensionLinkPage';
 import { ExtensionPrivacyPage } from './pages/ExtensionPrivacyPage';
 import { useUserTheme } from './hooks/useUserTheme';
 import { useGoBack } from './hooks/useGoBack';
+import { openExternal } from './services/externalLink';
+import { setAndroidRootBackHandler } from './services/nativeShell';
 import { useHasSeenTutorial } from './hooks/useHasSeenTutorial';
 import { QuickExtensionBanner } from './components/QuickExtensionBanner';
 import { WorldLayer } from './components/WorldLayer';
@@ -61,7 +63,6 @@ import { usePlanView } from './hooks/usePlanView';
 import { TodayView } from './components/TodayView';
 import { PlanView } from './components/PlanView';
 import { FocusWidget } from './components/FocusWidget';
-import { useScrollDirection } from './hooks/useScrollDirection';
 import { FocusZenMode } from './components/FocusZenMode';
 import { useFocusTimer } from './hooks/useFocusTimer';
 import { setBgmOn, setBgmTrack, isBgmOn, getBgmTrack, stopBgm } from './services/bgm';
@@ -107,7 +108,7 @@ function AppContent() {
   const { lists, currentList } = useListsData();
   const {
     setActiveList,
-    addList, addTask, updateTask, renameList, deleteList,
+    addList, addTask, updateTask, deleteTask, moveTask, renameList, deleteList,
     completeTask, uncompleteTask,
     resetRepeatingTasks,
   } = useListsActions();
@@ -206,6 +207,18 @@ function AppContent() {
     if (pathnameRef.current === '/collection') navigate('/');
   }, [navigate]);
 
+  /* ---- Android back on a top-level screen: return to the start tab (Lists) first ---- */
+  useEffect(() => {
+    if (isDesktop) return;
+    setAndroidRootBackHandler(() => {
+      if (activeScreen === 'tasks' && mobileSubView === 'lists') return false;
+      setActiveScreen('tasks');
+      setMobileSubView('lists');
+      return true;
+    });
+    return () => setAndroidRootBackHandler(null);
+  }, [isDesktop, activeScreen, mobileSubView]);
+
   /** Open the Effects / Themes collection (URL-routed so back navigation works). */
   const openCollection = useCallback((opts: { tab?: 'effects' | 'themes'; filter?: string; effect?: string } = {}) => {
     const params = new URLSearchParams();
@@ -215,8 +228,6 @@ function AppContent() {
     const qs = params.toString();
     navigate(`/collection${qs ? `?${qs}` : ''}`, { replace: pathnameRef.current === '/collection' });
   }, [navigate]);
-  const scrollDir = useScrollDirection();
-  const mobileChromHidden = !isDesktop && scrollDir === 'down';
 
   /* ---- Sound state (vanilla parity: pixdone-sound-enabled, ComicEffectsManager when loaded) ---- */
   const [soundMuted, setSoundMuted] = useState(() => !getSoundEnabled());
@@ -331,19 +342,24 @@ function AppContent() {
   const [pendingEditRequest, setPendingEditRequest] = useState<{ taskId: string; nonce: number } | null>(null);
 
   const handleEditFromViews = useCallback((taskId: string) => {
+    // Mobile: edit in a sheet over Today / Plan — the user stays where they are.
+    if (!isDesktop) {
+      mobileViewSheetRef.current?.openEdit(taskId);
+      return;
+    }
+    // Desktop: jump to the task's list and open the inline editor there.
     const host = lists.find((l) => l.tasks.some((t) => t.id === taskId));
     if (!host) return;
     if (host.id !== currentList?.id) setActiveList(host.id);
-    if (isDesktop) {
-      setSideView(host.id);
-    } else {
-      setMobileSubView('lists');
-    }
+    setSideView(host.id);
     setPendingEditRequest((prev) => ({ taskId, nonce: (prev?.nonce ?? 0) + 1 }));
   }, [lists, currentList?.id, isDesktop, setActiveList]);
+  /** Task awaiting delete confirmation from the Today / Plan edit sheet. */
+  const [viewDeleteConfirm, setViewDeleteConfirm] = useState<string | null>(null);
+  const allTasks = useMemo(() => lists.flatMap((l) => l.tasks), [lists]);
   const [onboardingTourActive, setOnboardingTourActive] = useState(false);
-  /** Bottom-sheet for "add a task to My tasks" (mobile FAB on Today/Plan). */
-  const mobileAddSheetRef = useRef<MobileTaskSheetHandle>(null);
+  /** Mobile task sheet for Today / Plan: FAB add (to My tasks) and in-place edit. */
+  const mobileViewSheetRef = useRef<MobileTaskSheetHandle>(null);
   /**
    * Hidden input used to pre-open the mobile keyboard in the user-gesture
    * chain. iOS Safari only opens the keyboard when `focus()` is called
@@ -443,7 +459,7 @@ function AppContent() {
     try {
       const sync = await syncServerSession();
       if (!sync.ok) {
-        window.alert(sync.message || 'Session sync failed.');
+        showToast({ message: sync.message || (lang === 'ja' ? 'ログイン同期に失敗しました。' : 'Session sync failed.') });
         return;
       }
       const resp = await fetch(apiUrl('/api/billing/create-checkout-session'), {
@@ -453,12 +469,12 @@ function AppContent() {
         body: JSON.stringify({ billingCycle }),
       });
       if (!resp.ok) {
-        let msg = `Checkout failed (${resp.status})`;
+        let msg = lang === 'ja' ? `Checkout に失敗しました (${resp.status})` : `Checkout failed (${resp.status})`;
         try {
           const err = (await resp.json()) as { message?: string };
           if (err.message) msg = err.message;
         } catch { /* ignore */ }
-        window.alert(msg);
+        showToast({ message: msg });
         return;
       }
       const data = (await resp.json()) as { checkoutUrl?: string };
@@ -467,9 +483,9 @@ function AppContent() {
         window.location.href = data.checkoutUrl;
       }
     } catch {
-      window.alert('Network error. Please try again.');
+      showToast({ message: lang === 'ja' ? '通信に失敗しました。' : 'Network error. Please try again.' });
     }
-  }, [user, syncServerSession, markTutorialSeen]);
+  }, [user, syncServerSession, markTutorialSeen, showToast, lang]);
 
   const isFocusScreen = activeScreen === 'focus';
   if (isFocusScreen && !isDesktop && !focusVisited) setFocusVisited(true);
@@ -1022,7 +1038,7 @@ function AppContent() {
                       if (id === 'collection') { setUserMenuOpen(false); openCollection(); return; }
                       if (id === 'lang') return; // handled by trailing chips
                       if (id === 'sound') { toggleSound(); return; }
-                      if (id === 'support') { playSound('buttonClick'); window.open('https://buymeacoffee.com/akizomo', '_blank', 'noopener,noreferrer'); return; }
+                      if (id === 'support') { playSound('buttonClick'); openExternal('https://buymeacoffee.com/akizomo'); return; }
                       if (id === 'feedback') { playSound('buttonClick'); setUserMenuOpen(false); navigate('/feedback'); return; }
                       if (id === 'logout') { setUserMenuOpen(false); playSound('taskComplete'); logout(); }
                     }}
@@ -1119,7 +1135,7 @@ function AppContent() {
             onFocusZenOpenChange={setFocusZenOpen}
             active={isFocusScreen && !isSubPage}
             showMiniPlayer={!isSubPage}
-            bottomNavHidden={mobileChromHidden}
+            bottomNavHidden={false}
             onMiniPlayerVisibleChange={setMiniPlayerVisible}
           />
         )}
@@ -1402,7 +1418,7 @@ function AppContent() {
               // Today/Plan: open the App-level add-task bottom sheet directly.
               // Lists: fall back to TasksScreen's own flow via the nonce.
               if (mobileSubView === 'today' || mobileSubView === 'plan') {
-                mobileAddSheetRef.current?.openAdd(
+                mobileViewSheetRef.current?.openAdd(
                   mobileSubView === 'today' ? { initialDueDate: getTodayYMD() } : undefined,
                 );
               } else {
@@ -1432,14 +1448,13 @@ function AppContent() {
         className="app__pos-2"
       />
 
-      {/* App-level add-task bottom sheet for Today/Plan FAB taps. Seeds the
-          list chip with My Tasks (the inbox default); the user can still pick
-          any non-smash list via the chip. */}
+      {/* App-level task sheet for Today / Plan: FAB add (list chip seeded with
+          My Tasks) and in-place edit of any task, so the user never leaves the view. */}
       {!isDesktop && (
         <MobileTaskSheet
-          ref={mobileAddSheetRef}
+          ref={mobileViewSheetRef}
           lang={lang}
-          tasks={[]}
+          tasks={allTasks}
           currentListId={
             lists.find((l) => l.kind === 'inbox')?.id ??
             lists.find((l) => l.id !== 'smash-list' && l.name !== '\u{1F4A5} Smash List')?.id ??
@@ -1454,14 +1469,39 @@ function AppContent() {
               has_subtasks: (fields.subtasks?.length ?? 0) > 0,
             });
           }}
-          onUpdateTask={() => {}}
-          onDeleteRequest={() => {}}
-          onMoveToList={() => {}}
+          onUpdateTask={updateTask}
+          onDeleteRequest={(taskId) => { playSound('buttonClick'); setViewDeleteConfirm(taskId); }}
+          onMoveToList={(taskId, targetListId) => { playSound('buttonClick'); moveTask(taskId, targetListId); }}
           availableLists={lists
             .filter((l) => l.id !== 'smash-list' && l.name !== '\u{1F4A5} Smash List')
             .map((l) => ({ id: l.id, name: l.kind === 'inbox' ? t('myTasks', lang) : l.name }))}
         />
       )}
+
+      {/* Delete confirmation for the Today / Plan edit sheet */}
+      <ModalDialog
+        open={viewDeleteConfirm !== null}
+        onClose={() => setViewDeleteConfirm(null)}
+        title={t('deleteTask', lang)}
+        actions={
+          <>
+            <Button variant="secondary" soundKey="taskCancel" onClick={() => setViewDeleteConfirm(null)}>{t('cancel', lang)}</Button>
+            <Button
+              variant="danger"
+              soundKey="taskDelete"
+              onClick={() => {
+                if (viewDeleteConfirm) deleteTask(viewDeleteConfirm);
+                mobileViewSheetRef.current?.close();
+                setViewDeleteConfirm(null);
+              }}
+            >
+              {t('delete', lang)}
+            </Button>
+          </>
+        }
+      >
+        <p className="app__text-delete-confirm">{t('deleteTaskConfirm', lang)}</p>
+      </ModalDialog>
 
       {/* Bottom navigation — mobile only, hidden on sub-pages and zen mode.
           Hosts the Lists/Today/Plan task-view switcher. When active screen is
@@ -1474,7 +1514,6 @@ function AppContent() {
             if (activeScreen !== 'tasks') showScreen('tasks');
           }}
           lang={lang}
-          hidden={mobileChromHidden}
         />
       )}
 

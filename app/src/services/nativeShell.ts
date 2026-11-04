@@ -3,13 +3,27 @@
  * - html[data-native] for native-only CSS (global.css)
  * - Status bar icon colour follows the current theme background
  * - Hides the iOS keyboard accessory bar (‹ › Done)
- * - Android back button: close the top overlay → press the visible back button → minimize
+ * - Android back button: close the top overlay → press the visible back button →
+ *   return to the start tab (setAndroidRootBackHandler) → minimize
+ * - External links open in the in-app browser (externalLink.ts)
  * - iOS: drag from the left edge to go back (edgeSwipeBack.ts)
  */
 import { Capacitor, SystemBars, SystemBarsStyle } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { Keyboard } from '@capacitor/keyboard';
 import { initEdgeSwipeBack } from './edgeSwipeBack';
+import { initExternalLinks } from './externalLink';
+
+/**
+ * Called when Android back reaches a top-level screen. Return true when it
+ * handled the press (e.g. switched back to the start tab); false lets the app
+ * minimize, as Android apps do from their start tab.
+ */
+let rootBackHandler: (() => boolean) | null = null;
+
+export function setAndroidRootBackHandler(handler: (() => boolean) | null): void {
+  rootBackHandler = handler;
+}
 
 /** Relative luminance of an `rgb()` / `rgba()` computed colour, 0–1. */
 function luminance(rgb: string): number | null {
@@ -65,6 +79,7 @@ function handleAndroidBack(): void {
     back.click();
     return;
   }
+  if (rootBackHandler?.()) return;
   App.minimizeApp().catch(() => {});
 }
 
@@ -73,6 +88,7 @@ export function initNativeShell(): void {
   document.documentElement.dataset.native = Capacitor.getPlatform();
 
   watchThemeForSystemBars();
+  initExternalLinks();
 
   if (Capacitor.getPlatform() === 'ios') {
     Keyboard.setAccessoryBarVisible({ isVisible: false }).catch(() => {});

@@ -39,3 +39,10 @@
   letter-spacing: 1px;
   color: var(--pd-color-text-primary);
 }
+
+/* main's top padding is --pd-space-5 from 768px (pixel.css). */
+@media (min-width: 768px) {
+  .pd-subpage-header {
+    top: calc(var(--pd-space-5) * -1);
+  }
+}

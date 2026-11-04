@@ -146,3 +146,17 @@
   font-size: var(--pd-font-size-2xs);
   color: var(--pd-color-text-tertiary);
 }
+
+/* Confirmation dialogs (cancel plan / delete account) */
+.account-dialog__text {
+  margin: 0;
+  color: var(--pd-color-text-secondary);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+}
+
+.account-dialog__text--note {
+  margin-top: var(--pd-space-3);
+  color: var(--pd-color-text-tertiary);
+  font-size: var(--pd-font-size-xs);
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useGoBack } from '../hooks/useGoBack';
+import { openExternal } from '../services/externalLink';
 import { Button, TextArea } from '../design-system';
 import { SubPageHeader } from '../components/SubPageHeader';
 import { playSound } from '../services/sound';
@@ -74,7 +75,7 @@ export function FeedbackPage() {
             variant="secondary"
             size="sm"
             soundKey="buttonClick"
-            onClick={() => window.open(PH_REVIEW_URL, '_blank', 'noopener,noreferrer')}
+            onClick={() => openExternal(PH_REVIEW_URL)}
           >
             {isJa ? 'Product Hunt でレビューを書く' : 'REVIEW ON PRODUCT HUNT'}
           </Button>

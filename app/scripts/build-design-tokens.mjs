@@ -201,6 +201,24 @@ const buildBaseCss = async () => {
  */
 `;
 
+  // Safe-area insets can't come from Tokens Studio (env() is not a token value),
+  // so they live here — hand-editing tokens.css would be wiped by the next build.
+  const safeArea = `
+/* =============================================================================
+   SAFE AREA  (hand-authored — not derived from tokens)
+   Status bar / Dynamic Island / home indicator in the edge-to-edge native app;
+   0 in a normal browser. Use these instead of env(safe-area-inset-*) so
+   Storybook can simulate a notched phone by overriding them.
+   ============================================================================= */
+
+:root {
+  --pd-layout-safe-top: env(safe-area-inset-top, 0px);
+  --pd-layout-safe-right: env(safe-area-inset-right, 0px);
+  --pd-layout-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --pd-layout-safe-left: env(safe-area-inset-left, 0px);
+}
+`;
+
   const reducedMotion = `
 /* =============================================================================
    REDUCED MOTION  (hand-authored — not derived from tokens)
@@ -218,7 +236,7 @@ const buildBaseCss = async () => {
 }
 `;
 
-  const finalCss = `${header}\n${root}\n${dark}${reducedMotion}`;
+  const finalCss = `${header}\n${root}\n${dark}${safeArea}${reducedMotion}`;
   const outPath = resolve(APP_ROOT, 'src/design-system/foundations/tokens.css');
   writeFileSync(outPath, finalCss);
   console.log('  wrote', outPath.replace(REPO_ROOT + '/', ''));
