@@ -22,7 +22,6 @@
   text-transform: uppercase;
   padding: var(--pd-space-1) 0;
   margin: 0;
-  border-bottom: var(--pd-border-thin) solid var(--pd-color-border-default);
 }
 
 .pd-plan-section__tasks {

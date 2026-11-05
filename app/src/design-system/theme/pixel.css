@@ -248,9 +248,18 @@
     display: none !important;
   }
 
-  /* Reserve exactly the fixed BottomNav height (56px) + safe-area. */
+  /* Reserve exactly the fixed BottomNav height (56px) + safe-area.
+   * A trailing spacer, not padding-bottom: iOS WebKit leaves a scroll container's
+   * bottom padding out of its scroll range, so content that only overflowed into
+   * the padding (under the nav) could not be scrolled to — or at all. */
   .pd-app-body > main {
-    padding-bottom: calc(56px + var(--pd-layout-safe-bottom) + var(--pd-mini-player-offset, 0px));
+    padding-bottom: 0;
+  }
+
+  .pd-app-body > main::after {
+    content: '';
+    flex-shrink: 0;
+    height: calc(56px + var(--pd-layout-safe-bottom) + var(--pd-mini-player-offset, 0px));
   }
 }
 
