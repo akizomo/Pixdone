@@ -91,12 +91,18 @@ async function nativeSignIn(signIn: () => Promise<SignInResult>): Promise<SignIn
  */
 export class LinkPendingError extends Error {
   readonly code = 'auth/account-exists-with-different-credential';
+  readonly providerId: 'google.com' | 'apple.com';
+  readonly email: string | null;
+  readonly credential: AuthCredential | null;
   constructor(
-    readonly providerId: 'google.com' | 'apple.com',
-    readonly email: string | null,
-    readonly credential: AuthCredential | null,
+    providerId: 'google.com' | 'apple.com',
+    email: string | null,
+    credential: AuthCredential | null,
   ) {
     super('account_exists_with_different_credential');
+    this.providerId = providerId;
+    this.email = email;
+    this.credential = credential;
   }
 }
 
