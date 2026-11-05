@@ -1,6 +1,7 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import type { User, UserCredential } from 'firebase/auth';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import type { AuthCredential, User, UserCredential } from 'firebase/auth';
 import {
+  linkWithCredential,
   onAuthStateChanged,
   signInWithCredential,
   signInWithEmailAndPassword,
@@ -83,19 +84,95 @@ async function nativeSignIn(signIn: () => Promise<SignInResult>): Promise<SignIn
   }
 }
 
+/**
+ * Google/Apple sign-in hit an email that is already registered with another
+ * method (Firebase: one account per email). Carries the credential so it can be
+ * linked once the user signs in the old way.
+ */
+export class LinkPendingError extends Error {
+  readonly code = 'auth/account-exists-with-different-credential';
+  constructor(
+    readonly providerId: 'google.com' | 'apple.com',
+    readonly email: string | null,
+    readonly credential: AuthCredential | null,
+  ) {
+    super('account_exists_with_different_credential');
+  }
+}
+
+function errorCode(e: unknown): string | undefined {
+  return e && typeof e === 'object' && 'code' in e ? String((e as { code: unknown }).code) : undefined;
+}
+
+function errorEmail(e: unknown): string | null {
+  const email = (e as { customData?: { email?: unknown } } | null)?.customData?.email;
+  return typeof email === 'string' ? email : null;
+}
+
+/** Turns account-exists errors into LinkPendingError; rethrows everything else. */
+async function withLinkDetection(
+  providerId: 'google.com' | 'apple.com',
+  signIn: () => Promise<UserCredential>,
+  credentialFromError: (e: unknown) => AuthCredential | null,
+  email?: string | null,
+): Promise<UserCredential> {
+  try {
+    return await signIn();
+  } catch (e) {
+    if (errorCode(e) === 'auth/account-exists-with-different-credential') {
+      let credential: AuthCredential | null = null;
+      try { credential = credentialFromError(e); } catch { /* no credential to keep */ }
+      throw new LinkPendingError(providerId, errorEmail(e) ?? email ?? null, credential);
+    }
+    throw e;
+  }
+}
+
 async function signInWithGoogleNative(): Promise<UserCredential> {
   const result = await nativeSignIn(() => FirebaseAuthentication.signInWithGoogle());
   const idToken = result.credential?.idToken;
   if (!idToken) throw new Error('google_sign_in_failed');
-  return signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
+  const credential = GoogleAuthProvider.credential(idToken);
+  return withLinkDetection('google.com', () => signInWithCredential(auth, credential), () => credential, result.user?.email);
 }
 
-/** iOS only — required by App Store guideline 4.8 alongside Google sign-in. */
+async function signInWithGoogleWeb(): Promise<UserCredential> {
+  return withLinkDetection(
+    'google.com',
+    () => signInWithPopup(auth, new GoogleAuthProvider()),
+    (e) => GoogleAuthProvider.credentialFromError(e as Parameters<typeof GoogleAuthProvider.credentialFromError>[0]),
+  );
+}
+
+/**
+ * iOS: native Sign in with Apple (App Store guideline 4.8).
+ * Android: the plugin runs Firebase's Apple web flow (needs the Services ID set
+ * up in the Firebase console, same as the web).
+ */
 async function signInWithAppleNative(): Promise<UserCredential> {
   const result = await nativeSignIn(() => FirebaseAuthentication.signInWithApple());
   const { idToken, nonce } = result.credential ?? {};
   if (!idToken) throw new Error('apple_sign_in_failed');
-  return signInWithCredential(auth, new OAuthProvider('apple.com').credential({ idToken, rawNonce: nonce }));
+  const credential = new OAuthProvider('apple.com').credential({ idToken, rawNonce: nonce });
+  return withLinkDetection('apple.com', () => signInWithCredential(auth, credential), () => credential, result.user?.email);
+}
+
+/** Web: Apple's popup flow. Lets people who signed up with Apple in the iOS app log in on the web. */
+async function signInWithAppleWeb(): Promise<UserCredential> {
+  const provider = new OAuthProvider('apple.com');
+  provider.addScope('email');
+  provider.addScope('name');
+  return withLinkDetection(
+    'apple.com',
+    () => signInWithPopup(auth, provider),
+    (e) => OAuthProvider.credentialFromError(e as Parameters<typeof OAuthProvider.credentialFromError>[0]),
+  );
+}
+
+interface PendingLink {
+  providerId: 'google.com' | 'apple.com';
+  email: string | null;
+  credential: AuthCredential;
 }
 
 interface AuthContextValue {
@@ -109,8 +186,12 @@ interface AuthContextValue {
   syncServerSession: () => Promise<ServerSessionSyncResult>;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
-  /** Native iOS only. */
   loginWithApple: () => Promise<void>;
+  /**
+   * Re-sends the verification email for an unverified email/password account.
+   * Returns 'verified' (and logs in) if the email was confirmed in the meantime.
+   */
+  resendVerification: (email: string, password: string) => Promise<'sent' | 'verified'>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -124,6 +205,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [serverSessionReady, setServerSessionReady] = useState(false);
   const [serverSessionError, setServerSessionError] = useState<string | null>(null);
+  /** Google/Apple credential waiting to be linked after the user logs in the old way. */
+  const pendingLinkRef = useRef<PendingLink | null>(null);
 
   const runServerSessionSync = useCallback(async (u: User): Promise<ServerSessionSyncResult> => {
     setServerSessionReady(false);
@@ -165,14 +248,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     void runServerSessionSync(user);
   }, [user?.uid, runServerSessionSync]);
 
+  /**
+   * Links the Google/Apple credential that hit "account exists" earlier, if the
+   * account now signed in has the same email. Best effort: the credential may
+   * have expired (Apple ID tokens last ~10 min) — the user can just retry the
+   * provider button then, and it will link the next time.
+   */
+  const linkPendingCredential = async (u: User) => {
+    const pending = pendingLinkRef.current;
+    if (!pending) return;
+    if (pending.email && u.email && pending.email.toLowerCase() !== u.email.toLowerCase()) return;
+    pendingLinkRef.current = null;
+    if (u.providerData.some((p) => p.providerId === pending.providerId)) return;
+    try {
+      await linkWithCredential(u, pending.credential);
+    } catch (e) {
+      console.warn('linkWithCredential failed', errorCode(e) ?? e);
+    }
+  };
+
+  /** Remembers the credential (if any) and rethrows so the screen can explain. */
+  const rememberPendingLink = (e: unknown): never => {
+    if (e instanceof LinkPendingError && e.credential) {
+      pendingLinkRef.current = { providerId: e.providerId, email: e.email, credential: e.credential };
+    }
+    throw e;
+  };
+
+  const signInVerified = async (email: string, password: string) => {
+    if (!email.trim()) throw new Error('missing_email');
+    if (!password) throw new Error('missing_password');
+    return signInWithEmailAndPassword(auth, email.trim(), password);
+  };
+
+  const finishEmailLogin = async (u: User) => {
+    trackLogin({ method: 'email' });
+    await linkPendingCredential(u);
+    await runServerSessionSync(u);
+  };
+
   const login = async (email: string, password: string) => {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const cred = await signInVerified(email, password);
     if (!cred.user.emailVerified) {
       await signOut(auth);
       throw new Error('email_not_verified');
     }
-    trackLogin({ method: 'email' });
-    await runServerSessionSync(cred.user);
+    await finishEmailLogin(cred.user);
+  };
+
+  const resendVerification = async (email: string, password: string): Promise<'sent' | 'verified'> => {
+    const cred = await signInVerified(email, password);
+    if (cred.user.emailVerified) {
+      await finishEmailLogin(cred.user);
+      return 'verified';
+    }
+    try {
+      await sendEmailVerification(cred.user);
+    } finally {
+      await signOut(auth);
+    }
+    return 'sent';
   };
 
   const finishProviderLogin = async (cred: UserCredential, method: 'google' | 'apple') => {
@@ -183,22 +318,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       trackLogin({ method });
     }
+    await linkPendingCredential(cred.user);
     await runServerSessionSync(cred.user);
   };
 
   const loginWithGoogle = async () => {
-    const cred = Capacitor.isNativePlatform()
-      ? await signInWithGoogleNative()
-      : await signInWithPopup(auth, new GoogleAuthProvider());
+    const cred = await (Capacitor.isNativePlatform() ? signInWithGoogleNative() : signInWithGoogleWeb())
+      .catch(rememberPendingLink);
     await finishProviderLogin(cred, 'google');
   };
 
   const loginWithApple = async () => {
-    await finishProviderLogin(await signInWithAppleNative(), 'apple');
+    const cred = await (Capacitor.isNativePlatform() ? signInWithAppleNative() : signInWithAppleWeb())
+      .catch(rememberPendingLink);
+    await finishProviderLogin(cred, 'apple');
   };
 
   const register = async (email: string, password: string) => {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    if (!email.trim()) throw new Error('missing_email');
+    if (!password) throw new Error('missing_password');
+    const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
     trackSignUp({ method: 'email' });
     await sendEmailVerification(cred.user);
     await signOut(auth);
@@ -213,7 +352,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetPassword = async (email: string) => {
-    await sendPasswordResetEmail(auth, email);
+    if (!email.trim()) throw new Error('missing_email');
+    await sendPasswordResetEmail(auth, email.trim());
   };
 
   const deleteAccount = async () => {
@@ -254,6 +394,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         loginWithGoogle,
         loginWithApple,
+        resendVerification,
         register,
         logout,
         resetPassword,
