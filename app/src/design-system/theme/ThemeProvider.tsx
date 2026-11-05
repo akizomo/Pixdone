@@ -1,4 +1,4 @@
-import { createContext, useCallback, useLayoutEffect, useRef, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useLayoutEffect, useRef, useState, useEffect, type ReactNode } from 'react';
 import { getThemeCSSVariables, type ThemeMode, type ColorModePreference } from '../tokens';
 import { themes, type ThemeKey } from '../themes/themeRegistry';
 
@@ -12,6 +12,8 @@ type ThemeContextValue = {
   setTheme: (t: ThemeMode) => void;
   visualTheme: ThemeKey;
   setVisualTheme: (key: ThemeKey) => void;
+  /** Temporarily render a different visual theme without touching the saved one (null clears). */
+  setVisualThemeOverride: (key: ThemeKey | null) => void;
 };
 
 export const ThemeContext = createContext<ThemeContextValue>({
@@ -21,6 +23,7 @@ export const ThemeContext = createContext<ThemeContextValue>({
   setTheme: () => {},
   visualTheme: 'arcade',
   setVisualTheme: () => {},
+  setVisualThemeOverride: () => {},
 });
 
 const COLOR_MODE_KEY = 'pd-color-mode';
@@ -79,7 +82,9 @@ export function ThemeProvider({
   const [resolvedTheme, setResolvedTheme] = useState<ThemeMode>(
     () => resolveMode(defaultTheme ?? getInitialPreference()),
   );
-  const [visualTheme, setVisualThemeState] = useState<ThemeKey>(defaultVisualTheme ?? getInitialVisualTheme);
+  const [savedVisualTheme, setVisualThemeState] = useState<ThemeKey>(defaultVisualTheme ?? getInitialVisualTheme);
+  const [visualThemeOverride, setVisualThemeOverride] = useState<ThemeKey | null>(null);
+  const visualTheme = visualThemeOverride ?? savedVisualTheme;
 
   // Listen for OS color scheme changes when preference is 'system'
   useEffect(() => {
@@ -166,8 +171,22 @@ export function ThemeProvider({
       setTheme,
       visualTheme,
       setVisualTheme,
+      setVisualThemeOverride,
     }}>
       {children}
     </ThemeContext.Provider>
   );
+}
+
+/**
+ * Render a fixed visual theme while the calling component is mounted, without
+ * changing the user's saved theme. E.g. the signed-out landing page always shows
+ * the default theme even if the last signed-in user picked another one.
+ */
+export function useForcedVisualTheme(key: ThemeKey): void {
+  const { setVisualThemeOverride } = useContext(ThemeContext);
+  useLayoutEffect(() => {
+    setVisualThemeOverride(key);
+    return () => setVisualThemeOverride(null);
+  }, [key, setVisualThemeOverride]);
 }

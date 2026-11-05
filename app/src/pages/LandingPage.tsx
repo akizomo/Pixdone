@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Button, PixelIcon } from '../design-system';
-import { ThemeContext } from '../design-system/theme/ThemeProvider';
+import { ThemeContext, useForcedVisualTheme } from '../design-system/theme/ThemeProvider';
 import { playSound } from '../services/sound';
 import { startBgm, stopBgm, isBgmOn } from '../services/bgm';
 import type { BgmTrack } from '../services/bgm';
@@ -337,6 +337,8 @@ const HERO_EFFECT_OBJECTS = [
 ];
 
 export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: LandingPageProps) {
+  // Signed-out page: always the default theme, not whatever the last signed-in user picked.
+  useForcedVisualTheme('arcade');
   const isJa = lang === 'ja';
   // Wordmark text is white on dark backgrounds and ink on light ones (the symbol stays brand purple).
   const { theme: themeMode } = useContext(ThemeContext);

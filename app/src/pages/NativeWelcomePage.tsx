@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { Button, PixelIcon } from '../design-system';
+import { useForcedVisualTheme } from '../design-system/theme/ThemeProvider';
 import { playSound } from '../services/sound';
 import {
   EFFECTS_REGISTRY,
@@ -23,6 +24,8 @@ interface NativeWelcomePageProps {
  * to install, so this is a single, non-scrolling screen: try a smash, then sign in.
  */
 export function NativeWelcomePage({ lang, onOpenLogin, onOpenSignup }: NativeWelcomePageProps) {
+  // Signed-out page: always the default theme, not whatever the last signed-in user picked.
+  useForcedVisualTheme('arcade');
   const isJa = lang === 'ja';
   const taskRef = useRef<HTMLDivElement>(null);
 
