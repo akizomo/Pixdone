@@ -93,20 +93,14 @@
   gap: var(--pd-space-4);
 }
 
-.account-plan--plus {
-  border-color: var(--pd-color-accent-default);
-  background: var(--pd-color-accent-subtle);
-}
+/* PixDone+ is a status, not an action: keep it neutral. Accent (purple) is reserved
+   for things you can press or that are selected, so it would read as a button here. */
 
 .account-plan__name {
   margin: 0 0 var(--pd-space-1);
   font-family: var(--pd-font-brand);
   font-size: var(--pd-font-size-sm);
   letter-spacing: 1px;
-}
-
-.account-plan__name--plus {
-  color: var(--pd-color-accent-default);
 }
 
 .account-plan__desc,

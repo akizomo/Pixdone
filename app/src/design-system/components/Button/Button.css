@@ -132,6 +132,29 @@
   background-color: var(--pd-color-background-hover);
 }
 
+/* Text: a low-key action that reads like a link (accent text, no frame). No inline
+   padding, so the label lines up with the text around it; the tap target keeps its height. */
+.pxd-button--text {
+  padding-left: 0;
+  padding-right: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  background-color: transparent;
+  color: var(--pd-color-accent-default);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  .pxd-button--text:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+}
+
+.pxd-button--text:active:not(:disabled) {
+  opacity: 0.7;
+}
+
 .pxd-button--danger {
   background-color: var(--pd-color-semantic-danger);
   color: var(--pd-color-semantic-dangerText);

@@ -8,6 +8,7 @@ const variantMap = {
   primary: 'pxd-button--primary',
   secondary: 'pxd-button--secondary',
   ghost: 'pxd-button--ghost',
+  text: 'pxd-button--text',
   danger: 'pxd-button--danger',
   dangerOutline: 'pxd-button--danger-outline',
   dangerGhost: 'pxd-button--danger-ghost',

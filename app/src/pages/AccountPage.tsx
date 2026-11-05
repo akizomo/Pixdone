@@ -162,8 +162,8 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
           )}
 
           {isPlusUser && (
-            <div className="account-plan account-plan--plus">
-              <p className="account-plan__name account-plan__name--plus">
+            <div className="account-plan">
+              <p className="account-plan__name">
                 PIXDONE+
               </p>
               {billingCycle && (
@@ -198,7 +198,7 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
                     : (isJa ? 'Google Play でプランを管理' : 'MANAGE IN GOOGLE PLAY')}
                 </Button>
               ) : !cancelledUntil && (
-                <Button variant="secondary" size="sm" loading={cancelling} onClick={() => setConfirming('cancel')}>
+                <Button variant="text" size="sm" loading={cancelling} onClick={() => setConfirming('cancel')}>
                   {isJa ? 'プランをキャンセル' : 'CANCEL PLAN'}
                 </Button>
               )}
