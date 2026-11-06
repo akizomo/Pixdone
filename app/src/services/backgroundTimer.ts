@@ -35,6 +35,8 @@ export interface BackgroundTimerOptions {
   keepAlive?: boolean;
   /** iOS: text of the local notification delivered at `endAt`. */
   endTitle?: string;
+  /** iOS: end chime the native side plays at `endAt` while backgrounded (the WebView is frozen). */
+  endChime?: 'focus' | 'break';
   endText?: string;
 }
 

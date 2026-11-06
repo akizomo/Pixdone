@@ -180,6 +180,7 @@ export function FocusScreenContainer({
       endAt: Date.now() + remainingRef.current * 1000,
       // iOS: BGM only plays in pomodoro mode; that audio is what keeps the app running.
       keepAlive: bgmOn && !isBreakMode,
+      endChime: isBreakMode ? 'break' : 'focus',
       endTitle: isBreakMode ? (lang === 'ja' ? '休憩おわり' : 'Break over') : (lang === 'ja' ? 'フォーカス完了' : 'Focus complete'),
       endText: isBreakMode ? (lang === 'ja' ? 'フォーカスを始めましょう' : 'Ready for the next focus?') : (lang === 'ja' ? 'おつかれさま！休憩しましょう' : 'Nice work! Take a break.'),
     });
