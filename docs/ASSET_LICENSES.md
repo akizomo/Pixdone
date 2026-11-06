@@ -4,7 +4,7 @@ PixDone が使っているフォント・アイコン・画像・音声の出ど
 App Store Connect の「コンテンツ配信権」に「はい（サードパーティのコンテンツを含む）＋必要な権利を持っている」と答える根拠として使います。
 
 - 調査日: 2026-11-06（リポジトリの `main` 時点）
-- 「要確認」は、リポジトリや履歴から出どころを確定できなかったものです。推測では埋めていません。
+- 画像の出どころは、リポジトリと PixelLab のギャラリーで調べたうえで、2026-11-06 にユーザー本人に確認しました。
 - アプリ（iOS / Android）は `app/public/` 以下をまるごと同梱するので、`public/` にあるファイルは「アプリ同梱」に当たります。Google Fonts のように CDN から読み込むものは同梱されません。
 - npm のライブラリ（React、Firebase、Capacitor など）はプログラムでありコンテンツではないため対象外です。いずれも MIT / Apache-2.0 などの商用利用できるライセンスです。
 
@@ -43,20 +43,20 @@ App Store Connect の「コンテンツ配信権」に「はい（サードパ�
 | エフェクトの模様（ノイズ・スキャンライン） | `app/public/animations.js` 内の SVG データ URI | 自作（コードで生成） | `feTurbulence` などをコードで記述 |
 | `vite.svg`、`app/src/assets/react.svg` | — | Vite のテンプレートに入っていたファイル | Vite / React はいずれも MIT。使っていなければ削除してよい |
 
-### 3-2. PixelLab で生成したと推定されるもの（要確認）
+### 3-2. PixelLab で自分で生成したもの（確認済み）
 
-PixelLab（https://pixellab.ai ）のアカウントの生成ギャラリーに、名前・サイズ・作成日が対応する生成履歴があります。ただし、ファイルにメタデータが残っておらず、リポジトリ側で 1 対 1 の対応までは確認できていません。**「PixelLab で作ったものか」「手で修正したか」をユーザーが確認してください。**
+ユーザー本人が PixelLab（https://pixellab.ai ）で生成したものです（2026-11-06 に本人確認）。PixelLab のアカウントのギャラリーにも、名前・サイズ・作成日が対応する生成履歴が残っています。
 
-| 素材 | ファイル | 推定される出どころ | 対応しそうな生成履歴（PixelLab ギャラリー） |
-|---|---|---|---|
-| 木（小・大） | `app/public/world/forestbit/sprites/tree-small.png`（32×32）、`tree-large.png`（32×64） | PixelLab | 2026-04-06「pixel art, massive ancient tree…」（32×32 と 32×64 あり） |
-| アーケード筐体 | `app/public/world/arcade/sprites/cabinet.png`（96×96） | PixelLab（推定） | 2026-04-06〜14「pixel art arcade cabinet…」（32〜128px）。96×96 と同じサイズの履歴はないので、加工した可能性あり |
-| T.A.S.K. Agent | `app/public/world/arcade/sprites/agent-arcade-0001〜0004.png`（32×32） | PixelLab（推定） | 2026-04-16「Pixel art secret agent character…」「small cute ghost-like creature…」。追加コミット 3a64308 と同じ日 |
-| Forest 版 Agent | `app/public/world/forestbit/sprites/agent-forest-bit-0001〜0004.png` | 上の Agent を色替えしたもの | `app/scripts/recolor-forest-agents.mjs` で生成（コミット e251d97 に記載） |
-| 爆弾 | `app/public/sprites/weapons/bomb.png`（32×32） | PixelLab（推定） | 2026-04-06「pixel art black bomb object」（32×32） |
-| 剣 | `app/public/sprites/weapons/sword.png`（32×32） | PixelLab（推定） | 2026-04-13「Pixel art sword cursor…」（32×32） |
-| ドローン | `app/public/sprites/weapons/drone.png`（64×64） | PixelLab（推定） | 2026-04-10「A small hovering drone with propellers.」（32×32）。XMP に 192×192 の記録があり、拡大や書き出しをした可能性あり |
-| スキャンドローン（アニメ） | `app/public/sprites/scan-drone.gif` | PixelLab（推定） | 2026-04-10「Animate this drone sprite…」（9 フレーム） |
+| 素材 | ファイル | 対応する生成履歴（PixelLab ギャラリー） |
+|---|---|---|
+| 木（小・大） | `app/public/world/forestbit/sprites/tree-small.png`（32×32）、`tree-large.png`（32×64） | 2026-04-06「pixel art, massive ancient tree…」 |
+| アーケード筐体 | `app/public/world/arcade/sprites/cabinet.png`（96×96） | 2026-04-06〜14「pixel art arcade cabinet…」 |
+| T.A.S.K. Agent | `app/public/world/arcade/sprites/agent-arcade-0001〜0004.png`（32×32） | 2026-04-16「Pixel art secret agent character…」ほか |
+| Forest 版 Agent | `app/public/world/forestbit/sprites/agent-forest-bit-0001〜0004.png` | 上の Agent を `app/scripts/recolor-forest-agents.mjs` で色替え（コミット e251d97） |
+| 爆弾 | `app/public/sprites/weapons/bomb.png`（32×32） | 2026-04-06「pixel art black bomb object」 |
+| 剣 | `app/public/sprites/weapons/sword.png`（32×32） | 2026-04-13「Pixel art sword cursor…」 |
+| ドローン | `app/public/sprites/weapons/drone.png`（64×64） | 2026-04-10「A small hovering drone with propellers.」 |
+| スキャンドローン（アニメ） | `app/public/sprites/scan-drone.gif` | 2026-04-10「Animate this drone sprite…」 |
 
 **PixelLab の利用規約（Last Updated: 2026-10-30）**: https://pixellab.ai/termsofservice
 - 第1.3条・第3.3条: 生成物の著作権はユーザーにあり、商用・非商用を問わず許可なく使える。出力は目的を問わず使用・改変・配布できる。
@@ -69,12 +69,12 @@ PixelLab（https://pixellab.ai ）のアカウントの生成ギャラリーに�
 |---|---|---|---|---|
 | PixelLab の生成物 | 生成したユーザーが著作権を持つ（PixelLab 規約） | 可 | 可 | 不要 |
 
-### 3-3. 出どころが分からないもの（要確認）
+### 3-3. Figma で自分で描いたもの（確認済み）
 
-| 素材 | ファイル | 分かっていること | ユーザーに確認したいこと |
+| 素材 | ファイル | 出どころ | 根拠 |
 |---|---|---|---|
-| ペンギン（freeze エフェクト） | `app/public/assets/penguin.svg` | Figma から書き出した形式の SVG。2026-02-11 の「secret penguin」コミット（6687e5e）で追加 | 自分で描いたものか、素材サイトのものか |
-| アーケードのゲーム画面アイコン（6 種） | `app/public/world/arcade/sprites/arcade-{fight,maze,mystery,platformer,racing,shooter}.svg` | Figma から書き出した形式の SVG（`clip0_19_555` という ID が残っている）。コミット 3a64308 で追加 | 自分で描いたものか。既存のゲームの画面写真やキャラクターを元にしていないか |
+| ペンギン（freeze エフェクト） | `app/public/assets/penguin.svg` | 自作（Figma） | 2026-11-06 に本人確認。2026-02-11 の「secret penguin」コミット（6687e5e）で追加 |
+| アーケードのゲーム画面アイコン（6 種） | `app/public/world/arcade/sprites/arcade-{fight,maze,mystery,platformer,racing,shooter}.svg` | 自作（Figma） | 2026-11-06 に本人確認。コミット 3a64308 で追加 |
 
 ## 4. 音声
 
@@ -87,9 +87,9 @@ PixelLab（https://pixellab.ai ）のアカウントの生成ギャラリーに�
 
 ## 5. 結論と、クレジット表記の提案
 
-- **コンテンツ配信権の回答**: 「はい（サードパーティのコンテンツを含む）」＋「必要な権利を持っている」で問題ありません。サードパーティのものはすべて商用利用でき、アプリに同梱できるライセンスです（OFL・MIT・PixelLab 規約）。ただし 3-2 と 3-3 の「要確認」がすべて「自作」か「PixelLab で生成」であることが前提です。
+- **コンテンツ配信権の回答**: 「はい（サードパーティのコンテンツを含む）」＋「必要な権利を持っている」で問題ありません。画像はすべて自作（Figma・PixelLab）、音声はコードで合成した自作です。サードパーティのものはフォントとアイコンだけで、どちらも商用利用でき、アプリに同梱できるライセンスです（OFL・MIT）。
 - **画面へのクレジット表記が必須のものはありません**。OFL・MIT・PixelLab のいずれも、アプリの画面にクレジットを出すことは求めていません。
 - **ライセンス文の同梱は必要です**。次の2点を入れると条件を満たせます。
   1. `app/public/fonts/` に `OFL.txt` を置く。Handjet と VT323 は著作権者が違うので、`OFL-Handjet.txt` と `OFL-VT323.txt` の 2 ファイルに分ける。
   2. アプリ内に「ライセンス」ページを作り、OFL のフォント名と pixelarticons の MIT ライセンス文を載せる。アカウントページの規約・プライバシーポリシーのリンクの近くに置くのが自然です。npm ライブラリのライセンスもまとめて載せる場合は、ビルド時に一覧を作るツール（`rollup-plugin-license` など）を使う方法もあります。
-- **確認が終わったら**、3-2・3-3 の「要確認」を「自作」または「PixelLab で生成（ギャラリーの ID）」に書き換え、この一覧を確定版にしてください。
+- **残っている確認**: BGM の旋律が既存の曲をなぞっていないか（4 章の注記）。
