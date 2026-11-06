@@ -34,6 +34,7 @@
 | Smash List (無制限) | ✅ | Free でも無制限 |
 | リスト作成 / 名称変更 / 削除 | ✅ | `ListModal.tsx`, `ListHeader.tsx` |
 | タブ UI | ✅ | `ListTabs.tsx` |
+| iPhone のリマインダーから取り込み (iOS アプリのみ) | ✅ | 未完了項目を 1 回きりコピー (同期なし・リマインダーは変更しない)。タイトル / メモ / 期日 / 毎日・毎週の繰り返し。入口: オンボーディング最後の段階 (＋の上の 2 択)・空の状態・リストのメニュー。無料プランのリスト上限 3 を超えない。`components/RemindersImportSheet.tsx`, `ios/App/App/RemindersPlugin.swift` |
 
 API: `GET/POST/PUT/DELETE /api/lists`, `GET /api/lists/:id/tasks`
 
@@ -159,6 +160,7 @@ API: `GET/POST/PUT/DELETE /api/lists`, `GET /api/lists/:id/tasks`
 | analytics 基盤 | ✅ | `services/analytics.ts` |
 | 先行指標イベント | ✅ | sign_up / login / screen_view / tutorial_task_complete (d8d6c23) |
 | ローカル opt-out | ✅ | 端末単位 (0c7fb0d) |
+| リマインダー取り込み | ✅ | reminders_import { task_count, list_count, repeat_count, source } / reminders_permission_denied { source } |
 
 ## 13. インフラ / デプロイ
 

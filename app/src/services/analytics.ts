@@ -29,6 +29,10 @@
  *   purchase_success  PixDone+ がサーバーで有効になったのを確認        { plan, platform, is_trial }
  *   purchase_cancel   ストア購入シートでキャンセル                     { platform }
  *
+ * ── 取り込み ──
+ *   reminders_import             iPhone のリマインダーから取り込み実行   { task_count, list_count, repeat_count, source }
+ *   reminders_permission_denied  リマインダーのアクセス許可が得られなかった { source }
+ *
  * 共通パラメータ:
  *   traffic_type: 'internal'  内部ユーザー（uid が VITE_INTERNAL_UIDS に含まれる）の全イベントに付与。
  *                             GA4 のデータフィルタ「Internal Traffic」で除外する。
@@ -286,6 +290,28 @@ export function trackPurchaseSuccess(params: PurchaseSuccessParams) {
 /** ストア購入シートでキャンセル */
 export function trackPurchaseCancel() {
   track('purchase_cancel', { platform: getAnalyticsPlatform() });
+}
+
+/** リマインダー取り込みの入口。empty_state = 空の状態のリンク、menu = リストのメニュー、onboarding = 最初のタスクの段階 */
+export type RemindersImportSource = 'empty_state' | 'menu' | 'onboarding';
+
+interface RemindersImportParams {
+  task_count: number;
+  /** 取り込み先のリスト数（新規＋既存） */
+  list_count: number;
+  /** 繰り返しタスクに対応づけた件数 */
+  repeat_count: number;
+  source: RemindersImportSource;
+}
+
+/** リマインダーから取り込み実行。タスク名・リスト名は送らない */
+export function trackRemindersImport(params: RemindersImportParams) {
+  track('reminders_import', params);
+}
+
+/** リマインダーのアクセス許可が得られなかった（拒否・制限） */
+export function trackRemindersPermissionDenied(params: { source: RemindersImportSource }) {
+  track('reminders_permission_denied', params);
 }
 
 /**

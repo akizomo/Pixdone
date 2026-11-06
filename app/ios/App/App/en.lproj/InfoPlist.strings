@@ -1,0 +1,3 @@
+/* Shown when PixDone asks for Reminders access (import from Reminders). */
+"NSRemindersFullAccessUsageDescription" = "Reads your incomplete reminders so you can import them into PixDone. Your reminders are never changed.";
+"NSRemindersUsageDescription" = "Reads your incomplete reminders so you can import them into PixDone. Your reminders are never changed.";

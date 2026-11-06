@@ -13,6 +13,8 @@ export interface ListHeaderProps {
   sortMode?: SortMode;
   onRename?: () => void;
   onDelete?: () => void;
+  /** iOS app only: "Import from Reminders" menu item. */
+  onImportReminders?: () => void;
   onChangeSort?: (mode: SortMode) => void;
 }
 
@@ -24,16 +26,17 @@ const SORT_OPTIONS: Array<{ id: SortMode; labelKey: string }> = [
   { id: 'alphabetical', labelKey: 'sortAlphabetical' },
 ];
 
-export function ListHeader({ title, showMenu, lang = 'en', sortMode = 'manual', onRename, onDelete, onChangeSort }: ListHeaderProps) {
+export function ListHeader({ title, showMenu, lang = 'en', sortMode = 'manual', onRename, onDelete, onImportReminders, onChangeSort }: ListHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
 
   const items = useMemo(() => {
     const list: PopoverMenuItem[] = [];
+    if (onImportReminders) list.push({ id: 'importReminders', label: t('importFromReminders', lang), icon: 'arrow_downward' });
     if (onRename) list.push({ id: 'rename', label: t('rename', lang), icon: 'edit' });
     if (onDelete) list.push({ id: 'delete', label: t('deleteList', lang), icon: 'delete', danger: true });
     return list;
-  }, [onRename, onDelete, lang]);
+  }, [onImportReminders, onRename, onDelete, lang]);
 
   const sortItems = useMemo<PopoverMenuItem[]>(
     () => SORT_OPTIONS.map((o) => ({
@@ -47,6 +50,7 @@ export function ListHeader({ title, showMenu, lang = 'en', sortMode = 'manual', 
   const handleSelect = (id: string) => {
     playSound('buttonClick');
     setMenuOpen(false);
+    if (id === 'importReminders') onImportReminders?.();
     if (id === 'rename') onRename?.();
     if (id === 'delete') onDelete?.();
   };
@@ -85,7 +89,7 @@ export function ListHeader({ title, showMenu, lang = 'en', sortMode = 'manual', 
           </div>
         )}
 
-        {showMenu && (
+        {showMenu && items.length > 0 && (
           <div className="pd-list-header__menu">
             <button
               type="button"

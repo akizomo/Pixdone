@@ -19,6 +19,7 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { hasActiveRepeat, getNextDueDateAfter } from '../lib/repeat';
+import { remainingListSlots, type ImportGroup } from '../lib/remindersImport';
 
 /* Legacy localStorage keys — the pre-login experience is now the LandingPage, so the
  * guest "My Tasks" flow no longer runs. Keys are kept here only so callers can purge
@@ -655,6 +656,101 @@ export function useLists() {
     return created;
   }, [setLists, user]);
 
+  /**
+   * Bulk-add tasks from an external source (Reminders import). New lists get their
+   * Firestore ids up front so the tasks can point at them; a "new" target past the
+   * free-plan limit falls back to the inbox (the UI never offers that, this is a guard).
+   * Signed-in users only. Returns what was actually written.
+   */
+  const importTaskGroups = useCallback((groups: ImportGroup[]): { taskCount: number; listCount: number } => {
+    if (!user) return { taskCount: 0, listCount: 0 };
+    const inbox = lists.find((l) => l.kind === 'inbox') ?? lists.find((l) => l.id !== 'smash-list');
+    let slots = remainingListSlots(lists, isPremium);
+    const now = Timestamp.now();
+
+    const newLists: { id: string; name: string }[] = [];
+    const resolved: { listId: string; tasks: ImportGroup['tasks'] }[] = [];
+    for (const g of groups) {
+      if (g.tasks.length === 0) continue;
+      if (g.target.kind === 'existing') {
+        resolved.push({ listId: g.target.listId, tasks: g.tasks });
+      } else if (slots > 0) {
+        slots -= 1;
+        const id = doc(collection(db, 'lists')).id;
+        newLists.push({ id, name: g.target.name });
+        resolved.push({ listId: id, tasks: g.tasks });
+      } else if (inbox) {
+        resolved.push({ listId: inbox.id, tasks: g.tasks });
+      }
+    }
+
+    // Local state first: new lists, then tasks appended after each list's current max sortOrder.
+    const created: Task[] = [];
+    const nextSort: Record<string, number> = {};
+    for (const l of lists) {
+      nextSort[l.id] = l.tasks.filter((t) => !t.completed).reduce((m, t) => Math.max(m, t.sortOrder ?? -1), -1) + 1;
+    }
+    for (const nl of newLists) nextSort[nl.id] = 0;
+    for (const r of resolved) {
+      for (const f of r.tasks) {
+        created.push({
+          id: doc(collection(db, 'tasks')).id,
+          title: f.title,
+          completed: false,
+          dueDate: f.dueDate ?? null,
+          details: f.details,
+          repeat: f.repeat ?? 'none',
+          subtasks: [],
+          listId: r.listId,
+          sortOrder: nextSort[r.listId]++,
+        });
+      }
+    }
+    setLists((prev) => {
+      const withNew = [...prev, ...newLists.map((nl) => ({ id: nl.id, name: nl.name, tasks: [] as Task[] }))];
+      return withNew.map((l) => {
+        const add = created.filter((t) => t.listId === l.id);
+        return add.length ? { ...l, tasks: [...l.tasks, ...add] } : l;
+      });
+    });
+
+    // Firestore: chunked batches (limit 500 writes per batch).
+    (async () => {
+      const writes: { ref: ReturnType<typeof doc>; data: Record<string, unknown> }[] = [
+        ...newLists.map((nl) => ({
+          ref: doc(db, 'lists', nl.id),
+          data: { uid: user.uid, name: nl.name, createdAt: now },
+        })),
+        ...created.map((t) => ({
+          ref: doc(db, 'tasks', t.id),
+          data: {
+            uid: user.uid,
+            listId: t.listId,
+            title: t.title,
+            details: t.details ?? '',
+            dueDate: t.dueDate,
+            repeat: t.repeat ?? 'none',
+            subtasks: [],
+            completed: false,
+            createdAt: now,
+            sortOrder: t.sortOrder ?? 0,
+          },
+        })),
+      ];
+      try {
+        for (let i = 0; i < writes.length; i += 400) {
+          const batch = writeBatch(db);
+          for (const w of writes.slice(i, i + 400)) batch.set(w.ref, w.data);
+          await batch.commit();
+        }
+      } catch {
+        /* ignore — optimistic UI already applied; the snapshot listener reconciles */
+      }
+    })();
+
+    return { taskCount: created.length, listCount: new Set(resolved.map((r) => r.listId)).size };
+  }, [user, lists, isPremium, setLists]);
+
   const updateTask = useCallback((taskId: string, fields: Partial<Task>) => {
     const task = lists.flatMap((l) => l.tasks).find((t) => t.id === taskId);
     const isSmashTask = task?.listId === 'smash-list';
@@ -995,6 +1091,7 @@ export function useLists() {
     deleteList,
     setListSortMode,
     addTask,
+    importTaskGroups,
     updateTask,
     deleteTask,
     completeTask,

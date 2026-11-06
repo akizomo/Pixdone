@@ -33,6 +33,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Reads your incomplete reminders so you can import them into PixDone. Your reminders are never changed.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Reads your incomplete reminders so you can import them into PixDone. Your reminders are never changed.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

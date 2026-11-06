@@ -10,7 +10,7 @@ import { playSound } from '../services/sound';
 import { trackTaskAdd } from '../services/analytics';
 import { t } from '../lib/i18n';
 import { SMASH_TITLES } from '../features/useLists';
-import { Button, ModalDialog, PixelIcon, KeyHint } from '../design-system';
+import { Button, ModalDialog, PixelIcon, KeyHint, TextLink } from '../design-system';
 import {
   ListHeader, ListTabs, TaskItem, SmashListPanel, TutorialPanel,
   TaskForm,
@@ -27,6 +27,8 @@ import './TasksScreen.css';
 
 export interface TasksScreenProps {
   lang: 'en' | 'ja';
+  /** iOS app only: open the Reminders import sheet (empty state link + list menu). */
+  onImportReminders?: (source: 'empty_state' | 'menu') => void;
   user: User | null;
   isDesktop: boolean;
   hasFinePointer: boolean;
@@ -55,6 +57,7 @@ export interface TasksScreenProps {
 
 export function TasksScreen({
   lang,
+  onImportReminders,
   // `user` is accepted for API symmetry but not referenced — inbox label is now driven by `kind`.
   isDesktop,
   hasFinePointer,
@@ -447,12 +450,13 @@ export function TasksScreen({
       {viewMode === 'lists' && (
         <ListHeader
           title={isTutorial ? t('tutorial', lang) : (currentList?.kind === 'inbox' ? t('myTasks', lang) : (currentList?.name ?? ''))}
-          showMenu={!isTutorial && !isSmash && currentList?.kind !== 'inbox'}
+          showMenu={!isTutorial && !isSmash && (currentList?.kind !== 'inbox' || !!onImportReminders)}
           lang={lang}
           sortMode={sortMode}
           onChangeSort={!isSmash && currentList ? (mode) => setListSortMode(currentList.id, mode) : undefined}
           onRename={currentList?.kind === 'inbox' ? undefined : () => onOpenListModal({ mode: 'rename', listId: currentList?.id })}
           onDelete={currentList?.kind === 'inbox' ? undefined : () => onOpenListModal({ mode: 'delete', listId: currentList?.id })}
+          onImportReminders={onImportReminders ? () => onImportReminders('menu') : undefined}
         />
       )}
       </div>
@@ -567,6 +571,11 @@ export function TasksScreen({
             <div className="game-start-content">
               <div className="ready-text">{t('emptyReady', lang)}</div>
               <div className="start-instruction">{t('emptyReadySub', lang)}</div>
+              {onImportReminders && (
+                <TextLink size="sm" onClick={() => onImportReminders('empty_state')}>
+                  {t('importFromReminders', lang)}
+                </TextLink>
+              )}
             </div>
           </div>
         ) : activeTasks.length === 0 && completedTasks.length > 0 && taskFormMode !== 'add' ? (

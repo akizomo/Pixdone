@@ -1,0 +1,68 @@
+/* Onboarding first-task step (iOS app): two stacked choices at the FAB.
+   Positions mirror .pd-mobile-fab in design-system/theme/pixel.css:
+   bottom-nav row (56px) + safe area + space-3, right space-4, FAB 56px. */
+
+.pd-tour-choice {
+  position: fixed;
+  right: var(--pd-space-4);
+  z-index: 3050; /* above .pd-onboarding (3000), same as the tour FAB */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--pd-space-3);
+  touch-action: manipulation;
+}
+
+/* Import row: one FAB-height above the FAB, plus a gap. */
+.pd-tour-choice--import {
+  bottom: calc(56px + var(--pd-layout-safe-bottom) + var(--pd-space-3) + var(--pd-mini-player-offset, 0px) + 56px + var(--pd-space-4));
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* "Write" label: vertically centred on the FAB, to its left. */
+.pd-tour-choice--write {
+  bottom: calc(56px + var(--pd-layout-safe-bottom) + var(--pd-space-3) + var(--pd-mini-player-offset, 0px) + var(--pd-space-3));
+  right: calc(var(--pd-space-4) + 56px + var(--pd-space-3));
+  pointer-events: none;
+}
+
+.pd-tour-choice__label {
+  padding: var(--pd-space-1) var(--pd-space-2);
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  box-shadow: var(--pd-shadow-pixel-sm);
+  color: var(--pd-color-text-primary);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  line-height: var(--pd-font-leading-sm);
+  font-weight: var(--pd-font-weight-semibold);
+  white-space: nowrap;
+}
+
+/* Same size and shape as the FAB, secondary (outlined) treatment. */
+.pd-tour-choice__circle {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--pd-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pd-color-background-elevated);
+  color: var(--pd-color-text-primary);
+  border: var(--pd-border-base) solid var(--pd-color-border-default);
+  box-shadow: var(--pd-shadow-pixel-sm);
+  animation: pd-mobile-fab-tour-pulse 1.6s ease-in-out infinite;
+}
+
+.pd-tour-choice--import:active .pd-tour-choice__circle {
+  transform: scale(0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-tour-choice__circle {
+    animation: none;
+  }
+}

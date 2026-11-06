@@ -1,0 +1,3 @@
+/* リマインダーからの取り込みで、アクセス許可を求めるときの説明文 */
+"NSRemindersFullAccessUsageDescription" = "未完了のリマインダーを PixDone に取り込むために読み取ります。リマインダーの内容は変更しません。";
+"NSRemindersUsageDescription" = "未完了のリマインダーを PixDone に取り込むために読み取ります。リマインダーの内容は変更しません。";

@@ -1,0 +1,84 @@
+/* RemindersImportSheet — one-time import from iPhone Reminders (iOS only) */
+
+.pd-reminders-import {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-4);
+  padding: var(--pd-space-4);
+}
+
+.pd-reminders-import__note,
+.pd-reminders-import__lead,
+.pd-reminders-import__limit {
+  margin: 0;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  line-height: var(--pd-font-leading-sm);
+  color: var(--pd-color-text-secondary);
+}
+
+.pd-reminders-import__lists {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: var(--pd-border-thin) solid var(--pd-color-border-default);
+}
+
+.pd-reminders-import__item {
+  padding: var(--pd-space-3) 0;
+  border-bottom: var(--pd-border-thin) solid var(--pd-color-border-default);
+}
+
+.pd-reminders-import__row {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-3);
+  min-height: var(--pd-tap-target-min);
+  cursor: pointer;
+}
+
+.pd-reminders-import__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-md);
+  line-height: var(--pd-font-leading-md);
+  color: var(--pd-color-text-primary);
+}
+
+.pd-reminders-import__count {
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  line-height: var(--pd-font-leading-sm);
+  color: var(--pd-color-text-secondary);
+}
+
+.pd-reminders-import__dest {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-2);
+  margin-top: var(--pd-space-2);
+  padding-left: var(--pd-space-8);
+}
+
+.pd-reminders-import__dest-label {
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-2xs);
+  line-height: var(--pd-font-leading-2xs);
+  color: var(--pd-color-text-secondary);
+}
+
+.pd-reminders-import__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pd-space-2);
+}
+
+.pd-reminders-import__footer {
+  margin-top: var(--pd-space-2);
+}

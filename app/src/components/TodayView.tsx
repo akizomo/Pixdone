@@ -4,7 +4,8 @@ import type { Task } from '../types/task';
 import { useTodayView } from '../hooks/useTodayView';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
-import { PixelIcon } from '../design-system';
+import { PixelIcon, TextLink } from '../design-system';
+import { t } from '../lib/i18n';
 import { playSound } from '../services/sound';
 import { getTodayYMD } from '../lib/date';
 import './TodayView.css';
@@ -22,6 +23,8 @@ export interface TodayViewProps {
   onAddButtonClick?: () => void;
   /** During the onboarding Step 5 tour, the Add button is lifted above the translucent overlay and pulses. */
   isOnboardingTour?: boolean;
+  /** iOS app only: "Import from Reminders" link in the empty state. */
+  onImportReminders?: () => void;
 }
 
 export function TodayView({
@@ -33,6 +36,7 @@ export function TodayView({
   autoOpenAddTaskNonce,
   onAddButtonClick,
   isOnboardingTour,
+  onImportReminders,
 }: TodayViewProps) {
   const tasks = useTodayView(lists);
   const listNameById = new Map(lists.map((l) => [l.id, l.name]));
@@ -83,6 +87,11 @@ export function TodayView({
       {tasks.length === 0 ? (
         <div className="pd-today-empty">
           <p>{lang === 'ja' ? '今日のタスクはありません' : 'No tasks for today'}</p>
+          {onImportReminders && (
+            <TextLink size="sm" onClick={onImportReminders}>
+              {t('importFromReminders', lang)}
+            </TextLink>
+          )}
         </div>
       ) : (
         <div className="pd-today-view__tasks">

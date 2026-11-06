@@ -12,6 +12,7 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { useLists } from './useLists';
 import type { List, SortMode } from '../types/list';
 import type { Task } from '../types/task';
+import type { ImportGroup } from '../lib/remindersImport';
 
 // ── Data context (changes when lists/activeId change) ──────────────────────
 
@@ -34,6 +35,7 @@ interface ListsActionsValue {
   deleteList: (listId: string, allLists: List[]) => void;
   setListSortMode: (listId: string, sortMode: SortMode) => void;
   addTask: (listId: string, fields: Partial<Task> & { title: string }) => Task;
+  importTaskGroups: (groups: ImportGroup[]) => { taskCount: number; listCount: number };
   updateTask: (taskId: string, fields: Partial<Task>) => void;
   deleteTask: (taskId: string) => void;
   completeTask: (taskId: string) => void;
@@ -63,6 +65,7 @@ export function ListsProvider({ children }: { children: ReactNode }) {
     deleteList,
     setListSortMode,
     addTask,
+    importTaskGroups,
     updateTask,
     deleteTask,
     completeTask,
@@ -92,6 +95,7 @@ export function ListsProvider({ children }: { children: ReactNode }) {
     deleteList,
     setListSortMode,
     addTask,
+    importTaskGroups,
     updateTask,
     deleteTask,
     completeTask,
@@ -105,7 +109,7 @@ export function ListsProvider({ children }: { children: ReactNode }) {
     closeListLimitUpsell,
   }), [
     setLists, setActiveList, addList, renameList, deleteList, setListSortMode,
-    addTask, updateTask, deleteTask, completeTask, uncompleteTask,
+    addTask, importTaskGroups, updateTask, deleteTask, completeTask, uncompleteTask,
     addSubtask, toggleSubtask, deleteSubtask,
     moveTask, reorderActiveTasks, resetRepeatingTasks, closeListLimitUpsell,
   ]);

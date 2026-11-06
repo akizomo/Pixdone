@@ -62,6 +62,10 @@ import { SidePanel, type SidePanelView } from './components/SidePanel';
 import { useTodayView } from './hooks/useTodayView';
 import { usePlanView } from './hooks/usePlanView';
 import { TodayView } from './components/TodayView';
+import { RemindersImportSheet } from './components/RemindersImportSheet';
+import { OnboardingTourChoices } from './components/OnboardingTourChoices';
+import { isRemindersImportAvailable } from './services/reminders';
+import type { RemindersImportSource } from './services/analytics';
 import { PlanView } from './components/PlanView';
 import { FocusWidget } from './components/FocusWidget';
 import { FocusZenMode } from './components/FocusZenMode';
@@ -151,6 +155,12 @@ function AppContent() {
   const [signupOpen, setSignupOpen] = useState(false);
   const [authInitialMode, setAuthInitialMode] = useState<'signup' | 'login'>('signup');
   const [plusIntroOpen, setPlusIntroOpen] = useState(false);
+  /** Reminders import sheet (iOS app only). `source` feeds the reminders_import event. */
+  const [remindersImport, setRemindersImport] = useState<{ open: boolean; source: RemindersImportSource }>({ open: false, source: 'menu' });
+  const canImportReminders = isRemindersImportAvailable();
+  const openRemindersImport = useCallback((source: RemindersImportSource) => {
+    setRemindersImport({ open: true, source });
+  }, []);
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   // userMenuRef removed — PopoverMenu handles outside-click internally
@@ -1197,6 +1207,7 @@ function AppContent() {
             autoOpenAddTaskNonce={autoOpenAddTaskNonce}
             onAddButtonClick={handleTourAddButtonClick}
             isOnboardingTour={onboardingTourActive}
+            onImportReminders={canImportReminders ? () => openRemindersImport('empty_state') : undefined}
           />
         ) : (isDesktop && sideView === 'plan') || (!isDesktop && activeScreen === 'tasks' && mobileSubView === 'plan') ? (
           <PlanView
@@ -1212,6 +1223,7 @@ function AppContent() {
           />
         ) : (
           <TasksScreen
+            onImportReminders={canImportReminders ? openRemindersImport : undefined}
             lang={lang}
             user={user}
             isDesktop={isDesktop}
@@ -1517,20 +1529,40 @@ function AppContent() {
         <p className="app__text-delete-confirm">{t('deleteTaskConfirm', lang)}</p>
       </ModalDialog>
 
+      {/* Onboarding first-task step (iOS app): "write" vs "import from Reminders" at the FAB */}
+      {onboardingTourActive && canImportReminders && !isDesktop && activeScreen === 'tasks' && !isSubPage && (
+        <OnboardingTourChoices
+          lang={lang}
+          onImportReminders={() => {
+            handleTourAddButtonClick();
+            openRemindersImport('onboarding');
+          }}
+        />
+      )}
+
+      {canImportReminders && (
+        <RemindersImportSheet
+          open={remindersImport.open}
+          onClose={() => setRemindersImport((prev) => ({ ...prev, open: false }))}
+          source={remindersImport.source}
+          lang={lang}
+        />
+      )}
+
       {/* Bottom navigation — mobile only, hidden on sub-pages and zen mode.
           Tabs: Lists / Today / Plan / Focus. */}
       {!focusZenOpen && !isDesktop && !isSubPage && (
         <BottomNav
           activeView={activeScreen === 'focus' ? 'focus' : mobileSubView}
           onSelect={(view) => {
-            setMobileSubView(view);
-            if (activeScreen !== 'tasks') showScreen('tasks');
-          }}
-          lang={lang}
             if (view === 'focus') {
               showScreen('focus');
               return;
             }
+            setMobileSubView(view);
+            if (activeScreen !== 'tasks') showScreen('tasks');
+          }}
+          lang={lang}
         />
       )}
 
