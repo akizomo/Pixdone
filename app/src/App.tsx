@@ -5,7 +5,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu, TextLink, PixelIcon, KeyHint, Coachmark } from './design-system';
 import {
-  ThemeSelector, ListModal, AuthModal, BottomNav, HeaderSegment,
+  ThemeSelector, ListModal, AuthModal, BottomNav,
 } from './components';
 import type { ListModalMode, MobileSubView } from './components';
 import { apiUrl } from './lib/apiUrl';
@@ -975,16 +975,12 @@ function AppContent() {
             )}
           </div>
 
-          {/* Center — mobile-only Tasks/Focus segment (hidden on sub-pages) */}
+          {/* Center — mobile-only title of the current top-level tab (iOS nav bar style) */}
           {!isDesktop && !isSubPage && (
             <div className="pd-header__center">
-              <HeaderSegment
-                activeValue={activeScreen === 'tasks' || activeScreen === 'focus' ? activeScreen : null}
-                onSelect={(v) => {
-                  showScreen(v);
-                }}
-                lang={lang}
-              />
+              <h1 className="pd-header__title">
+                {activeScreen === 'focus' ? t('focus', lang) : t(mobileSubView, lang)}
+              </h1>
             </div>
           )}
 
@@ -1522,16 +1518,19 @@ function AppContent() {
       </ModalDialog>
 
       {/* Bottom navigation — mobile only, hidden on sub-pages and zen mode.
-          Hosts the Lists/Today/Plan task-view switcher. When active screen is
-          Focus (or Collection), tapping a tab returns to Tasks + selects the view. */}
+          Tabs: Lists / Today / Plan / Focus. */}
       {!focusZenOpen && !isDesktop && !isSubPage && (
         <BottomNav
-          activeView={activeScreen === 'tasks' ? mobileSubView : null}
+          activeView={activeScreen === 'focus' ? 'focus' : mobileSubView}
           onSelect={(view) => {
             setMobileSubView(view);
             if (activeScreen !== 'tasks') showScreen('tasks');
           }}
           lang={lang}
+            if (view === 'focus') {
+              showScreen('focus');
+              return;
+            }
         />
       )}
 

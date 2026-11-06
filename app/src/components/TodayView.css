@@ -99,3 +99,11 @@
   font-size: var(--pd-font-size-sm);
   color: var(--pd-color-text-muted);
 }
+
+/* Mobile shows the title in the app header instead (desktop keeps it) */
+@media not all and (any-pointer: fine) {
+  .pd-today-view__title,
+  .pd-plan-view__title {
+    display: none;
+  }
+}

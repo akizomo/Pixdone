@@ -51,3 +51,11 @@
     color: var(--pd-color-text-primary);
   }
 }
+
+/* Mobile: the page title lives in the app header, so the list name is a section label */
+@media not all and (any-pointer: fine) {
+  .pd-list-header__title {
+    font-size: var(--pd-font-size-md);
+    line-height: var(--pd-font-leading-md);
+  }
+}

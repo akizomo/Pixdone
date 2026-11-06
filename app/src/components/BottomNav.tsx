@@ -4,18 +4,20 @@ import { PixelIcon } from '../design-system';
 import './BottomNav.css';
 
 export type MobileSubView = 'lists' | 'today' | 'plan';
+export type BottomNavTab = MobileSubView | 'focus';
 
 export interface BottomNavProps {
-  activeView: MobileSubView | null;
-  onSelect: (view: MobileSubView) => void;
+  activeView: BottomNavTab | null;
+  onSelect: (view: BottomNavTab) => void;
   lang: 'en' | 'ja';
   hidden?: boolean;
 }
 
-const TABS: { id: MobileSubView; icon: string; labelKey: string; fallback: string }[] = [
-  { id: 'lists', icon: 'folder',              labelKey: 'lists', fallback: 'Lists' },
-  { id: 'today', icon: 'calendar_today',      labelKey: 'today', fallback: 'Today' },
+const TABS: { id: BottomNavTab; icon: string; labelKey: string; fallback: string }[] = [
+  { id: 'lists', icon: 'folder',               labelKey: 'lists', fallback: 'Lists' },
+  { id: 'today', icon: 'calendar_today',       labelKey: 'today', fallback: 'Today' },
   { id: 'plan',  icon: 'format_list_bulleted', labelKey: 'plan',  fallback: 'Plan'  },
+  { id: 'focus', icon: 'timer',                labelKey: 'focus', fallback: 'Focus' },
 ];
 
 export function BottomNav({ activeView, onSelect, lang, hidden = false }: BottomNavProps) {
@@ -23,7 +25,7 @@ export function BottomNav({ activeView, onSelect, lang, hidden = false }: Bottom
     <nav
       role="tablist"
       className={`pd-bottom-nav${hidden ? ' pd-bottom-nav--hidden' : ''}`}
-      aria-label={lang === 'ja' ? 'タスクビュー切替' : 'Task view'}
+      aria-label={lang === 'ja' ? 'メインナビゲーション' : 'Main navigation'}
     >
       {TABS.map((tab) => {
         const isActive = activeView === tab.id;

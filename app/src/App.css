@@ -52,7 +52,22 @@
     justify-self: center;
     display: flex;
     align-items: center;
+    min-width: 0;
   }
+}
+
+/* Mobile page title in the header (iOS nav bar): single line, ellipsis */
+.pd-header__title {
+  margin: 0;
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-lg);
+  line-height: var(--pd-font-leading-lg);
+  font-weight: var(--pd-font-weight-bold);
+  color: var(--pd-color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /* ── Header menu button (≡) — desktop only ── */
