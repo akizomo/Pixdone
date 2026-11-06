@@ -18,7 +18,7 @@ import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import type { SignInResult } from '@capacitor-firebase/authentication';
 import { auth } from '../lib/firebase';
 import { trackLogin, trackSignUp, setAnalyticsUserId } from '../services/analytics';
-import { apiUrl } from '../lib/apiUrl';
+import { apiUrl, NATIVE_API_ORIGIN } from '../lib/apiUrl';
 
 export type ServerSessionSyncResult =
   | { ok: true }
@@ -175,6 +175,31 @@ async function signInWithAppleWeb(): Promise<UserCredential> {
   );
 }
 
+/**
+ * Sends the verification email with a continue URL, so Firebase's "email
+ * verified" page shows a button back to the login screen. Falls back to the
+ * plain email if the domain is not in Firebase's authorized domains
+ * (auth/unauthorized-continue-uri) — sign-up must never fail over this.
+ */
+async function sendVerificationEmail(user: User): Promise<void> {
+  const origin = Capacitor.isNativePlatform() ? NATIVE_API_ORIGIN : window.location.origin;
+  try {
+    await sendEmailVerification(user, { url: `${origin}/?auth=login` });
+  } catch (e) {
+    const code = errorCode(e);
+    if (code !== 'auth/unauthorized-continue-uri' && code !== 'auth/invalid-continue-uri') throw e;
+    console.warn('verification continue URL rejected, sending without it', code);
+    await sendEmailVerification(user);
+  }
+}
+
+/** Email/password-only account whose email is not confirmed yet (login() rejects these). */
+function isUnverifiedPasswordUser(u: User): boolean {
+  return !u.emailVerified
+    && u.providerData.length > 0
+    && u.providerData.every((p) => p.providerId === 'password');
+}
+
 interface PendingLink {
   providerId: 'google.com' | 'apple.com';
   email: string | null;
@@ -236,7 +261,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, runServerSessionSync]);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
+    const unsub = onAuthStateChanged(auth, (raw) => {
+      // login()/register()/resendVerification() sign in an unverified email
+      // account for a moment and then sign out. Exposing that user would close
+      // the auth modal and swap the screen, so the error/success message never
+      // shows. Treat it as logged out.
+      const u = raw && isUnverifiedPasswordUser(raw) ? null : raw;
       setUser(u);
       setLoading(false);
       setAnalyticsUserId(u?.uid ?? null);
@@ -309,7 +339,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return 'verified';
     }
     try {
-      await sendEmailVerification(cred.user);
+      await sendVerificationEmail(cred.user);
     } finally {
       await signOut(auth);
     }
@@ -345,7 +375,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!password) throw new Error('missing_password');
     const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
     trackSignUp({ method: 'email' });
-    await sendEmailVerification(cred.user);
+    await sendVerificationEmail(cred.user);
     await signOut(auth);
   };
 

@@ -40,6 +40,7 @@ import { FeedbackPage } from './pages/FeedbackPage';
 import { CollectionPage } from './pages/CollectionPage';
 import { LandingPage } from './pages/LandingPage';
 import { NativeWelcomePage } from './pages/NativeWelcomePage';
+import { auth } from './lib/firebase';
 import { Capacitor } from '@capacitor/core';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { isStoreBillingAvailable, loginStoreBilling, logoutStoreBilling } from './lib/storeBilling';
@@ -140,6 +141,11 @@ function AppContent() {
     setLang(l);
     try { localStorage.setItem('pixdone-lang', l); } catch { /* ignore */ }
   }, []);
+
+  // Firebase sends auth emails (verification, password reset) in this language.
+  useEffect(() => {
+    auth.languageCode = lang;
+  }, [lang]);
 
   // UI state
   const [signupOpen, setSignupOpen] = useState(false);
@@ -291,6 +297,10 @@ function AppContent() {
       setPurchaseBanner('plus_success');
     }
     if (authOpen === '1') {
+      setSignupOpen(true);
+    } else if (authOpen === 'login') {
+      // Continue URL of the verification email (see sendVerificationEmail).
+      setAuthInitialMode('login');
       setSignupOpen(true);
     }
   }, []);
