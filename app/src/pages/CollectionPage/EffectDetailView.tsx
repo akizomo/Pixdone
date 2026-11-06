@@ -7,6 +7,7 @@ import { playSound } from '../../services/sound';
 import { FullScreenSurface, Toggle } from '../../design-system';
 import { DetailViewHeader } from '../../components/SubPageHeader';
 import { badgeColor } from './rarityColors';
+import { pricingPath } from '../../services/analytics';
 import './EffectDetailView.css';
 
 interface EffectDetailViewProps {
@@ -45,7 +46,7 @@ export function EffectDetailView({
   }, [effectKey]);
 
   const handleToggle = () => {
-    if (isLocked) { navigate('/pricing'); return; }
+    if (isLocked) { navigate(pricingPath('collection_effect')); return; }
     if (isActive) {
       if (disableToggleOff) return;
       setActiveEffects(activeEffects.filter(k => k !== effectKey));
@@ -130,7 +131,7 @@ export function EffectDetailView({
         {isLocked && effect.access === 'premium' && (
           <button
             type="button"
-            onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}
+            onClick={() => { playSound('buttonClick'); navigate(pricingPath('collection_effect')); }}
             className="effect-detail__text-7"
           >
             {lang === 'ja' ? 'PixDone+ にアップグレード' : 'UPGRADE TO PIXDONE+'}

@@ -7,6 +7,7 @@ import { Toggle } from '../../design-system';
 import { EvolutionSection } from './EvolutionSection';
 import { resolveAnimationKey } from '../../data/effectEvolution';
 import type { EffectProgressEntry } from '../../hooks/useEffectProgress';
+import { pricingPath } from '../../services/analytics';
 import './EffectPreviewPanel.css';
 
 interface EffectPreviewPanelProps {
@@ -47,7 +48,7 @@ export function EffectPreviewPanel({
   }, [demoAnimKey]);
 
   const handleToggle = () => {
-    if (isLocked) { navigate('/pricing'); return; }
+    if (isLocked) { navigate(pricingPath('collection_effect')); return; }
     if (isActive) {
       if (disableToggleOff) return;
       setActiveEffects(activeEffects.filter(k => k !== effectKey));
@@ -129,7 +130,7 @@ export function EffectPreviewPanel({
         {isLocked && effect.access === 'premium' && (
           <button
             type="button"
-            onClick={() => navigate('/pricing')}
+            onClick={() => navigate(pricingPath('collection_effect'))}
             className="effect-preview-panel__text-7"
           >
             {lang === 'ja' ? 'PixDone+ にアップグレード' : 'UPGRADE TO PIXDONE+'}

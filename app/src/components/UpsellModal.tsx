@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { trackUpsellView, pricingPath, type PricingSource } from '../services/analytics';
 import { ModalDialog, Button } from '../design-system';
 import './UpsellModal.css';
 
@@ -32,6 +34,12 @@ const COPY: Record<UpsellReason, { title: string; body: string; titleJa: string;
   },
 };
 
+const SOURCE: Record<UpsellReason, PricingSource> = {
+  'list-limit': 'list_limit',
+  'preset-theme': 'preset_theme',
+  'sound-effect': 'sound_effect',
+};
+
 export function UpsellModal({ open, onClose, reason, lang = 'en' }: UpsellModalProps) {
   const navigate = useNavigate();
   const copy = COPY[reason];
@@ -39,9 +47,13 @@ export function UpsellModal({ open, onClose, reason, lang = 'en' }: UpsellModalP
   const title = isJa ? copy.titleJa : copy.title;
   const body = isJa ? copy.bodyJa : copy.body;
 
+  useEffect(() => {
+    if (open) trackUpsellView({ source: SOURCE[reason] });
+  }, [open, reason]);
+
   const handleUpgrade = () => {
     onClose();
-    navigate('/pricing');
+    navigate(pricingPath(SOURCE[reason]));
   };
 
   const handleClose = () => {

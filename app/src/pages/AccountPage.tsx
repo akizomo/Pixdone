@@ -11,6 +11,7 @@ import { SubPageHeader } from '../components/SubPageHeader';
 import type { Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
 import { getStoreManagementUrl } from '../lib/storeBilling';
+import { pricingPath } from '../services/analytics';
 import './AccountPage.css';
 
 function formatDate(iso: string | null, lang: Lang): string {
@@ -155,7 +156,7 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
                   {isJa ? 'リスト 3 件まで・スタンダード機能' : 'Up to 3 lists · Standard features'}
                 </p>
               </div>
-              <Button variant="primary" size="sm" onClick={() => navigate('/pricing')}>
+              <Button variant="primary" size="sm" onClick={() => navigate(pricingPath('account'))}>
                 {isJa ? 'アップグレード' : 'UPGRADE'}
               </Button>
             </div>

@@ -5,6 +5,7 @@ import type { ThemeKey } from '../design-system';
 import type { ColorModePreference } from '../design-system/tokens';
 import { playSound } from '../services/sound';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
+import { pricingPath } from '../services/analytics';
 import './ThemeSelector.css';
 
 interface ThemeSelectorProps {
@@ -27,7 +28,7 @@ export function ThemeSelector({ onClose, lang = 'en' }: ThemeSelectorProps) {
     if (isLocked) {
       playSound('buttonClick');
       onClose?.();
-      navigate('/pricing');
+      navigate(pricingPath('theme_selector'));
       return;
     }
     playSound('taskComplete');

@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { getEvolutionStatus } from '../../data/effectEvolution';
 import type { EffectProgressEntry } from '../../hooks/useEffectProgress';
 import { playSound } from '../../services/sound';
+import { pricingPath } from '../../services/analytics';
 import './EvolutionSection.css';
 
 interface EvolutionSectionProps {
@@ -86,7 +87,7 @@ export function EvolutionSection({
           <span className="evolution-section__text-2">🔒</span>
           <button
             type="button"
-            onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}
+            onClick={() => { playSound('buttonClick'); navigate(pricingPath('evolution')); }}
             className="evolution-section__text-7"
             style={{ fontSize: smallFontSize }}
           >

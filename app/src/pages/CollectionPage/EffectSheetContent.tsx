@@ -9,6 +9,7 @@ import { badgeColor } from './rarityColors';
 import { EvolutionSection } from './EvolutionSection';
 import { resolveAnimationKey } from '../../data/effectEvolution';
 import type { EffectProgressEntry } from '../../hooks/useEffectProgress';
+import { pricingPath } from '../../services/analytics';
 import './EffectSheetContent.css';
 
 interface EffectSheetContentProps {
@@ -195,7 +196,7 @@ export function EffectSheetContent({
 
             <button
               type="button"
-              onClick={() => { playSound('buttonClick'); navigate('/pricing'); }}
+              onClick={() => { playSound('buttonClick'); navigate(pricingPath('collection_effect')); }}
               className={`effect-sheet-content__text-14 effect-sheet-content__box-17${isLocked && effect?.access === 'premium' ? ' effect-sheet-content__box-17--is-locked-effect-access-' : ''}`}
               aria-hidden={!(isLocked && effect?.access === 'premium')}
               tabIndex={isLocked && effect?.access === 'premium' ? 0 : -1}

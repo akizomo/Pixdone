@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGoBack } from '../hooks/useGoBack';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
@@ -13,6 +13,9 @@ import {
   isStoreBillingAvailable, loadStorePackages, purchaseStorePackage, restoreStorePurchases, waitForServerPlus,
   type StorePackages,
 } from '../lib/storeBilling';
+import {
+  parsePricingSource, trackPricingView, trackPurchaseStart, trackPurchaseSuccess, trackPurchaseCancel,
+} from '../services/analytics';
 import './PricingPage.css';
 
 
@@ -47,6 +50,12 @@ export function PricingPage() {
   const [storePackages, setStorePackages] = useState<StorePackages | null>(null);
   const lang: Lang = detectDefaultLang();
   const isJa = lang === 'ja';
+  const [searchParams] = useSearchParams();
+  const source = parsePricingSource(searchParams.get('source'));
+
+  useEffect(() => {
+    trackPricingView({ source });
+  }, [source]);
 
   // ?purchase=plus_success banner
   useEffect(() => {
@@ -79,9 +88,15 @@ export function PricingPage() {
     const pkg = cycle === 'monthly' ? storePackages?.monthly : storePackages?.yearly;
     if (!pkg) return;
     setLoading(true);
+    trackPurchaseStart({ plan: cycle });
     try {
-      if ((await purchaseStorePackage(pkg)) === 'cancelled') return;
-      if (await waitForServerPlus()) {
+      if ((await purchaseStorePackage(pkg)) === 'cancelled') {
+        trackPurchaseCancel();
+        return;
+      }
+      const status = await waitForServerPlus();
+      if (status) {
+        trackPurchaseSuccess({ plan: status.billingCycle ?? cycle, is_trial: status.isTrialing });
         showPurchased();
       } else {
         showToast({ message: isJa
@@ -124,6 +139,7 @@ export function PricingPage() {
     }
     setLoading(true);
     playSound('buttonClick');
+    trackPurchaseStart({ plan: cycle });
     try {
       const sync = await syncServerSession();
       if (!sync.ok) {

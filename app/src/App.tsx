@@ -27,7 +27,7 @@ import { useEffectProgress, bumpPending } from './hooks/useEffectProgress';
 import { useActiveChallenges } from './hooks/useActiveChallenges';
 import { ChallengeMenu } from './components/ChallengeMenu';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
-import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked, trackScreenView } from './services/analytics';
+import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked, trackScreenView, trackPurchaseSuccess, trackUpsellView, pricingPath } from './services/analytics';
 import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect } from './data/effectsRegistry';
 import { resolveAnimationKey } from './data/effectEvolution';
 import { getCompletionToastMessage, getUndoLabel } from './data/effectMessages';
@@ -43,7 +43,7 @@ import { NativeWelcomePage } from './pages/NativeWelcomePage';
 import { auth } from './lib/firebase';
 import { Capacitor } from '@capacitor/core';
 import { SplashScreen } from '@capacitor/splash-screen';
-import { isStoreBillingAvailable, loginStoreBilling, logoutStoreBilling } from './lib/storeBilling';
+import { isStoreBillingAvailable, loginStoreBilling, logoutStoreBilling, waitForServerPlus } from './lib/storeBilling';
 import { EffectCapturePage } from './pages/EffectCapturePage';
 import { ExtensionLinkPage } from './pages/ExtensionLinkPage';
 import { ExtensionPrivacyPage } from './pages/ExtensionPrivacyPage';
@@ -295,6 +295,10 @@ function AppContent() {
     window.history.replaceState({}, '', url.toString());
     if (purchase === 'plus_success') {
       setPurchaseBanner('plus_success');
+      // Stripe checkout 完了。Webhook の反映をサーバーで確認できた時点で purchase_success を送る
+      void waitForServerPlus().then((status) => {
+        if (status) trackPurchaseSuccess({ plan: status.billingCycle ?? 'monthly', is_trial: status.isTrialing });
+      });
     }
     if (authOpen === '1') {
       setSignupOpen(true);
@@ -318,6 +322,10 @@ function AppContent() {
     const qs = next.toString();
     navigate(`/collection${qs ? `?${qs}` : ''}`, { replace: true });
   }, [user, navigate]);
+
+  useEffect(() => {
+    if (plusIntroOpen) trackUpsellView({ source: 'plus_intro' });
+  }, [plusIntroOpen]);
 
   useEffect(() => {
     if (purchaseBanner !== 'plus_success') return;
@@ -852,7 +860,7 @@ function AppContent() {
     if (listModal.mode === 'add') {
       playSound('taskAdd');
       addList(name ?? 'New list');
-      trackListCreate({ list_name: name ?? 'New list' });
+      trackListCreate({ list_count: lists.length + 1 });
     } else if (listModal.mode === 'rename' && listModal.listId) {
       playSound('taskEdit');
       renameList(listModal.listId, name ?? '');
@@ -1083,7 +1091,7 @@ function AppContent() {
                           </span>
                           <TextLink
                             size="sm"
-                            onClick={() => { setUserMenuOpen(false); navigate(userPlan !== 'plus' ? '/pricing' : '/account'); }}
+                            onClick={() => { setUserMenuOpen(false); navigate(userPlan !== 'plus' ? pricingPath('account') : '/account'); }}
                           >
                             {userPlan !== 'plus'
                               ? (lang === 'ja' ? '変更' : 'Change')
@@ -1219,7 +1227,7 @@ function AppContent() {
             onNavigateToFocus={navigateToFocus}
             onNavigateToCollection={() => { playSound('buttonClick'); openCollection({ tab: 'effects', filter: 'CHALLENGE' }); }}
             onDismissTutorial={(action: 'pricing' | 'later') => {
-              if (action === 'pricing') navigate('/pricing');
+              if (action === 'pricing') navigate(pricingPath('onboarding'));
             }}
             onOpenListModal={(modal) => {
               // Add/rename dialogs autofocus the name field after mount; open the
@@ -1357,7 +1365,7 @@ function AppContent() {
             <Button variant="secondary" size="sm" soundKey="taskCancel" onClick={() => setPlusIntroOpen(false)}>
               {lang === 'ja' ? 'あとで' : 'LATER'}
             </Button>
-            <Button variant="primary" size="sm" onClick={() => { setPlusIntroOpen(false); navigate('/pricing'); }}>
+            <Button variant="primary" size="sm" onClick={() => { setPlusIntroOpen(false); navigate(pricingPath('plus_intro')); }}>
               {lang === 'ja' ? 'PixDone+ を見る' : 'VIEW PIXDONE+'}
             </Button>
           </div>

@@ -6,6 +6,7 @@ import type { ThemeKey } from '../../design-system/themes/themeRegistry';
 import { getRandomThemeLimitedEffectKey } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';
 import { playSound } from '../../services/sound';
+import { pricingPath } from '../../services/analytics';
 import './ThemePreviewPanel.css';
 
 function ensureFontLink(url: string): void {
@@ -53,7 +54,7 @@ export function ThemePreviewPanel({
   }, [themeKey]);
 
   const handleAction = () => {
-    if (isLocked) { playSound('buttonClick'); navigate('/pricing'); return; }
+    if (isLocked) { playSound('buttonClick'); navigate(pricingPath('collection_theme')); return; }
     if (!isActive) { playSound('taskComplete'); changeTheme(themeKey); }
   };
 

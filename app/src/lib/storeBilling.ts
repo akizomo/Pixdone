@@ -102,19 +102,31 @@ export async function getStoreManagementUrl(): Promise<string> {
 
 export const ENTITLEMENTS_REFRESH_EVENT = 'pd:entitlements-refresh';
 
+export interface ServerPlusStatus {
+  billingCycle: 'monthly' | 'yearly' | null;
+  isTrialing: boolean;
+}
+
 /**
- * RevenueCat tells our server via webhook, which can lag the purchase by a few
- * seconds. Poll the server (the source of truth for isPremium) before telling the
- * UI to refresh. Returns false if it hasn't caught up yet (the webhook will still land).
+ * The store's / Stripe's webhook tells our server, which can lag the purchase by a
+ * few seconds. Poll the server (the source of truth for isPremium) before telling the
+ * UI to refresh. Resolves to the server's view of the subscription once PixDone+ is
+ * active, or null if it hasn't caught up yet (the webhook will still land).
  */
-export async function waitForServerPlus(timeoutMs = 20000): Promise<boolean> {
+export async function waitForServerPlus(timeoutMs = 20000): Promise<ServerPlusStatus | null> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
       const resp = await fetch(apiUrl('/api/billing/entitlements'), { credentials: 'include' });
-      if (resp.ok && ((await resp.json()) as { isPremium?: boolean }).isPremium === true) {
-        window.dispatchEvent(new Event(ENTITLEMENTS_REFRESH_EVENT));
-        return true;
+      if (resp.ok) {
+        const body = (await resp.json()) as { isPremium?: boolean; billingCycle?: string | null; isTrialing?: boolean };
+        if (body.isPremium === true) {
+          window.dispatchEvent(new Event(ENTITLEMENTS_REFRESH_EVENT));
+          return {
+            billingCycle: body.billingCycle === 'monthly' || body.billingCycle === 'yearly' ? body.billingCycle : null,
+            isTrialing: body.isTrialing === true,
+          };
+        }
       }
     } catch {
       // transient — keep polling
@@ -122,5 +134,5 @@ export async function waitForServerPlus(timeoutMs = 20000): Promise<boolean> {
     await new Promise((r) => setTimeout(r, 1500));
   }
   window.dispatchEvent(new Event(ENTITLEMENTS_REFRESH_EVENT));
-  return false;
+  return null;
 }
