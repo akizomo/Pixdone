@@ -21,7 +21,9 @@ Key points to keep in mind:
 
 | Layer          | Technology |
 |----------------|------------|
-| Frontend       | Vanilla JS / HTML / CSS (in `app/`) |
+| Frontend       | React + TypeScript (Vite, in `app/`) |
+| Native apps    | Capacitor 8 (iOS / Android) |
+| Analytics      | Firebase Analytics (GA4) via `app/src/services/analytics.ts` |
 | Backend        | Node.js + Express (TypeScript) |
 | Database       | Firebase Firestore |
 | Auth           | Firebase Auth |
@@ -30,7 +32,7 @@ Key points to keep in mind:
 
 ## Project Structure
 
-- `app/` — frontend (Vite, Vanilla JS)
+- `app/` — frontend (Vite, React + TypeScript)
 - `app/src/design-system/themes/` — theme definitions
 - `docs/` — documentation including BRD
 
@@ -122,3 +124,51 @@ Rules:
 - `onSnapshot` は `Math.max(server, local)` で値を取り、楽観的更新を巻き戻さない。
 - **NG**: `onSnapshot` で server の値をそのまま `setStats` する（楽観的更新が消える）。
 - **NG**: 認証済みユーザーで localStorage キャッシュを使わない（リロード時に 0 にリセットされる）。
+
+## Notion 連携ワークフロー (mandatory)
+
+PixDone は Notion（PM・戦略側）と、このリポジトリ（実装側）で分業している。実装の結果は必ず Notion に戻し、PM が次の判断をできる状態にする。
+
+### 情報の正本
+
+| 情報 | 正本 | 備考 |
+|------|------|------|
+| 戦略・KGI/KPI・イニシアチブ | Notion: [Goals](https://www.notion.so/33d54fb2357581ee9887d4e64ec75df3) / [Product Initiatives](https://www.notion.so/33d54fb23575815d81d0c8279aaeea5a) | 読むだけ。編集しない |
+| 機能ごとの仕様書 | Notion: [Feature Ideas DB](https://www.notion.so/febbc2a1ae3b46d9abaf826481024739) の各ページ | 実装の判断はここに従う |
+| PM のタスク | Notion: [Agent Tasks](https://www.notion.so/134a70b380c0426bbb43bc3de364ab2a) | |
+| 実装済みの仕様・プロダクト要件 | このリポジトリ: `docs/BRD.md` / `docs/IMPLEMENTED_FEATURES.md` | コードと一緒に更新する |
+| 利用データ | GA4 → Notion「📈 Weekly KPI Log」（毎週月曜に自動作成） | |
+
+### 作業を始めるとき
+1. 指示に Notion の仕様書 URL や Feature 名があれば、Notion で仕様書を読んでから着手する。
+2. 仕様と現状のコードが食い違っている、または仕様のままでは実装できない場合は、**実装前に**ユーザーに報告する。
+3. Feature Ideas DB の該当ページの Status を `In Dev` にする。
+4. **新機能・課金・計測の変更は、仕様書なしに着手しない。** 仕様書がなければ、PM 側で作るようユーザーに伝える。バグ修正・小さな UI 調整・リファクタは仕様書不要。
+
+### 作業が終わったとき
+1. Feature Ideas DB の該当ページ
+   - Status を `Done` にする（未 push・未確認の項目が残る場合は `In Dev` のままにし、残りを書く）
+   - ページ末尾に「## 実装メモ（YYYY-MM-DD）」を追記する: 変更の要約 / 主なファイル / ユーザーが確認する手順 / **仕様から変えた点とその理由** / 追加・変更した計測イベント
+2. Agent Tasks に対応するタスクがあれば、Status を `完了` にし、Output に要約を書く。
+3. 価格・無料と有料の範囲・機能の有無が変わった場合は、`docs/BRD.md` と `docs/IMPLEMENTED_FEATURES.md` を更新し、「Notion の BRD / Goals も更新が必要」とユーザーに伝える（Notion 側の更新は PM が行う）。
+
+### Notion で編集してよい範囲
+- 編集してよい: Feature Ideas DB の Status と各ページへの追記、Agent Tasks の Status / Output
+- 編集しない: Goals、Product Initiatives、Notion の BRD、各エージェントのホームページ、Weekly KPI Log、Monthly Metrics
+- ページの削除・アーカイブはしない
+
+### Notion に接続できない場合
+作業の最後に「Notion 更新用メモ」として、上の「作業が終わったとき」の内容をそのまま貼れる形で出力する。
+
+## Analytics Rules (mandatory)
+
+計測は PM の判断材料であり、毎週の KPI レビューが GA4 のイベントを読んでいる。イベントが壊れると判断を誤るため、以下を守る。
+
+- イベントは `app/src/services/analytics.ts` の型付き関数からのみ送る。`firebase/analytics` の `logEvent` をほかの場所から直接呼ばない。
+- イベントを追加・変更・削除したら、`analytics.ts` 冒頭のイベント一覧コメントを更新し、Notion の実装メモにも書く。
+- イベント名は snake_case。GA4 の推奨イベント（`sign_up`, `login` など）があればそれを使う。
+- **個人情報やユーザーが書いた内容をパラメータに入れない**（メールアドレス、タスク本文、リスト名など）。件数や種類（enum）にとどめる。
+- コアループ（Write → Smash → Reward）の計測は通常リストのタスクを指す。Smash List は `list_type: 'smash'` で区別し、コアループの指標に混ぜない。
+- `/pricing` へ遷移するときは、必ず `?source=` を付ける（値は `analytics.ts` のユニオン型で管理）。
+- 内部ユーザー（開発者のアカウント）のイベントには `traffic_type: 'internal'` を付ける。この仕組みを外さない。
+- 計測の失敗がアプリの動作に影響しないようにする（`track()` の try/catch を維持）。
