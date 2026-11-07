@@ -80,6 +80,8 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
       await deleteAccount();
       navigate('/', { replace: true });
     } catch (e) {
+      // Closing the Apple confirmation sheet cancels the deletion silently.
+      if ((e as { code?: string }).code === 'auth/popup-closed-by-user') return;
       showToast({
         message: e instanceof Error && e.message
           ? e.message

@@ -12,6 +12,8 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
   signInWithPopup,
+  reauthenticateWithPopup,
+  revokeAccessToken,
 } from 'firebase/auth';
 import { Capacitor } from '@capacitor/core';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
@@ -173,6 +175,35 @@ async function signInWithAppleWeb(): Promise<UserCredential> {
     () => signInWithPopup(auth, provider),
     (e) => OAuthProvider.credentialFromError(e as Parameters<typeof OAuthProvider.credentialFromError>[0]),
   );
+}
+
+/**
+ * App Store guideline 5.1.1(v): deleting an account must also revoke the Sign in
+ * with Apple token. Apple only issues a fresh authorization code on a new sign-in,
+ * so we ask the user to confirm with Apple again, then revoke before the Firebase
+ * user is deleted. Cancelling the Apple sheet cancels the deletion (it throws);
+ * any other failure is logged and does not block the deletion itself.
+ */
+async function revokeAppleAccess(user: User): Promise<void> {
+  if (!user.providerData.some((p) => p.providerId === 'apple.com')) return;
+  try {
+    let authorizationCode: string | undefined;
+    if (Capacitor.isNativePlatform()) {
+      const result = await nativeSignIn(() => FirebaseAuthentication.signInWithApple());
+      authorizationCode = result.credential?.authorizationCode;
+    } else {
+      const provider = new OAuthProvider('apple.com');
+      const result = await reauthenticateWithPopup(user, provider);
+      authorizationCode = (result as unknown as { _tokenResponse?: { oauthAuthorizationCode?: string } })
+        ._tokenResponse?.oauthAuthorizationCode;
+    }
+    if (!authorizationCode) throw new Error('missing_apple_authorization_code');
+    await revokeAccessToken(auth, authorizationCode);
+  } catch (e) {
+    const code = (e as { code?: string }).code;
+    if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') throw e;
+    console.warn('Apple token revocation failed', e);
+  }
 }
 
 /**
@@ -395,6 +426,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const deleteAccount = async () => {
     const current = auth.currentUser;
     if (!current) throw new Error('Not logged in');
+    // Must run while the user still exists (Apple login only).
+    await revokeAppleAccess(current);
     // The server deletes everything (Stripe, Firestore, DB, and the Firebase user itself).
     // A fresh ID token proves this is the signed-in user, not just a leftover cookie.
     const idToken = await current.getIdToken(true);
