@@ -50,6 +50,7 @@ API: `GET/POST/PUT/DELETE /api/lists`, `GET /api/lists/:id/tasks`
 | Perfect Timing 準備 | ✅ | `hooks/usePerfectTimingSetup.ts` |
 | Pacman 進捗バー | ✅ | `components/PacmanProgress.tsx` |
 | Pixel Breaker (ミニゲーム演出) | ✅ | `components/PixelBreaker.tsx` |
+| ライブアクティビティ（iOS 16.2+、ロック画面・Dynamic Island に残り時間。表示のみ、タップでフォーカス画面） | ✅ コード実装済み・実機確認待ち | `ios/App/FocusActivity/`, `ios/App/Shared/FocusActivityAttributes.swift`, `ios/App/App/FocusServicePlugin.swift`, `services/backgroundTimer.ts`, `services/nativeShell.ts`（`pixdone://focus`） |
 
 ## 4. チャレンジ / 進捗
 

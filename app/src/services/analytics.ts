@@ -14,6 +14,7 @@
  *   theme_switch           テーマ切り替え
  *   effect_triggered       完了エフェクト発生
  *   pomodoro_complete      ポモドーロ完了
+ *   focus_live_activity_start  iOS ライブアクティビティ開始 { mode: 'focus'|'break', enabled }（enabled=false は設定でオフ）
  *   challenge_unlocked     チャレンジ達成
  *   screen_view            画面遷移
  *   tutorial_task_complete チュートリアルタスク完了
@@ -77,6 +78,12 @@ interface EffectTriggeredParams {
 interface PomodoroCompleteParams {
   duration_minutes: number;
   session_index: number; // 何回目のポモドーロか
+}
+
+interface FocusLiveActivityStartParams {
+  mode: 'focus' | 'break';
+  /** iOS の設定でライブアクティビティが許可されていたか */
+  enabled: boolean;
 }
 
 interface ChallengeUnlockedParams {
@@ -240,6 +247,11 @@ export function trackEffectTriggered(params: EffectTriggeredParams) {
 /** ポモドーロ完了 */
 export function trackPomodoroComplete(params: PomodoroCompleteParams) {
   track('pomodoro_complete', params);
+}
+
+/** フォーカスのライブアクティビティ開始（iOS） */
+export function trackFocusLiveActivityStart(params: FocusLiveActivityStartParams) {
+  track('focus_live_activity_start', params);
 }
 
 /** チャレンジ達成（エフェクトアンロック） */

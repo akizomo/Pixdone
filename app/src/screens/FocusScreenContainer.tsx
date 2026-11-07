@@ -14,7 +14,7 @@ import { FocusScreen } from '../components';
 import { FocusZenMode } from '../components/FocusZenMode';
 import { MiniPlayer, IconButton, PixelIcon } from '../design-system';
 import { t } from '../lib/i18n';
-import { startBackgroundTimer, stopBackgroundTimer } from '../services/backgroundTimer';
+import { startBackgroundTimer, stopBackgroundTimer, pauseBackgroundTimer } from '../services/backgroundTimer';
 import { useFocusTimer } from '../hooks/useFocusTimer';
 import { useFocusBgm } from '../hooks/useFocusBgm';
 import { playSound } from '../services/sound';
@@ -170,6 +170,10 @@ export function FocusScreenContainer({
   remainingRef.current = focusTimer.remaining;
   useEffect(() => {
     if (!isRunning) {
+      if (focusTimer.timerState === 'paused') {
+        pauseBackgroundTimer(remainingRef.current);
+        return;
+      }
       // Right after the timer ends, give the completion sound a moment before letting go.
       stopBackgroundTimer(Date.now() - timerEndedAtRef.current < 2000 ? 8000 : 0);
       return;
@@ -180,11 +184,13 @@ export function FocusScreenContainer({
       endAt: Date.now() + remainingRef.current * 1000,
       // iOS: BGM only plays in pomodoro mode; that audio is what keeps the app running.
       keepAlive: bgmOn && !isBreakMode,
+      liveMode: isBreakMode ? 'break' : 'focus',
+      liveLabel: isBreakMode ? (lang === 'ja' ? '休憩中' : 'Break') : (lang === 'ja' ? 'フォーカス中' : 'Focusing'),
       endChime: isBreakMode ? 'break' : 'focus',
       endTitle: isBreakMode ? (lang === 'ja' ? '休憩おわり' : 'Break over') : (lang === 'ja' ? 'フォーカス完了' : 'Focus complete'),
       endText: isBreakMode ? (lang === 'ja' ? 'フォーカスを始めましょう' : 'Ready for the next focus?') : (lang === 'ja' ? 'おつかれさま！休憩しましょう' : 'Nice work! Take a break.'),
     });
-  }, [isRunning, isBreakMode, lang, bgmOn]);
+  }, [isRunning, isBreakMode, lang, bgmOn, focusTimer.timerState]);
   useEffect(() => () => stopBackgroundTimer(), []);
   const miniPlayerVisible = showMiniPlayer && !active && !focusZenOpen && focusTimer.timerState !== 'idle';
   useEffect(() => {

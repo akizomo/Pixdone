@@ -50,7 +50,7 @@ import { ExtensionPrivacyPage } from './pages/ExtensionPrivacyPage';
 import { useUserTheme } from './hooks/useUserTheme';
 import { useGoBack } from './hooks/useGoBack';
 import { openExternal } from './services/externalLink';
-import { setAndroidRootBackHandler } from './services/nativeShell';
+import { setAndroidRootBackHandler, setFocusLinkHandler } from './services/nativeShell';
 import { useHasSeenTutorial } from './hooks/useHasSeenTutorial';
 import { QuickExtensionBanner } from './components/QuickExtensionBanner';
 import { WorldLayer } from './components/WorldLayer';
@@ -771,6 +771,12 @@ function AppContent() {
   }, [showScreen]);
 
   useGlobalShortcuts({
+  /* Live Activity tap (pixdone://focus) → Focus screen */
+  useEffect(() => {
+    setFocusLinkHandler(() => showScreen('focus'));
+    return () => setFocusLinkHandler(null);
+  }, [showScreen]);
+
     enabled: isDesktop && !focusZenOpen && !isSubPage && !signupOpen && !listModal,
     onToday: () => {
       playSound('buttonClick');

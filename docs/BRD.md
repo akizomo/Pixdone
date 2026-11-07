@@ -359,7 +359,7 @@ The product should **not** include:
 - statistics or analytics dashboards
 - calendar views or deadline management
 - team or collaboration features
-- native widgets (web app / PWA only)
+- home-screen widgets (the Focus timer's iOS Live Activity — lock screen / Dynamic Island, display only — is the one native surface allowed)
 
 The experience must remain: **simple, playful, fast.**
 

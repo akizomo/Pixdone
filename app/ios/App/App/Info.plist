@@ -28,16 +28,26 @@
 				<string>com.googleusercontent.apps.516445042682-v6g0gft3r44er4oi6iv45brnfd6jm6t4</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.pixdone.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>pixdone</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
 	<key>NSRemindersFullAccessUsageDescription</key>
 	<string>Reads your incomplete reminders so you can import them into PixDone. Your reminders are never changed.</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Reads your incomplete reminders so you can import them into PixDone. Your reminders are never changed.</string>
-	<key>LSRequiresIPhoneOS</key>
+	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

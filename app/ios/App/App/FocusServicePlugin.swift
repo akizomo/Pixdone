@@ -3,6 +3,9 @@ import Capacitor
 import AVFoundation
 import UserNotifications
 import UIKit
+#if canImport(ActivityKit)
+import ActivityKit
+#endif
 
 /// iOS counterpart of the Android `FocusServicePlugin` (same JS API: start/stop/permissions).
 ///
@@ -67,7 +70,12 @@ public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
             if !keepAlive { self.resetAudioSession() }
             self.chimeKind = call.getString("endChime") ?? "focus"
             self.scheduleBgmAutoStop(endAtMs: keepAlive ? endAtMs : 0)
-            call.resolve()
+            let live = self.startOrResumeLiveActivity(
+                mode: call.getString("liveMode") ?? "focus",
+                label: call.getString("liveLabel") ?? "",
+                endAtMs: endAtMs
+            )
+            call.resolve(["liveActivity": live])
         }
     }
 
@@ -77,7 +85,66 @@ public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
             // The timer stopped (paused / ended / left the focus flow): no BGM without a timer.
             self.stopBgmPlayback()
             self.resetAudioSession()
+            // Paused: keep the Live Activity, frozen at the remaining time. Otherwise end it.
+            if let remaining = call.getInt("pausedRemaining") {
+                self.pauseLiveActivity(remainingSeconds: remaining)
+            } else {
+                self.endLiveActivity()
+            }
             call.resolve()
+        }
+    }
+
+    // MARK: - Live Activity (lock screen / Dynamic Island, iOS 16.2+)
+
+    /// Starts the activity, or resumes it after a pause. Returns "started" | "resumed" |
+    /// "disabled" (user turned Live Activities off) | "unsupported" | "failed".
+    /// The countdown is drawn by the system from `endDate`, so it keeps running while the app
+    /// is frozen; we only touch the activity when the timer starts, pauses, resumes or stops.
+    private func startOrResumeLiveActivity(mode: String, label: String, endAtMs: Double) -> String {
+        guard #available(iOS 16.2, *) else { return "unsupported" }
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return "disabled" }
+        let endDate = Date(timeIntervalSince1970: endAtMs / 1000)
+        let remaining = max(Int(endDate.timeIntervalSinceNow.rounded()), 0)
+        let state = FocusActivityAttributes.ContentState(endDate: endDate, remainingSeconds: remaining, isPaused: false)
+        let content = ActivityContent(state: state, staleDate: endDate.addingTimeInterval(60))
+
+        if let current = Activity<FocusActivityAttributes>.activities.first {
+            if current.attributes.mode == mode {
+                Task { await current.update(content) }
+                return "resumed"
+            }
+            // Focus -> break (or back): the mode is fixed per activity, so replace it.
+            Task { await current.end(nil, dismissalPolicy: .immediate) }
+        }
+        do {
+            _ = try Activity.request(
+                attributes: FocusActivityAttributes(mode: mode, label: label),
+                content: content,
+                pushType: nil
+            )
+            return "started"
+        } catch {
+            CAPLog.print("[FocusService] live activity error: \(error)")
+            return "failed"
+        }
+    }
+
+    private func pauseLiveActivity(remainingSeconds: Int) {
+        guard #available(iOS 16.2, *) else { return }
+        guard let current = Activity<FocusActivityAttributes>.activities.first else { return }
+        let state = FocusActivityAttributes.ContentState(
+            endDate: Date().addingTimeInterval(TimeInterval(remainingSeconds)),
+            remainingSeconds: remainingSeconds,
+            isPaused: true
+        )
+        Task { await current.update(ActivityContent(state: state, staleDate: nil)) }
+    }
+
+    private func endLiveActivity() {
+        guard #available(iOS 16.2, *) else { return }
+        for activity in Activity<FocusActivityAttributes>.activities {
+            Task { await activity.end(nil, dismissalPolicy: .immediate) }
         }
     }
 

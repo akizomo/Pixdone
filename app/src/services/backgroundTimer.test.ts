@@ -13,6 +13,9 @@ vi.mock('@capacitor/core', () => ({
   registerPlugin: () => plugin,
 }));
 
+const analytics = vi.hoisted(() => ({ trackFocusLiveActivityStart: vi.fn() }));
+vi.mock('./analytics', () => analytics);
+
 const opts = { title: 'Focusing', text: 'Tap', endAt: 1_000_000 };
 
 describe('backgroundTimer', () => {
@@ -20,6 +23,7 @@ describe('backgroundTimer', () => {
     vi.resetModules();
     vi.useFakeTimers();
     Object.values(plugin).forEach((f) => f.mockClear());
+    analytics.trackFocusLiveActivityStart.mockClear();
     platform.current = 'android';
   });
   afterEach(() => vi.useRealTimers());
@@ -88,5 +92,48 @@ describe('backgroundTimer', () => {
     const m = await import('./backgroundTimer');
     await expect(m.startBackgroundTimer(opts)).resolves.toBeUndefined();
     warn.mockRestore();
+  });
+
+  describe('iOS Live Activity', () => {
+    it('tracks a started activity once, with the mode', async () => {
+      platform.current = 'ios';
+      plugin.start.mockResolvedValueOnce({ liveActivity: 'started' });
+      const m = await import('./backgroundTimer');
+      await m.startBackgroundTimer({ ...opts, liveMode: 'break' });
+      expect(analytics.trackFocusLiveActivityStart).toHaveBeenCalledWith({ mode: 'break', enabled: true });
+    });
+
+    it('does not track a resume after pause', async () => {
+      platform.current = 'ios';
+      plugin.start.mockResolvedValueOnce({ liveActivity: 'resumed' });
+      const m = await import('./backgroundTimer');
+      await m.startBackgroundTimer(opts);
+      expect(analytics.trackFocusLiveActivityStart).not.toHaveBeenCalled();
+    });
+
+    it('tracks "disabled" only once per session', async () => {
+      platform.current = 'ios';
+      plugin.start.mockResolvedValue({ liveActivity: 'disabled' });
+      const m = await import('./backgroundTimer');
+      await m.startBackgroundTimer(opts);
+      await m.startBackgroundTimer(opts);
+      expect(analytics.trackFocusLiveActivityStart).toHaveBeenCalledTimes(1);
+      expect(analytics.trackFocusLiveActivityStart).toHaveBeenCalledWith({ mode: 'focus', enabled: false });
+      plugin.start.mockResolvedValue(undefined);
+    });
+
+    it('pause keeps the activity by passing the remaining seconds to stop', async () => {
+      platform.current = 'ios';
+      const m = await import('./backgroundTimer');
+      m.pauseBackgroundTimer(754.6);
+      expect(plugin.stop).toHaveBeenCalledWith({ pausedRemaining: 755 });
+    });
+
+    it('does nothing on the web', async () => {
+      platform.current = 'web';
+      const m = await import('./backgroundTimer');
+      m.pauseBackgroundTimer(10);
+      expect(plugin.stop).not.toHaveBeenCalled();
+    });
   });
 });

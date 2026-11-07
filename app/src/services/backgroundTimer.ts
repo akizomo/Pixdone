@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { FocusService } from './focusService';
+import { trackFocusLiveActivityStart } from './analytics';
 
 /**
  * Keeps the focus timer (and its Web Audio BGM) alive while the app is in the background.
@@ -17,6 +18,7 @@ import { FocusService } from './focusService';
 const isSupported = () => Capacitor.getPlatform() === 'android' || Capacitor.getPlatform() === 'ios';
 
 let askedForNotificationPermission = false;
+let reportedLiveActivityDisabled = false;
 let pendingStop: ReturnType<typeof setTimeout> | null = null;
 
 function cancelPendingStop() {
@@ -38,6 +40,19 @@ export interface BackgroundTimerOptions {
   /** iOS: end chime the native side plays at `endAt` while backgrounded (the WebView is frozen). */
   endChime?: 'focus' | 'break';
   endText?: string;
+  /** iOS Live Activity (lock screen / Dynamic Island): mode and the label shown next to the timer. */
+  liveMode?: 'focus' | 'break';
+  liveLabel?: string;
+}
+
+function reportLiveActivity(result: string | undefined, mode: 'focus' | 'break') {
+  if (result === 'started') {
+    trackFocusLiveActivityStart({ mode, enabled: true });
+  } else if (result === 'disabled' && !reportedLiveActivityDisabled) {
+    // Once per app session: every start would otherwise repeat it.
+    reportedLiveActivityDisabled = true;
+    trackFocusLiveActivityStart({ mode, enabled: false });
+  }
 }
 
 export async function startBackgroundTimer(options: BackgroundTimerOptions): Promise<void> {
@@ -54,7 +69,8 @@ export async function startBackgroundTimer(options: BackgroundTimerOptions): Pro
         await FocusService.requestPermissions();
       }
     }
-    await FocusService.start(options);
+    const result = await FocusService.start(options);
+    if (result && typeof result === 'object') reportLiveActivity(result.liveActivity, options.liveMode ?? 'focus');
   } catch (e) {
     console.warn('background timer start failed', e);
   }
@@ -73,4 +89,13 @@ export function stopBackgroundTimer(delayMs = 0): void {
   };
   if (delayMs > 0) pendingStop = setTimeout(stop, delayMs);
   else stop();
+}
+
+/** Timer paused: stop the audio / notification, but keep the iOS Live Activity frozen at `remainingSeconds`. */
+export function pauseBackgroundTimer(remainingSeconds: number): void {
+  if (!isSupported()) return;
+  cancelPendingStop();
+  FocusService.stop({ pausedRemaining: Math.max(Math.round(remainingSeconds), 0) }).catch((e) =>
+    console.warn('background timer pause failed', e),
+  );
 }

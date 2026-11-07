@@ -5,7 +5,7 @@ import { startBackgroundTimer, stopBackgroundTimer } from '../services/backgroun
 
 vi.mock('../features/ListsContext', () => ({ useListsData: () => ({ lists: [] }) }));
 vi.mock('../services/sound', () => ({ playSound: vi.fn() }));
-vi.mock('../services/backgroundTimer', () => ({ startBackgroundTimer: vi.fn(), stopBackgroundTimer: vi.fn() }));
+vi.mock('../services/backgroundTimer', () => ({ startBackgroundTimer: vi.fn(), stopBackgroundTimer: vi.fn(), pauseBackgroundTimer: vi.fn() }));
 vi.mock('../services/analytics', () => ({ trackPomodoroComplete: vi.fn() }));
 vi.mock('../services/bgm', () => ({
   stopBgm: vi.fn(),

@@ -7,6 +7,7 @@
  *   return to the start tab (setAndroidRootBackHandler) → minimize
  * - External links open in the in-app browser (externalLink.ts)
  * - iOS: drag from the left edge to go back (edgeSwipeBack.ts)
+ * - iOS: `pixdone://focus` (tapping the Live Activity) opens the Focus screen
  */
 import { Capacitor, SystemBars, SystemBarsStyle } from '@capacitor/core';
 import { App } from '@capacitor/app';
@@ -23,6 +24,27 @@ let rootBackHandler: (() => boolean) | null = null;
 
 export function setAndroidRootBackHandler(handler: (() => boolean) | null): void {
   rootBackHandler = handler;
+}
+
+/**
+ * `pixdone://focus` — the Live Activity's tap target. On a cold start the URL can arrive
+ * before the React app has registered its handler, so remember it until one is set.
+ */
+let focusLinkHandler: (() => void) | null = null;
+let focusLinkPending = false;
+
+export function setFocusLinkHandler(handler: (() => void) | null): void {
+  focusLinkHandler = handler;
+  if (handler && focusLinkPending) {
+    focusLinkPending = false;
+    handler();
+  }
+}
+
+function handleAppUrlOpen(url: string): void {
+  if (!url.startsWith('pixdone://focus')) return;
+  if (focusLinkHandler) focusLinkHandler();
+  else focusLinkPending = true;
 }
 
 /** Relative luminance of an `rgb()` / `rgba()` computed colour, 0–1. */
@@ -93,6 +115,7 @@ export function initNativeShell(): void {
   if (Capacitor.getPlatform() === 'ios') {
     Keyboard.setAccessoryBarVisible({ isVisible: false }).catch(() => {});
     initEdgeSwipeBack();
+    App.addListener('appUrlOpen', (e) => handleAppUrlOpen(e.url)).catch(() => {});
   }
 
   if (Capacitor.getPlatform() === 'android') {
