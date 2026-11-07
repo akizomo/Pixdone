@@ -47,6 +47,8 @@
 .pxd-badge--rare,
 .pxd-badge--epic {
   color: var(--pd-color-text-primary);
+  font-family: var(--pd-font-brand);
+  font-size: var(--pd-font-size-xs);
   letter-spacing: 0.08em;
 }
 
