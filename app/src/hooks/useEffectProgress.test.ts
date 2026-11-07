@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { mergeEffectProgress, type EffectProgressEntry } from './useEffectProgress';
+import { describe, it, expect, beforeEach } from 'vitest';
+import {
+  mergeEffectProgress,
+  bumpPending,
+  decrementPending,
+  type EffectProgressEntry,
+} from './useEffectProgress';
 
 function makeEntry(
   effectId: string,
@@ -87,5 +92,24 @@ describe('mergeEffectProgress', () => {
     expect(result.laserCutter).toBeDefined();
     expect(result.laserCutter.challengeProgress).toBe(2);
     expect(result.shatter.owned).toBe(true);
+  });
+});
+
+describe('pending task-complete queue (per list type)', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('keeps regular-list and Smash List completions in separate queues', () => {
+    expect(bumpPending()).toBe(1);
+    expect(bumpPending('custom')).toBe(2);
+    expect(bumpPending('smash')).toBe(1);
+    expect(localStorage.getItem('pd-effect-pending')).toBe('2');
+    expect(localStorage.getItem('pd-effect-pending-smash')).toBe('1');
+  });
+
+  it('decrements only the queue for that list type and never goes below 0', () => {
+    bumpPending('smash');
+    expect(decrementPending('custom')).toBe(0);
+    expect(decrementPending('smash')).toBe(0);
+    expect(localStorage.getItem('pd-effect-pending-smash')).toBeNull();
   });
 });

@@ -8,7 +8,6 @@ import {
   ThemeSelector, ListModal, AuthModal, BottomNav,
 } from './components';
 import type { ListModalMode, MobileSubView } from './components';
-import { apiUrl } from './lib/apiUrl';
 
 /** Main screens on mobile + desktop. Sub-pages are URL-routed separately. */
 type ActiveScreen = 'tasks' | 'focus';
@@ -26,6 +25,7 @@ import { useThemeEntitlements } from './hooks/useThemeEntitlements';
 import { useEffectProgress, bumpPending } from './hooks/useEffectProgress';
 import { useActiveChallenges } from './hooks/useActiveChallenges';
 import { ChallengeMenu } from './components/ChallengeMenu';
+import { FIRST_CHALLENGE_EFFECT_KEY } from './services/firstChallenge';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
 import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked, trackScreenView, trackPurchaseSuccess, trackUpsellView, pricingPath } from './services/analytics';
 import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect } from './data/effectsRegistry';
@@ -109,6 +109,11 @@ function getFinePointerSnapshot(): boolean {
   return window.matchMedia(FINE_POINTER_MQ).matches;
 }
 
+/** Smash List かどうか（id か、古いデータの名前で判定） */
+function isSmashListLike(list: { id: string; name: string }): boolean {
+  return list.id === 'smash-list' || list.name === '\u{1F4A5} Smash List';
+}
+
 function AppContent() {
   const { lists, currentList } = useListsData();
   const {
@@ -118,7 +123,7 @@ function AppContent() {
     resetRepeatingTasks,
   } = useListsActions();
 
-  const { user, loading: authLoading, logout, syncServerSession } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
 
   // Native: keep the launch splash up until Firebase Auth has resolved, so users
   // never see a blank WebView or a flash of the logged-out screen.
@@ -482,39 +487,6 @@ function AppContent() {
     setSmashHintAnchor(anchor);
   }, [lists, smashHintBaseline, isDesktop]);
 
-  const handleOnboardingUpgrade = useCallback(async (billingCycle: 'monthly' | 'yearly') => {
-    if (!user) return;
-    try {
-      const sync = await syncServerSession();
-      if (!sync.ok) {
-        showToast({ message: sync.message || (lang === 'ja' ? 'ログイン同期に失敗しました。' : 'Session sync failed.') });
-        return;
-      }
-      const resp = await fetch(apiUrl('/api/billing/create-checkout-session'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ billingCycle }),
-      });
-      if (!resp.ok) {
-        let msg = lang === 'ja' ? `Checkout に失敗しました (${resp.status})` : `Checkout failed (${resp.status})`;
-        try {
-          const err = (await resp.json()) as { message?: string };
-          if (err.message) msg = err.message;
-        } catch { /* ignore */ }
-        showToast({ message: msg });
-        return;
-      }
-      const data = (await resp.json()) as { checkoutUrl?: string };
-      if (data.checkoutUrl) {
-        markTutorialSeen();
-        window.location.href = data.checkoutUrl;
-      }
-    } catch {
-      showToast({ message: lang === 'ja' ? '通信に失敗しました。' : 'Network error. Please try again.' });
-    }
-  }, [user, syncServerSession, markTutorialSeen, showToast, lang]);
-
   const isFocusScreen = activeScreen === 'focus';
   if (isFocusScreen && !isDesktop && !focusVisited) setFocusVisited(true);
 
@@ -623,19 +595,52 @@ function AppContent() {
   // チャレンジの有無・完了状態・期限に関係なく POST を送る。
   // サーバーが challenge progress と evolution progress を一括管理する。
   // クライアントはチャレンジ未完了時のみ楽観的 UI 更新を行う。
+  // Smash List の完了も POST する（listType: 'smash'）。数えるかはサーバーが判断する
+  // （今は数えない）ので、Smash List では楽観的更新と達成判定をしない。
   //
   // NG: if (!activeChallenge) return;  ← evolution progress が進まなくなる
   // NG: POST 送信をチャレンジ状態でゲーティング ← 新チャレンジ追加時にバグる
   //
   const countedTaskIds = useRef(new Set<string>());
 
+  /**
+   * チャレンジ達成のトースト。画面は止めない（達成の瞬間は、エフェクトそのものが報酬）。
+   * 「確認」でコレクションの該当カードを開く。+の入口はそこにある（ユーザーが自分で開いた先）。
+   */
+  const showChallengeEarnedToast = useCallback((effectKey: string, effectName: string) => {
+    showToast({
+      message: lang === 'ja'
+        ? `チャレンジ達成！「${effectName}」を獲得しました`
+        : `Challenge complete! You earned "${effectName}"`,
+      action: {
+        label: lang === 'ja' ? '確認' : 'VIEW',
+        onClick: () => {
+          openCollection({ tab: 'effects', effect: effectKey });
+        },
+      },
+      duration: 8000,
+    });
+  }, [showToast, lang, openCollection]);
+
+  /**
+   * 最初のチャレンジを獲得するタスクのトーストを、消えるアニメが終わるまで遅らせる。
+   * runCompleteShort がエフェクトを出す前にセットし、onDone で出す。
+   */
+  const deferredEarnedToastRef = useRef<string | null>(null);
+
   const sendTaskComplete = useCallback((taskId: string) => {
     if (countedTaskIds.current.has(taskId)) return;
     countedTaskIds.current.add(taskId);
 
+    const ownerList = lists.find((l) => l.tasks.some((t) => t.id === taskId));
+    const isSmash = ownerList ? isSmashListLike(ownerList) : false;
+
     // 1. Always notify server (challenge + evolution progress)
-    bumpPending();
+    bumpPending(isSmash ? 'smash' : 'custom');
     void flushPending();
+
+    // Smash List doesn't count toward challenges — no optimistic bump / unlock toast.
+    if (isSmash) return;
 
     // 2. Optimistic UI + completion detection for ALL active incomplete challenges.
     //    Multi-challenge support: iterate the full array so every in-progress
@@ -651,23 +656,12 @@ function AppContent() {
           effect_id: challenge.effect.key,
           tasks_completed: challenge.threshold,
         });
-        const effectName = challenge.effect.name;
-        const effectKey = challenge.effect.key;
-        showToast({
-          message: lang === 'ja'
-            ? `チャレンジ達成！「${effectName}」を獲得しました`
-            : `Challenge complete! You earned "${effectName}"`,
-          action: {
-            label: lang === 'ja' ? '確認' : 'VIEW',
-            onClick: () => {
-              openCollection({ tab: 'effects', effect: effectKey });
-            },
-          },
-          duration: 8000,
-        });
+        // アニメ後に出すと決めてあるものは、runCompleteShort の onDone が出す
+        if (deferredEarnedToastRef.current === challenge.effect.key) continue;
+        showChallengeEarnedToast(challenge.effect.key, challenge.effect.name);
       }
     }
-  }, [activeChallenges, optimisticIncrement, flushPending, showToast, lang, openCollection]);
+  }, [lists, activeChallenges, optimisticIncrement, flushPending, showChallengeEarnedToast]);
 
   /* ---- Dev / QA: ?effect=<key> forces that effect on every task completion ---- */
   const forcedEffectKey = useMemo(() => {
@@ -703,11 +697,28 @@ function AppContent() {
         });
       }
 
-      const baseKey = forcedEffectKey ?? selected?.key;
+      // この完了で最初のチャレンジを獲得するなら、報酬のエフェクトをそのタスクで見せる
+      const earningFirstChallenge = !isSmashList
+        ? activeChallenges.find(
+            (c) =>
+              c.effect.key === FIRST_CHALLENGE_EFFECT_KEY &&
+              !c.isCompleted &&
+              c.progress + 1 >= c.threshold,
+          )
+        : undefined;
+      if (earningFirstChallenge) deferredEarnedToastRef.current = earningFirstChallenge.effect.key;
+
+      const baseKey = forcedEffectKey ?? earningFirstChallenge?.effect.key ?? selected?.key;
       const equippedLvl = baseKey ? (effectProgressMap[baseKey]?.equippedLevel ?? 1) : 1;
       const finalKey = baseKey ? resolveAnimationKey(baseKey, equippedLvl) : undefined;
       runVanillaCompletionEffect(taskEl, () => {
         doComplete();
+        if (earningFirstChallenge) {
+          // 達成のトーストが「やった」を伝える。画面は止めない
+          deferredEarnedToastRef.current = null;
+          showChallengeEarnedToast(earningFirstChallenge.effect.key, earningFirstChallenge.effect.name);
+          return;
+        }
         showToast({
           message: getCompletionToastMessage(baseKey, lang),
           action: { label: getUndoLabel(lang), onClick: () => uncompleteTask(taskId) },
@@ -735,7 +746,7 @@ function AppContent() {
 
     // World Growth — increment theme-specific completion counter
     incrementThemeCompleted();
-  }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendTaskComplete, user, forcedEffectKey, showToast, lang, incrementThemeCompleted, currentList, effectProgressMap]);
+  }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendTaskComplete, user, forcedEffectKey, showToast, lang, incrementThemeCompleted, currentList, effectProgressMap, activeChallenges, showChallengeEarnedToast]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
     window.setTimeout(() => completeTask(taskId), PERFECT_TIMING_STATE_DEFER_MS);
@@ -770,13 +781,13 @@ function AppContent() {
     showScreen('focus');
   }, [showScreen]);
 
-  useGlobalShortcuts({
   /* Live Activity tap (pixdone://focus) → Focus screen */
   useEffect(() => {
     setFocusLinkHandler(() => showScreen('focus'));
     return () => setFocusLinkHandler(null);
   }, [showScreen]);
 
+  useGlobalShortcuts({
     enabled: isDesktop && !focusZenOpen && !isSubPage && !signupOpen && !listModal,
     onToday: () => {
       playSound('buttonClick');
@@ -986,6 +997,8 @@ function AppContent() {
                   onPreviewEffect={(effectKey) => {
                     openCollection({ tab: 'effects', effect: effectKey });
                   }}
+                  isPremium={isPremium}
+                  onViewPlus={() => navigate(pricingPath('challenge_menu'))}
                 />
               )
             )}
@@ -1009,6 +1022,8 @@ function AppContent() {
                 onPreviewEffect={(effectKey) => {
                   openCollection({ tab: 'effects', effect: effectKey });
                 }}
+                isPremium={isPremium}
+                onViewPlus={() => navigate(pricingPath('challenge_menu'))}
               />
             )}
 
@@ -1626,11 +1641,9 @@ function AppContent() {
     {showOnboarding && (
       <OnboardingTutorial
         themeKey={visualTheme}
-        isPremium={isPremium}
         lang={lang}
         onDone={handleOnboardingDone}
-        onUpgrade={handleOnboardingUpgrade}
-        onReachCta={markTutorialSeen}
+        onReachMission={markTutorialSeen}
         onEnterFirstTask={handleEnterFirstTask}
       />
     )}

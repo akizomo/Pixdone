@@ -331,7 +331,7 @@ class DatabaseStorage implements IStorage {
     // Atomic upsert: サーバー側で現在値+1 を計算し、閾値到達で owned を自動フリップ。
     // read-modify-write パターンだと同一ユーザーの高速連続 POST でレースし +1 が lost する。
     for (const challenge of ACTIVE_CHALLENGE_EFFECTS) {
-      if (now > challenge.deadline.getTime()) continue; // 期限切れはスキップ
+      if (challenge.deadline && now > challenge.deadline.getTime()) continue; // 期限切れはスキップ（null = 期限なし）
 
       const threshold = challenge.threshold;
 

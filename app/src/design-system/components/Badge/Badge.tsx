@@ -6,6 +6,9 @@ const variantMap = {
   danger: 'pxd-badge--danger',
   warning: 'pxd-badge--warning',
   success: 'pxd-badge--success',
+  common: 'pxd-badge--common',
+  rare: 'pxd-badge--rare',
+  epic: 'pxd-badge--epic',
 } as const;
 
 export function Badge({

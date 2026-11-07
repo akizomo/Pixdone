@@ -40,6 +40,31 @@
   background: transparent;
 }
 
+/* Rarity — the rarity color lives on the border and a light tint only.
+   Text stays on the primary text color so it keeps WCAG AA (4.5:1) in both
+   dark and light (the rarity colors alone don't reach it on white). */
+.pxd-badge--common,
+.pxd-badge--rare,
+.pxd-badge--epic {
+  color: var(--pd-color-text-primary);
+  letter-spacing: 0.08em;
+}
+
+.pxd-badge--common {
+  border-color: var(--pd-color-rarity-common);
+  background: color-mix(in srgb, var(--pd-color-rarity-common) 14%, transparent);
+}
+
+.pxd-badge--rare {
+  border-color: var(--pd-color-rarity-rare);
+  background: color-mix(in srgb, var(--pd-color-rarity-rare) 14%, transparent);
+}
+
+.pxd-badge--epic {
+  border-color: var(--pd-color-rarity-epic);
+  background: color-mix(in srgb, var(--pd-color-rarity-epic) 14%, transparent);
+}
+
 /* Icon slot */
 .pxd-badge__icon {
   display: inline-flex;

@@ -28,6 +28,16 @@ export const Success: Story = {
   args: { variant: 'success', children: 'done' },
 };
 
+export const Rarity: Story = {
+  render: () => (
+    <div style={{ display: 'flex', gap: 8 }}>
+      <Badge variant="common">COMMON</Badge>
+      <Badge variant="rare">RARE</Badge>
+      <Badge variant="epic">EPIC</Badge>
+    </div>
+  ),
+};
+
 export const WithIcon: Story = {
   args: {
     variant: 'warning',

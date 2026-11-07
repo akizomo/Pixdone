@@ -33,6 +33,7 @@ vi.mock('../design-system/foundations/sound.tokens', () => ({
 }));
 
 import type { ActiveChallenge } from '../hooks/useActiveChallenge';
+
 const mockOnPreviewEffect = vi.fn();
 
 const makeChallenge = (overrides: Partial<ActiveChallenge> = {}): ActiveChallenge => ({
@@ -64,6 +65,8 @@ describe('ChallengeMenu', () => {
   let ChallengeMenu: React.ComponentType<{
     challenges: ActiveChallenge[];
     lang: 'en' | 'ja';
+    isPremium?: boolean;
+    onViewPlus?: () => void;
     onPreviewEffect?: (effectKey: string) => void;
   }>;
 
@@ -80,28 +83,28 @@ describe('ChallengeMenu', () => {
 
   describe('header icon', () => {
     it('renders the challenge icon when at least one challenge is active', () => {
-      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" />);
       expect(screen.getByLabelText('Challenge')).toBeInTheDocument();
     });
 
     it('does not render the icon when challenges is empty', () => {
-      render(<ChallengeMenu challenges={[]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[]} lang="en" />);
       expect(screen.queryByLabelText('Challenge')).not.toBeInTheDocument();
     });
 
     it('applies urgency animation when ANY challenge is urgent and incomplete', () => {
-      render(<ChallengeMenu challenges={[makeChallenge({ isUrgent: true })]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge({ isUrgent: true })]} lang="en" />);
       const icon = screen.getByLabelText('Challenge');
       expect(icon.closest('[data-urgent]')).toHaveAttribute('data-urgent', 'true');
     });
 
     it('shows badge when any challenge is completed and unseen', () => {
-      render(<ChallengeMenu challenges={[makeChallenge({ isCompleted: true })]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge({ isCompleted: true })]} lang="en" />);
       expect(screen.getByTestId('challenge-badge')).toBeInTheDocument();
     });
 
     it('does not show badge when no challenge is completed', () => {
-      render(<ChallengeMenu challenges={[makeChallenge({ isCompleted: false })]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge({ isCompleted: false })]} lang="en" />);
       expect(screen.queryByTestId('challenge-badge')).not.toBeInTheDocument();
     });
   });
@@ -110,32 +113,32 @@ describe('ChallengeMenu', () => {
 
   describe('challenge content', () => {
     it('opens when icon is tapped', () => {
-      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" />);
       fireEvent.click(screen.getByLabelText('Challenge'));
       expect(screen.getByText('Fighter / Punch')).toBeInTheDocument();
       expect(screen.getByText('RARE')).toBeInTheDocument();
     });
 
     it('displays progress bar with correct values', () => {
-      render(<ChallengeMenu challenges={[makeChallenge({ progress: 32, threshold: 50 })]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge({ progress: 32, threshold: 50 })]} lang="en" />);
       fireEvent.click(screen.getByLabelText('Challenge'));
       expect(screen.getByText('32 / 50')).toBeInTheDocument();
     });
 
     it('displays mission text with threshold in English', () => {
-      render(<ChallengeMenu challenges={[makeChallenge({ threshold: 50 })]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge({ threshold: 50 })]} lang="en" />);
       fireEvent.click(screen.getByLabelText('Challenge'));
-      expect(screen.getByText(/Complete 50 tasks/)).toBeInTheDocument();
+      expect(screen.getByText(/Complete 50 of your own tasks/)).toBeInTheDocument();
     });
 
     it('displays mission text with threshold in Japanese', () => {
-      render(<ChallengeMenu challenges={[makeChallenge({ threshold: 50 })]} lang="ja" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge({ threshold: 50 })]} lang="ja" />);
       fireEvent.click(screen.getByLabelText('チャレンジ'));
-      expect(screen.getByText(/タスクを 50 個完了/)).toBeInTheDocument();
+      expect(screen.getByText(/自分のタスクを 50 個完了/)).toBeInTheDocument();
     });
 
     it('displays effect description', () => {
-      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" />);
       fireEvent.click(screen.getByLabelText('Challenge'));
       expect(screen.getByText("A fighter's punch sends it flying.")).toBeInTheDocument();
     });
@@ -145,25 +148,28 @@ describe('ChallengeMenu', () => {
         <ChallengeMenu
           challenges={[makeChallenge({ isCompleted: true, progress: 50, threshold: 50 })]}
           lang="en"
-          onPreviewEffect={mockOnPreviewEffect}
+         
         />,
       );
       fireEvent.click(screen.getByLabelText('Challenge'));
       expect(screen.getByText(/Earned/i)).toBeInTheDocument();
     });
 
-    it('navigates to collection with effect key when "Preview effect" is tapped', () => {
-      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+    it('hides "Preview effect" while the challenge is still in progress', () => {
+      render(<ChallengeMenu challenges={[makeChallenge({ isCompleted: false })]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
       fireEvent.click(screen.getByLabelText('Challenge'));
+      expect(screen.queryByText(/Preview effect/)).not.toBeInTheDocument();
+    });
 
-      const previewBtn = screen.getByText(/Preview effect/);
-      fireEvent.click(previewBtn);
-
+    it('shows "Preview effect" once earned and opens the collection card when tapped', () => {
+      render(<ChallengeMenu challenges={[makeChallenge({ isCompleted: true, progress: 20 })]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      fireEvent.click(screen.getByLabelText('Challenge'));
+      fireEvent.click(screen.getByText(/Preview effect/));
       expect(mockOnPreviewEffect).toHaveBeenCalledWith('fighter_punch');
     });
 
     it('displays the effect preview GIF for fighter_punch', () => {
-      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" />);
       fireEvent.click(screen.getByLabelText('Challenge'));
       const gif = screen.getByAltText('Fighter / Punch') as HTMLImageElement;
       expect(gif).toBeInTheDocument();
@@ -187,7 +193,7 @@ describe('ChallengeMenu', () => {
         threshold: 50,
         isUrgent: false,
       });
-      render(<ChallengeMenu challenges={[punch, lv2]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[punch, lv2]} lang="en" />);
       fireEvent.click(screen.getByLabelText('Challenge'));
 
       expect(screen.getByText('Fighter / Punch')).toBeInTheDocument();
@@ -202,7 +208,7 @@ describe('ChallengeMenu', () => {
   describe('responsive container', () => {
     it('uses BottomSheet on mobile (narrow viewport)', () => {
       mqMatches = false; // mobile
-      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" />);
       fireEvent.click(screen.getByLabelText('Challenge'));
 
       expect(screen.getByTestId('challenge-sheet')).toBeInTheDocument();
@@ -212,11 +218,40 @@ describe('ChallengeMenu', () => {
 
     it('uses ModalDialog on desktop (wide viewport)', () => {
       mqMatches = true; // desktop
-      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" onPreviewEffect={mockOnPreviewEffect} />);
+      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" />);
       fireEvent.click(screen.getByLabelText('Challenge'));
 
       expect(screen.getByTestId('challenge-dialog')).toBeInTheDocument();
       expect(screen.queryByTestId('challenge-sheet')).not.toBeInTheDocument();
+    });
+  });
+
+  // ── PixDone+ の1行（無料ユーザーだけ） ──────────────────────────────────
+
+  describe('PixDone+ note', () => {
+    it('shows one quiet line + link for free users, and calls onViewPlus', () => {
+      const onViewPlus = vi.fn();
+      render(<ChallengeMenu challenges={[makeChallenge()]} lang="ja" isPremium={false} onViewPlus={onViewPlus} />);
+      fireEvent.click(screen.getByLabelText('チャレンジ'));
+      expect(screen.getByTestId('challenge-plus-note')).toHaveTextContent('PixDone+ なら、すべての Rare / Epic をすぐ使える');
+      fireEvent.click(screen.getByText('PixDone+ を見る'));
+      expect(onViewPlus).toHaveBeenCalledTimes(1);
+    });
+
+    it('is hidden for PixDone+ members', () => {
+      render(<ChallengeMenu challenges={[makeChallenge()]} lang="en" isPremium onViewPlus={vi.fn()} />);
+      fireEvent.click(screen.getByLabelText('Challenge'));
+      expect(screen.queryByTestId('challenge-plus-note')).not.toBeInTheDocument();
+    });
+
+    it('does not pulse for a challenge without a deadline', () => {
+      const { container } = render(
+        <ChallengeMenu
+          challenges={[makeChallenge({ daysLeft: Infinity, isUrgent: false, deadline: new Date(8640000000000000) })]}
+          lang="en"
+        />,
+      );
+      expect(container.querySelector('[data-urgent="true"]')).toBeNull();
     });
   });
 });

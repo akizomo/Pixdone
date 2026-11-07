@@ -97,7 +97,9 @@ Task completion may trigger:
 
 Common effects are shared across all themes. Their animation and shape are fixed, but color and font adapt to the active theme via CSS variables.
 
-Rare and Epic effects are theme-specific originals. Each theme has its own unique Rare and Epic effects that express the full visual identity of that theme. These are available to PixDone+ subscribers only.
+Rare and Epic effects are theme-specific originals. Each theme has its own unique Rare and Epic effects that express the full visual identity of that theme. These are available to PixDone+ subscribers only — with one exception: the **first challenge** (see below) lets every user earn one Rare effect.
+
+**First challenge (2026-11〜).** Every user takes part from sign-up, with no deadline: completing 10 tasks in regular lists (Smash List completions do not count) earns **Fighter / Punch** (Rare, arcade) for good. The tutorial presents it as the user's "first mission" instead of a PixDone+ pitch, and the PixDone+ pitch is gone from the tutorial. The 10th completion plays Fighter / Punch on that very task, followed by a toast (no blocking dialog); the toast's VIEW button opens the collection, where PixDone+ is introduced through the locked Rare / Epic effects. While the mission is in progress, free users see a single factual PixDone+ line at the bottom of the Challenge screen. Its evolution (Fighter / Punch Lv2, 50 more tasks) stays PixDone+ only. PixDone+ subscribers can use Fighter / Punch right away.
 
 Examples:
 - smash animation (Common)
@@ -173,11 +175,11 @@ Task completion triggers randomized visual rewards.
 | Tier   | Scope          | Description |
 |--------|----------------|-------------|
 | Common | All themes     | Basic smash. Color and font adapt to active theme via CSS variables. |
-| Rare   | Theme-specific | Unique animation per theme. PixDone+ only. |
+| Rare   | Theme-specific | Unique animation per theme. PixDone+ only (except Fighter / Punch, earnable by anyone via the first challenge). |
 | Epic   | Theme-specific | Unique animation per theme. Intentionally rare. PixDone+ only. |
 
 Effect selection on task completion:
-- Free users: Common effects only.
+- Free users: Common effects, plus Fighter / Punch once earned through the first challenge.
 - Plus users: Common effects + Rare and Epic effects belonging to the active theme.
 
 Weighted probability (approximate):
@@ -288,6 +290,7 @@ PixDone operates on a freemium model with a subscription plan called **PixDone+*
 ### Free Tier
 - Smash List: unlimited
 - Common effects
+- One Rare effect (Fighter / Punch) earned by completing 10 regular-list tasks (first challenge, no deadline)
 - Lists: up to 3
 - Repeat tasks
 - Default theme only

@@ -44,9 +44,7 @@ describe('OnboardingTutorial', () => {
     return render(
       <OnboardingTutorial
         themeKey="arcade"
-        isPremium={false}
         onDone={vi.fn()}
-        onUpgrade={vi.fn()}
         {...overrides}
       />,
     );
@@ -121,7 +119,7 @@ describe('OnboardingTutorial', () => {
     flushTypewriter();
     fireEvent.click(overlay); // → smash
     flushTypewriter();
-    expect(within(getDialogue()).getByText(/Smash this task/i)).toBeInTheDocument();
+    expect(within(getDialogue()).getByText(/Warm-up first/i)).toBeInTheDocument();
     expect(screen.getByText('Monday Meeting')).toBeInTheDocument();
   });
 
@@ -154,82 +152,53 @@ describe('OnboardingTutorial', () => {
     expect(rarityByKey.get(thirdKey!)).toBe('EPIC');
   });
 
-  it('advances to the upgrade step after 3 smashes and calls onReachCta', () => {
-    const onReachCta = vi.fn();
-    renderTutorial({ onReachCta });
+  it('advances to the first-mission step after 3 smashes and calls onReachMission', () => {
+    const onReachMission = vi.fn();
+    renderTutorial({ onReachMission });
     advanceToSmashStep();
     smashAll();
-
-    expect(screen.getByText(/Ready to go further/i)).toBeInTheDocument();
-    expect(screen.getByText(/Start 7-day free trial/i)).toBeInTheDocument();
-    expect(screen.getByText(/^Later$/i)).toBeInTheDocument();
-    expect(onReachCta).toHaveBeenCalledTimes(1);
-  });
-
-  it('lists the four PixDone+ benefits on the upgrade step', () => {
-    renderTutorial();
-    advanceToSmashStep();
-    smashAll();
-    expect(screen.getByText(/Unlock all themes/i)).toBeInTheDocument();
-    expect(screen.getByText(/Your theme evolves/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rare & Epic effects/i)).toBeInTheDocument();
-    expect(screen.getByText(/Unlimited task lists/i)).toBeInTheDocument();
-  });
-
-  it('the trial CTA calls onUpgrade with the default (yearly) billing cycle', () => {
-    const onUpgrade = vi.fn().mockResolvedValue(undefined);
-    renderTutorial({ onUpgrade });
-    advanceToSmashStep();
-    smashAll();
-    fireEvent.click(screen.getByText(/Start 7-day free trial/i));
-    expect(onUpgrade).toHaveBeenCalledTimes(1);
-    expect(onUpgrade).toHaveBeenCalledWith('yearly');
-  });
-
-  it('Monthly toggle switches the billing cycle passed to onUpgrade', () => {
-    const onUpgrade = vi.fn().mockResolvedValue(undefined);
-    renderTutorial({ onUpgrade });
-    advanceToSmashStep();
-    smashAll();
-
-    const monthly = screen.getByRole('radio', { name: /monthly/i });
-    fireEvent.click(monthly);
-    fireEvent.click(screen.getByText(/Start 7-day free trial/i));
-    expect(onUpgrade).toHaveBeenCalledWith('monthly');
-  });
-
-  it('Later button advances upgrade step → firstTask tour', () => {
-    renderTutorial();
-    advanceToSmashStep();
-    smashAll();
-    fireEvent.click(screen.getByText(/^Later$/i));
     flushTypewriter();
-    expect(within(getDialogue()).getByText(/Now add your first task/i)).toBeInTheDocument();
-    // Tour mode: overlay carries data-tour="true" so CSS can make it
-    // transparent and let the real Add button underneath receive clicks.
-    const overlay = document.querySelector('.pd-onboarding');
-    expect(overlay?.getAttribute('data-tour')).toBe('true');
+
+    expect(screen.getByTestId('onboarding-mission')).toBeInTheDocument();
+    expect(within(getDialogue()).getByText(/your first mission/i)).toBeInTheDocument();
+    expect(within(getDialogue()).getByText(/complete 10 of your/i)).toBeInTheDocument();
+    expect(screen.getByText('0 / 10')).toBeInTheDocument();
+    expect(screen.getByAltText('Fighter / Punch')).toHaveAttribute('src', '/fighter-punch.gif');
+    expect(onReachMission).toHaveBeenCalledTimes(1);
   });
 
-  it('premium users see a disabled "already PixDone+" CTA instead of the trial CTA', () => {
-    renderTutorial({ isPremium: true });
+  it('no longer pitches PixDone+ at the end of the tutorial', () => {
+    renderTutorial();
     advanceToSmashStep();
     smashAll();
-    expect(screen.queryByText(/Start 7-day free trial/i)).toBeNull();
-    const cta = screen.getByText(/already PixDone\+/i).closest('button');
-    expect(cta).toBeDisabled();
-    // Later stays available so premium users can continue the tour.
-    expect(screen.getByText(/^Later$/i)).toBeInTheDocument();
+    flushTypewriter();
+    expect(screen.queryByText(/free trial/i)).toBeNull();
+    expect(screen.queryByText(/PixDone\+/)).toBeNull();
+    expect(screen.getAllByRole('button', { name: /Accept mission/i })).toHaveLength(1);
   });
 
-  it('fires onEnterFirstTask when Step 5 starts (tour mode)', () => {
+  it('shows the Japanese mission copy', () => {
+    renderTutorial({ lang: 'ja' });
+    advanceToSmashStep();
+    smashAll();
+    flushTypewriter();
+    expect(within(getDialogue()).getByText(/10件、完了させよう。/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '任務を受ける' })).toBeInTheDocument();
+  });
+
+  it('Accept mission advances to the firstTask tour', () => {
     const onEnterFirstTask = vi.fn();
     renderTutorial({ onEnterFirstTask });
     advanceToSmashStep();
     smashAll();
-    // Upgrade step is showing; Later → firstTask starts the tour.
-    fireEvent.click(screen.getByText(/^Later$/i));
     flushTypewriter();
+    fireEvent.click(screen.getByRole('button', { name: /Accept mission/i }));
+    flushTypewriter();
+    expect(within(getDialogue()).getByText(/Add your first task/i)).toBeInTheDocument();
+    // Tour mode: overlay carries data-tour="true" so CSS can make it
+    // transparent and let the real Add button underneath receive clicks.
+    const overlay = document.querySelector('.pd-onboarding');
+    expect(overlay?.getAttribute('data-tour')).toBe('true');
     expect(onEnterFirstTask).toHaveBeenCalledTimes(1);
   });
 
@@ -237,7 +206,7 @@ describe('OnboardingTutorial', () => {
     renderTutorial();
     advanceToSmashStep();
 
-    expect(within(getDialogue()).getByText(/Smash this task/i)).toBeInTheDocument();
+    expect(within(getDialogue()).getByText(/Warm-up first/i)).toBeInTheDocument();
 
     const firstRow = screen.getByText('Monday Meeting').closest('.task-item-row') as HTMLElement;
     fireEvent.click(firstRow.querySelector('button[role="checkbox"]')!);

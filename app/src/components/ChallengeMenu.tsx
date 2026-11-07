@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { IconButton, ModalDialog, Button, PixelIcon } from '../design-system/components';
+import { IconButton, ModalDialog, Button, PixelIcon, Badge } from '../design-system/components';
 import { BottomSheet } from '../design-system/components/BottomSheet/BottomSheet';
 import type { ActiveChallenge } from '../hooks/useActiveChallenge';
 import './ChallengeMenu.css';
@@ -37,6 +37,10 @@ interface ChallengeMenuProps {
   challenges: ActiveChallenge[];
   lang: 'en' | 'ja';
   onPreviewEffect?: (effectKey: string) => void;
+  /** PixDone+ 会員には一番下の+の1行を出さない */
+  isPremium?: boolean;
+  /** 一番下の「PixDone+ を見る」— 呼び出し側で /pricing?source=challenge_menu へ遷移する */
+  onViewPlus?: () => void;
 }
 
 const COMPLETED_SEEN_KEY = 'pd-challenge-completed-seen';
@@ -61,6 +65,8 @@ export function ChallengeMenu({
   challenges,
   lang,
   onPreviewEffect,
+  isPremium = false,
+  onViewPlus,
 }: ChallengeMenuProps) {
   const [open, setOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() =>
@@ -131,6 +137,25 @@ export function ChallengeMenu({
           }}
         />
       ))}
+      {!isPremium && onViewPlus && (
+        <div className="challenge-menu__plus-note" data-testid="challenge-plus-note">
+          <span>
+            {lang === 'ja'
+              ? 'PixDone+ なら、すべての Rare / Epic をすぐ使える'
+              : 'With PixDone+, use every Rare / Epic effect right away'}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setOpen(false);
+              onViewPlus();
+            }}
+          >
+            {lang === 'ja' ? 'PixDone+ を見る' : 'View PixDone+'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 
@@ -204,9 +229,10 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
   const pct = Math.min((progress / threshold) * 100, 100);
   const gifSrc = EFFECT_GIF_MAP[effect.key];
 
+  // Smash List の完了は数えないので「自分のタスク」と書く
   const missionText = lang === 'ja'
-    ? `タスクを ${threshold} 個完了`
-    : `Complete ${threshold} tasks`;
+    ? `自分のタスクを ${threshold} 個完了`
+    : `Complete ${threshold} of your own tasks`;
 
   // `ActiveChallenge.deadline` carries a sentinel far-future date for
   // evolution-kind entries with no real deadline — don't render that as text.
@@ -236,9 +262,9 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
         <span className="challenge-menu__text-1">
           {effect.name}
         </span>
-        <span className="challenge-menu__text-2">
+        <Badge variant={effect.rarity.toLowerCase() as 'common' | 'rare' | 'epic'}>
           {effect.rarity}
-        </span>
+        </Badge>
         {!isCompleted && deadlineText && (
           <span className={`challenge-menu__text-7${isUrgent ? ' challenge-menu__text-7--is-urgent' : ''}`}>
             ~{deadlineText}
@@ -268,10 +294,12 @@ function ChallengeCard({ challenge, lang, withDivider, onPreview }: ChallengeCar
         </div>
       )}
 
-      {/* Preview button */}
-      <Button variant="ghost" size="sm" onClick={() => onPreview(effect.key)}>
-        {lang === 'ja' ? 'エフェクトをプレビュー' : 'Preview effect'}
-      </Button>
+      {/* Preview button — 獲得後のみ（未完了のうちは出さない） */}
+      {isCompleted && (
+        <Button variant="ghost" size="sm" onClick={() => onPreview(effect.key)}>
+          {lang === 'ja' ? 'エフェクトをプレビュー' : 'Preview effect'}
+        </Button>
+      )}
     </div>
   );
 }

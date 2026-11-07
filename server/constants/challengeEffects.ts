@@ -13,15 +13,17 @@
 
 export interface ChallengeEffectDef {
   effectId: string;
-  threshold: number;           // タスク完了数でアンロック
-  deadline: Date;              // この期限を過ぎると challenge → premium に移行
+  threshold: number;           // 通常リストのタスク完了数でアンロック（Smash List は数えない）
+  /** この期限を過ぎると challenge → premium に移行。null = 期限なし（常に参加中） */
+  deadline: Date | null;
 }
 
 export const ACTIVE_CHALLENGE_EFFECTS: ChallengeEffectDef[] = [
+  // 最初のチャレンジ（2026-11〜）：全員が登録時から参加。期限なし。
   {
     effectId: 'fighter_punch',
-    threshold: 20,
-    deadline: new Date('2026-05-31T23:59:59+09:00'),
+    threshold: 10,
+    deadline: null,
   },
 ];
 

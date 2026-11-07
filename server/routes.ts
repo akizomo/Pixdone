@@ -486,6 +486,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = getSessionUserId(req);
       if (!userId) return res.status(401).json({ message: "Unauthorized" });
+      // Smash List の完了はチャレンジ・進化に数えない（遊び場であり、習慣ではない）。
+      // body がない古いクライアントは今までどおり数える。
+      if (req.body?.listType === 'smash') {
+        return res.json({ unlockedEffectIds: [], evolvedEffectIds: [], counted: false });
+      }
       const result = await storage.processChallengeProgressOnTaskComplete(userId);
       res.json(result);
     } catch (error) {

@@ -61,6 +61,9 @@ API: `GET/POST/PUT/DELETE /api/lists`, `GET /api/lists/:id/tasks`
 | 円形プログレスリング | ✅ | commit 81467fe |
 | 進捗ロスト防止 (多層防御) | ✅ | commit d6348af |
 | 日次リセット (午前0時) | ✅ | `hooks/useMidnightRefresh.ts` |
+| 最初のチャレンジ（Fighter / Punch・通常リスト10件・期限なし・無料でも獲得可。Smash List は数えない。Lv2 は+のみ） | ✅ | `server/constants/challengeEffects.ts`, `server/routes.ts`（`listType`）, `data/effectsRegistry.ts`, `services/firstChallenge.ts` |
+| 最初のチャレンジ達成の見せ方（10件目の完了で Fighter のパンチをそのタスクで見せる → 終わってからトースト＋「確認」でコレクションへ。画面は止めない） | ✅ | `App.tsx`（`runCompleteShort` / `showChallengeEarnedToast`） |
+| ChallengeMenu 下部の+の1行（無料ユーザーのみ、`source=challenge_menu`） | ✅ | `components/ChallengeMenu.tsx` |
 
 ## 5. エフェクト / コレクション
 
@@ -153,6 +156,7 @@ API: `GET/POST/PUT/DELETE /api/lists`, `GET /api/lists/:id/tasks`
 |------|------|---------|
 | Tutorial Panel | ✅ | `components/TutorialPanel.tsx` |
 | Tutorial task complete analytics | ✅ | commit d8d6c23 |
+| オンボーディング: ダミー3件 → 「最初の任務」（+の勧誘は削除） → 最初のタスク | ✅ | `components/OnboardingTutorial.tsx`（Storybook: PixDone/App/OnboardingTutorial） |
 
 ## 12. 分析 / 計測
 

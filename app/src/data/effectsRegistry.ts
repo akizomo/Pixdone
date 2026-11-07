@@ -6,12 +6,14 @@ export type EffectAccess = 'free_unlocked' | 'challenge' | 'premium';
 /**
  * Phase 1 additions for the "category" naming scheme (e.g. `Fighter / Punch`).
  *
- * - `challenge`: unlocked by completing N tasks before deadline
+ * - `challenge`: unlocked by completing N tasks (regular lists only — Smash List
+ *   completions don't count) before deadline. `deadline: null` = no deadline;
+ *   everyone takes part from sign-up (the "first challenge", Fighter / Punch).
  * - `evolution`: unlocked after the parent effect is owned AND the user completes
  *   `threshold` additional tasks. The evolved form is added as a SEPARATE card.
  */
 export type UnlockCondition =
-  | { kind: 'challenge'; threshold: number; deadline: Date }
+  | { kind: 'challenge'; threshold: number; deadline: Date | null }
   | { kind: 'evolution'; parentKey: string; threshold: number };
 
 export interface EffectDef {
@@ -26,7 +28,7 @@ export interface EffectDef {
   evolutionStages: 1 | 2 | 3 | 4 | 5;
   evolutionCondition: string | null;
   evolutionThreshold: number | null;
-  /** Set only for challenge effects: when the challenge period expires */
+  /** Set only for time-limited challenge effects: when the challenge period expires (null = no deadline) */
   challengeDeadline: Date | null;
   /** Set only for challenge effects: total task completions needed to unlock */
   challengeUnlockThreshold: number | null;
@@ -70,7 +72,7 @@ export const EFFECTS_REGISTRY: EffectDef[] = [
   // SEPARATE card that unlocks after owning Punch + 50 additional task completions.
   // Legacy animation asset names ('fighter' / 'fighterLv2') are preserved via
   // `resolveAnimationKey` so existing GIFs continue to render without rename.
-  { key: 'fighter_punch',     name: 'Fighter / Punch',     rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: "A fighter's punch sends it flying.", ja: 'ファイターのパンチで吹き飛ぶ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: new Date('2026-05-31T23:59:59+09:00'), challengeUnlockThreshold: 20, category: 'fighter', unlockCondition: { kind: 'challenge',  threshold: 20, deadline: new Date('2026-05-31T23:59:59+09:00') } },
+  { key: 'fighter_punch',     name: 'Fighter / Punch',     rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: "A fighter's punch sends it flying.", ja: 'ファイターのパンチで吹き飛ぶ。' }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: 10, category: 'fighter', unlockCondition: { kind: 'challenge',  threshold: 10, deadline: null } },
   { key: 'fighter_punch_lv2', name: 'Fighter / Punch Lv2', rarity: 'RARE', themes: ['arcade'], access: 'challenge', description: { en: 'A fighter delivers a decisive kick.',  ja: 'ファイターの渾身のキック。'           }, evolutionStages: 1, evolutionCondition: null, evolutionThreshold: null, challengeDeadline: null, challengeUnlockThreshold: null, category: 'fighter', unlockCondition: { kind: 'evolution', parentKey: 'fighter_punch', threshold: 50 } },
 
   // ── RARE — Arcade (premium) ───────────────────────────────────────────────
@@ -109,11 +111,36 @@ export const COMMON_EFFECTS = EFFECTS_REGISTRY.filter(ef => ef.access === 'free_
 // ── Access helpers ────────────────────────────────────────────────────────────
 
 /**
+ * Challenge effect the user has NOT earned: usable only by PixDone+ members,
+ * and only when the challenge isn't a running time-limited one.
+ *
+ * - top-level challenge with no deadline (the "first challenge"): PixDone+ can use it right away
+ * - time-limited challenge, still running: nobody (must be earned)
+ * - time-limited challenge, expired: PixDone+ only
+ * - evolution children (e.g. `fighter_punch_lv2`): must be earned (premium gate is on the server)
+ */
+function isChallengeEffectAvailableWithoutOwning(
+  effect: EffectDef,
+  isPremium: boolean,
+  nowMs: number,
+): boolean {
+  if (!isPremium) return false;
+  if (effect.unlockCondition?.kind === 'evolution') return false;
+  const deadline = effect.unlockCondition?.kind === 'challenge'
+    ? effect.unlockCondition.deadline
+    : effect.challengeDeadline;
+  if (!deadline) return true;
+  return nowMs > deadline.getTime();
+}
+
+/**
  * Returns true if the effect is inaccessible (should show lock icon).
  *
  * - free_unlocked: never locked
  * - premium: locked unless isPremium
- * - challenge (active): locked until earned via challenge progress
+ * - challenge (no deadline): locked unless owned or isPremium
+ *   (PixDone+ では、すべての Rare / Epic をすぐ使える)
+ * - challenge (active, time-limited): locked until earned via challenge progress
  * - challenge (expired): locked unless isPremium or already owned
  */
 export function isEffectLocked(
@@ -125,10 +152,7 @@ export function isEffectLocked(
   if (effect.access === 'premium') return !isPremium;
   if (effect.access === 'challenge') {
     if (ownedChallengeEffects.includes(effect.key)) return false;
-    const withinDeadline =
-      !effect.challengeDeadline || Date.now() <= effect.challengeDeadline.getTime();
-    if (withinDeadline) return true; // active challenge — not yet earned
-    return !isPremium; // expired — locked unless premium
+    return !isChallengeEffectAvailableWithoutOwning(effect, isPremium, Date.now());
   }
   return false;
 }
@@ -164,7 +188,7 @@ export function canDeactivateEffect(
  * - free_unlocked + theme match → always included (if activated)
  * - premium + theme match + isPremium → included (if activated)
  * - challenge + owned → always included (even after deadline)
- * - challenge + not owned + expired + isPremium → included (treated as premium)
+ * - challenge + not owned + (no deadline or expired) + isPremium → included (treated as premium)
  * - Falls back to all free_unlocked 'all'-theme effects if pool is empty
  */
 export function buildDrawPool(
@@ -187,10 +211,7 @@ export function buildDrawPool(
       if (ef.access === 'premium') return isPremium;
       if (ef.access === 'challenge') {
         if (ownedChallengeEffects.includes(ef.key)) return true;
-        const withinDeadline =
-          !ef.challengeDeadline || now <= ef.challengeDeadline.getTime();
-        if (withinDeadline) return false;
-        return isPremium;
+        return isChallengeEffectAvailableWithoutOwning(ef, isPremium, now);
       }
       return false;
     });

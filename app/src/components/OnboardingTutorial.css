@@ -472,344 +472,67 @@
 }
 
 /* =============================================================================
-   Step 4 (upgrade) — full-screen PixDone+ CTA (no instructor)
-   Step 5 (firstTask) — full-screen add-first-task prompt (no instructor)
+   Step 4 (mission) — 最初の任務。Fighter のパンチ・進み具合 0/N・ボタン1つ
    ============================================================================= */
 
-.pd-onboarding__panel {
-  flex: 1;
+.pd-onboarding__mission {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--pd-space-6);
-  padding: var(--pd-space-8) var(--pd-space-5);
-  max-width: 480px;
-  width: 100%;
-  margin: 0 auto;
-  text-align: center;
-}
-
-/* Lineup strip above the title — T.A.S.K. squad in motion. */
-.pd-onboarding__panel-lineup {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: var(--pd-space-4);
-  flex-wrap: nowrap;
-  max-width: 100%;
-}
-
-.pd-onboarding__lineup-sprite {
-  width: 44px;
-  height: 44px;
-  image-rendering: pixelated;
-  object-fit: contain;
-  flex-shrink: 0;
-  will-change: transform;
-}
-
-/* Kick is rendered at a larger display size so the fighter inside its
-   64×64 canvas reads at the same scale as the other sprites. */
-.pd-onboarding__lineup-sprite--kick {
-  width: 96px;
-  height: 96px;
-}
-
-/* Walking agent: 4-frame sprite cycle via background-image keyframes. */
-.pd-onboarding__lineup-sprite--agent {
-  display: inline-block;
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-  background-image: url('/world/arcade/sprites/agent-arcade-0001.png');
-  animation: pd-ob-lineup-walk 280ms step-end infinite;
-}
-
-@keyframes pd-ob-lineup-walk {
-  0%   { background-image: url('/world/arcade/sprites/agent-arcade-0001.png'); }
-  25%  { background-image: url('/world/arcade/sprites/agent-arcade-0002.png'); }
-  50%  { background-image: url('/world/arcade/sprites/agent-arcade-0003.png'); }
-  75%  { background-image: url('/world/arcade/sprites/agent-arcade-0004.png'); }
-  100% { background-image: url('/world/arcade/sprites/agent-arcade-0001.png'); }
-}
-
-@media (max-width: 520px) {
-  .pd-onboarding__panel-lineup {
-    gap: var(--pd-space-3);
-  }
-  .pd-onboarding__lineup-sprite {
-    width: 36px;
-    height: 36px;
-  }
-  .pd-onboarding__lineup-sprite--kick {
-    width: 76px;
-    height: 76px;
-  }
-}
-
-.pd-onboarding__panel-title {
-  font-family: var(--pd-font-brand, var(--pd-font-display));
-  font-size: clamp(22px, 5vw, 32px);
-  color: var(--pd-color-text-primary);
-  letter-spacing: 0.04em;
-  margin: 0;
-  text-align: center;
-  line-height: var(--pd-line-height-tight);
-  text-shadow: 2px 2px 0 var(--pd-color-reward-glow-cyan);
-}
-
-/* Upgrade benefit list — framed like a briefing dossier */
-
-.pd-onboarding__benefits {
-  list-style: none;
-  padding: var(--pd-space-4) var(--pd-space-4);
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--pd-space-3);
-  width: 100%;
-  text-align: left;
-  background: var(--pd-color-background-elevated);
-  border: var(--pd-border-base) solid var(--pd-color-border-default);
-  box-shadow: var(--pd-shadow-pixel-md);
-}
-
-.pd-onboarding__benefit {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--pd-space-3);
-  font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-md);
-  line-height: var(--pd-line-height-snug);
-  color: var(--pd-color-text-primary);
-  opacity: 0;
-  transform: translateY(6px);
-  animation: pd-ob-benefit-in 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  will-change: opacity, transform;
-}
-
-@keyframes pd-ob-benefit-in {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.pd-onboarding__benefit-bullet {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  color: var(--pd-cyan-300);
-  background: color-mix(in srgb, var(--pd-color-reward-glow-cyan) 50%, transparent);
-  border: var(--pd-border-thin) solid var(--pd-cyan-500);
-  box-shadow: var(--pd-shadow-pixel-inset);
-  image-rendering: pixelated;
-}
-
-.pd-onboarding__panel-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: var(--pd-space-2);
-  width: 100%;
-}
-
-/* ── Challenge preview cards (final smash dialogue) ───────────────────── */
-
-.pd-onboarding__challenge-cards {
-  display: flex;
-  flex-direction: column;
-  gap: var(--pd-space-2, 8px);
   width: 100%;
   max-width: 360px;
-  margin: var(--pd-space-3, 12px) auto 0;
-  padding: 0 var(--pd-space-3, 12px);
-  animation: onboarding-card-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  margin: 0 auto;
+  padding: 0 var(--pd-space-4);
+  animation: pd-ob-mission-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes onboarding-card-in {
+@keyframes pd-ob-mission-in {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.pd-onboarding__challenge-card {
-  display: flex;
-  align-items: stretch;
-  gap: var(--pd-space-2, 8px);
-  padding: var(--pd-space-2, 8px);
-  background: var(--pd-color-background-elevated);
-  border: 2px solid var(--pd-color-border-default);
-  box-shadow: 2px 2px 0 var(--pd-color-shadow-default);
+.pd-onboarding__mission-gif {
+  width: 160px;
+  height: auto;
   image-rendering: pixelated;
 }
 
-.pd-onboarding__challenge-card-media {
-  flex: 0 0 auto;
-  width: 56px;
-  height: 56px;
+.pd-onboarding__mission-name {
   display: flex;
   align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.pd-onboarding__challenge-card-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-.pd-onboarding__challenge-card-body {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pd-onboarding__challenge-card-head {
-  display: flex;
-  align-items: center;
-  gap: var(--pd-space-1, 4px);
-}
-
-.pd-onboarding__challenge-card-name {
+  gap: var(--pd-space-2);
   font-family: var(--pd-font-brand);
   font-size: var(--pd-font-size-md);
   color: var(--pd-color-text-primary);
-  line-height: 1.2;
 }
 
-.pd-onboarding__challenge-card-rarity {
-  font-family: var(--pd-font-brand);
-  font-size: var(--pd-font-size-sm);
-  letter-spacing: 1px;
-  padding: 2px 6px;
-  border: 1px solid var(--pd-color-border-default);
-  color: var(--pd-color-text-secondary);
+.pd-onboarding__mission-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-3);
+  width: 100%;
 }
 
-.pd-onboarding__challenge-card-desc {
-  margin: 0;
-  font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-sm);
-  line-height: 1.3;
-  color: var(--pd-color-text-secondary);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+.pd-onboarding__mission-progress-track {
+  flex: 1;
+  height: var(--pd-space-2);
+  background: var(--pd-color-background-elevated);
+  border: var(--pd-border-thin) solid var(--pd-color-border-default);
   overflow: hidden;
 }
 
-.pd-onboarding__challenge-card-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--pd-space-2, 8px);
-  margin-top: 2px;
-  font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-xs);
-  color: var(--pd-color-text-muted);
+/* 0 / N — fill is intentionally empty at the start of the mission */
+.pd-onboarding__mission-progress-fill {
+  width: 0;
+  height: 100%;
+  background: var(--pd-color-accent-default);
 }
 
-/* Small print under the primary CTA: trial terms / renewal price */
-.pd-onboarding__trial-note {
-  margin: calc(var(--pd-space-1) * -1) 0 0;
-  font-family: var(--pd-font-body);
-  font-size: var(--pd-font-size-2xs, 0.75rem);
-  line-height: 1.4;
-  color: var(--pd-color-text-muted);
-  text-align: center;
-}
-
-/* Billing cycle toggle (Monthly / Yearly) above the Try PixDone+ button */
-
-.pd-onboarding__cycle-toggle {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--pd-space-2);
-  width: 100%;
-  margin-bottom: var(--pd-space-2);
-}
-
-.pd-onboarding__cycle-option {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: var(--pd-space-3) var(--pd-space-3);
-  min-height: 64px;
-  background: var(--pd-color-background-elevated);
-  border: var(--pd-border-base) solid var(--pd-color-border-default);
-  box-shadow: var(--pd-shadow-pixel-sm);
-  color: var(--pd-color-text-primary);
-  font-family: var(--pd-font-body);
-  cursor: pointer;
-  transition: transform var(--pd-motion-fast) var(--pd-easing-standard),
-              border-color var(--pd-motion-fast) var(--pd-easing-standard),
-              box-shadow var(--pd-motion-fast) var(--pd-easing-standard),
-              background-color var(--pd-motion-fast) var(--pd-easing-standard);
-}
-
-.pd-onboarding__cycle-option:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: var(--pd-shadow-pixel-md);
-}
-
-.pd-onboarding__cycle-option[data-selected="true"] {
-  border-color: var(--pd-cyan-500);
-  background: color-mix(in srgb, var(--pd-color-reward-glow-cyan) 50%, transparent);
-  box-shadow: var(--pd-shadow-pixel-md), 0 0 0 2px var(--pd-color-reward-glow-cyan);
-}
-
-.pd-onboarding__cycle-label {
-  font-family: var(--pd-font-brand, var(--pd-font-display));
+.pd-onboarding__mission-progress-count {
+  font-family: var(--pd-font-brand);
   font-size: var(--pd-font-size-sm);
-  letter-spacing: 0.16em;
-  color: var(--pd-cyan-300);
-}
-
-.pd-onboarding__cycle-price {
-  font-family: var(--pd-font-brand, var(--pd-font-display));
-  font-size: var(--pd-font-size-lg);
-  color: var(--pd-color-text-primary);
-  display: inline-flex;
-  align-items: baseline;
-  gap: 2px;
-}
-
-.pd-onboarding__cycle-price small {
-  font-size: var(--pd-font-size-2xs);
-  color: var(--pd-color-text-muted);
-  font-weight: var(--pd-font-weight-regular);
-}
-
-.pd-onboarding__cycle-badge {
-  position: absolute;
-  top: -10px;
-  right: -6px;
-  padding: 2px 6px;
-  background: var(--pd-pink-500);
-  color: var(--pd-white);
-  font-family: var(--pd-font-brand, var(--pd-font-display));
-  font-size: var(--pd-font-size-sm);
-  letter-spacing: 0.12em;
-  box-shadow: var(--pd-shadow-pixel-sm);
-  transform: rotate(4deg);
-}
-
-/* First-task CTA wrapper (rendered inside the shared stage main area) */
-
-.pd-onboarding__first-task-cta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--pd-space-4);
-  width: 100%;
-  padding: var(--pd-space-6) var(--pd-space-4);
+  color: var(--pd-color-text-secondary);
 }
 
 /* =============================================================================
@@ -889,15 +612,6 @@
     width: 100%;
     max-width: 520px;
   }
-
-  .pd-onboarding__panel {
-    max-width: 560px;
-    padding: var(--pd-space-12) var(--pd-space-8);
-  }
-
-  .pd-onboarding__benefit {
-    font-size: var(--pd-font-size-lg);
-  }
 }
 
 /* =============================================================================
@@ -912,16 +626,8 @@
   .pd-onboarding__task-stack-item-inner,
   .pd-onboarding__tap-hint,
   .pd-onboarding__dialog-cursor,
-  .pd-onboarding__benefit,
-  .pd-onboarding__lineup-sprite,
-  .pd-onboarding__lineup-sprite--agent {
+  .pd-onboarding__mission {
     animation: none !important;
-  }
-
-  /* Make sure the benefit list is still visible without the enter animation */
-  .pd-onboarding__benefit {
-    opacity: 1;
-    transform: none;
   }
 
   .pd-onboarding__task-stack,

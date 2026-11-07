@@ -1,6 +1,6 @@
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { ThemeKey } from '../design-system/themes/themeRegistry';
-import { Button, PixelIcon } from '../design-system';
+import { Badge, Button, PixelIcon } from '../design-system';
 import { ThemeContext } from '../design-system/theme/ThemeProvider';
 import { AgentIcon } from './AgentIcon';
 import { TaskItem } from './TaskItem';
@@ -13,14 +13,18 @@ import {
   type EffectDef,
 } from '../data/effectsRegistry';
 import { playSound } from '../services/sound';
+import { FIRST_CHALLENGE_EFFECT_KEY } from '../services/firstChallenge';
 import './OnboardingTutorial.css';
 
-/** Map effect key → preview GIF path (kept in sync with ChallengeMenu). */
-const CHALLENGE_PREVIEW_GIF: Record<string, string> = {
-  fighter: '/fighter-punch.gif',
-};
+export type OnboardingStep = 'splash' | 'intro' | 'smash' | 'mission' | 'firstTask';
+type Step = OnboardingStep;
 
-type Step = 'splash' | 'intro' | 'smash' | 'upgrade' | 'firstTask';
+/** 最初の任務（最初のチャレンジ）の対象。条件の件数は registry から引く */
+const FIRST_CHALLENGE = EFFECTS_REGISTRY.find((e) => e.key === FIRST_CHALLENGE_EFFECT_KEY);
+const FIRST_CHALLENGE_THRESHOLD =
+  (FIRST_CHALLENGE?.unlockCondition?.kind === 'challenge'
+    ? FIRST_CHALLENGE.unlockCondition.threshold
+    : FIRST_CHALLENGE?.challengeUnlockThreshold) ?? 10;
 
 const DUMMY_TASKS: Task[] = [
   { id: 'ob-task-1', title: 'Monday Meeting', completed: false, dueDate: null, listId: 'onboarding' },
@@ -46,109 +50,66 @@ const SPLASH_DURATION_MS = 1800;
 
 const SMASH_DIALOGUES: Record<Lang, string[]> = {
   en: [
-    'Your first mission.\nSmash this task.',
+    'Warm-up first.\nSmash this task.',
     'It vanishes differently every time.\nYou never know until you smash it.',
     'Some vanishings are rarely seen.',
     'Now make your own tasks\nvanish just as satisfyingly.',
   ],
   ja: [
-    '最初の任務だ。\nこのタスクを消してみよう。',
+    'まずは練習だ。\nこのタスクを消してみよう。',
     '消え方は毎回ちがう。\n何が起きるかは、消すまでわからない。',
     '中には、めったに見られない消え方もある。',
-    'さあ、あなたのタスクも\n気持ちよく片付けよう。',
-  ],
-};
-
-const PLUS_BENEFITS: Record<Lang, string[]> = {
-  en: [
-    'Unlock all themes — build your own pixel world',
-    'Your theme evolves as you complete tasks',
-    'Unlock all Rare & Epic effects',
-    'Unlimited task lists',
-  ],
-  ja: [
-    'すべてのテーマをアンロック — 自分だけのピクセル世界を',
-    'タスクを完了するたびにテーマが進化',
-    'レア・エピックエフェクトを全解放',
-    'リスト数無制限',
+    'さあ、あなたの\nタスクも気持ちよく\n片付けよう。',
   ],
 };
 
 const COPY: Record<Lang, {
   splashSub: string;
   firstTaskDialogue: string;
-  upgradeTitle: string;
-  upgradeCta: string;
-  upgradeCtaPremium: string;
-  upgradeLater: string;
-  upgradeBillingLabel: string;
-  upgradeMonthly: string;
-  upgradeYearly: string;
-  upgradeSaveBadge: string;
-  upgradePerMo: string;
-  upgradeTrialNote: string;
-  upgradePremiumNote: string;
+  missionDialogue: (threshold: number) => string;
+  missionAccept: string;
+  missionProgressLabel: string;
   tapToContinue: string;
 }> = {
   en: {
     splashSub: 'Welcome to PixDone.',
     firstTaskDialogue: 'Now add your first task.',
-    upgradeTitle: 'Ready to go further?',
-    upgradeCta: 'Start 7-day free trial',
-    upgradeCtaPremium: 'You’re already PixDone+',
-    upgradeLater: 'Later',
-    upgradeBillingLabel: 'Billing cycle',
-    upgradeMonthly: 'Monthly',
-    upgradeYearly: 'Yearly',
-    upgradeSaveBadge: 'SAVE 17%',
-    upgradePerMo: '/mo',
-    upgradeTrialNote: 'Free for 7 days, then ¥300/mo (or ¥250/mo on yearly). Cancel anytime.',
-    upgradePremiumNote: 'Tap Later to continue.',
+    missionDialogue: (n) => `Your first mission:\ncomplete ${n} of your\nown tasks.\nThe reward: this punch.`,
+    missionAccept: 'Accept mission',
+    missionProgressLabel: 'Mission progress',
     tapToContinue: 'TAP TO CONTINUE',
   },
   ja: {
     splashSub: 'PixDoneへようこそ。',
-    firstTaskDialogue: '最初のタスクを追加しよう。',
-    upgradeTitle: 'もっと楽しみたい？',
-    upgradeCta: '7日間無料で始める',
-    upgradeCtaPremium: 'すでに PixDone+ 会員です',
-    upgradeLater: 'あとで',
-    upgradeBillingLabel: 'プラン',
-    upgradeMonthly: '月払い',
-    upgradeYearly: '年払い',
-    upgradeSaveBadge: '17% お得',
-    upgradePerMo: '/月',
-    upgradeTrialNote: '7日間無料、以降 ¥300/月（年払いは ¥250/月）。いつでもキャンセル可。',
-    upgradePremiumNote: '「あとで」をタップして続ける。',
+    firstTaskDialogue: '最初のタスクを\n追加しよう。',
+    missionDialogue: (n) => `これが最初の任務。\nあなたのタスクを\n${n}件、完了させよう。\n報酬はこのパンチだ。`,
+    missionAccept: '任務を受ける',
+    missionProgressLabel: '任務の進み具合',
     tapToContinue: 'タップで続ける',
   },
 };
 
-export type BillingCycle = 'monthly' | 'yearly';
-
 export interface OnboardingTutorialProps {
   themeKey: ThemeKey;
-  isPremium: boolean;
   /** UI language for dialogue + button copy. @default 'en' */
   lang?: Lang;
-  /** Called when the tutorial finishes without purchase (Later / first-task) — parent closes overlay. */
+  /** Called when the tutorial finishes — parent closes overlay. */
   onDone: () => void;
-  /** Triggers the Stripe checkout flow for the selected billing cycle. May navigate away; may reject. */
-  onUpgrade: (cycle: BillingCycle) => Promise<void> | void;
-  /** Fires once when the user reaches the PixDone+ step — parent marks hasSeenTutorial. */
-  onReachCta?: () => void;
+  /** Fires once when the user reaches the "first mission" step — parent marks hasSeenTutorial. */
+  onReachMission?: () => void;
   /** Fires once when the user reaches the first-task tour step — parent navigates to the Today view. */
   onEnterFirstTask?: () => void;
+  /** Storybook / tests only: start at a given step. @default 'splash' */
+  initialStep?: Step;
 }
 
 export function OnboardingTutorial({
   themeKey,
-  isPremium,
   lang = 'en',
   onDone: _onDone,
-  onUpgrade,
-  onReachCta,
+  onReachMission,
   onEnterFirstTask,
+  initialStep = 'splash',
 }: OnboardingTutorialProps) {
   // Follow the resolved app theme mode so the logo variant + hero-bg palette
   // swap automatically when the user (or OS) flips light/dark.
@@ -158,28 +119,13 @@ export function OnboardingTutorial({
   const copy = COPY[lang];
   const introPanels = INTRO_PANELS[lang];
   const smashDialogues = SMASH_DIALOGUES[lang];
-  const plusBenefits = PLUS_BENEFITS[lang];
-  const [step, setStep] = useState<Step>('splash');
+  const [step, setStep] = useState<Step>(initialStep);
   const [introPanel, setIntroPanel] = useState(0);
   const [smashCount, setSmashCount] = useState(0);
   const [smashedIds, setSmashedIds] = useState<Set<string>>(new Set());
-  const [isUpgrading, setIsUpgrading] = useState(false);
   const [smashLocked, setSmashLocked] = useState(false);
   const [typedChars, setTypedChars] = useState(0);
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>('yearly');
-  // The fighter-kick.gif has a long hold frame at the end of its loop. We
-  // periodically remount the <img> so the GIF restarts at frame 0 and the
-  // visible pause between kicks stays short.
-  const [kickNonce, setKickNonce] = useState(0);
-  const ctaReachedRef = useRef(false);
-
-  useEffect(() => {
-    if (step !== 'upgrade') return;
-    const id = window.setInterval(() => {
-      setKickNonce((n) => n + 1);
-    }, 700);
-    return () => window.clearInterval(id);
-  }, [step]);
+  const missionReachedRef = useRef(false);
 
   useEffect(() => {
     if (step !== 'splash') return;
@@ -187,11 +133,13 @@ export function OnboardingTutorial({
     return () => window.clearTimeout(id);
   }, [step]);
 
+  // Mark the tutorial as seen once the mission is shown, so users who close
+  // the app mid-way don't replay the whole story next time.
   useEffect(() => {
-    if (step !== 'upgrade' || ctaReachedRef.current) return;
-    ctaReachedRef.current = true;
-    onReachCta?.();
-  }, [step, onReachCta]);
+    if (step !== 'mission' || missionReachedRef.current) return;
+    missionReachedRef.current = true;
+    onReachMission?.();
+  }, [step, onReachMission]);
 
   // When the tour reaches the first-task step, ask the shell to navigate to
   // the Today view so the real Add button sits underneath the agent/bubble.
@@ -253,9 +201,11 @@ export function OnboardingTutorial({
       ? introPanels[introPanel]!.dialogue
       : step === 'smash'
         ? smashDialogues[Math.min(smashCount, smashDialogues.length - 1)]!
-        : step === 'firstTask'
-          ? copy.firstTaskDialogue
-          : '';
+        : step === 'mission'
+          ? copy.missionDialogue(FIRST_CHALLENGE_THRESHOLD)
+          : step === 'firstTask'
+            ? copy.firstTaskDialogue
+            : '';
 
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
@@ -285,19 +235,6 @@ export function OnboardingTutorial({
 
   const smashComplete = step === 'smash' && smashCount >= DUMMY_TASKS.length;
 
-  // Currently-active challenges (non-expired, non-owned). Shown as compact cards
-  // below the dialogue on the final smash dialogue ("Complete monthly challenges...").
-  const activeChallenges = useMemo<EffectDef[]>(() => {
-    const now = Date.now();
-    return EFFECTS_REGISTRY.filter(
-      (e) =>
-        e.access === 'challenge' &&
-        e.challengeDeadline &&
-        e.challengeUnlockThreshold &&
-        e.challengeDeadline.getTime() > now,
-    );
-  }, []);
-
   const handleTap = useCallback(() => {
     // First tap while typing → complete the text instead of advancing
     if (typedChars < dialogueText.length) {
@@ -312,21 +249,11 @@ export function OnboardingTutorial({
         return prev;
       });
     } else if (smashComplete) {
-      setStep('upgrade');
+      setStep('mission');
     }
   }, [typedChars, dialogueText.length, step, smashComplete]);
 
-  const handleUpgradeClick = useCallback(async () => {
-    if (isUpgrading) return;
-    setIsUpgrading(true);
-    try {
-      await onUpgrade(billingCycle);
-    } catch {
-      setIsUpgrading(false);
-    }
-  }, [isUpgrading, onUpgrade, billingCycle]);
-
-  const handleLaterOnUpgrade = useCallback(() => {
+  const handleAcceptMission = useCallback(() => {
     setStep('firstTask');
   }, []);
 
@@ -345,98 +272,7 @@ export function OnboardingTutorial({
     );
   }
 
-  if (step === 'upgrade') {
-    return (
-      <div className="pd-onboarding pd-onboarding--upgrade" role="dialog" aria-modal="true" aria-label="PixDone+ upgrade">
-        <div className="pd-onboarding__panel">
-          <div className="pd-onboarding__panel-lineup" aria-hidden="true">
-            <span
-              className="pd-onboarding__lineup-sprite pd-onboarding__lineup-sprite--agent"
-              aria-hidden="true"
-            />
-            <img
-              key={`kick-${kickNonce}`}
-              src="/fighter-kick.gif"
-              alt=""
-              className="pd-onboarding__lineup-sprite pd-onboarding__lineup-sprite--kick"
-              aria-hidden="true"
-            />
-            <img
-              src="/bomb.gif"
-              alt=""
-              className="pd-onboarding__lineup-sprite"
-              aria-hidden="true"
-            />
-          </div>
-          <h2 className="pd-onboarding__panel-title">{copy.upgradeTitle}</h2>
-          <ul className="pd-onboarding__benefits">
-            {plusBenefits.map((b, i) => (
-              <li
-                key={b}
-                className="pd-onboarding__benefit"
-                style={{ animationDelay: `${80 + i * 80}ms` }}
-              >
-                <span className="pd-onboarding__benefit-bullet" aria-hidden="true">
-                  <PixelIcon name="check" size="18px" />
-                </span>
-                <span>{b}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="pd-onboarding__panel-buttons">
-            <div
-              className="pd-onboarding__cycle-toggle"
-              role="radiogroup"
-              aria-label={copy.upgradeBillingLabel}
-            >
-              <button
-                type="button"
-                role="radio"
-                aria-checked={billingCycle === 'monthly'}
-                className="pd-onboarding__cycle-option"
-                data-selected={billingCycle === 'monthly'}
-                onClick={() => { playSound('buttonClick'); setBillingCycle('monthly'); }}
-              >
-                <span className="pd-onboarding__cycle-label">{copy.upgradeMonthly}</span>
-                <span className="pd-onboarding__cycle-price">¥300<small>{copy.upgradePerMo}</small></span>
-              </button>
-              <button
-                type="button"
-                role="radio"
-                aria-checked={billingCycle === 'yearly'}
-                className="pd-onboarding__cycle-option"
-                data-selected={billingCycle === 'yearly'}
-                onClick={() => { playSound('buttonClick'); setBillingCycle('yearly'); }}
-              >
-                <span className="pd-onboarding__cycle-badge" aria-hidden="true">{copy.upgradeSaveBadge}</span>
-                <span className="pd-onboarding__cycle-label">{copy.upgradeYearly}</span>
-                <span className="pd-onboarding__cycle-price">¥250<small>{copy.upgradePerMo}</small></span>
-              </button>
-            </div>
-            <Button
-              variant="primary"
-              size="lg"
-              fullWidth
-              loading={isUpgrading}
-              onClick={handleUpgradeClick}
-              soundKey="taskComplete"
-              disabled={isPremium}
-            >
-              {isPremium ? copy.upgradeCtaPremium : copy.upgradeCta}
-            </Button>
-            <p className="pd-onboarding__trial-note">
-              {isPremium ? copy.upgradePremiumNote : copy.upgradeTrialNote}
-            </p>
-            <Button variant="ghost" size="md" fullWidth onClick={handleLaterOnUpgrade} soundKey="taskCancel">
-              {copy.upgradeLater}
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Steps intro (2 panels) / smash / firstTask share the header+stage layout
+  // Steps intro (2 panels) / smash / mission / firstTask share the header+stage layout
 
   return (
     <div
@@ -591,47 +427,34 @@ export function OnboardingTutorial({
             </div>
           )}
 
-          {/* Once all 3 tutorial smashes are done, the last dialogue line is
-              "Complete monthly challenges to unlock more." — show compact
-              preview cards for each currently-active challenge effect. */}
-          {smashComplete && activeChallenges.length > 0 && (
-            <div
-              className="pd-onboarding__challenge-cards"
-              aria-label="Active monthly challenges"
-            >
-              {activeChallenges.map((effect) => {
-                const gif = CHALLENGE_PREVIEW_GIF[effect.key];
-                const deadlineText = effect.challengeDeadline
-                  ? effect.challengeDeadline.toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })
-                  : '';
-                return (
-                  <div key={effect.key} className="pd-onboarding__challenge-card">
-                    <div className="pd-onboarding__challenge-card-media" aria-hidden="true">
-                      {gif ? (
-                        <img src={gif} alt="" />
-                      ) : (
-                        <PixelIcon name="emoji_events" size="24px" />
-                      )}
-                    </div>
-                    <div className="pd-onboarding__challenge-card-body">
-                      <div className="pd-onboarding__challenge-card-head">
-                        <span className="pd-onboarding__challenge-card-name">{effect.name}</span>
-                        <span className="pd-onboarding__challenge-card-rarity">{effect.rarity}</span>
-                      </div>
-                      <p className="pd-onboarding__challenge-card-desc">
-                        {effect.description.en}
-                      </p>
-                      <div className="pd-onboarding__challenge-card-meta">
-                        <span>Complete {effect.challengeUnlockThreshold} tasks</span>
-                        {deadlineText && <span>~{deadlineText}</span>}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+          {/* 最初の任務 — Fighter のパンチを報酬として見せる。ボタンは1つだけ */}
+          {step === 'mission' && (
+            <div className="pd-onboarding__mission" data-testid="onboarding-mission">
+              <img
+                src="/fighter-punch.gif"
+                alt={FIRST_CHALLENGE?.name ?? 'Fighter / Punch'}
+                className="pd-onboarding__mission-gif"
+              />
+              <div className="pd-onboarding__mission-name">
+                <span>{FIRST_CHALLENGE?.name ?? 'Fighter / Punch'}</span>
+                <Badge variant="rare">{FIRST_CHALLENGE?.rarity ?? 'RARE'}</Badge>
+              </div>
+              <div
+                className="pd-onboarding__mission-progress"
+                role="progressbar"
+                aria-label={copy.missionProgressLabel}
+                aria-valuemin={0}
+                aria-valuemax={FIRST_CHALLENGE_THRESHOLD}
+                aria-valuenow={0}
+              >
+                <div className="pd-onboarding__mission-progress-track" aria-hidden="true">
+                  <div className="pd-onboarding__mission-progress-fill" />
+                </div>
+                <span className="pd-onboarding__mission-progress-count">0 / {FIRST_CHALLENGE_THRESHOLD}</span>
+              </div>
+              <Button variant="primary" size="lg" fullWidth onClick={handleAcceptMission}>
+                {copy.missionAccept}
+              </Button>
             </div>
           )}
 

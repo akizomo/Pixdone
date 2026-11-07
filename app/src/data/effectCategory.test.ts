@@ -205,7 +205,7 @@ describe('getUnlockCondition', () => {
     expect(condition?.kind).toBe('challenge');
     if (condition?.kind === 'challenge') {
       expect(condition.threshold).toBe(20);
-      expect(condition.deadline.toISOString()).toBe(
+      expect(condition.deadline?.toISOString()).toBe(
         new Date('2026-05-31T23:59:59+09:00').toISOString(),
       );
     }

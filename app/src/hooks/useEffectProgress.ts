@@ -21,8 +21,9 @@ export interface UseEffectProgressResult {
   isLoading: boolean;
   refetch: () => Promise<void>;
   /**
-   * Optimistically bump a challenge effect's local progress by 1 (instant UI feedback).
-   * Also queues a pending POST and flips owned=true if the threshold is reached.
+   * Optimistically bump a challenge effect's local progress by 1 (instant UI feedback)
+   * and flip owned=true if the threshold is reached. UI only — the POST is queued
+   * separately by `bumpPending()` (once per completion).
    */
   optimisticIncrement: (effectId: string, threshold: number) => void;
   /** Drain any queued task-complete POSTs that failed previously. Called on load + after fetch. */
@@ -30,7 +31,16 @@ export interface UseEffectProgressResult {
 }
 
 const CACHE_KEY = 'pd-effect-progress';
+/** 通常リストの完了（チャレンジ・進化に数える）。旧クライアントから引き継ぐ既存のキー */
 const PENDING_KEY = 'pd-effect-pending';
+/** Smash List の完了（サーバーは数えないが、POST は無条件で送る） */
+const PENDING_SMASH_KEY = 'pd-effect-pending-smash';
+
+export type TaskCompleteListType = 'custom' | 'smash';
+
+function pendingKeyFor(listType: TaskCompleteListType): string {
+  return listType === 'smash' ? PENDING_SMASH_KEY : PENDING_KEY;
+}
 /** Safety cap: drain at most this many pending POSTs per flush invocation. */
 const PENDING_FLUSH_CAP = 50;
 /** Minimum gap between visibility/focus-triggered refetches (ms). */
@@ -59,9 +69,9 @@ function clearCache(): void {
 }
 
 /** 未送信/失敗の task-complete POST のカウンタ (localStorage 永続化). */
-function loadPending(): number {
+function loadPending(listType: TaskCompleteListType = 'custom'): number {
   try {
-    const raw = localStorage.getItem(PENDING_KEY);
+    const raw = localStorage.getItem(pendingKeyFor(listType));
     if (!raw) return 0;
     const n = parseInt(raw, 10);
     return Number.isFinite(n) && n > 0 ? n : 0;
@@ -70,24 +80,29 @@ function loadPending(): number {
   }
 }
 
-function savePending(n: number): void {
+function savePending(n: number, listType: TaskCompleteListType = 'custom'): void {
+  const key = pendingKeyFor(listType);
   try {
-    if (n <= 0) localStorage.removeItem(PENDING_KEY);
-    else localStorage.setItem(PENDING_KEY, String(n));
+    if (n <= 0) localStorage.removeItem(key);
+    else localStorage.setItem(key, String(n));
   } catch { /* ignore */ }
 }
 
-export function bumpPending(): number {
-  const next = loadPending() + 1;
-  savePending(next);
+/** Queue one task-complete POST. Call exactly once per completed task. */
+export function bumpPending(listType: TaskCompleteListType = 'custom'): number {
+  const next = loadPending(listType) + 1;
+  savePending(next, listType);
   return next;
 }
 
-export function decrementPending(): number {
-  const next = Math.max(0, loadPending() - 1);
-  savePending(next);
+export function decrementPending(listType: TaskCompleteListType = 'custom'): number {
+  const next = Math.max(0, loadPending(listType) - 1);
+  savePending(next, listType);
   return next;
 }
+
+/** True while a flush is draining the queue — prevents two flushes sending the same item twice. */
+let flushInFlight = false;
 
 /**
  * Pure merge: combine server rows with local (optimistic) state.
@@ -193,25 +208,35 @@ export function useEffectProgress(): UseEffectProgressResult {
    * Drain the persistent pending POST queue. Retries task-complete calls that failed previously
    * so the server eventually catches up even if individual POSTs were dropped
    * (cold start, 502, transient 401, network). Called on load, after fetchProgress, and after
-   * every optimistic increment.
+   * every task completion (sendTaskComplete).
    */
   const flushPending = useCallback(async () => {
     if (!user || !serverSessionReady) return;
-    let pending = loadPending();
-    if (pending <= 0) return;
-
-    const toDrain = Math.min(pending, PENDING_FLUSH_CAP);
-    for (let i = 0; i < toDrain; i++) {
-      try {
-        const resp = await fetch(apiUrl('/api/effect-progress/task-complete'), {
-          method: 'POST',
-          credentials: 'include',
-        });
-        if (!resp.ok) break; // keep remaining in queue, retry next flush
-        pending = decrementPending();
-      } catch {
-        break; // network error — keep in queue
+    if (flushInFlight) return; // the running flush re-reads the queue and picks this up
+    flushInFlight = true;
+    try {
+      let budget = PENDING_FLUSH_CAP;
+      // Re-read the queue after each POST so items bumped mid-flush are sent too.
+      while (budget > 0) {
+        const listType: TaskCompleteListType | null =
+          loadPending('custom') > 0 ? 'custom' : loadPending('smash') > 0 ? 'smash' : null;
+        if (!listType) break;
+        try {
+          const resp = await fetch(apiUrl('/api/effect-progress/task-complete'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ listType }),
+          });
+          if (!resp.ok) break; // keep remaining in queue, retry next flush
+          decrementPending(listType);
+          budget--;
+        } catch {
+          break; // network error — keep in queue
+        }
       }
+    } finally {
+      flushInFlight = false;
     }
   }, [user, serverSessionReady]);
 
@@ -244,10 +269,8 @@ export function useEffectProgress(): UseEffectProgressResult {
       saveToCache(next);
       return next;
     });
-    bumpPending();
-    // Kick the pending queue immediately (first POST attempt). Fire-and-forget —
-    // subsequent flushes on app load / after fetch will catch any failures.
-    void flushPendingRef.current?.();
+    // NOTE: no bumpPending() here. sendTaskComplete queues exactly one POST per
+    // completion; bumping again here double-counted every completion on the server.
   }, []);
 
   // Keep ref current

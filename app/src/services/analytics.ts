@@ -25,6 +25,7 @@
  *
  * ── 課金ファネル ──
  *   upsell_view       アップセル（モーダル・アップグレード導線）表示   { source }
+ *                     source=challenge_menu: チャレンジ画面の一番下の+の1行から /pricing へ（遷移時のみ、表示では送らない）
  *   pricing_view      料金ページ表示                                 { source, platform }
  *   purchase_start    購入ボタン押下（Stripe 遷移 / ストア購入シート） { plan, platform }
  *   purchase_success  PixDone+ がサーバーで有効になったのを確認        { plan, platform, is_trial }
@@ -124,11 +125,13 @@ export type PricingSource =
   | 'account'
   | 'plus_intro'
   | 'onboarding'
+  | 'challenge_menu'
   | 'other';
 
 const PRICING_SOURCES: readonly PricingSource[] = [
   'list_limit', 'preset_theme', 'sound_effect', 'collection_effect', 'collection_theme',
-  'evolution', 'theme_selector', 'account', 'plus_intro', 'onboarding', 'other',
+  'evolution', 'theme_selector', 'account', 'plus_intro', 'onboarding',
+  'challenge_menu', 'other',
 ];
 
 /** ?source= の値を検証する。未指定・不明な値は 'other' */

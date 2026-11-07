@@ -238,4 +238,33 @@ describe('getActiveChallenges (plural)', () => {
     const lv2Result = result.find(r => r.effect.key === 'fighter_punch_lv2');
     expect(lv2Result!.isUrgent).toBe(false);
   });
+
+  // ── 最初のチャレンジ（期限なし） ──────────────────────────────────────────
+
+  it('a challenge with no deadline stays active forever, with no days-left or urgency', () => {
+    const firstChallenge = makeNewChallenge('fighter_punch', {
+      unlockCondition: { kind: 'challenge', threshold: 10, deadline: null },
+    });
+    const result = getActiveChallenges(
+      [firstChallenge],
+      { fighter_punch: 3 },
+      [],
+      new Date('2031-12-31T00:00:00+09:00'),
+    );
+    expect(result).toHaveLength(1);
+    expect(result[0]!.threshold).toBe(10);
+    expect(result[0]!.progress).toBe(3);
+    expect(result[0]!.daysLeft).toBe(Infinity);
+    expect(result[0]!.isUrgent).toBe(false);
+  });
+
+  it('the real registry exposes fighter_punch as an active 10-task challenge for a new user', async () => {
+    const { EFFECTS_REGISTRY } = await import('../data/effectsRegistry');
+    const result = getActiveChallenges(EFFECTS_REGISTRY, {}, [], new Date('2027-03-01T00:00:00+09:00'));
+    const punch = result.find(r => r.effect.key === 'fighter_punch');
+    expect(punch).toBeDefined();
+    expect(punch!.threshold).toBe(10);
+    expect(punch!.isUrgent).toBe(false);
+    expect(result.some(r => r.effect.key === 'fighter_punch_lv2')).toBe(false);
+  });
 });

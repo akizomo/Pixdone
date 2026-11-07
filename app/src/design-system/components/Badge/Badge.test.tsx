@@ -30,6 +30,11 @@ describe('Badge', () => {
     expect(container.firstElementChild!.className).toContain('pxd-badge--success');
   });
 
+  it.each(['common', 'rare', 'epic'] as const)('applies %s rarity variant', (variant) => {
+    const { container } = render(<Badge variant={variant}>{variant}</Badge>);
+    expect(container.firstElementChild!.className).toContain(`pxd-badge--${variant}`);
+  });
+
   it('applies custom className', () => {
     const { container } = render(<Badge className="extra">x</Badge>);
     expect(container.firstElementChild!.className).toContain('extra');
