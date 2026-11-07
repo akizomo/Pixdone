@@ -129,7 +129,6 @@ function SmashRewardCard({ lang }: { lang: Lang }) {
       </h3>
       <ul className="lp-feature-card__list">
         <li>{isJa ? 'タスク完了ごとにピクセルアートの演出が発動' : 'Every completed task triggers a pixel-art effect'}</li>
-        <li>{isJa ? '無料は Common、PixDone+ なら Rare と Epic も' : 'Common effects free — Rare and Epic with PixDone+'}</li>
         <li>{isJa ? '無限に消せるSmash Listで、ストレス発散' : 'Smash List — unlimited, stress-busting tasks'}</li>
       </ul>
       <div className="lp-feature-card__accent lp-smash-burst" aria-hidden="true">
