@@ -65,6 +65,16 @@ cp App/App.entitlements /tmp/app.entitlements
 /usr/libexec/PlistBuddy -c "Add :application-identifier string JW8K44JXT4.com.pixdone.app" \
   -c "Add :com.apple.developer.team-identifier string JW8K44JXT4" /tmp/app.entitlements
 for f in $APP/Frameworks/*.framework; do codesign -f -s $ID --timestamp=none "$f"; done
+# ライブアクティビティの拡張（FocusActivity.appex）も、本体より先に署名する
+cat > /tmp/ext.entitlements <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>application-identifier</key><string>JW8K44JXT4.com.pixdone.app.FocusActivity</string>
+<key>com.apple.developer.team-identifier</key><string>JW8K44JXT4</string>
+</dict></plist>
+EOF
+codesign -f -s $ID --timestamp=none --entitlements /tmp/ext.entitlements $APP/PlugIns/FocusActivity.appex
 codesign -f -s $ID --timestamp=none --entitlements /tmp/app.entitlements $APP
 
 # 3. 配布用の署名で書き出してアップロード（Xcode にログイン済みの Apple ID を使う。API キー不要）
@@ -74,6 +84,8 @@ xcodebuild -exportArchive -archivePath $ARCHIVE -exportPath /tmp/PixDone-upload 
 ```
 
 書き出した IPA の確認（任意）: `codesign -dvv` で `Apple Distribution`、`codesign -d --entitlements -` で `com.apple.developer.applesignin` と `get-task-allow = false` が出ればOK。
+
+> export が `The request expected results but none were found`（Error while generating code signature）で落ちることがあります。Apple 側のクラウド署名の一時的なエラーで、少し待って同じコマンドをもう一度実行すると通りました（2026-11-07、ビルド 4）。何度も続くときは、Xcode の設定 → Accounts で Apple ID を確認してください。
 
 ## 3. TestFlight で実機テスト
 
