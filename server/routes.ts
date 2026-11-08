@@ -8,7 +8,7 @@ import { setupEmailAuth } from "./emailAuth.js";
 import { sql } from "drizzle-orm";
 import { db } from "./db.js";
 import { createPlusCheckoutSession, cancelPlusSubscription, verifyStripeWebhook } from "./billing/stripe.js";
-import { revenueCatEventToAction, mayUpdateSubscription, authorizationMatches } from "./billing/revenuecat.js";
+import { revenueCatEventToAction, mayUpdateSubscription, authorizationMatches, subscriberToUpdate } from "./billing/revenuecat.js";
 import crypto from "crypto";
 import admin from "firebase-admin";
 import { deleteAccount, createAccountDeletionDeps } from "./accountDeletion.js";
@@ -254,6 +254,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching entitlements:", error);
       res.status(500).json({ message: "Failed to fetch entitlements" });
+    }
+  });
+
+  // Right after an in-app purchase the app calls this so PixDone+ unlocks at once, without waiting
+  // for RevenueCat's webhook. We ask RevenueCat directly (REST) and only ever upgrade; downgrades
+  // stay with the webhook. Without REVENUECAT_SECRET_KEY it answers 501 and the app falls back to polling.
+  app.options('/api/billing/sync-store-purchase', (_req, res) => res.sendStatus(204));
+  app.post('/api/billing/sync-store-purchase', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getSessionUserId(req);
+      if (!userId) return res.status(401).json({ message: "Unauthorized" });
+      const secret = process.env.REVENUECAT_SECRET_KEY?.trim();
+      if (!secret) return res.status(501).json({ message: "Store sync is not configured" });
+
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      let rc: Response;
+      try {
+        rc = await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(userId)}`, {
+          headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
+          signal: ctrl.signal,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
+      if (!rc.ok) {
+        console.warn('[sync-store-purchase] RevenueCat responded', rc.status);
+        return res.status(502).json({ message: "Could not reach the store billing service" });
+      }
+
+      const update = subscriberToUpdate(await rc.json());
+      if (update) {
+        const user = await storage.getUser(userId);
+        if (user && mayUpdateSubscription(user.subscriptionProvider, user.subscriptionPlan, update.provider, update.plan)) {
+          await storage.updateSubscription(userId, update);
+        }
+      }
+      const sub = await storage.getSubscription(userId);
+      const trialEnd = sub?.trialEnd ?? null;
+      res.json({
+        isPremium: sub?.plan === 'plus',
+        billingCycle: sub?.billingCycle ?? null,
+        isTrialing: trialEnd ? new Date(trialEnd) > new Date() : false,
+      });
+    } catch (error) {
+      console.error("Error syncing store purchase:", error);
+      res.status(500).json({ message: "Failed to sync purchase" });
     }
   });
 

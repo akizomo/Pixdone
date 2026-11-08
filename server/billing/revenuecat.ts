@@ -128,3 +128,48 @@ export function authorizationMatches(given: string | undefined, expected: string
   const wantBuf = Buffer.from(want);
   return got.length === wantBuf.length && crypto.timingSafeEqual(got, wantBuf);
 }
+
+/**
+ * Subset of RevenueCat's REST `GET /v1/subscribers/{app_user_id}` response.
+ * https://www.revenuecat.com/docs/api-v1#tag/customers/operation/subscribers
+ */
+export interface RevenueCatSubscriber {
+  subscriber?: {
+    subscriptions?: Record<string, {
+      expires_date?: string | null;
+      period_type?: string;
+      store?: string;
+    }>;
+  };
+}
+
+const REST_STORES: Record<string, StoreProvider> = {
+  app_store: 'app_store',
+  mac_app_store: 'app_store',
+  play_store: 'play_store',
+};
+
+/**
+ * Turns RevenueCat's view of a customer into a subscription update, used right after a
+ * purchase so the user doesn't wait for the webhook. It only ever UPGRADES: when nothing
+ * is active it returns null and the webhook (EXPIRATION / CANCELLATION) stays the only
+ * thing that can take access away.
+ */
+export function subscriberToUpdate(body: RevenueCatSubscriber, now: Date = new Date()): SubscriptionUpdate | null {
+  let best: { productId: string; expires: Date; periodType?: string; provider: StoreProvider } | null = null;
+  for (const [productId, sub] of Object.entries(body.subscriber?.subscriptions ?? {})) {
+    const provider = sub.store ? REST_STORES[sub.store] : undefined;
+    if (!provider || !sub.expires_date) continue;
+    const expires = new Date(sub.expires_date);
+    if (Number.isNaN(expires.getTime()) || expires <= now) continue;
+    if (!best || expires > best.expires) best = { productId, expires, periodType: sub.period_type, provider };
+  }
+  if (!best) return null;
+  return {
+    plan: 'plus',
+    billingCycle: billingCycleOf(best.productId),
+    currentPeriodEnd: best.expires,
+    trialEnd: best.periodType === 'trial' || best.periodType === 'TRIAL' ? best.expires : null,
+    provider: best.provider,
+  };
+}

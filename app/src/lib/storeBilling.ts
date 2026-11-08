@@ -68,6 +68,11 @@ export async function loadStorePackages(): Promise<StorePackages> {
 
 export type PurchaseOutcome = 'purchased' | 'cancelled';
 
+/**
+ * The store has confirmed the purchase by the time this resolves, so the UI can say so
+ * right away. Unlocking still waits for the server (waitForServerPlus), which is the
+ * source of truth for isPremium.
+ */
 export async function purchaseStorePackage(aPackage: PurchasesPackage): Promise<PurchaseOutcome> {
   await ensureConfigured();
   try {
@@ -98,6 +103,27 @@ export async function getStoreManagementUrl(): Promise<string> {
   return Capacitor.getPlatform() === 'ios'
     ? 'https://apps.apple.com/account/subscriptions'
     : 'https://play.google.com/store/account/subscriptions';
+}
+
+/**
+ * Ask our server to check RevenueCat right now (instead of waiting for the webhook).
+ * Resolves to the unlocked status, or null when the server can't confirm yet (not
+ * configured, RevenueCat lagging, network) — callers then fall back to waitForServerPlus.
+ */
+export async function syncStorePurchase(): Promise<ServerPlusStatus | null> {
+  try {
+    const resp = await fetch(apiUrl('/api/billing/sync-store-purchase'), { method: 'POST', credentials: 'include' });
+    if (!resp.ok) return null;
+    const body = (await resp.json()) as { isPremium?: boolean; billingCycle?: string | null; isTrialing?: boolean };
+    if (body.isPremium !== true) return null;
+    window.dispatchEvent(new Event(ENTITLEMENTS_REFRESH_EVENT));
+    return {
+      billingCycle: body.billingCycle === 'monthly' || body.billingCycle === 'yearly' ? body.billingCycle : null,
+      isTrialing: body.isTrialing === true,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export const ENTITLEMENTS_REFRESH_EVENT = 'pd:entitlements-refresh';

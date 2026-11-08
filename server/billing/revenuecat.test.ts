@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { authorizationMatches, mayUpdateSubscription, revenueCatEventToAction } from './revenuecat.js';
+import { authorizationMatches, mayUpdateSubscription, revenueCatEventToAction, subscriberToUpdate } from './revenuecat.js';
 
 const NOW = new Date('2026-11-01T00:00:00Z');
 const FUTURE = Date.parse('2026-12-01T00:00:00Z');
@@ -80,5 +80,32 @@ describe('authorizationMatches', () => {
   });
   it('does not strip inside the value', () => {
     expect(authorizationMatches('abc 123', 'abc123')).toBe(false);
+  });
+});
+
+describe('subscriberToUpdate', () => {
+  const sub = (productId: string, expires: string | null, extra: Record<string, string> = {}) => ({
+    subscriber: { subscriptions: { [productId]: { expires_date: expires, store: 'app_store', period_type: 'normal', ...extra } } },
+  });
+
+  it('upgrades to plus for an active subscription', () => {
+    const u = subscriberToUpdate(sub('pixdone_plus_monthly', '2026-12-01T00:00:00Z'), NOW);
+    expect(u).toMatchObject({ plan: 'plus', billingCycle: 'monthly', provider: 'app_store', trialEnd: null });
+  });
+
+  it('marks a trial and keeps its end date', () => {
+    const u = subscriberToUpdate(sub('pixdone_plus_yearly', '2026-11-08T00:00:00Z', { period_type: 'trial' }), NOW);
+    expect(u?.billingCycle).toBe('yearly');
+    expect(u?.trialEnd).toEqual(new Date('2026-11-08T00:00:00Z'));
+  });
+
+  it('never downgrades: expired or empty returns null', () => {
+    expect(subscriberToUpdate(sub('pixdone_plus_monthly', '2026-10-01T00:00:00Z'), NOW)).toBeNull();
+    expect(subscriberToUpdate({ subscriber: { subscriptions: {} } }, NOW)).toBeNull();
+    expect(subscriberToUpdate({}, NOW)).toBeNull();
+  });
+
+  it('ignores stores we do not support (e.g. Stripe)', () => {
+    expect(subscriberToUpdate(sub('pixdone_plus_monthly', '2026-12-01T00:00:00Z', { store: 'stripe' }), NOW)).toBeNull();
   });
 });

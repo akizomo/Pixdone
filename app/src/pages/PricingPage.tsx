@@ -11,7 +11,7 @@ import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
 import { Capacitor } from '@capacitor/core';
 import {
-  isStoreBillingAvailable, loadStorePackages, purchaseStorePackage, restoreStorePurchases, waitForServerPlus,
+  isStoreBillingAvailable, loadStorePackages, purchaseStorePackage, restoreStorePurchases, waitForServerPlus, syncStorePurchase,
   type StorePackages,
 } from '../lib/storeBilling';
 import {
@@ -46,6 +46,8 @@ export function PricingPage() {
   const [loading, setLoading] = useState(false);
   // Welcome dialog after a purchase / restore (or ?purchase=plus_success from Stripe).
   const [welcomeOpen, setWelcomeOpen] = useState(false);
+  // After a store purchase the dialog opens at once; this says whether PixDone+ is unlocked yet.
+  const [applyState, setApplyState] = useState<'applying' | 'done' | 'delayed'>('done');
   // Native store apps buy through the App Store / Google Play (never Stripe).
   const isNativeApp = Capacitor.isNativePlatform();
   const storeReady = isStoreBillingAvailable();
@@ -81,6 +83,7 @@ export function PricingPage() {
   }, [storeReady]);
 
   const showPurchased = () => {
+    setApplyState('done');
     setWelcomeOpen(true);
     playSound('taskComplete');
   };
@@ -95,14 +98,24 @@ export function PricingPage() {
         trackPurchaseCancel();
         return;
       }
-      const status = await waitForServerPlus();
+      // The App Store has confirmed the purchase: say so now instead of leaving the screen unchanged
+      // while we wait for the server to hear about it from RevenueCat.
+      setApplyState('applying');
+      setWelcomeOpen(true);
+      playSound('taskComplete');
+      // Ask the server to check RevenueCat directly (about a second); the webhook is only the fallback.
+      const status = (await syncStorePurchase()) ?? (await waitForServerPlus());
       if (status) {
         trackPurchaseSuccess({ plan: status.billingCycle ?? cycle, is_trial: status.isTrialing });
-        showPurchased();
+        setApplyState('done');
       } else {
-        showToast({ message: isJa
-          ? '購入は完了しました。反映に少し時間がかかっています。しばらくしてからアプリを開き直してください。'
-          : 'Purchase complete. It is taking a moment to apply — please reopen the app shortly.' });
+        setApplyState('delayed');
+        // The webhook may just be slow: keep checking quietly and switch the dialog when it lands.
+        void waitForServerPlus(180000).then((late) => {
+          if (!late) return;
+          trackPurchaseSuccess({ plan: late.billingCycle ?? cycle, is_trial: late.isTrialing });
+          setApplyState('done');
+        });
       }
     } catch {
       showToast({ message: isJa ? '購入に失敗しました。もう一度お試しください。' : 'Purchase failed. Please try again.' });
@@ -115,7 +128,7 @@ export function PricingPage() {
     setLoading(true);
     try {
       await restoreStorePurchases();
-      if (await waitForServerPlus(8000)) {
+      if ((await syncStorePurchase()) ?? (await waitForServerPlus(8000))) {
         showPurchased();
       } else {
         showToast({ message: isJa ? '復元できる購入が見つかりませんでした。' : 'No purchases to restore were found.' });
@@ -193,11 +206,17 @@ export function PricingPage() {
         open={welcomeOpen}
         onClose={() => setWelcomeOpen(false)}
         title={isJa ? 'PixDone+ へようこそ！' : 'Welcome to PixDone+!'}
-        description={isTrialing && trialEnd
-          ? (isJa
-            ? `無料トライアルが始まりました（${new Date(trialEnd).toLocaleDateString('ja-JP')} まで）。`
-            : `Your free trial has started (until ${new Date(trialEnd).toLocaleDateString('en-US')}).`)
-          : (isJa ? '購入が完了しました。' : 'Your purchase is complete.')}
+        description={applyState === 'applying'
+          ? (isJa ? '購入が完了しました。PixDone+ を反映しています…' : 'Purchase complete. Activating PixDone+…')
+          : applyState === 'delayed'
+            ? (isJa
+              ? '購入は完了しましたが、反映に時間がかかっています。このまま待つと自動で反映されます。反映されない場合は、料金画面の「購入を復元」を押してください。'
+              : 'Purchase complete, but activation is taking longer than usual. It will apply automatically; if it does not, tap "Restore purchases" on the pricing screen.')
+            : isTrialing && trialEnd
+              ? (isJa
+                ? `無料トライアルが始まりました（${new Date(trialEnd).toLocaleDateString('ja-JP')} まで）。`
+                : `Your free trial has started (until ${new Date(trialEnd).toLocaleDateString('en-US')}).`)
+              : (isJa ? '購入が完了しました。' : 'Your purchase is complete.')}
         actions={
           <Button variant="primary" soundKey="taskComplete" onClick={() => setWelcomeOpen(false)}>
             OK
