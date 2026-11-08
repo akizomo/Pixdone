@@ -23,16 +23,6 @@
   flex: 1;
 }
 
-.pricing__text-1 {
-  background: var(--pd-color-feedback-success);
-  color: var(--pd-color-text-inverse);
-  font-family: var(--pd-font-brand);
-  font-size: var(--pd-font-size-sm);
-  letter-spacing: 1px;
-  padding: var(--pd-space-3) var(--pd-space-6);
-  text-align: center;
-}
-
 .pricing__content {
   flex: 1;
   max-width: 640px;

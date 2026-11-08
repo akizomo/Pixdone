@@ -5,7 +5,7 @@ import { useGoBack } from '../hooks/useGoBack';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
 import { playSound } from '../services/sound';
-import { Button, useToast } from '../design-system';
+import { Button, ModalDialog, useToast } from '../design-system';
 import { SubPageHeader } from '../components/SubPageHeader';
 import { detectDefaultLang, type Lang } from '../lib/i18n';
 import { apiUrl } from '../lib/apiUrl';
@@ -44,7 +44,8 @@ export function PricingPage() {
   const { plan, isTrialing, trialEnd } = useThemeEntitlements();
   const [cycle, setCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [loading, setLoading] = useState(false);
-  const [successBanner, setSuccessBanner] = useState(false);
+  // Welcome dialog after a purchase / restore (or ?purchase=plus_success from Stripe).
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
   // Native store apps buy through the App Store / Google Play (never Stripe).
   const isNativeApp = Capacitor.isNativePlatform();
   const storeReady = isStoreBillingAvailable();
@@ -58,16 +59,15 @@ export function PricingPage() {
     trackPricingView({ source });
   }, [source]);
 
-  // ?purchase=plus_success banner
+  // ?purchase=plus_success (back from Stripe Checkout)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('purchase') === 'plus_success') {
-      setSuccessBanner(true);
+      setWelcomeOpen(true);
+      playSound('taskComplete');
       const url = new URL(window.location.href);
       url.searchParams.delete('purchase');
       window.history.replaceState({}, '', url.toString());
-      const tid = window.setTimeout(() => setSuccessBanner(false), 5000);
-      return () => window.clearTimeout(tid);
     }
   }, []);
 
@@ -81,8 +81,8 @@ export function PricingPage() {
   }, [storeReady]);
 
   const showPurchased = () => {
-    setSuccessBanner(true);
-    window.setTimeout(() => setSuccessBanner(false), 5000);
+    setWelcomeOpen(true);
+    playSound('taskComplete');
   };
 
   const handleStorePurchase = async () => {
@@ -188,15 +188,30 @@ export function PricingPage() {
     <div className="pricing__col-1" data-pd-screen>
       <SubPageHeader title="PIXDONE+" isJa={isJa} onBack={goBack} />
 
-      {/* Success banner */}
-      {successBanner && (
-        <div
-          role="status"
-          className="pricing__text-1"
-        >
-          {isJa ? '🎉 PixDone+ へようこそ！' : '🎉 Welcome to PixDone+!'}
-        </div>
-      )}
+      {/* Purchase complete: a dialog so it is seen even when the page is scrolled to the button */}
+      <ModalDialog
+        open={welcomeOpen}
+        onClose={() => setWelcomeOpen(false)}
+        title={isJa ? 'PixDone+ へようこそ！' : 'Welcome to PixDone+!'}
+        description={isTrialing && trialEnd
+          ? (isJa
+            ? `無料トライアルが始まりました（${new Date(trialEnd).toLocaleDateString('ja-JP')} まで）。`
+            : `Your free trial has started (until ${new Date(trialEnd).toLocaleDateString('en-US')}).`)
+          : (isJa ? '購入が完了しました。' : 'Your purchase is complete.')}
+        actions={
+          <Button variant="primary" soundKey="taskComplete" onClick={() => setWelcomeOpen(false)}>
+            OK
+          </Button>
+        }
+      >
+        <ul className="pricing__col-4">
+          {PLUS_FEATURES.slice(1).map((f) => (
+            <li key={f.en} className="pricing__text-14">
+              {isJa ? f.ja : f.en}
+            </li>
+          ))}
+        </ul>
+      </ModalDialog>
 
       {/* Content */}
       <div

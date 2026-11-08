@@ -79,6 +79,8 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
     try {
       await deleteAccount();
       navigate('/', { replace: true });
+      // ToastProvider sits above the router, so this stays visible on the sign-in screen.
+      showToast({ message: isJa ? 'アカウントを削除しました。ご利用ありがとうございました。' : 'Your account has been deleted. Thank you for using PixDone.' });
     } catch (e) {
       // Closing the Apple confirmation sheet cancels the deletion silently.
       if ((e as { code?: string }).code === 'auth/popup-closed-by-user') return;
