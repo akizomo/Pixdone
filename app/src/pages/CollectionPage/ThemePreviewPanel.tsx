@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../../hooks/useNavigate';
 import { ThemeHomePreview } from './ThemeHomePreview';
 import { themes } from '../../design-system/themes/themeRegistry';
 import type { ThemeKey } from '../../design-system/themes/themeRegistry';

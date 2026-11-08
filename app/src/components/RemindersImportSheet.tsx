@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../hooks/useNavigate';
 import { BottomSheet, Button, Checkbox, Chip, TextLink, useToast } from '../design-system';
 import { useListsActions, useListsData } from '../features/ListsContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';

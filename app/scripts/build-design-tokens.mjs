@@ -231,6 +231,7 @@ const buildBaseCss = async () => {
     --pd-motion-base:    0ms;
     --pd-motion-slow:    0ms;
     --pd-motion-slower:  0ms;
+    --pd-motion-nav:     0ms;
     --pd-motion-reward:  0ms;
   }
 }

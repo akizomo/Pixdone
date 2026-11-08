@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../hooks/useNavigate';
 import { useGoBack } from '../hooks/useGoBack';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';

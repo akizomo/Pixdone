@@ -8,7 +8,7 @@ import './FocusZenMode.css';
 
 type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
-const ZEN_CLOSE_MS = 280;
+const ZEN_CLOSE_MS = 320;
 
 export interface FocusZenModeProps {
   lang: 'en' | 'ja';

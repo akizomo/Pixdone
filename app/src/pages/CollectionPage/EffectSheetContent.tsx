@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../../hooks/useNavigate';
 import { DemoTaskItem } from './DemoTaskItem';
 import { EFFECTS_REGISTRY, isEffectLocked, canDeactivateEffect } from '../../data/effectsRegistry';
 import { playDemoEffect } from '../../services/taskAnimations';

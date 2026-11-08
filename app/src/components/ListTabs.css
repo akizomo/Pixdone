@@ -76,9 +76,10 @@
   color: var(--pd-color-accent-text);
 }
 
-/* Add button (DS IconButton) — only keep it from shrinking in the row. */
+/* Add button (DS Button, text) — keep it from shrinking or wrapping in the row. */
 .pd-list-tabs__add {
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Touch: tabs reach the minimum tap target (IconButton sm extends its own hit area). */

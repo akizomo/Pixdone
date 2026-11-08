@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import { useNavigate } from '../hooks/useNavigate';
 import { useGoBack } from '../hooks/useGoBack';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeEntitlements } from '../hooks/useThemeEntitlements';
@@ -257,13 +258,13 @@ export function PricingPage() {
                   >
                     PIXDONE+
                   </p>
-                  {cycle === 'yearly' && (
-                    <span
-                      className="pricing__text-9"
-                    >
-                      {isJa ? '2ヶ月分お得' : '2 MO. FREE'}
-                    </span>
-                  )}
+                  {/* 月払いでも場所を確保して、切り替えでトグルが動かないようにする */}
+                  <span
+                    className={`pricing__text-9${cycle === 'yearly' ? '' : ' pricing__reserve--hidden'}`}
+                    aria-hidden={cycle !== 'yearly'}
+                  >
+                    {isJa ? '2ヶ月分お得' : '2 MO. FREE'}
+                  </span>
                 </div>
                 <div
                   className="pricing__row-3"
@@ -289,13 +290,14 @@ export function PricingPage() {
                   ? (storePrice.main ?? '—')
                   : (cycle === 'monthly' ? '¥300' : '¥250')}<span className="pricing__text-11">{isJa ? '/月' : '/mo'}</span>
               </p>
-              {cycle === 'yearly' && (
-                <p className="pricing__text-12">
-                  {isNativeApp
-                    ? (storePrice.yearly ? (isJa ? `年払い ${storePrice.yearly}` : `${storePrice.yearly} billed yearly`) : '')
-                    : (isJa ? '年払い ¥3,000' : '¥3,000 billed yearly')}
-                </p>
-              )}
+              <p
+                className={`pricing__text-12${cycle === 'yearly' ? '' : ' pricing__reserve--hidden'}`}
+                aria-hidden={cycle !== 'yearly'}
+              >
+                {isNativeApp
+                  ? (storePrice.yearly ? (isJa ? `年払い ${storePrice.yearly}` : `${storePrice.yearly} billed yearly`) : '')
+                  : (isJa ? '年払い ¥3,000' : '¥3,000 billed yearly')}
+              </p>
               <p className="pricing__text-13">
                 {isJa
                   ? '7日間無料。その後自動で課金開始。いつでもキャンセル可能。'

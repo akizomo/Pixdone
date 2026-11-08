@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../hooks/useNavigate';
 import { trackUpsellView, pricingPath, type PricingSource } from '../services/analytics';
 import { ModalDialog, Button } from '../design-system';
 import './UpsellModal.css';

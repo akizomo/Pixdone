@@ -11,6 +11,8 @@ export const motion = {
     base: 180,
     slow: 240,
     slower: 320,
+    /** iOS 風の画面遷移（push / pop）。easing.ios と組で使う。 */
+    nav: 350,
     reward: 700,
   },
   easing: {
@@ -19,6 +21,8 @@ export const motion = {
     accelerate: "cubic-bezier(0.3, 0, 1, 1)",
     playful: "cubic-bezier(0.34, 1.56, 0.64, 1)",
     press: "cubic-bezier(0.2, 0, 0, 1)",
+    /** iOS 標準の画面遷移カーブ（減速が強く、最後にすっと止まる）。 */
+    ios: "cubic-bezier(0.32, 0.72, 0, 1)",
   },
   scale: {
     press: 0.96,

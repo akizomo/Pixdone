@@ -153,6 +153,11 @@
   padding: 2px var(--pd-space-2);
 }
 
+/* 年払いのときだけ見せる要素。月払いでも高さ・幅を確保してレイアウトを動かさない */
+.pricing__reserve--hidden {
+  visibility: hidden;
+}
+
 .pricing__row-3 {
   display: inline-flex;
   border: var(--pd-border-thin) solid var(--pd-color-border-interactive);

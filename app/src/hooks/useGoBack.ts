@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useNavigate } from './useNavigate';
 
 /**
  * Back navigation for sub-pages: return to the previous in-app screen, or to

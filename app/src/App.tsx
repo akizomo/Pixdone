@@ -1,8 +1,10 @@
 import {
-  useState, useCallback, useEffect, useRef, useMemo, useSyncExternalStore, Component,
+  useState, useCallback, useEffect, useLayoutEffect, useRef, useMemo, useSyncExternalStore, Component,
   type ErrorInfo, type ReactNode,
 } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useNavigate } from './hooks/useNavigate';
+import { settlePageTransition } from './services/pageTransition';
 import { ThemeProvider, Button, Chip, IconButton, ModalDialog, ToastProvider, useToast, PopoverMenu, TextLink, PixelIcon, KeyHint, Coachmark } from './design-system';
 import {
   ThemeSelector, ListModal, AuthModal, BottomNav,
@@ -221,6 +223,9 @@ function AppContent() {
     pathname === '/pricing' || pathname === '/account' || pathname === '/feedback' ||
     (!isDesktop && isCollectionScreen);
   const goBack = useGoBack();
+
+  // The new route is in the DOM: let a pending push/pop view transition start animating.
+  useLayoutEffect(() => { settlePageTransition(); }, [pathname, search]);
 
   /** Switch the main screen; leaves /collection if it is showing. */
   const showScreen = useCallback((screen: ActiveScreen) => {

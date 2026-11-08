@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState, useMemo } from 'react';
 import type { List } from '../types/list';
 import { playSound } from '../services/sound';
-import { IconButton, PixelIcon, PopoverMenu } from '../design-system';
+import { Button, PopoverMenu } from '../design-system';
 import type { PopoverMenuItem } from '../design-system/components/PopoverMenu/PopoverMenu.types';
 import { t } from '../lib/i18n';
 import './ListTabs.css';
@@ -112,15 +112,15 @@ export function ListTabs({
           );
         })}
       </div>
-      <IconButton
-        variant="secondary"
+      <Button
+        variant="ghost"
         size="sm"
         soundKey="taskAdd"
         className="pd-list-tabs__add"
-        icon={<PixelIcon name="add" size="18px" />}
         onClick={onAddList}
-        aria-label="Add list"
-      />
+      >
+        {lang === 'ja' ? 'リスト追加' : 'Add list'}
+      </Button>
 
       {contextMenu && contextMenuItems.length > 0 && (
         <div

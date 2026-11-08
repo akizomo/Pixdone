@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../../hooks/useNavigate';
 import { getEvolutionStatus } from '../../data/effectEvolution';
 import type { EffectProgressEntry } from '../../hooks/useEffectProgress';
 import { playSound } from '../../services/sound';

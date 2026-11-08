@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../hooks/useNavigate';
 import { useUserTheme } from '../hooks/useUserTheme';
 import { themeList, PixelIcon } from '../design-system';
 import type { ThemeKey } from '../design-system';

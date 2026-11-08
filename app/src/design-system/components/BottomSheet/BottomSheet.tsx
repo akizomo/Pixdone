@@ -22,8 +22,8 @@ function isScrolledBelowTop(el: HTMLElement | null, stop: HTMLElement): boolean 
   return false;
 }
 
-/** Close slide-down duration (ms) — must match inline transition below */
-const CLOSE_DURATION_MS = 280;
+/** Close slide-down duration (ms) — must match --pd-motion-slower and the inline transition below */
+const CLOSE_DURATION_MS = 320;
 
 export function BottomSheet({
   open,
@@ -253,11 +253,11 @@ export function BottomSheet({
     // Closing (all paths): slide down via inline style
     sheetStyle = {
       transform: 'translateY(100%)',
-      transition: `transform ${CLOSE_DURATION_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+      transition: `transform ${CLOSE_DURATION_MS}ms var(--pd-easing-ios)`,
     };
     backdropStyle = {
       opacity: 0,
-      transition: `opacity ${CLOSE_DURATION_MS - 30}ms ease`,
+      transition: `opacity ${CLOSE_DURATION_MS}ms var(--pd-easing-ios)`,
     };
   } else {
     // Open or opening: let CSS class handle via data-open

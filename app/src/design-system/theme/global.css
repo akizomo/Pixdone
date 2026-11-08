@@ -80,3 +80,46 @@ html[data-native] :is(input, textarea, [contenteditable="true"]) {
 .pd-edge-swipe--settling {
   transition: transform var(--pd-motion-slow) var(--pd-easing-decelerate);
 }
+
+/* iOS push / pop between full-page screens (services/pageTransition.ts sets data-pd-nav on <html>).
+   push: new screen slides in from the right while the old one drifts left and dims.
+   pop: the reverse — the current screen slides off to the right, revealing the one below. */
+@keyframes pd-nav-in-from-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes pd-nav-out-to-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
+@keyframes pd-nav-out-to-left {
+  from { transform: translateX(0); filter: brightness(1); }
+  to { transform: translateX(-30%); filter: brightness(var(--pd-opacity-muted)); }
+}
+@keyframes pd-nav-in-from-left {
+  from { transform: translateX(-30%); filter: brightness(var(--pd-opacity-muted)); }
+  to { transform: translateX(0); filter: brightness(1); }
+}
+@keyframes pd-nav-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pd-nav-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+:root[data-pd-nav]::view-transition-old(root),
+:root[data-pd-nav]::view-transition-new(root) {
+  animation-duration: var(--pd-motion-nav);
+  animation-timing-function: var(--pd-easing-ios);
+  animation-fill-mode: both;
+  mix-blend-mode: normal;
+}
+
+:root[data-pd-nav='forward']::view-transition-old(root) { animation-name: pd-nav-out-to-left; z-index: 1; }
+:root[data-pd-nav='forward']::view-transition-new(root) { animation-name: pd-nav-in-from-right; z-index: 2; }
+:root[data-pd-nav='back']::view-transition-old(root) { animation-name: pd-nav-out-to-right; z-index: 2; }
+:root[data-pd-nav='back']::view-transition-new(root) { animation-name: pd-nav-in-from-left; z-index: 1; }
+
+/* Desktop (mouse): no sliding, just a quick cross-fade. */
+@media (any-pointer: fine) {
+  :root[data-pd-nav]::view-transition-old(root) {
+    animation-name: pd-nav-fade-out;
+    animation-duration: var(--pd-motion-base);
+    animation-timing-function: var(--pd-easing-standard);
+  }
+  :root[data-pd-nav]::view-transition-new(root) {
+    animation-name: pd-nav-fade-in;
+    animation-duration: var(--pd-motion-base);
+    animation-timing-function: var(--pd-easing-standard);
+  }
+}

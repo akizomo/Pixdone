@@ -44,7 +44,11 @@ export function initEdgeSwipeBack(): void {
       finished = true;
       screen.classList.remove('pd-edge-swipe', 'pd-edge-swipe--settling');
       if (commit) {
+        // The screen already slid off by itself: navigate without a second push/pop animation.
+        const root = document.documentElement;
+        root.dataset.pdNoTransition = '1';
         back.click();
+        delete root.dataset.pdNoTransition;
         // If the screen is still mounted (navigation was refused), put it back.
         requestAnimationFrame(() => { screen.style.transform = ''; });
       }

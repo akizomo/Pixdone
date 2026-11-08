@@ -6,7 +6,7 @@
   z-index: 2000;
   background: var(--pd-color-overlay-backdrop);
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: opacity var(--pd-motion-nav) var(--pd-easing-ios);
 }
 
 .pd-zen-backdrop--entered {
@@ -14,7 +14,7 @@
 }
 
 .pd-zen-backdrop--leaving {
-  transition: opacity 0.25s ease;
+  transition: opacity var(--pd-motion-slower) var(--pd-easing-ios);
 }
 
 .pd-zen-dialog {
@@ -26,7 +26,7 @@
   z-index: 2001;
   background: var(--pd-color-background-default);
   transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform var(--pd-motion-nav) var(--pd-easing-ios);
   pointer-events: none;
   image-rendering: pixelated;
 }
@@ -37,7 +37,8 @@
 }
 
 .pd-zen-dialog--leaving {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1);
+  /* Same iOS curve as opening: an accelerating curve made the sheet drop at the end. */
+  transition: transform var(--pd-motion-slower) var(--pd-easing-ios);
 }
 
 .pd-zen-close {

@@ -1481,6 +1481,16 @@
           }
         }
       },
+      "nav": {
+        "$value": "350ms",
+        "$type": "duration",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-motion-nav",
+            "set": "core"
+          }
+        }
+      },
       "reward": {
         "$value": "700ms",
         "$type": "duration",
@@ -1539,6 +1549,16 @@
         "$extensions": {
           "pixdone": {
             "cssVar": "--pd-easing-press",
+            "set": "core"
+          }
+        }
+      },
+      "ios": {
+        "$value": "cubic-bezier(0.32, 0.72, 0, 1)",
+        "$type": "cubicBezier",
+        "$extensions": {
+          "pixdone": {
+            "cssVar": "--pd-easing-ios",
             "set": "core"
           }
         }
