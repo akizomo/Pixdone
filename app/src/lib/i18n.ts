@@ -210,7 +210,13 @@ export function detectDefaultLang(): Lang {
       if (Array.isArray(navigator.languages)) candidates.push(...navigator.languages);
       if (navigator.language) candidates.push(navigator.language);
     }
-    if (candidates.some((l) => l.toLowerCase().startsWith('ja'))) return 'ja';
+    // Follow the device's FIRST supported language. Looking at the whole list would pick
+    // Japanese for someone whose primary language is English but who keeps Japanese as a secondary one.
+    for (const l of candidates) {
+      const code = l.toLowerCase();
+      if (code.startsWith('ja')) return 'ja';
+      if (code.startsWith('en')) return 'en';
+    }
   } catch { /* ignore */ }
   return 'en';
 }
