@@ -3,7 +3,8 @@ import { trackPomodoroComplete } from '../services/analytics';
 
 export type FocusTimerState = 'idle' | 'running' | 'paused';
 
-export function useFocusTimer(onTimerEnd?: () => void) {
+/** @param onTimerEnd `overdueMs`: how long after the end time it was noticed (large when the app was frozen in the background). */
+export function useFocusTimer(onTimerEnd?: (overdueMs: number) => void) {
   const [timerState, setTimerState] = useState<FocusTimerState>('idle');
   const [remaining, setRemaining] = useState(25 * 60);
   // Mirror remaining in a ref for synchronous access (avoids stale closure in startTick).
@@ -38,7 +39,8 @@ export function useFocusTimer(onTimerEnd?: () => void) {
 
   const syncRemaining = useCallback(() => {
     if (deadlineRef.current === null) return;
-    const newRemaining = Math.ceil((deadlineRef.current - Date.now()) / 1000);
+    const deadline = deadlineRef.current;
+    const newRemaining = Math.ceil((deadline - Date.now()) / 1000);
     if (newRemaining <= 0) {
       clearTick();
       deadlineRef.current = null;
@@ -49,7 +51,7 @@ export function useFocusTimer(onTimerEnd?: () => void) {
         duration_minutes: Math.round(totalDurationRef.current / 60),
         session_index: sessionCountRef.current,
       });
-      onTimerEndRef.current?.();
+      onTimerEndRef.current?.(Math.max(Date.now() - deadline, 0));
     } else {
       updateRemaining(newRemaining);
     }

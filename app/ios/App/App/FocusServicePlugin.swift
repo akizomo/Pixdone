@@ -43,7 +43,9 @@ public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
     private var bgmVolume: Float = 0
     /// True between playBgm and stopBgm, also while an interruption has paused the audio.
     private var bgmWanted = false
-    private var bgmAutoStop: DispatchWorkItem?
+    /// Fires at the timer's end time (BGM -> end chime). Owned by the timer (`start` / `stop`),
+    /// not by BGM playback: switching tracks restarts the BGM but must not cancel the timer's end.
+    private var endWork: DispatchWorkItem?
     /// Plays the end chime natively: the frozen WebView can't, and the BGM would just cut out.
     private let chimePlayer = AVAudioPlayerNode()
     private var chimeKind = "focus"
@@ -82,6 +84,7 @@ public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
     @objc func stop(_ call: CAPPluginCall) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [endNotificationId])
         DispatchQueue.main.async {
+            self.cancelEndWork()
             // The timer stopped (paused / ended / left the focus flow): no BGM without a timer.
             self.stopBgmPlayback()
             self.resetAudioSession()
@@ -212,8 +215,6 @@ public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
 
     private func stopBgmPlayback() {
         bgmWanted = false
-        bgmAutoStop?.cancel()
-        bgmAutoStop = nil
         player.stop()
         chimePlayer.stop()
         engine.stop()
@@ -227,7 +228,7 @@ public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
             return
         }
         bgmWanted = false
-        bgmAutoStop = nil
+        endWork = nil
         player.stop()
         let buffer = makeChimeBuffer(kind: chimeKind)
         do {
@@ -297,13 +298,19 @@ public class FocusServicePlugin: CAPPlugin, CAPBridgedPlugin {
 
     /// The WebView is frozen in the background, so it can't stop the BGM when the timer hits 0.
     private func scheduleBgmAutoStop(endAtMs: Double) {
-        bgmAutoStop?.cancel()
-        bgmAutoStop = nil
+        cancelEndWork()
         let interval = endAtMs / 1000 - Date().timeIntervalSince1970
         guard interval > 0 else { return }
         let work = DispatchWorkItem { [weak self] in self?.finishWithChime() }
-        bgmAutoStop = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + interval, execute: work)
+        endWork = work
+        // Wall clock: `.now()` (uptime) doesn't advance while the device sleeps, which would
+        // push the end chime past the end time with the screen locked.
+        DispatchQueue.main.asyncAfter(wallDeadline: .now() + interval, execute: work)
+    }
+
+    private func cancelEndWork() {
+        endWork?.cancel()
+        endWork = nil
     }
 
     private func installObserversIfNeeded() {

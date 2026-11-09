@@ -1,6 +1,5 @@
 import { Button, Chip, IconButton, PixelIcon } from '../design-system';
 import { t } from '../lib/i18n';
-import { PixelBreaker } from './PixelBreaker';
 import { PacmanProgress } from './PacmanProgress';
 import { BgmControl } from './BgmControl';
 import type { List } from '../types/list';
@@ -162,11 +161,18 @@ export function FocusScreen({
         </div>
       </div>
 
-      {/* Break game */}
+      {/* Break game: playable only in full screen (it doesn't fit next to the timer). */}
       {isBreakMode && (isRunning || isPaused) && (
         <div className="pd-focus__break-game">
           <p className="pd-focus__break-pitch">{t('breakGamePitch', lang)}</p>
-          <PixelBreaker lang={lang} />
+          <Button
+            variant="secondary"
+            soundKey={null} /* onOpenZenMode plays the click */
+            onClick={onOpenZenMode}
+            leadingIcon={<PixelIcon name="fullscreen" />}
+          >
+            {t('breakGamePlayFullScreen', lang)}
+          </Button>
         </div>
       )}
 

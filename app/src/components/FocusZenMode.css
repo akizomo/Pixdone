@@ -89,6 +89,20 @@
   padding: 0 var(--pd-space-1);
 }
 
+.pd-zen-break-game {
+  width: 100%;
+  max-width: 420px;
+}
+
+.pd-zen-break-game__pitch {
+  margin: 0 0 var(--pd-space-2);
+  font-family: var(--pd-font-body);
+  font-size: var(--pd-font-size-sm);
+  color: var(--pd-color-text-secondary);
+  line-height: var(--pd-line-height-snug);
+  text-align: center;
+}
+
 .pd-zen-actions {
   display: flex;
   gap: var(--pd-space-3);

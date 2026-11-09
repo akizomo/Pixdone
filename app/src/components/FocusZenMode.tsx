@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, FullScreenSurface, IconButton, PixelIcon } from '../design-system';
 import { BgmControl } from './BgmControl';
 import { PacmanProgress } from './PacmanProgress';
+import { PixelBreaker } from './PixelBreaker';
+import { t } from '../lib/i18n';
 import type { FocusTimerState } from '../hooks/useFocusTimer';
 import type { BgmTrack } from '../services/bgm';
 import './FocusZenMode.css';
@@ -172,6 +174,13 @@ export function FocusZenMode({
                 totalSeconds={totalSeconds}
                 timerState={timerState}
               />
+            </div>
+          )}
+
+          {isBreakMode && timerState !== 'idle' && (
+            <div className="pd-zen-break-game">
+              <p className="pd-zen-break-game__pitch">{t('breakGamePitch', lang)}</p>
+              <PixelBreaker lang={lang} />
             </div>
           )}
 

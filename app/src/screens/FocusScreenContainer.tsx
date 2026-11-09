@@ -9,6 +9,7 @@
  * instead of the full focus UI.
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { useListsData } from '../features/ListsContext';
 import { FocusScreen } from '../components';
 import { FocusZenMode } from '../components/FocusZenMode';
@@ -40,6 +41,9 @@ export interface FocusScreenContainerProps {
   /** Reports whether the MiniPlayer is showing, so the app can make room for it. */
   onMiniPlayerVisibleChange: (visible: boolean) => void;
 }
+
+/** The timer ticks every 500ms, so anything later than this means the JS was frozen. */
+const LATE_END_MS = 3000;
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -76,11 +80,13 @@ export function FocusScreenContainer({
   useEffect(() => { focusCountRef.current = focusPomodoroCount; }, [focusPomodoroCount]);
 
   const timerEndedAtRef = useRef(0);
-  const focusTimer = useFocusTimer(() => {
+  const focusTimer = useFocusTimer((overdueMs) => {
     timerEndedAtRef.current = Date.now();
     const m = focusModeRef.current;
-    if (m === 'pomodoro') playSound('focusPomodoroComplete');
-    else playSound('focusBreakComplete');
+    // iOS: noticed late = the app was frozen in the background, where the native side already
+    // played the end chime (or the end notification's sound). Don't play it again on reopen.
+    const alreadyAlerted = Capacitor.getPlatform() === 'ios' && overdueMs > LATE_END_MS;
+    if (!alreadyAlerted) playSound(m === 'pomodoro' ? 'focusPomodoroComplete' : 'focusBreakComplete');
     stopBgm();
 
     if (m === 'pomodoro') {
