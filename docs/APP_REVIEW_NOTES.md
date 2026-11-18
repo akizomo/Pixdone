@@ -37,7 +37,7 @@ We have also submitted the PixDone+ subscriptions (monthly and yearly) for revie
 
 ```
 1. Screen recording
-Recorded on a physical iPhone (<<機種>>, iOS <<バージョン>>), starting from app launch. Video: https://drive.google.com/file/d/1EKVIdABLJEbQ5ZobISzOVdm9pSOH3UDq/view
+Recorded on a physical iPhone (iPhone 12 mini, iOS 26.6), starting from app launch. Video: https://drive.google.com/file/d/1EKVIdABLJEbQ5ZobISzOVdm9pSOH3UDq/view
 It shows: launch → sign-in → creating a task → completing ("smashing") a task → Smash List → focus timer with music continuing on the Home Screen → Collection → PixDone+ subscription purchase (sandbox) and restore → account deletion.
 
 2. Purpose and target audience
