@@ -25,7 +25,8 @@ PixDone includes a Pomodoro focus timer that plays background music (BGM) while 
 
 To reproduce: sign in → tap the timer button on the main screen → make sure "BGM ON" is shown → start the timer → go to the Home Screen. The music continues playing in the background.
 
-A screen recording on a physical iPhone showing this is attached.
+A screen recording on a physical iPhone showing this:
+https://drive.google.com/file/d/1YizxfjXkX5a0Vt4P2MkC7XsLyLj-vio1/view
 
 We have also submitted the PixDone+ subscriptions (monthly and yearly) for review together with the new build.
 ```
@@ -51,7 +52,7 @@ Sign in with Apple and Sign in with Google are also available.
 - Write: tap "+" to add a task. Tasks can have subtasks, notes, due dates and daily/weekly repeats.
 - Smash: tap a task's checkbox to complete it and see the effect. The "Smash List" tab has a dedicated smash button.
 - Lists: free users can create up to 3 lists; PixDone+ removes the limit.
-- Focus timer: timer button on the main screen. With "BGM ON", its music keeps playing on the Home Screen and lock screen until the timer ends (why "audio" is in UIBackgroundModes). The recording shows this.
+- Focus timer: timer button on the main screen. With "BGM ON", its music keeps playing on the Home Screen and lock screen until the timer ends (why "audio" is in UIBackgroundModes). Recording: https://drive.google.com/file/d/1YizxfjXkX5a0Vt4P2MkC7XsLyLj-vio1/view
 - Collection: shows owned effects and themes. Completing 10 tasks in a regular list unlocks the "Fighter" effect for free.
 - Import from Reminders (optional): copies incomplete items from Apple Reminders once, only after the user grants access. Reminders are never modified.
 - PixDone+ (auto-renewable subscription, ¥300/month or ¥3,000/year, 7-day free trial): Account → "PixDone+" → choose a plan. Purchases use In-App Purchase via StoreKit (through RevenueCat). "Restore purchases" is on the same page. Unlocks unlimited lists, all themes and Rare/Epic effects.
