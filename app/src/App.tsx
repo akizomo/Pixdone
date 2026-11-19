@@ -1080,7 +1080,8 @@ function AppContent() {
                         ),
                       },
                       { id: 'sound', label: soundMuted ? (lang === 'ja' ? 'サウンドオフ' : 'Sound off') : (lang === 'ja' ? 'サウンドオン' : 'Sound on'), icon: soundMuted ? 'volume_off' : 'volume_up', group: 'settings' },
-                      { id: 'support', label: 'Support PixDone', icon: 'favorite', group: 'feedback' },
+                      // App Store 3.1.1: IAP 以外の寄付導線はネイティブアプリに出さない（Web のみ）
+                      ...(Capacitor.isNativePlatform() ? [] : [{ id: 'support', label: 'Support PixDone', icon: 'favorite', group: 'feedback' }]),
                       { id: 'feedback', label: lang === 'ja' ? 'フィードバック' : 'Feedback', icon: 'chat_bubble_outline', group: 'feedback' },
                       { id: 'logout', label: lang === 'ja' ? 'ログアウト' : 'Log out', icon: 'logout', group: 'logout' },
                     ]}

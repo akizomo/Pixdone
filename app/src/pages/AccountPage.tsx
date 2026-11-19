@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { useNavigate } from '../hooks/useNavigate';
 import { useGoBack } from '../hooks/useGoBack';
 import { useAuth } from '../contexts/AuthContext';
@@ -246,7 +247,10 @@ export function AccountPage({ lang, onChangeLang, soundOn, onSoundChange, onOpen
           <p className="account-label">{isJa ? 'サポート' : 'SUPPORT'}</p>
           <div className="account-list">
             <ListRow icon="chat_bubble_outline" label={isJa ? 'フィードバック' : 'Feedback'} onClick={() => navigate('/feedback')} />
-            <ListRow icon="favorite" label="Support PixDone" href={SUPPORT_URL} />
+            {/* App Store 3.1.1: IAP 以外の寄付導線はネイティブアプリに出さない（Web のみ） */}
+            {!Capacitor.isNativePlatform() && (
+              <ListRow icon="favorite" label="Support PixDone" href={SUPPORT_URL} />
+            )}
           </div>
         </section>
 
