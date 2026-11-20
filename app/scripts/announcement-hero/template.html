@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  /* Hero for the in-app "now on iPhone" announcement: 1200x720, no text (copy lives in i18n). */
+  :root { --bg: #7b61ff; --frame-outer: #c9c9cf; --frame-inner: #0b0b0d; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 720px; overflow: hidden; background: var(--bg); }
+  body { position: relative; font-family: monospace; }
+  /* Pixel dots in the background */
+  body::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.18) 3px, transparent 3.5px);
+    background-size: 48px 48px;
+  }
+  .phone {
+    position: absolute; left: 50%; top: 70px; width: 400px; transform: translateX(-50%);
+    border-radius: 66px; padding: 6px; z-index: 3;
+    background: linear-gradient(135deg, #e6e6ea, var(--frame-outer) 40%, #8e8e95 100%);
+    box-shadow: 0 30px 80px rgba(20, 0, 80, 0.45);
+  }
+  .bezel { border-radius: 60px; padding: 12px; background: var(--frame-inner); }
+  .screen { position: relative; border-radius: 48px; overflow: hidden; aspect-ratio: 1320 / 2868; background: #000; }
+  .screen img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .island { position: absolute; top: 3.2%; left: 50%; transform: translateX(-50%); width: 30%; height: 3.6%; border-radius: 999px; background: #000; }
+  .card {
+    position: absolute; width: 350px; z-index: 2;
+    border: 5px solid #fff; background: var(--frame-inner);
+    box-shadow: 0 24px 60px rgba(20, 0, 80, 0.45);
+  }
+  .card img { display: block; width: 100%; aspect-ratio: 1320 / 900; object-fit: cover; }
+  .card .label { display: flex; justify-content: space-between; padding: 8px 14px; font-size: 24px; color: #fff; }
+  .card .tier { font-size: 20px; color: #f472d0; }
+  .card.l { left: 36px; top: 170px; transform: rotate(-6deg); }
+  .card.r { right: 36px; top: 230px; transform: rotate(5deg); }
+</style>
+</head>
+<body>
+<div class="card l"><img id="l"><div class="label"><span>Bomb</span><span class="tier">EPIC</span></div></div>
+<div class="phone"><div class="bezel"><div class="screen"><img id="p"><div class="island"></div></div></div></div>
+<div class="card r"><img id="r"><div class="label"><span>Rainbow Smash</span><span class="tier">EPIC</span></div></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  for (const k of ['l', 'p', 'r']) document.getElementById(k).src = q.get(k);
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+/* iOS launch announcement — content inside DS ModalDialog */
+
+.ios-launch__hero {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 3;
+  margin: 0 0 var(--pd-space-4);
+  border: var(--pd-border-base) solid var(--pd-color-border-outline);
+  box-shadow: var(--pd-shadow-pixel-sm);
+}
+
+.ios-launch__lead {
+  margin: 0 0 var(--pd-space-3);
+  color: var(--pd-color-text-secondary);
+}
+
+.ios-launch__points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pd-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ios-launch__point {
+  display: flex;
+  align-items: center;
+  gap: var(--pd-space-3);
+  color: var(--pd-color-text-primary);
+}
+
+.ios-launch__point-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--pd-color-text-accent);
+}

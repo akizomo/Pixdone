@@ -14,6 +14,7 @@ import { runVanillaCompletionEffect, playDemoEffect } from '../services/taskAnim
 import { DemoTaskItem } from './CollectionPage/DemoTaskItem';
 import { ThemeHomePreview } from './CollectionPage/ThemeHomePreview';
 import { PacmanProgress } from '../components/PacmanProgress';
+import { AppStoreBadge } from '../components/AppStoreBadge';
 import { themeList } from '../design-system/themes/themeRegistry';
 import type { CSSProperties } from 'react';
 import type { Lang } from '../lib/i18n';
@@ -472,6 +473,7 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
                 <Button variant="primary" size="lg" onClick={handleSignup}>
                   {isJa ? '無料で始める' : 'Start for free'}
                 </Button>
+                <AppStoreBadge lang={lang} />
               </div>
             </div>
           </div>
@@ -607,9 +609,12 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
                 終わりが気持ちいい毎日、始めよう。
               </p>
             )}
-            <Button variant="primary" size="lg" onClick={handleSignup}>
-              {isJa ? '無料で始める' : 'Start for free'}
-            </Button>
+            <div className="lp-cta-row lp-cta-row--final">
+              <Button variant="primary" size="lg" onClick={handleSignup}>
+                {isJa ? '無料で始める' : 'Start for free'}
+              </Button>
+              <AppStoreBadge lang={lang} />
+            </div>
           </div>
         </div>
       </section>

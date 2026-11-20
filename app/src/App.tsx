@@ -55,6 +55,7 @@ import { openExternal } from './services/externalLink';
 import { setAndroidRootBackHandler, setFocusLinkHandler } from './services/nativeShell';
 import { useHasSeenTutorial } from './hooks/useHasSeenTutorial';
 import { QuickExtensionBanner } from './components/QuickExtensionBanner';
+import { IosLaunchAnnouncement } from './components/IosLaunchAnnouncement';
 import { WorldLayer } from './components/WorldLayer';
 import { AgentIcon } from './components/AgentIcon';
 import { OnboardingTutorial } from './components/OnboardingTutorial';
@@ -463,11 +464,11 @@ function AppContent() {
     if (!targetList) return;
     addTask(targetList.id, fields);
     playSound('taskAdd');
-  }, [lists, addTask]);
     trackTaskAdd({
       list_type: targetList.id === 'smash-list' ? 'smash' : 'custom',
       is_repeat: !!fields.repeat,
     });
+  }, [lists, addTask]);
 
   // Onboarding epilogue: once the first real task is saved, point at the Smash
   // List tab. `smashHintBaseline` is the task count when the tour handed off.
@@ -758,15 +759,15 @@ function AppContent() {
   }, [completeTask, uncompleteTask, isPremium, visualTheme, activeEffects, ownedChallengeEffects, sendTaskComplete, user, forcedEffectKey, showToast, lang, incrementThemeCompleted, currentList, effectProgressMap, activeChallenges, showChallengeEarnedToast]);
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
-    window.setTimeout(() => completeTask(taskId), PERFECT_TIMING_STATE_DEFER_MS);
     const task = lists.flatMap((l) => l.tasks).find((t) => String(t.id) === String(taskId));
-    sendTaskComplete(taskId);
+    window.setTimeout(() => completeTask(taskId), PERFECT_TIMING_STATE_DEFER_MS);
     // Smash List は onSmashFromPt に分かれるので、ここは常に通常リスト
     trackTaskComplete({
       list_type: 'custom',
       is_repeat: !!task?.repeat,
       has_subtasks: !!task?.subtasks?.length,
     });
+    sendTaskComplete(taskId);
   }, [lists, completeTask, sendTaskComplete]);
 
   const handleComplete = useCallback(
@@ -1313,6 +1314,9 @@ function AppContent() {
 
       {/* PixDone quick promo banner — desktop + Chrome only, one-time dismissible */}
       <QuickExtensionBanner isDesktop={isDesktop} />
+
+      {/* iOS launch announcement — one-time for logged-in web users (not native, not Android) */}
+      <IosLaunchAnnouncement lang={lang} ready={!!user && hasSeenTutorial === true && !showOnboarding} />
 
       {/* Focus widget — floating, desktop only, hidden during zen-mode */}
       {isDesktop && !focusZenOpen && !isSubPage && (
