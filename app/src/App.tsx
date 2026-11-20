@@ -29,7 +29,7 @@ import { useActiveChallenges } from './hooks/useActiveChallenges';
 import { ChallengeMenu } from './components/ChallengeMenu';
 import { FIRST_CHALLENGE_EFFECT_KEY } from './services/firstChallenge';
 import { runVanillaCompletionEffect } from './services/taskAnimations';
-import { trackTaskComplete, trackListCreate, trackEffectTriggered, trackChallengeUnlocked, trackScreenView, trackPurchaseSuccess, trackUpsellView, pricingPath } from './services/analytics';
+import { toEffectTier, trackTaskComplete, trackTaskAdd, trackListCreate, trackEffectTriggered, trackChallengeUnlocked, trackScreenView, trackPurchaseSuccess, trackUpsellView, pricingPath } from './services/analytics';
 import { COMMON_EFFECTS, EFFECTS_REGISTRY, buildDrawPool, weightedRandomEffect } from './data/effectsRegistry';
 import { resolveAnimationKey } from './data/effectEvolution';
 import { getCompletionToastMessage, getUndoLabel } from './data/effectMessages';
@@ -464,6 +464,10 @@ function AppContent() {
     addTask(targetList.id, fields);
     playSound('taskAdd');
   }, [lists, addTask]);
+    trackTaskAdd({
+      list_type: targetList.id === 'smash-list' ? 'smash' : 'custom',
+      is_repeat: !!fields.repeat,
+    });
 
   // Onboarding epilogue: once the first real task is saved, point at the Smash
   // List tab. `smashHintBaseline` is the task count when the tour handed off.
@@ -696,7 +700,7 @@ function AppContent() {
       // Analytics: effect triggered
       if (selected) {
         trackEffectTriggered({
-          effect_tier: selected.rarity as 'common' | 'rare' | 'epic',
+          effect_tier: toEffectTier(selected.rarity),
           effect_id: selected.key,
           theme_id: visualTheme,
         });
@@ -755,8 +759,15 @@ function AppContent() {
 
   const runCompleteFromPerfectTiming = useCallback((taskId: string) => {
     window.setTimeout(() => completeTask(taskId), PERFECT_TIMING_STATE_DEFER_MS);
+    const task = lists.flatMap((l) => l.tasks).find((t) => String(t.id) === String(taskId));
     sendTaskComplete(taskId);
-  }, [completeTask, sendTaskComplete]);
+    // Smash List は onSmashFromPt に分かれるので、ここは常に通常リスト
+    trackTaskComplete({
+      list_type: 'custom',
+      is_repeat: !!task?.repeat,
+      has_subtasks: !!task?.subtasks?.length,
+    });
+  }, [lists, completeTask, sendTaskComplete]);
 
   const handleComplete = useCallback(
     (taskId: string) => {
@@ -1516,10 +1527,9 @@ function AppContent() {
           }
           onAddTask={(listId, fields) => {
             addTask(listId, fields);
-            trackTaskComplete({
-              list_type: 'custom',
+            trackTaskAdd({
+              list_type: listId === 'smash-list' ? 'smash' : 'custom',
               is_repeat: !!fields.repeat,
-              has_subtasks: (fields.subtasks?.length ?? 0) > 0,
             });
           }}
           onUpdateTask={updateTask}

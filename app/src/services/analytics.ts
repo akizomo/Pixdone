@@ -70,8 +70,15 @@ interface ThemeSwitchParams {
   to_theme: string;
 }
 
+export type EffectTier = 'common' | 'rare' | 'epic';
+
+/** effectsRegistry の rarity（'COMMON' など大文字）を GA4 に送る小文字の値にする */
+export function toEffectTier(rarity: 'COMMON' | 'RARE' | 'EPIC'): EffectTier {
+  return rarity.toLowerCase() as EffectTier;
+}
+
 interface EffectTriggeredParams {
-  effect_tier: 'common' | 'rare' | 'epic';
+  effect_tier: EffectTier;
   effect_id: string;
   theme_id: string;
 }

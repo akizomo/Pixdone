@@ -95,4 +95,11 @@ describe('analytics', () => {
     expect(a.parsePricingSource(null)).toBe('other');
     expect(a.pricingPath('onboarding')).toBe('/pricing?source=onboarding');
   });
+
+  it('sends effect_tier in lowercase', async () => {
+    const a = await load();
+    expect(a.toEffectTier('COMMON')).toBe('common');
+    expect(a.toEffectTier('RARE')).toBe('rare');
+    expect(a.toEffectTier('EPIC')).toBe('epic');
+  });
 });
