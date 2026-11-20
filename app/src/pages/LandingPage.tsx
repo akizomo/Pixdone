@@ -19,6 +19,13 @@ import type { CSSProperties } from 'react';
 import type { Lang } from '../lib/i18n';
 import './LandingPage.css';
 
+/** iOS アプリの App Store ページ。ct= は App Store Connect 側でどの入口から来たか見るための値 */
+const APP_STORE_URL = 'https://apps.apple.com/app/pixdone/id6827877093';
+
+function openAppStore(placement: 'hero' | 'final') {
+  window.open(`${APP_STORE_URL}?ct=lp_${placement}`, '_blank', 'noopener,noreferrer');
+}
+
 interface LandingPageProps {
   lang: 'en' | 'ja';
   onChangeLang: (l: 'en' | 'ja') => void;
@@ -472,6 +479,9 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
                 <Button variant="primary" size="lg" onClick={handleSignup}>
                   {isJa ? '無料で始める' : 'Start for free'}
                 </Button>
+                <Button variant="secondary" size="lg" onClick={() => openAppStore('hero')}>
+                  {isJa ? 'App Store でダウンロード' : 'Download on the App Store'}
+                </Button>
               </div>
             </div>
           </div>
@@ -607,9 +617,14 @@ export function LandingPage({ lang, onChangeLang, onOpenLogin, onOpenSignup }: L
                 終わりが気持ちいい毎日、始めよう。
               </p>
             )}
-            <Button variant="primary" size="lg" onClick={handleSignup}>
-              {isJa ? '無料で始める' : 'Start for free'}
-            </Button>
+            <div className="lp-cta-row">
+              <Button variant="primary" size="lg" onClick={handleSignup}>
+                {isJa ? '無料で始める' : 'Start for free'}
+              </Button>
+              <Button variant="secondary" size="lg" onClick={() => openAppStore('final')}>
+                {isJa ? 'App Store でダウンロード' : 'Download on the App Store'}
+              </Button>
+            </div>
           </div>
         </div>
       </section>
